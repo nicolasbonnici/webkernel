@@ -3,6 +3,9 @@ namespace Library\Core;
 
 /**
  * CRUD action model layer abstract class
+ * Perform generic create, update, read and delete actions on Entity
+ * Also perform load and search requests
+ * If Entity has a foreign key to \app\Entity\User the scope is restricted to current session entities for CRUD, load and search actions
  *
  * @author niko
  *
