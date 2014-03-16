@@ -3,7 +3,8 @@
 namespace Library\Core;
 
 /**
- * Description of AuthController
+ * Simple auth layer
+ * Just create a Controller that extend this class to restrict access to loggued users
  *
  * @author infradmin
  */

@@ -29,7 +29,7 @@ class Controller extends Acl {
 
         $this->_cookie = new \Library\Core\Cookie();
 
-        $this->_config = \Bootstrap::getConfig();
+        $this->_config = \Library\Core\Bootstrap::getConfig();
         $this->setSession();
         $this->loadRequest();
 
@@ -121,7 +121,7 @@ class Controller extends Acl {
 
         // debug
         $this->_view["sEnv"] = ENV;
-        $this->_view["aLoadedClass"] = \Bootstrap::getLoadedClass();
+        $this->_view["aLoadedClass"] = \Library\Core\Bootstrap::getLoadedClass();
         $this->_view["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
 
         // Benchmark
@@ -136,8 +136,8 @@ class Controller extends Acl {
 
             $aResponse = json_encode(array(
                 'status'    => $iStatusXHR,
-                'content'   => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Bootstrap::initView($sTpl, $this->_view, true)),
-                'debug'       => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Bootstrap::initView($this->_view["sDeBugHelper"], $this->_view, true))
+                'content'   => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Library\Core\Bootstrap::initView($sTpl, $this->_view, true)),
+                'debug'       => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Library\Core\Bootstrap::initView($this->_view["sDeBugHelper"], $this->_view, true))
             ));
             if ($bToString === true) {
                 return $aResponse;
@@ -149,7 +149,7 @@ class Controller extends Acl {
         }
 
         // Render the view using Haanga
-        \Bootstrap::initView($sTpl, $this->_view, $bToString);
+        \Library\Core\Bootstrap::initView($sTpl, $this->_view, $bToString);
 
         return;
 
