@@ -256,13 +256,13 @@ class Bootstrap {
      */
     private static function initPaths() {
         // @see paths info
-        define('ROOT_PATH', __DIR__ . '/../');
-        define('APP_PATH', __DIR__ . '/../app/');
-        define('LIBRARY_PATH', __DIR__ . '/../Library/');
-        define('TMP_PATH', __DIR__ . '/../tmp/');
-        define('CACHE_PATH', __DIR__ . '/../tmp/cache/');
-        define('LOG_PATH', __DIR__ . '/../tmp/logs/');
-        define('MODULES_PATH', __DIR__ . '/../modules/');
+        define('ROOT_PATH', __DIR__ . '../../');
+        define('APP_PATH', __DIR__ . '../../app/');
+        define('LIBRARY_PATH', __DIR__ . '/../');
+        define('TMP_PATH', __DIR__ . '../../tmp/');
+        define('CACHE_PATH', __DIR__ . '../../tmp/cache/');
+        define('LOG_PATH', __DIR__ . '../../tmp/logs/');
+        define('MODULES_PATH', __DIR__ . '../../modules/');
 
         // @see app defaults
         define('DEFAULT_ENCODING', 'UTF-8');
