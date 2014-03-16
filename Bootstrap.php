@@ -57,7 +57,7 @@ class Bootstrap {
     	/**
     	 *  @see register class autoloader
     	 */
-		spl_autoload_register('Bootstrap::classLoader');
+		spl_autoload_register('\Library\Core\Bootstrap::classLoader');
 
 		/**
 		 * @see paths
