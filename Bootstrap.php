@@ -134,7 +134,6 @@ class Bootstrap {
     /**
      * Boostrap app controller
      *
-     * @throws CoreException
      */
     private static function initController() {
         $_controller = 'modules\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst(\Library\Core\Router::getController()) . 'Controller';
@@ -199,13 +198,13 @@ class Bootstrap {
 
     /**
      * Parse config from a .ini file under app/config/
-     * @throws Exception
+     * @throws BootstrapException
      */
     private static function initConfig() {
         if (is_file(APP_PATH . 'config/config.ini')) {
             self::$aConfig = parse_ini_file(APP_PATH . 'config/config.ini', true);
         } else {
-            throw new Exception('Unable to load locales...');
+            throw new BootstrapException('Unable to load locales...');
         }
     }
 
@@ -329,7 +328,7 @@ class Bootstrap {
             return $sLocale;
 
         } else {
-            throw new Exception('Unable to load locales...');
+            throw new BootstrapException('Unable to load locales...');
         }
     }
 
@@ -354,4 +353,6 @@ class Bootstrap {
     }
 
 }
+
+class BootstrapException extends \Exception {}
 
