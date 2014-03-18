@@ -102,9 +102,11 @@ class Bootstrap {
         self::$aRequest = self::initRouter();
 
         /**
-         * Bootstrap app
+         * Bootstrap app then load requested controller action and also pre|post dispatch hooks
+         * @see \Library\Core\Controller
          */
          \Library\Core\App::getInstance();
+         self::initController();
     }
 
     public static function initAutoloader() {
@@ -134,6 +136,24 @@ class Bootstrap {
 
         if (is_file ( ROOT_PATH . $sFileName )) {
             require_once ROOT_PATH . $sFileName;
+        }
+    }
+
+    /**
+     * Boostrap app controller
+     */
+    private static function initController() {
+        $sController = 'modules\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
+
+        if (ENV === 'dev') {
+            self::$aLoadedClass[] = $sController;
+        }
+
+        if (class_exists ( $sController )) {
+            new $sController();
+        } else {
+            throw new BootstrapException('No controller found: ' . $sController);
+            //\Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here (module error)
         }
     }
 

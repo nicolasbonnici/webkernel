@@ -49,31 +49,9 @@ class App extends Singleton {
          */
         self::buildModules();
 
-        /**
-         *
-         * bootstrap application controller (and also pre|post dispatch hooks)
-         */
-        self::initController();
-
         self::$sPhpVersion = PHP_VERSION;
         // @todo SGBD infos
 
-    }
-
-    /**
-     * Boostrap app controller
-     */
-    private static function initController() {
-        $sController = 'modules\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
-        if (!class_exists ( $sController )) {
-            if (ENV === 'dev') {
-                \Library\Core\Bootstrap::$aLoadedClass[] = $sController;
-            }
-
-            \Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here
-        } else {
-            new $sController();
-        }
     }
 
     /**
