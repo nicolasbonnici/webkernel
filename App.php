@@ -111,7 +111,7 @@ class App extends Singleton {
 
         assert('!empty($sController) && is_string($sController) && !empty($sModule) && is_string($sModule)');
         $aActions = array();
-        $aMethods = get_class_methods('\modules\\' . $sModule . '\Controllers\\' . substr($sController, 0, strlen($sController) - strlen('.php')));
+        $aMethods = get_class_methods('\bundles\\' . $sModule . '\Controllers\\' . substr($sController, 0, strlen($sController) - strlen('.php')));
         if (count($aMethods) > 0) {
             foreach ($aMethods as $sMethod) {
                 if (preg_match('#Action$#', $sMethod) && $sMethod !== 'getAction' && $sMethod !== 'setAction') {

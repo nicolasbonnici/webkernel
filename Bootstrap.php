@@ -143,7 +143,7 @@ class Bootstrap {
      * Boostrap app controller
      */
     private static function initController() {
-        $sController = 'modules\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
+        $sController = 'bundles\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
 
         if (ENV === 'dev') {
             self::$aLoadedClass[] = $sController;
@@ -261,7 +261,7 @@ class Bootstrap {
         define ( 'TMP_PATH', __DIR__ . '/../../tmp/' );
         define ( 'CACHE_PATH', __DIR__ . '/../../tmp/cache/' );
         define ( 'LOG_PATH', __DIR__ . '/../../tmp/logs/' );
-        define ( 'MODULES_PATH', __DIR__ . '/../../modules/' );
+        define ( 'MODULES_PATH', __DIR__ . '/../../bundles/' );
 
         // @see app defaults
         define ( 'DEFAULT_ENCODING', 'UTF-8' );
