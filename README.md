@@ -28,6 +28,4 @@ Note that the path for your php installation may be different on your distributi
 
 Installation
 
-Just clone this repo and add a new folder in the root of the project called tmp/ and chmod it to 0777.
-
-mkdir ./tmp/ && chmod 777 -R ./tmp/
+Just clone this skeleton web application https://github.com/nicolasbonnici/Skeleton.git then just run ./app/bin/console and choose install
