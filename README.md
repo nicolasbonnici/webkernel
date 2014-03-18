@@ -28,4 +28,4 @@ Note that the path for your php installation may be different on your distributi
 
 Installation
 
-Just clone this skeleton web application https://github.com/nicolasbonnici/Skeleton.git then just run ./app/bin/console and choose install
+Clone this skeleton web application https://github.com/nicolasbonnici/Skeleton.git then just run ./app/bin/console and choose install
