@@ -6,11 +6,12 @@ namespace Library\Core;
  * App Model class
  * A simple class to build and manage usefull setup informations
  *
- * @author niko
+ * @dependancy \Library\Core\Cache
+ * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */
 
-class App {
+class App extends Singleton {
 
     /**
      * Current framework version
@@ -24,11 +25,55 @@ class App {
      */
     const APP_RELEASE_NAME = 'ihop';
 
-    protected $sPhpVersion;
+    /**
+     * Available modules, controllers and actions
+     *
+     * @var array
+     */
+    private static $aModules;
+
+    /**
+     * \Library\Core\Bootstrap::$aModules \Library\Core\Cache duration in seconds
+     *
+     * @var integer
+     */
+    protected static $iModulesCacheDuration = 1314000;
+
+
+    protected static $sPhpVersion;
 
     public function __construct()
     {
-        $this->sPhpVersion = PHP_VERSION;
+        /**
+         * Parse and load modules, controllers and actions available
+         */
+        self::buildModules();
+
+        /**
+         *
+         * bootstrap application controller (and also pre|post dispatch hooks)
+         */
+        self::initController();
+
+        self::$sPhpVersion = PHP_VERSION;
+        // @todo SGBD infos
+
+    }
+
+    /**
+     * Boostrap app controller
+     */
+    private static function initController() {
+        $sController = 'modules\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
+        if (!class_exists ( $sController )) {
+            if (ENV === 'dev') {
+                \Library\Core\Bootstrap::$aLoadedClass[] = $sController;
+            }
+
+            \Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here
+        } else {
+            new $sController();
+        }
     }
 
     /**
@@ -36,19 +81,20 @@ class App {
      *
      * @return array                        A three dimensional array that contain each module along with his own controllers and methods (actions only)
      */
-    public function buildModules()
+    public static function buildModules()
     {
-
         assert('is_dir(MODULES_PATH)');
+        $aParsedModules = array();
 
-        $aMenu = array();
-        $aModules = array_diff(scandir(MODULES_PATH), array('..', '.'));
-
-        foreach($aModules as $sModule) {
-            $aMenu[$sModule] = $this->buildControllers($sModule);
+        self::$aModules = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aAppModulesTree'));
+        if (self::$aModules === false) {
+            $aModules = array_diff(scandir(MODULES_PATH), array('..', '.'));
+            foreach($aModules as $sModule) {
+                $aParsedModules[$sModule] = self::buildControllers($sModule);
+            }
+            self::$aModules = $aParsedModules;
+            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aAppModulesTree'), $aParsedModules, false, self::$iModulesCacheDuration);
         }
-
-        return $aMenu;
     }
 
     /*
@@ -57,10 +103,10 @@ class App {
      * @param string $sModule               The module name
      * @return array                        A two dimensional array that contain each controller from a module along with his own methods (actions only)
      */
-    public function buildControllers($sModule)
+    public static function buildControllers($sModule)
     {
 
-        assert('!empty($sModule) && is_string($sModule) && is_dir(MODULES_PATH . "/" . $this->_module . "/Controllers/")');
+        assert('!empty($sModule) && is_string($sModule) && is_dir(MODULES_PATH . "/" . $sModule . "/Controllers/")');
 
         $aControllers = array();
         $sControllerPath = MODULES_PATH . '/' . $sModule . '/Controllers/';
@@ -68,7 +114,7 @@ class App {
 
         foreach ($aFiles as $sController) {
             if (preg_match('#Controller.php$#', $sController)) {
-                $aControllers[substr($sController, 0, strlen($sController) - strlen('Controller.php'))] = $this->buildActions($sModule, $sController);
+                $aControllers[substr($sController, 0, strlen($sController) - strlen('Controller.php'))] = self::buildActions($sModule, $sController);
             }
         }
 
@@ -82,7 +128,7 @@ class App {
      * @param string $sController           The controller name to parse
      * @return array                        A two dimensional array with the controllers and their methods (actions only)
      */
-    public function buildActions($sModule, $sController)
+    public static function buildActions($sModule, $sController)
     {
 
         assert('!empty($sController) && is_string($sController) && !empty($sModule) && is_string($sModule)');
@@ -99,8 +145,8 @@ class App {
         return $aActions;
     }
 
-    public function getPhpVersion()
+    public static function getPhpVersion()
     {
-        return $this->sPhpVersion;
+        return self::$sPhpVersion;
     }
 }

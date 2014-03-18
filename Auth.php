@@ -31,7 +31,7 @@ class Auth extends Controller {
         ) {
             parent::__construct($this->oUser);
         } else {
-            Router::redirect((($this->isXHR()) ? '/frontend/error/e403/' : '/frontend/auth/index/') . 'redirect/' . $this->buildRedirectUrl());
+            Router::redirect((($this->isXHR()) ? '/frontend/error/e403/' : '/auth/home/index/') . 'redirect/' . $this->buildRedirectUrl());
         }
 
     }

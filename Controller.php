@@ -98,6 +98,7 @@ class Controller extends Acl {
 
         if (count($this->_session) > 0) {
             $this->_view['aSession'] = $this->_session;
+            // @todo provisoire
             $this->_view['sGravatarSrc16'] = Tools::getGravatar($this->_session['mail'],  16);
             $this->_view['sGravatarSrc32'] = Tools::getGravatar($this->_session['mail'],  32);
             $this->_view['sGravatarSrc64'] = Tools::getGravatar($this->_session['mail'],  64);

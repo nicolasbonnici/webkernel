@@ -24,18 +24,18 @@ class Router extends Singleton {
         // @todo retrieve from db
         self::$aRules = array(
                 '/login' => array(
-                        'module'    => 'frontend',
-                        'controller' => 'auth',
+                        'module'    => 'auth',
+                        'controller' => 'home',
                         'action'    => 'index'
                 ),
                 '/logout' => array(
-                        'module'    => 'frontend',
-                        'controller' => 'auth',
-                        'action'    => 'logout'
+                        'module'    => 'auth',
+                        'controller' => 'logout',
+                        'action'    => 'index'
                 ),
                 '/profile' => array(
-                        'module'    => 'backend',
-                        'controller' => 'user',
+                        'module'    => 'user',
+                        'controller' => 'home',
                         'action'    => 'profile'
                 ),
                 '/portfolio' => array(
@@ -43,29 +43,24 @@ class Router extends Singleton {
                         'controller' => 'home',
                         'action'    => 'portfolio'
                 ),
-                '/lifestream' => array(
-                        'module'    => 'frontend',
-                        'controller' => 'home',
-                        'action'    => 'lifestream'
-                ),
                 '/contact' => array(
                         'module'    => 'frontend',
                         'controller' => 'home',
                         'action'    => 'contact'
                 ),
                 '/lifestream' => array(
-                        'module'    => 'backend',
-                        'controller' => 'lifestream',
+                        'module'    => 'lifestream',
+                        'controller' => 'home',
                         'action'    => 'index'
                 ),
                 '/blog' => array(
-                        'module'    => 'backend',
-                        'controller' => 'blog',
+                        'module'    => 'blog',
+                        'controller' => 'home',
                         'action'    => 'index'
                 ),
                 '/todo' => array(
-                        'module'        => 'backend',
-                        'controller'     => 'todo',
+                        'module'        => 'todo',
+                        'controller'     => 'home',
                         'action'        => 'index'
                 )
         );
