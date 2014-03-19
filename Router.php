@@ -5,12 +5,12 @@ namespace Library\Core;
 /**
  * MVC basic router
  *
- * module/controler/action/:param
+ * bundle/controler/action/:param
  */
 class Router extends Singleton {
 
     static protected $sLang;
-    static protected $sModule;
+    static protected $sBundle;
     static protected $sController;
     static protected $sAction;
     static protected $aParams;
@@ -24,45 +24,45 @@ class Router extends Singleton {
         // @todo retrieve from db
         self::$aRules = array(
                 '/login' => array(
-                        'module'    => 'auth',
+                        'bundle'    => 'auth',
                         'controller' => 'home',
                         'action'    => 'index'
                 ),
                 '/logout' => array(
-                        'module'    => 'auth',
+                        'bundle'    => 'auth',
                         'controller' => 'logout',
                         'action'    => 'index'
                 ),
                 '/profile' => array(
-                        'module'    => 'user',
+                        'bundle'    => 'user',
                         'controller' => 'home',
                         'action'    => 'profile'
                 ),
                 '/portfolio' => array(
-                        'module'    => 'frontend',
+                        'bundle'    => 'frontend',
                         'controller' => 'home',
                         'action'    => 'portfolio'
                 ),
                 '/contact' => array(
-                        'module'    => 'frontend',
+                        'bundle'    => 'frontend',
                         'controller' => 'home',
                         'action'    => 'contact'
                 ),
                 '/lifestream' => array(
-                        'module'    => 'lifestream',
+                        'bundle'    => 'lifestream',
                         'controller' => 'home',
                         'action'    => 'index'
-                ),
-                '/blog' => array(
-                        'module'    => 'blog',
-                        'controller' => 'home',
-                        'action'    => 'index'
-                ),
-                '/todo' => array(
-                        'module'        => 'todo',
-                        'controller'     => 'home',
-                        'action'        => 'index'
                 )
+//                 '/blog' => array(
+//                         'bundle'    => 'blog',
+//                         'controller' => 'home',
+//                         'action'    => 'index'
+//                 ),
+//                 '/todo' => array(
+//                         'bundle'        => 'todo',
+//                         'controller'     => 'home',
+//                         'action'        => 'index'
+//                 )
         );
 
         self::$sUrl = $_SERVER['REQUEST_URI'];
@@ -70,7 +70,7 @@ class Router extends Singleton {
         self::$aRequest = self::cleanArray(explode('/', self::$sUrl));        // @todo move function cleanArray to toolbox
 
         self::$sLang = DEFAULT_LANG;
-        self::$sModule = DEFAULT_MODULE;
+        self::$sBundle = DEFAULT_BUNDLE;
         self::$sController = DEFAULT_CONTROLLER;
         self::$sAction = DEFAULT_ACTION;
 
@@ -113,7 +113,7 @@ class Router extends Singleton {
 
                 $bRouted = false;
 
-                self::$sModule = self::$aRules[$sUrl]['module'];
+                self::$sBundle = self::$aRules[$sUrl]['bundle'];
                 self::$sController = self::$aRules[$sUrl]['controller'];
                 self::$sAction = self::$aRules[$sUrl]['action'];
                 if (
@@ -133,7 +133,7 @@ class Router extends Singleton {
             if (($iRequestCount = count(self::$aRequest)) > 0) {
                 // @todo optimiser ce traitement
                 if (isset(self::$aRequest[0])) {
-                    self::$sModule = self::$aRequest[0];
+                    self::$sBundle = self::$aRequest[0];
                 }
 
                 if (isset(self::$aRequest[1])) {
@@ -197,12 +197,12 @@ class Router extends Singleton {
             if (
                     array_key_exists('request', $mUrl) &&
                     isset(
-                            $mUrl['request']['module'],
+                            $mUrl['request']['bundle'],
                             $mUrl['request']['controller'],
                             $mUrl['request']['action']
                     )
              ) {
-                self::$sUrl = '/' . $mUrl['request']['module'] . '/' .$mUrl['request']['controller'] . '/' . $mUrl['request']['action'];
+                self::$sUrl = '/' . $mUrl['request']['bundle'] . '/' .$mUrl['request']['controller'] . '/' . $mUrl['request']['action'];
             } else {
                 throw new RouterException(__METHOD__ . ' malformed redirection request  ');
             }
@@ -216,8 +216,8 @@ class Router extends Singleton {
         return;
     }
 
-    public static function getModule() {
-        return self::$sModule;
+    public static function getBundle() {
+        return self::$sBundle;
     }
 
     public static function getController() {

@@ -15,7 +15,7 @@ class Controller extends Acl {
     const XHR_STATUS_SESSION_EXPIRED    = 4;
 
     protected $_config;
-    protected $_module;
+    protected $_bundle;
     protected $_controller;
     protected $_action;
     protected $_cookie;
@@ -82,7 +82,7 @@ class Controller extends Acl {
         return;
     }
 
-    public function render($sTpl, $iStatusXHR = self::XHR_STATUS_OK , $bToString = false) {
+    public function render($sTpl, $iStatusXHR = self::XHR_STATUS_OK , $bToString = false, $bLoadAllBundleViews = false) {
 
         if (count($this->_params) >0) {
             foreach ($this->_params as $key => $val) {
@@ -92,8 +92,8 @@ class Controller extends Acl {
 
         require_once APP_PATH . '/Translations/' . $this->_lang. '/global.php'; // @see globale translation
         $sTranslationFile = str_replace(".tpl", ".php", $sTpl);
-        if (file_exists(MODULES_PATH . '/modules/' . $this->_module . '/Translations/' . $this->_lang . '/' . $sTranslationFile)) {
-            require_once MODULES_PATH . '/modules/' . DEFAULT_MODULE . '/translations/' . $this->_lang . '/' . $sTranslationFile;
+        if (file_exists(BUNDLES_PATH . '/bundles/' . $this->_bundle . '/Translations/' . $this->_lang . '/' . $sTranslationFile)) {
+            require_once BUNDLES_PATH . '/bundles/' . DEFAULT_BUNDLE . '/translations/' . $this->_lang . '/' . $sTranslationFile;
         }
 
         if (count($this->_session) > 0) {
@@ -116,7 +116,7 @@ class Controller extends Acl {
         $this->_view["helpers"] = '../../../app/Views/helpers/';
 
         // MVC
-        $this->_view['sModule'] = $this->_module;
+        $this->_view['sBundle'] = $this->_bundle;
         $this->_view["sController"] = $this->_controller;
         $this->_view["sAction"] = $this->_action;
 
@@ -137,8 +137,8 @@ class Controller extends Acl {
 
             $aResponse = json_encode(array(
                 'status'    => $iStatusXHR,
-                'content'   => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Library\Core\Bootstrap::initView($sTpl, $this->_view, true)),
-                'debug'       => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Library\Core\Bootstrap::initView($this->_view["sDeBugHelper"], $this->_view, true))
+                'content'   => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Library\Core\App::initView($sTpl, $this->_view, true, $bLoadAllBundleViews)),
+                'debug'       => str_replace(array("\r", "\r\n", "\n", "\t"), '', \Library\Core\App::initView($this->_view["sDeBugHelper"], $this->_view, true, $bLoadAllBundleViews))
             ));
             if ($bToString === true) {
                 return $aResponse;
@@ -150,9 +150,7 @@ class Controller extends Acl {
         }
 
         // Render the view using Haanga
-        \Library\Core\Bootstrap::initView($sTpl, $this->_view, $bToString);
-
-        return;
+        \Library\Core\App::initView($sTpl, $this->_view, $bToString, $bLoadAllBundleViews);
 
     }
 
@@ -165,7 +163,7 @@ class Controller extends Acl {
     }
 
     protected function loadRequest() {
-        $this->_module = Router::getModule();
+        $this->_bundle = Router::getBundle();
         $this->_controller = ucfirst(Router::getController()) . 'Controller';
         $this->_action = Router::getAction() . 'Action';;
         $this->_params = Router::getParams();

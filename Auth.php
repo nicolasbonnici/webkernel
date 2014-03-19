@@ -88,7 +88,7 @@ class Auth extends Controller {
      */
     private function buildRedirectUrl()
     {
-        return urlencode(str_replace('/', '*', '/' . Router::getModule() . '/' . Router::getController() . '/' . Router::getAction()));
+        return urlencode(str_replace('/', '*', '/' . Router::getBundle() . '/' . Router::getController() . '/' . Router::getAction()));
     }
 
 }

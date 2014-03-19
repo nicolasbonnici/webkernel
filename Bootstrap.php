@@ -143,7 +143,7 @@ class Bootstrap {
      * Boostrap app controller
      */
     private static function initController() {
-        $sController = 'bundles\\' . \Library\Core\Router::getModule() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
+        $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
 
         if (ENV === 'dev') {
             self::$aLoadedClass[] = $sController;
@@ -153,33 +153,8 @@ class Bootstrap {
             new $sController();
         } else {
             throw new BootstrapException('No controller found: ' . $sController);
-            //\Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here (module error)
+            //\Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here (bundle error)
         }
-    }
-
-    /**
-     * Init template engine
-     *
-     * @param string $sTpl
-     * @param array $aViewParams
-     * @param bool $bToString
-     */
-    public static function initView($sTpl, $aViewParams, $bToString) {
-        $sHaangaPath = LIBRARY_PATH . 'Haanga/';
-        $aViewsPaths = array (
-                APP_PATH . 'Views/',
-                MODULES_PATH . \Library\Core\Router::getModule() . '/Views/'
-        );
-        $sCachePath = CACHE_PATH . \Library\Core\Router::getModule() . '/Views';
-
-        require_once $sHaangaPath . 'Haanga.php';
-
-        \Haanga::configure ( array (
-                'template_dir' => $aViewsPaths,
-                'cache_dir' => $sCachePath
-        ) );
-
-        return \Haanga::load ( $sTpl, $aViewParams, $bToString );
     }
 
     /**
@@ -261,13 +236,13 @@ class Bootstrap {
         define ( 'TMP_PATH', __DIR__ . '/../../tmp/' );
         define ( 'CACHE_PATH', __DIR__ . '/../../tmp/cache/' );
         define ( 'LOG_PATH', __DIR__ . '/../../tmp/logs/' );
-        define ( 'MODULES_PATH', __DIR__ . '/../../bundles/' );
+        define ( 'BUNDLES_PATH', __DIR__ . '/../../bundles/' );
 
         // @see app defaults
         define ( 'DEFAULT_ENCODING', 'UTF-8' );
         define ( 'DEFAULT_LANG', 'FR_fr' );
 
-        define ( 'DEFAULT_MODULE', 'frontend' );
+        define ( 'DEFAULT_BUNDLE', 'frontend' );
 
         define ( 'DEFAULT_CONTROLLER', 'home' );
         define ( 'DEFAULT_ACTION', 'index' );
@@ -282,7 +257,7 @@ class Bootstrap {
         $oRouter = \Library\Core\Router::getInstance();
         $oRouter->init();
         return array (
-                'module' => $oRouter->getModule(),
+                'bundle' => $oRouter->getBundle(),
                 'controller' => $oRouter->getController(),
                 'action' => $oRouter->getAction(),
                 'params' => $oRouter->getParams(),
@@ -312,15 +287,15 @@ class Bootstrap {
                 $sLocale = strtoupper ( $sLocale ) . '_' . $sLocale;
             }
 
-            $sFilename = DEFAULT_MODULE;
+            $sFilename = DEFAULT_BUNDLE;
             putenv ( 'LC_ALL=' . $sLocale . '.' . strtolower ( str_replace ( '-', '', DEFAULT_ENCODING ) ) );
             setlocale ( LC_ALL, $sLocale . '.' . strtolower ( str_replace ( '-', '', DEFAULT_ENCODING ) ) );
 
             // @see gettext init (on utilise juste des array pour le moment c'est chiant de tout recompiler)
-            // bindtextdomain($sFilename, DEFAULT_MODULES_PATH . DEFAULT_MODULE . '/Translations/');
+            // bindtextdomain($sFilename, DEFAULT_BUNDLES_PATH . DEFAULT_BUNDLE . '/Translations/');
             //
             // bind_textdomain_codeset($sFilename, DEFAULT_ENCODING);
-            // textdomain(DEFAULT_MODULE);
+            // textdomain(DEFAULT_BUNDLE);
 
             return $sLocale;
         } else {
