@@ -7,7 +7,7 @@ class Validator
     /**
      * Constantes de validation
      */
-    const STATUS_OK               = 1;
+    const STATUS_OK               = 1; // @todo mettre 0 sinon si on oublie de tester la valeur de retour dans le if, on passera toujours dedans if (\core\Validator::integer('A')) => on passe
     const STATUS_INVALID          = 2;
     const STATUS_OUT_OF_RANGE     = 3;
     const STATUS_EMPTY_MANDATORY  = 4;
