@@ -9,6 +9,24 @@ namespace Library\Core;
  */
 class Router extends Singleton {
 
+    /**
+     * Locales
+     * @todo config.ini
+     * @var string
+     */
+    const DEFAULT_ENCODING  = 'UTF-8';
+    const DEFAULT_LOCALE    = 'FR_fr';
+
+    /**
+     * Default config
+     * @todo setup and load from app config.ini
+     * @var string
+     */
+    const DEFAULT_BUNDLE            = 'frontend';
+    const DEFAULT_BACKEND_BUNDLE    = 'lifestream';
+    const DEFAULT_CONTROLLER        = 'home';
+    const DEFAULT_ACTION            = 'index';
+
     static protected $sLang;
     static protected $sBundle;
     static protected $sController;
@@ -69,10 +87,10 @@ class Router extends Singleton {
 
         self::$aRequest = self::cleanArray(explode('/', self::$sUrl));        // @todo move function cleanArray to toolbox
 
-        self::$sLang = DEFAULT_LANG;
-        self::$sBundle = DEFAULT_BUNDLE;
-        self::$sController = DEFAULT_CONTROLLER;
-        self::$sAction = DEFAULT_ACTION;
+        self::$sLang = self::DEFAULT_LOCALE;
+        self::$sBundle = self::DEFAULT_BUNDLE;
+        self::$sController = self::DEFAULT_CONTROLLER;
+        self::$sAction = self::DEFAULT_ACTION;
 
         if (is_array(self::$aRequest) && count(self::$aRequest) > 0) {
 
@@ -179,41 +197,6 @@ class Router extends Singleton {
             }
         }
         return self::$aParams;
-    }
-
-    /**
-     * Simple redirection abstraction layer
-     *
-     * @param mixed array|string $mUrl
-     * @todo handle router request
-     */
-    public static function redirect($mUrl) {
-        assert('is_string($mUrl) || is_array($mUrl)');
-
-        if (is_string($mUrl)) {
-            header('Location: ' . $mUrl );
-            exit();
-        } elseif (is_array($mUrl)) {
-            if (
-                    array_key_exists('request', $mUrl) &&
-                    isset(
-                            $mUrl['request']['bundle'],
-                            $mUrl['request']['controller'],
-                            $mUrl['request']['action']
-                    )
-             ) {
-                self::$sUrl = '/' . $mUrl['request']['bundle'] . '/' .$mUrl['request']['controller'] . '/' . $mUrl['request']['action'];
-            } else {
-                throw new RouterException(__METHOD__ . ' malformed redirection request  ');
-            }
-
-            header('Location: ' .  self::$sUrl);
-        } else {
-
-            throw new RouterException(__METHOD__ . ' wrong request data type (mixed string|array)  ');
-        }
-
-        return;
     }
 
     public static function getBundle() {

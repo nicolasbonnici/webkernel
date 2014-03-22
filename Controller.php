@@ -9,6 +9,10 @@ namespace Library\Core;
  */
 class Controller extends Acl {
 
+    /**
+     * Errors codes
+     * @var interger
+     */
     const XHR_STATUS_OK                 = 1;
     const XHR_STATUS_ERROR              = 2;
     const XHR_STATUS_ACCESS_DENIED      = 3;
@@ -27,7 +31,7 @@ class Controller extends Acl {
 
     public function __construct($oUser = NULL) {
 
-        $this->_cookie = new \Library\Core\Cookie();
+
 
         $this->_config = \Library\Core\Bootstrap::getConfig();
         $this->setSession();
@@ -170,6 +174,81 @@ class Controller extends Acl {
         $this->_lang = Router::getLang();
     }
 
+    /**
+     * Build and encode the redirect url if the auth failed
+     *
+     * @param string $sRedirectUrl              A relative url that start with the '/' root path
+     * @return string
+     */
+    protected function encodeRedirectUrlParam($sRedirectBundle = '', $sRedirectController = 'home', $sRedirectAction = 'index')
+    {
+        // Reset if it's an asynch call or the crud bundle
+        if ($this->isXHR()) {
+
+            if ($sRedirectBundle === 'crud') {
+                $sRedirectBundle = Router::DEFAULT_BACKEND_BUNDLE;
+            }
+
+            $sRedirectController = 'home';
+            $sRedirectAction = 'index';
+        }
+        $sRedirectUrl = (($this->isXHR()) ? '/frontend/error/e403/' : '/auth/home/index/') . 'redirect/';
+        $sRedirectParam =  '/' . $sRedirectBundle . (($sRedirectController !== 'home') ? '/' . $sRedirectController : '') . (($sRedirectAction !== 'index') ? '/' . $sRedirectAction : '');
+
+        return $sRedirectUrl . urlencode(str_replace('/', '*', $sRedirectParam));
+    }
+
+    /**
+     * Decode the redirection url
+     *
+     * @param string $sEncodedRedirectUrl       A relative url that start with the '/' root path
+     * @return mixed
+     */
+    protected function decodeRedirectUrlParam($sEncodedRedirectUrl)
+    {
+        return  str_replace('*', '/', urldecode($sEncodedRedirectUrl));
+    }
+
+    /**
+     * Simple redirection
+     *
+     * @param mixed array|string $mUrl
+     * @todo handle router request object totaly abstracted in type and format
+     */
+    protected function redirect($mUrl) {
+        assert('is_string($mUrl) || is_array($mUrl)');
+
+        if (is_string($mUrl)) {
+            header('Location: ' . $mUrl );
+            exit();
+        } elseif (is_array($mUrl)) {
+            if (
+            array_key_exists('request', $mUrl) &&
+            isset(
+                    $mUrl['request']['bundle'],
+                    $mUrl['request']['controller'],
+                    $mUrl['request']['action']
+            )
+            ) {
+                $sUrl = '/' . $mUrl['request']['bundle'] . '/' .$mUrl['request']['controller'] . '/' . $mUrl['request']['action'];
+            } else {
+                throw new RouterException(__METHOD__ . ' malformed redirection request  ');
+            }
+
+            header('Location: ' .  $sUrl);
+        } else {
+
+            throw new RouterException(__METHOD__ . ' wrong request data type (mixed string|array)  ');
+        }
+
+        return;
+    }
+
+
+    /**
+     *********************************
+     * @todo supprimer
+     */
     public function getController() {
         return $this->_controller;
     }

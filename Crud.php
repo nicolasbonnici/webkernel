@@ -205,29 +205,30 @@ abstract class Crud {
         } elseif (!$this->oEntity->isLoaded()) {
             throw new CrudException('Cannot update an unloaded enitity.', self::ERROR_ENTITY_NOT_LOADED);
         } else {
-
             try {
-                // Check for user bypass attempt
-                if (
-                    (
-                        $this->oEntity->hasAttribute('user_iduser') &&
-                        !empty($aParameter['user_iduser']) &&
-                        $this->oUser->getId() !== intval($aParameter['user_iduser'])
-                    ) ||
-                    (
-                        $this->oEntity->hasAttribute('user_iduser') &&
-                        !empty($aParameter['iduser']) &&
-                        $this->oUser->getId() !== intval($aParameter['iduser'])
-                    )
-                ) {
-                    throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-                }
 
                 foreach ($aParameters as $aParameter) {
                     if (
                         !empty($aParameter['name']) &&
                         !empty($aParameter['value'])
                     ) {
+
+                        // Check for user bypass attempt
+                        if (
+                        (
+                                $this->oEntity->hasAttribute('user_iduser') &&
+                                $aParameter['name'] === 'user_iduser' &&
+                                $this->oUser->getId() !== intval($aParameters['value'])
+                        ) ||
+                        (
+                                $this->oEntity->hasAttribute('user_iduser') &&
+                                $aParameter['name'] === 'iduser' &&
+                                $this->oUser->getId() !== intval($aParameters['value'])
+                        )
+                        ) {
+                            throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
+                        }
+
                         $this->oEntity->{$aParameter['name']} = $aParameter['value'];
                     }
                 }
@@ -319,7 +320,6 @@ abstract class Crud {
             return $oException;
         }
     }
-
 
    /*
     * Get current instance \app\Entities Entity properties

@@ -237,15 +237,6 @@ class Bootstrap {
         define ( 'CACHE_PATH', __DIR__ . '/../../tmp/cache/' );
         define ( 'LOG_PATH', __DIR__ . '/../../tmp/logs/' );
         define ( 'BUNDLES_PATH', __DIR__ . '/../../bundles/' );
-
-        // @see app defaults
-        define ( 'DEFAULT_ENCODING', 'UTF-8' );
-        define ( 'DEFAULT_LANG', 'FR_fr' );
-
-        define ( 'DEFAULT_BUNDLE', 'frontend' );
-
-        define ( 'DEFAULT_CONTROLLER', 'home' );
-        define ( 'DEFAULT_ACTION', 'index' );
     }
 
     /**
@@ -287,15 +278,15 @@ class Bootstrap {
                 $sLocale = strtoupper ( $sLocale ) . '_' . $sLocale;
             }
 
-            $sFilename = DEFAULT_BUNDLE;
-            putenv ( 'LC_ALL=' . $sLocale . '.' . strtolower ( str_replace ( '-', '', DEFAULT_ENCODING ) ) );
-            setlocale ( LC_ALL, $sLocale . '.' . strtolower ( str_replace ( '-', '', DEFAULT_ENCODING ) ) );
+            $sFilename = Router::DEFAULT_BUNDLE;
+            putenv ( 'LC_ALL=' . $sLocale . '.' . strtolower ( str_replace ( '-', '', Router::DEFAULT_ENCODING ) ) );
+            setlocale ( LC_ALL, $sLocale . '.' . strtolower ( str_replace ( '-', '', Router::DEFAULT_ENCODING ) ) );
 
             // @see gettext init (on utilise juste des array pour le moment c'est chiant de tout recompiler)
-            // bindtextdomain($sFilename, DEFAULT_BUNDLES_PATH . DEFAULT_BUNDLE . '/Translations/');
+            // bindtextdomain($sFilename, Router::DEFAULT_BUNDLES_PATH . Router::DEFAULT_BUNDLE . '/Translations/');
             //
-            // bind_textdomain_codeset($sFilename, DEFAULT_ENCODING);
-            // textdomain(DEFAULT_BUNDLE);
+            // bind_textdomain_codeset($sFilename, Router::DEFAULT_ENCODING);
+            // textdomain(Router::DEFAULT_BUNDLE);
 
             return $sLocale;
         } else {

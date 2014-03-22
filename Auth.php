@@ -31,7 +31,7 @@ class Auth extends Controller {
         ) {
             parent::__construct($this->oUser);
         } else {
-            Router::redirect((($this->isXHR()) ? '/frontend/error/e403/' : '/auth/home/index/') . 'redirect/' . $this->buildRedirectUrl());
+            $this->redirect($this->encodeRedirectUrlParam( Router::getBundle() ));
         }
 
     }
@@ -52,25 +52,25 @@ class Auth extends Controller {
                     'created' => $this->_session['created']
                 )
             );
-        } catch(CoreEntityException $oException) {}
 
-        if ($this->oUser->isLoaded()) {
+            if ($this->oUser->isLoaded()) {
 
-            foreach ($this->oUser as $key=>$mValue) {
-                $_SESSION[$key] = $mValue;
+                foreach ($this->oUser as $key=>$mValue) {
+                    $_SESSION[$key] = $mValue;
+                }
+
+                // Regenerate session token
+                $_SESSION['token'] = $this->generateToken();
+                // Unset password
+                unset($_SESSION['pass']);
+
+                $this->oUser->token = $_SESSION['token'];
+
+                return $this->oUser->update();
             }
-
-            // Regenerate session token
-            $_SESSION['token'] = $this->generateToken();
-            // Unset password
-            unset($_SESSION['pass']);
-
-            $this->oUser->token = $_SESSION['token'];
-
-            return $this->oUser->update();
+        } catch(CoreEntityException $oException) {
+            return false;
         }
-
-        return false;
     }
 
     /**
@@ -80,15 +80,6 @@ class Auth extends Controller {
      */
     private function generateToken() {
         return hash('SHA256', uniqid((double)microtime()*1000000, true));
-    }
-
-    /**
-     * Build the redirect url if the auth failed
-     * @return string
-     */
-    private function buildRedirectUrl()
-    {
-        return urlencode(str_replace('/', '*', '/' . Router::getBundle() . '/' . Router::getController() . '/' . Router::getAction()));
     }
 
 }
