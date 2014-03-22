@@ -180,7 +180,7 @@ class Controller extends Acl {
      * @param string $sRedirectUrl              A relative url that start with the '/' root path
      * @return string
      */
-    protected function encodeRedirectUrlParam($sRedirectBundle = '', $sRedirectController = 'home', $sRedirectAction = 'index')
+    public function buildRedirectUrl($sRedirectBundle = '', $sRedirectController = 'home', $sRedirectAction = 'index')
     {
         // Reset if it's an asynch call or the crud bundle
         if ($this->isXHR()) {
@@ -192,8 +192,8 @@ class Controller extends Acl {
             $sRedirectController = 'home';
             $sRedirectAction = 'index';
         }
-        $sRedirectUrl = (($this->isXHR()) ? '/frontend/error/e403/' : '/auth/home/index/') . 'redirect/';
         $sRedirectParam =  '/' . $sRedirectBundle . (($sRedirectController !== 'home') ? '/' . $sRedirectController : '') . (($sRedirectAction !== 'index') ? '/' . $sRedirectAction : '');
+        $sRedirectUrl = (($this->isXHR()) ? '/error/forbidden/index/redirect/' : '/auth/home/index/redirect/');
 
         return $sRedirectUrl . urlencode(str_replace('/', '*', $sRedirectParam));
     }
@@ -204,7 +204,7 @@ class Controller extends Acl {
      * @param string $sEncodedRedirectUrl       A relative url that start with the '/' root path
      * @return mixed
      */
-    protected function decodeRedirectUrlParam($sEncodedRedirectUrl)
+    public function decodeRedirectUrl($sEncodedRedirectUrl)
     {
         return  str_replace('*', '/', urldecode($sEncodedRedirectUrl));
     }
@@ -215,7 +215,7 @@ class Controller extends Acl {
      * @param mixed array|string $mUrl
      * @todo handle router request object totaly abstracted in type and format
      */
-    protected function redirect($mUrl) {
+    public function redirect($mUrl) {
         assert('is_string($mUrl) || is_array($mUrl)');
 
         if (is_string($mUrl)) {

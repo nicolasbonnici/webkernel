@@ -31,7 +31,7 @@ class Auth extends Controller {
         ) {
             parent::__construct($this->oUser);
         } else {
-            $this->redirect($this->encodeRedirectUrlParam( Router::getBundle() ));
+            $this->redirect($this->buildRedirectUrl( Router::getBundle() ));
         }
 
     }
