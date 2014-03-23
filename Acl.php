@@ -8,7 +8,7 @@ namespace Library\Core;
  * ACL couch layer
  * Manage CRUD access to entities
  */
-abstract class Acl   {
+abstract class Acl { // @todo A la ligne pour PSR
 
     /**
      * User instance
@@ -65,7 +65,7 @@ abstract class Acl   {
     }
 
 
-    protected function hasCreateAccess($sRessource) {
+    protected function hasCreateAccess($sRessource) { // @todo A la ligne pour PSR
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -76,7 +76,7 @@ abstract class Acl   {
         return false;
     }
 
-    protected function hasReadAccess($sRessource) {
+    protected function hasReadAccess($sRessource) { // @todo A la ligne pour PSR
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -87,7 +87,7 @@ abstract class Acl   {
         return false;
     }
 
-    protected function hasUpdateAccess($sRessource) {
+    protected function hasUpdateAccess($sRessource) { // @todo A la ligne pour PSR
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -98,7 +98,7 @@ abstract class Acl   {
         return false;
     }
 
-    protected function hasDeleteAccess($sRessource) {
+    protected function hasDeleteAccess($sRessource) { // @todo A la ligne pour PSR
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -138,7 +138,7 @@ abstract class Acl   {
      * @return boolean
      * @throws CoreAclException
      */
-    private function loadRole()
+    private function loadRole() // @todo Méthode get et non load
     {
         $this->oRole = new \app\Entities\Role();
         try {
@@ -156,7 +156,7 @@ abstract class Acl   {
      *
      * @return boolean
      */
-    private function loadPermissions()
+    private function loadPermissions() // @todo Méthode get et non load
     {
         assert('$this->oRole->isLoaded()');
 
@@ -174,7 +174,7 @@ abstract class Acl   {
      *
      * @throws CoreAclException
      */
-    private function loadRessources()
+    private function loadRessources() // @todo Méthode get et non load
     {
         assert('$this->oRole->isLoaded() && $this->oPermissions->count() > 0');
 
@@ -195,4 +195,4 @@ abstract class Acl   {
 
 class CoreAclException extends \Exception {}
 
-?>
+?> // @todo Supprimer PSR
