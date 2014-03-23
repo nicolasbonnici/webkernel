@@ -39,7 +39,7 @@ class Router extends Singleton {
 
     public static function init() {
 
-        // @todo retrieve from db
+        // @todo retrieve from db/config/overwrite
         self::$aRules = array(
                 '/login' => array(
                         'bundle'    => 'auth',
@@ -61,10 +61,10 @@ class Router extends Singleton {
                         'controller' => 'home',
                         'action'    => 'portfolio'
                 ),
-                '/contact' => array(
+                '/a-propos' => array(
                         'bundle'    => 'frontend',
                         'controller' => 'home',
-                        'action'    => 'contact'
+                        'action'    => 'about'
                 ),
                 '/lifestream' => array(
                         'bundle'    => 'lifestream',
