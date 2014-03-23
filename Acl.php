@@ -194,5 +194,3 @@ abstract class Acl { // @todo A la ligne pour PSR
 }
 
 class CoreAclException extends \Exception {}
-
-?> // @todo Supprimer PSR
