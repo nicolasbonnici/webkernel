@@ -3,12 +3,13 @@
 namespace Library\Core;
 
 /**
- * Simple auth layer
- * Just create a Controller that extend this class to restrict access to loggued users
+ * Simple auth controller layer
+ * Just create a Controller that extend this class to restrict access to logged users
  *
- * @author infradmin
+ * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class Auth extends Controller {
+class Auth extends Controller
+{
 
     /**
      * Currently logged user instance
@@ -17,7 +18,8 @@ class Auth extends Controller {
      */
     protected $oUser;
 
-    public function __construct() {
+    public function __construct()
+    {
 
         $this->loadRequest();
 
@@ -40,7 +42,8 @@ class Auth extends Controller {
      * Validate session integrity
      * @return bool
      */
-    public function checkSessionintegrity() {
+    protected function checkSessionintegrity()
+    {
         $this->oUser = new \app\Entities\User();
 
         try {
@@ -74,16 +77,15 @@ class Auth extends Controller {
     }
 
     /**
-     * Generate token session
+     * Generate session token
      *
-     * @return int
+     * @return string
      */
-    private function generateToken() {
+    private function generateToken()
+    {
         return hash('SHA256', uniqid((double)microtime()*1000000, true));
     }
 
 }
 
 class CoreAuthControllerException extends \Exception {}
-
-?>

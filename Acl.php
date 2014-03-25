@@ -8,7 +8,8 @@ namespace Library\Core;
  * ACL couch layer
  * Manage CRUD access to entities
  */
-abstract class Acl { // @todo A la ligne pour PSR
+abstract class Acl
+{
 
     /**
      * User instance
@@ -55,17 +56,16 @@ abstract class Acl { // @todo A la ligne pour PSR
             throw new CoreAclException(__CLASS__ . ' Empty user instance provided.');
         } else {
             $this->oUser = $oUser;
-            $this->loadRole();
-            if ($this->loadPermissions()) {
-                $this->loadRessources();
+            $this->getRole();
+            if ($this->getPermissions()) {
+                $this->getRessources();
             }
         }
-
-        return;
     }
 
 
-    protected function hasCreateAccess($sRessource) { // @todo A la ligne pour PSR
+    protected function hasCreateAccess($sRessource)
+    {
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -76,7 +76,8 @@ abstract class Acl { // @todo A la ligne pour PSR
         return false;
     }
 
-    protected function hasReadAccess($sRessource) { // @todo A la ligne pour PSR
+    protected function hasReadAccess($sRessource)
+    {
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -87,7 +88,8 @@ abstract class Acl { // @todo A la ligne pour PSR
         return false;
     }
 
-    protected function hasUpdateAccess($sRessource) { // @todo A la ligne pour PSR
+    protected function hasUpdateAccess($sRessource)
+    {
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -98,7 +100,8 @@ abstract class Acl { // @todo A la ligne pour PSR
         return false;
     }
 
-    protected function hasDeleteAccess($sRessource) { // @todo A la ligne pour PSR
+    protected function hasDeleteAccess($sRessource)
+    {
         if (
             !empty($sRessource) &&
             ( ($oRights = $this->getCRUD($sRessource)) !== NULL)
@@ -138,7 +141,7 @@ abstract class Acl { // @todo A la ligne pour PSR
      * @return boolean
      * @throws CoreAclException
      */
-    private function loadRole() // @todo Méthode get et non load
+    private function getRole()
     {
         $this->oRole = new \app\Entities\Role();
         try {
@@ -156,7 +159,7 @@ abstract class Acl { // @todo A la ligne pour PSR
      *
      * @return boolean
      */
-    private function loadPermissions() // @todo Méthode get et non load
+    private function getPermissions()
     {
         assert('$this->oRole->isLoaded()');
 
@@ -174,7 +177,7 @@ abstract class Acl { // @todo A la ligne pour PSR
      *
      * @throws CoreAclException
      */
-    private function loadRessources() // @todo Méthode get et non load
+    private function getRessources()
     {
         assert('$this->oRole->isLoaded() && $this->oPermissions->count() > 0');
 
