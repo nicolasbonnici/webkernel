@@ -13,6 +13,7 @@ Demo project here http://dev.nbonnici.info/
 - Flexible ACL managment for the CRUD actions
 - Namespaces
 - MVC pattern, modules enabled with a common couch to each layers
+- cPSR
 - Full flexible hybrid UX based on Twitter Bootstrap and jQuery 1.10+
 - Lightweight render engine (Haanga), this framework can render pages that fetch a hundred objects under 0.002 secs 
 
