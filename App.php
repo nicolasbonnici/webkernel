@@ -11,7 +11,8 @@ namespace Library\Core;
  *
  */
 
-class App extends Singleton {
+class App extends Singleton
+{
 
     /**
      * Current framework version
@@ -62,7 +63,8 @@ class App extends Singleton {
      * @param boolean $bToString
      * @param boolean $bLoadAllBundleViews         A flag to load all bundles views path (For the CrudController)
      */
-    public static function initView($sTpl, $aViewParams, $bToString, $bLoadAllBundleViews = false) {
+    public static function initView($sTpl, $aViewParams, $bToString, $bLoadAllBundleViews = false)
+    {
         $sHaangaPath = LIBRARY_PATH . 'Haanga/';
         require_once $sHaangaPath . 'Haanga.php';
 

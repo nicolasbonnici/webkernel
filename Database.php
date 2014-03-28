@@ -4,8 +4,10 @@ namespace Library\Core;
 
 /**
  * Manage SGBD with PDO
+ * @todo extends Singleton component
  */
-class Database {
+class Database
+{
 
     /**
      * @var object Library\Core\Database instance
@@ -52,7 +54,8 @@ class Database {
      * @see PDO::__construct()
      * @access private
      */
-    public function __construct() {
+    public function __construct()
+    {
 
         $this->setLink();
 
@@ -60,7 +63,8 @@ class Database {
     }
 
 
-    public function getInstance() {
+    public function getInstance()
+    {
         if (! self::$_instance instanceof self) {
             self::$_instance = new self();
         }
@@ -68,11 +72,13 @@ class Database {
         return self::$_instance;
     }
 
-    final public function __clone() {
+    final public function __clone()
+    {
         return;
     }
 
-    private static function setLink() {
+    private static function setLink()
+    {
 
         try {
 
@@ -157,5 +163,3 @@ class Database {
 }
 
 class DatabaseException extends \Exception { }
-
-?>

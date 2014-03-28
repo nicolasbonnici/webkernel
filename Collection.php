@@ -7,7 +7,8 @@ namespace Library\Core;
  * @author niko <nicolasbonnici@gmail.com>
  *
  */
-class Collection implements \Iterator{
+class Collection implements \Iterator
+{
 
     /**
      * List of elements in collection

@@ -8,7 +8,8 @@ namespace Library\Core;
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  *
  */
-abstract class Feed {
+abstract class Feed
+{
 
     /**
      * Feed instance
@@ -76,5 +77,3 @@ abstract class Feed {
 }
 
 class FeedException extends \Exception {}
-
-?>

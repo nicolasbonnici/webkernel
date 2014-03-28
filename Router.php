@@ -7,7 +7,8 @@ namespace Library\Core;
  *
  * bundle/controler/action/:param
  */
-class Router extends Singleton {
+class Router extends Singleton
+{
 
     /**
      * Locales
@@ -37,7 +38,8 @@ class Router extends Singleton {
 
     static protected $aRules = array();
 
-    public static function init() {
+    public static function init()
+    {
 
         // @todo retrieve from db/config/overwrite
         self::$aRules = array(
@@ -114,7 +116,8 @@ class Router extends Singleton {
     }
 
 
-    private static function matchRules() {
+    private static function matchRules()
+    {
 
         assert('is_array(self::$aRequest) && count(self::$aRequest)>0');
 
@@ -171,7 +174,8 @@ class Router extends Singleton {
     }
 
     // @todo c'est deguelasse y'a array_values pour faire ce genre de traitement
-    private static function cleanArray(array $aArray = array()) {
+    private static function cleanArray(array $aArray = array())
+    {
         if (count($aArray) > 0) {
             foreach ($aArray as $key=>$sValue) {
                 if (!strlen($sValue)) {
@@ -188,7 +192,8 @@ class Router extends Singleton {
      * @param array $items
      * @return array
      */
-    private static function setParams(array $items) {
+    private static function setParams(array $items)
+    {
         if ((!empty($items)) && (count($items) % 2 == 0)) {
             for ($i = 0; $i < count($items); $i++) {
                 if ($i % 2 == 0) {
@@ -199,27 +204,33 @@ class Router extends Singleton {
         return self::$aParams;
     }
 
-    public static function getBundle() {
+    public static function getBundle()
+    {
         return self::$sBundle;
     }
 
-    public static function getController() {
+    public static function getController()
+    {
         return self::$sController;
     }
 
-    public static function getAction() {
+    public static function getAction()
+    {
         return self::$sAction;
     }
 
-    public static function getParams() {
+    public static function getParams()
+    {
         return self::$aParams;
     }
 
-    public static function getParam($id) {
+    public static function getParam($id)
+    {
         return self::$aParams[$id];
     }
 
-    public static function getLang() {
+    public static function getLang()
+    {
         return self::$sLang;
     }
 

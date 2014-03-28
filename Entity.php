@@ -14,7 +14,8 @@ namespace Library\Core;
  * @dependancy \Library\Core\Database
  */
 
-abstract class Entity extends Database {
+abstract class Entity extends Database
+{
 
     /**
      * List of associated table's fields
@@ -581,4 +582,3 @@ abstract class Entity extends Database {
 
 class EntityException extends \Exception {}
 
-?>

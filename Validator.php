@@ -1,6 +1,12 @@
 <?php
-
 namespace Library\Core;
+
+/**
+ * Data validator
+ *
+ * @author Antoine <antoine.preveaux@bazarchic.com>
+ * @author niko <nicolasbonnici@gmail.com>
+ */
 
 class Validator
 {

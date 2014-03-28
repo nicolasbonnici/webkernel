@@ -46,20 +46,22 @@ class Bootstrap {
             'dev.nbonnici.info'
     );
 
-
-    public function __construct() {
+    public function __construct()
+    {
         return self::initComponents();
     }
 
 
     public static function getInstance() {
-        if (! self::$oInstance instanceof self) {
+        if (! self::$oInstance instanceof self)
+        {
             self::$oInstance = new self();
         }
         return self::$oInstance;
     }
 
-    public static function initComponents() {
+    public static function initComponents()
+    {
         /**
          *
          * @see register class autoloader
@@ -118,7 +120,8 @@ class Bootstrap {
      *
      * @param string $sClassName
      */
-    public static function classLoader($sClassName) {
+    public static function classLoader($sClassName)
+    {
         $sClassName = ltrim ( $sClassName, '\\' );
         $sFileName = '';
         $namespace = '';
@@ -142,7 +145,8 @@ class Bootstrap {
     /**
      * Boostrap app controller
      */
-    private static function initController() {
+    private static function initController()
+    {
         $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst ( \Library\Core\Router::getController() ) . 'Controller';
 
         if (ENV === 'dev') {
@@ -162,7 +166,8 @@ class Bootstrap {
      *
      * @see config.ini
      */
-    private static function initEnv() {
+    private static function initEnv()
+    {
         $sEnv = 'prod';
         if (in_array ( $_SERVER ['SERVER_NAME'], self::$aDevelopmentEnvironments ) && self::$aConfig ['env'] ['prod'] !== $_SERVER ['SERVER_NAME']) {
             $sEnv = 'dev';
@@ -176,7 +181,8 @@ class Bootstrap {
      *
      * @throws BootstrapException
      */
-    private static function initConfig() {
+    private static function initConfig()
+    {
         if (is_file ( APP_PATH . 'config/config.ini' )) {
             self::$aConfig = parse_ini_file ( APP_PATH . 'config/config.ini', true );
         } else {
@@ -187,7 +193,8 @@ class Bootstrap {
     /**
      * Init cache based on memcached
      */
-    private static function initCache() {
+    private static function initCache()
+    {
         define ( 'CACHE_HOST', self::$aConfig ['cache'] ['host'] );
         define ( 'CACHE_PORT', self::$aConfig ['cache'] ['port'] );
     }
@@ -195,7 +202,8 @@ class Bootstrap {
     /**
      * Init errors and notices reporting
      */
-    private static function initReporting() {
+    private static function initReporting()
+    {
         // @ see init logs and errors reporting
         error_reporting ( (ENV === 'dev') ? - 1 : 0 );
         ini_set ( 'display_errors', (ENV === 'dev') ? 'On' : 'Off' );
@@ -205,7 +213,8 @@ class Bootstrap {
     /**
      * Init log file
      */
-    private static function initLogs() {
+    private static function initLogs()
+    {
         $sLogFile = LOG_PATH . '/errors.log';
         if (! is_file ( $sLogFile )) {
 
@@ -228,7 +237,8 @@ class Bootstrap {
     /**
      * Build all paths
      */
-    private static function initPaths() {
+    private static function initPaths()
+    {
         // @see paths info
         define ( 'ROOT_PATH', __DIR__ . '/../../' );
         define ( 'APP_PATH', __DIR__ . '/../../app/' );
@@ -244,7 +254,8 @@ class Bootstrap {
      *
      * @return array
      */
-    private static function initRouter() {
+    private static function initRouter()
+    {
         $oRouter = \Library\Core\Router::getInstance();
         $oRouter->init();
         return array (
@@ -261,7 +272,8 @@ class Bootstrap {
      *
      * @return string Current local on 2 caracters
      */
-    private static function initLocales() {
+    private static function initLocales()
+    {
 
         /**
          *
@@ -294,23 +306,28 @@ class Bootstrap {
         }
     }
 
-    public static function getConfig() {
+    public static function getConfig()
+    {
         return self::$aConfig;
     }
 
-    public static function setConfig($config) {
+    public static function setConfig($config)
+    {
         self::$aConfig = $config;
     }
 
-    public static function getRequest() {
+    public static function getRequest()
+    {
         return self::$aRequest;
     }
 
-    public static function setRequest($request) {
+    public static function setRequest($request)
+    {
         self::$aRequest = $request;
     }
 
-    public static function getLoadedClass() {
+    public static function getLoadedClass()
+    {
         return self::$aLoadedClass;
     }
 }

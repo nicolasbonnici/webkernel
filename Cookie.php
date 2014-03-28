@@ -2,7 +2,8 @@
 
 namespace  Library\Core;
 
-class Cookie extends Singleton {
+class Cookie extends Singleton
+{
     /**
      * Tableau pour stocker les variable de cookie
      * @var array

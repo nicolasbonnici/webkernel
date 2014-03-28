@@ -8,7 +8,8 @@ namespace Library\Core;
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
  */
-class Cache {
+class Cache
+{
     /**
      * Predifened constants for easier use/reading of cache time durations
      * @var integer
@@ -138,5 +139,3 @@ class Cache {
         return $sKey;
     }
 }
-
-?>

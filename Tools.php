@@ -5,15 +5,16 @@ namespace Library\Core;
 /**
  * Toolbox
  */
-class Tools {
-    
+class Tools
+{
+
     /**
      * Retrieve gravatar url
-     * 
+     *
      * @param string $sEmail
      * @param string $iSize
      */
-    public static function getGravatar($sEmail, $iSize) 
+    public static function getGravatar($sEmail, $iSize)
     {
         // Définition des paramètres utiles
         $sDefault = urlencode('http://use.perl.org/images/pix.gif');
@@ -27,7 +28,7 @@ class Tools {
         );
 
     }
-   
+
 
 }
 

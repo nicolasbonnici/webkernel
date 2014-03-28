@@ -11,7 +11,8 @@ namespace Library\Core;
  *
  */
 
-abstract class Crud {
+abstract class Crud
+{
 
     /**
      * @var string
@@ -171,7 +172,8 @@ abstract class Crud {
      * @throws CrudException
      * @return mixed \app\Entities\{Entity}|\Library\Core\EntityException TRUE is entity is correctly deleted otherwhise the \Library\Core\EntityException
      */
-    public function read() {
+    public function read()
+    {
         if (is_null($this->oUser)) {
             throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
         } else {
@@ -197,7 +199,8 @@ abstract class Crud {
      * @throws CrudException
      * @return \Library\Core\EntityException
      */
-    public function update(array $aParameters = array()) {
+    public function update(array $aParameters = array())
+    {
         assert('count($aParameters) > 0');
 
         if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
@@ -257,7 +260,8 @@ abstract class Crud {
      * @throws CrudException
      * @return mixed \app\Entities\{Entity}|\Library\Core\EntityException
      */
-    public function delete() {
+    public function delete()
+    {
 
         // Check for user bypass attempt
         if (

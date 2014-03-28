@@ -7,7 +7,8 @@ namespace Library\Core;
  *
  * @author infradmin
  */
-class Controller extends Acl {
+class Controller extends Acl
+{
 
     /**
      * Errors codes
@@ -29,7 +30,8 @@ class Controller extends Acl {
     public $_params = array();
     public $_view = array();
 
-    public function __construct($oUser = NULL) {
+    public function __construct($oUser = NULL)
+    {
 
 
 
@@ -86,7 +88,8 @@ class Controller extends Acl {
         return;
     }
 
-    public function render($sTpl, $iStatusXHR = self::XHR_STATUS_OK , $bToString = false, $bLoadAllBundleViews = false) {
+    public function render($sTpl, $iStatusXHR = self::XHR_STATUS_OK , $bToString = false, $bLoadAllBundleViews = false)
+    {
 
         if (count($this->_params) >0) {
             foreach ($this->_params as $key => $val) {
@@ -162,11 +165,13 @@ class Controller extends Acl {
      * Tell if the request is a XmlHttpRequest
      * @return boolean
      */
-    protected function isXHR() {
+    protected function isXHR()
+    {
     	return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
 
-    protected function loadRequest() {
+    protected function loadRequest()
+    {
         $this->_bundle = Router::getBundle();
         $this->_controller = ucfirst(Router::getController()) . 'Controller';
         $this->_action = Router::getAction() . 'Action';;
@@ -215,7 +220,8 @@ class Controller extends Acl {
      * @param mixed array|string $mUrl
      * @todo handle router request object totaly abstracted in type and format
      */
-    public function redirect($mUrl) {
+    public function redirect($mUrl)
+    {
         assert('is_string($mUrl) || is_array($mUrl)');
 
         if (is_string($mUrl)) {
@@ -249,48 +255,56 @@ class Controller extends Acl {
      *********************************
      * @todo supprimer
      */
-    public function getController() {
+    public function getController()
+    {
         return $this->_controller;
     }
 
-    public function setController($controller) {
+    public function setController($controller)
+    {
         $this->_controller = $controller;
     }
 
-    public function getAction() {
+    public function getAction()
+    {
         return $this->_action;
     }
 
-    public function setAction($action) {
+    public function setAction($action)
+    {
         $this->_action = $action;
     }
 
-    public function getCookie() {
+    public function getCookie()
+    {
         return $this->_cookie;
     }
 
-    public function setCookie($cookie) {
+    public function setCookie($cookie)
+    {
         $this->_cookie = $cookie;
     }
 
-    public function getSession() {
+    public function getSession()
+    {
         return $this->_session;
     }
 
-    public function setSession() {
+    public function setSession()
+    {
         $this->_session = $_SESSION;
     }
 
-    public function getLang() {
+    public function getLang()
+    {
         return $this->_lang;
     }
 
-    public function setLang($lang) {
+    public function setLang($lang)
+    {
         $this->_lang = $lang;
     }
 
 }
 
 class ControllerException extends \Exception {}
-
-?>

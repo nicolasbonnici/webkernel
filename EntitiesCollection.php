@@ -7,7 +7,8 @@ namespace Library\Core;
  * @author niko <nicolasbonnici@gmail.com>
  *
  */
-abstract class EntitiesCollection extends Collection {
+abstract class EntitiesCollection extends Collection
+{
 
     /**
      * Collection objects class name
