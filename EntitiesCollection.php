@@ -43,7 +43,7 @@ abstract class EntitiesCollection extends Collection
      * @param string $sOrderBy database field name
      * @param string $sOrder DESC|ASC
      * @param array $aLimit
-     * @throws CoreEntityException
+     * @throws EntityException
      */
     public function load($sOrderBy = '', $sOrder = 'DESC', array $aLimit = array(0,50))
     {
@@ -61,7 +61,7 @@ abstract class EntitiesCollection extends Collection
         try {
             $oStatement = Database::dbQuery($sQuery);
         } catch (\PDOException $oException) {
-            throw new CoreEntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" ');
+            throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" ');
         }
         if ($oStatement !== false) {
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
@@ -81,11 +81,11 @@ abstract class EntitiesCollection extends Collection
         assert('!empty($aIds)');
 
         if (is_null(constant($this->sChildClass . '::TABLE_NAME'))) {
-            throw new CoreEntityException('CoreObject class table name not defined for class ' . $this->sChildClass);
+            throw new EntityException('CoreObject class table name not defined for class ' . $this->sChildClass);
         }
 
         if (is_null(constant($this->sChildClass . '::PRIMARY_KEY'))) {
-            throw new CoreEntityException('CoreObject class primary key not defined for class ' . $this->sChildClass);
+            throw new EntityException('CoreObject class primary key not defined for class ' . $this->sChildClass);
         }
 
         $this->aOriginIds = $aIds;
@@ -116,7 +116,7 @@ abstract class EntitiesCollection extends Collection
      * @param array $aParameters List of parameters name/value
      * @param array $aOrderFields List of order fields/direction
      * @param array $aLimit Start / End limit request for pagination
-     * @throws CoreEntityException
+     * @throws EntityException
      */
     public function loadByParameters(array $aParameters, array $aOrderFields = array(), array $aLimit = array(0,10))
     {
@@ -179,14 +179,14 @@ abstract class EntitiesCollection extends Collection
      * Load collection regarding given Database query and values
      * @param string $sQuery Database query
      * @param array $aValues Values of paramters
-     * @throws CoreEntityException
+     * @throws EntityException
      */
     public function loadByQuery($sQuery, array $aValues = array())
     {
         try {
             $oStatement = Database::dbQuery($sQuery, $aValues);
         } catch (\PDOException $oException) {
-            throw new CoreEntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" and values ' . print_r($aValues, true));
+            throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" and values ' . print_r($aValues, true));
         }
 
         if ($oStatement !== false) {

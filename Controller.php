@@ -35,7 +35,7 @@ class Controller extends Acl
 
 
 
-        $this->_config = \Library\Core\Bootstrap::getConfig();
+        $this->_config = \Library\Core\App::getConfig();
         $this->setSession();
         $this->loadRequest();
 
@@ -129,7 +129,7 @@ class Controller extends Acl
 
         // debug
         $this->_view["sEnv"] = ENV;
-        $this->_view["aLoadedClass"] = \Library\Core\Bootstrap::getLoadedClass();
+        $this->_view["aLoadedClass"] = \Library\Core\App::getLoadedClass();
         $this->_view["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
 
         // Benchmark
