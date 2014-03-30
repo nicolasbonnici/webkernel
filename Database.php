@@ -44,8 +44,6 @@ class Database
         )
     );
 
-
-
     /**
      * Constructeur
      *
@@ -91,7 +89,6 @@ class Database
             self::$_pass = $aConfig['database']['pass'];
 
             self::$_link = new \PDO(self::$_driver.':dbname='.self::$_name.';host='.self::$_host,self::$_user ,self::$_pass);
-
 
         } catch(Exception $log) {
             throw new DatabaseException($log);

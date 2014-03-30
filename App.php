@@ -14,6 +14,25 @@ namespace Library\Core;
 class App
 {
     /**
+     * Entities namespace
+     * @var string
+     */
+    const ENTITIES_NAMESPACE                = '\app\Entities\\';
+    const ENTITIES_COLLECTION_NAMESPACE     = '\app\Entities\Collection\\';
+
+    /**
+     * Exceptions error code
+     * @var integer
+     */
+    const ERROR_ENTITY_EXISTS                   = 400;
+    const ERROR_USER_INVALID                    = 401;
+    const ERROR_ENTITY_NOT_LOADED               = 402;
+    const ERROR_ENTITY_NOT_OWNED_BY_USER        = 403;
+    const ERROR_ENTITY_NOT_LOADABLE             = 404;
+    const ERROR_ENTITY_NOT_MAPPED_TO_USERS      = 405;
+    const ERROR_FORBIDDEN_BY_ACL                = 406;
+
+    /**
      *
      * @var Bootstrap Instance
      */
@@ -69,6 +88,13 @@ class App
      * @var array
      */
     private static $aBundles;
+
+    /**
+     * Available Entities found on the registered Namespace (self::ENTITIES_NAMESPACE)
+     *
+     * @var array
+     */
+    private static $aEntities;
 
     /**
      * \Library\Core\Bootstrap::$aBundles \Library\Core\Cache duration in seconds
@@ -320,6 +346,21 @@ class App
         ) );
 
         return \Haanga::load ( $sTpl, $aViewParams, $bToString );
+    }
+
+    /**
+     * Get available \app\Entities
+     * @return array                    An array on Entities classnames found
+     */
+    public static function buildEntities()
+    {
+        $aFolderContent = scandir(ROOT_PATH . 'app/Entities/');
+        foreach ($aFolderContent as $sEntity) {
+            if ($sEntity !== '.' && $sEntity !== '..' && $sEntity !== 'Collection') {
+                self::$aEntities[] = substr($sEntity, 0, strlen($sEntity) - strlen('.php'));
+            }
+        }
+        return self::$aEntities;
     }
 
     /**
