@@ -116,15 +116,16 @@ abstract class EntitiesCollection extends Collection
      * @param array $aParameters List of parameters name/value
      * @param array $aOrderFields List of order fields/direction
      * @param array $aLimit Start / End limit request for pagination
+     * @param bool  $bStrictMode AND|OR operator switch and =|LIKE %%
      * @throws EntityException
      */
-    public function loadByParameters(array $aParameters, array $aOrderFields = array(), array $aLimit = array(0,10))
+    public function loadByParameters(array $aParameters, array $aOrderFields = array(), array $aLimit = array(0,10), $bStrictMode = true)
     {
 
         assert('is_int($aLimit[0]) && is_int($aLimit[1])');
 
         if (empty($aParameters)) {
-            throw new ObjectException('No parameter provided for loading collection of type ' . $this->sChildClass);
+            throw new EntitiesCollectionException('No parameter provided for loading collection of type ' . $this->sChildClass);
         }
 
         $sWhere = '';
@@ -132,7 +133,7 @@ abstract class EntitiesCollection extends Collection
 
         foreach ($aParameters as $sParameterName => $mParameterValue) {
             if (!empty($sWhere)) {
-                $sWhere .= ' AND ';
+                $sWhere .= ' ' . (($bStrictMode === true) ? 'AND' : 'OR' ) . ' ';
             }
             // Enable using LOWER(), UPPER(), ...
             if (strpos($sParameterName, '(') === false) {
@@ -145,7 +146,7 @@ abstract class EntitiesCollection extends Collection
                 $sWhere .= ' IN(?' . str_repeat(', ?', count($mParameterValue) - 1) . ')';
                 $aBindedValues = array_merge($aBindedValues, $mParameterValue);
             } else {
-                $sWhere .= ' = ?';
+                $sWhere .= ' ' . (($bStrictMode === true) ? '= ?' : 'LIKE ?' );
                 $aBindedValues[] = $mParameterValue;
             }
         }

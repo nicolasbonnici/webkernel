@@ -265,14 +265,14 @@ class App
      *
      * @todo mettre en cache
      *
-     * @throws BootstrapException
+     * @throws AppException
      */
     private static function initConfig()
     {
         if (is_file ( APP_PATH . 'config/config.ini' )) {
             self::$aConfig = parse_ini_file ( APP_PATH . 'config/config.ini', true );
         } else {
-            throw new BootstrapException ( 'Unable to load config...' );
+            throw new AppException( 'Unable to load config...' );
         }
 
     }
@@ -309,7 +309,7 @@ class App
         if (class_exists ( $sController )) {
             new $sController();
         } else {
-            throw new BootstrapException('No controller found: ' . $sController);
+            throw new AppException('No controller found: ' . $sController);
             //\Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here (bundle error)
         }
     }
@@ -467,7 +467,7 @@ class App
 
             return $sLocale;
         } else {
-        throw new BootstrapException ( 'Unable to load locales...' );
+        throw new AppException ( 'Unable to load locales...' );
         }
     }
 
@@ -537,3 +537,5 @@ class App
         return self::$sPhpVersion;
     }
 }
+
+class AppException extends \Exception {}

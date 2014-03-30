@@ -157,7 +157,7 @@ abstract class Entity extends Database
         }
 
         return $this->loadByQuery(
-            'SELECT * FROM ' . static::TABLE_NAME . ' WHERE `' . implode('` = ? AND `', array_keys($aParameters)) . '` = ?',
+            'SELECT * FROM ' . static::TABLE_NAME . ' WHERE `' . implode('` = ? AND `', array_keys($aParameters)) . '` = ? ',
             array_values($aParameters),
             true,
             Cache::getKey(__METHOD__, $aParameters)

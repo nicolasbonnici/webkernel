@@ -42,9 +42,9 @@ class Search
     /**
      * Instance constructor
      */
-    public function __construct(array $aParameters = array(), $mEntity = null, array $aOrderBy = array(), array $aLimit = array(0, 10), $mUser = null)
+    public function __construct($mSearch, array $aOrderBy = array(), array $aLimit = array(0, 10), $mEntity = null, $mUser = null)
     {
-        if (empty($aParameters)) {
+        if (empty($mSearch)) {
             throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
         } elseif(is_array($mEntity)) {
             $this->aEntitiesScope = $mEntity;
@@ -69,32 +69,68 @@ class Search
         }
 
         if (empty($this->aEntitiesScope)) {
-            throw new SearchException('Empty entities search scope...', self::ERROR_EMPTY_ENTITIES_SCOPE);
+            throw new SearchException('Empty entities scope...', self::ERROR_EMPTY_ENTITIES_SCOPE);
         } else {
             // For each entity in scope perform the key => value search if the key attribute exists
             foreach ($this->aEntitiesScope as $sEntity) {
                 if (is_string($sEntity) && strlen($sEntity) > 0 && class_exists(App::ENTITIES_NAMESPACE . $sEntity)) {
-                    $this->doSearch($sEntity, $aParameters, $aOrderBy, $aLimit);
+                    $this->doSearch($sEntity, $mSearch, $aOrderBy, $aLimit);
                 }
             }
         }
 
     }
 
-    private function doSearch($sEntity, array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array())
+    private function doSearch($sEntity, $mSearch, array $aOrderBy = array(), array $aLimit = array())
     {
-        assert('!empty($aParameters)');
         assert('is_null($sEntity) || is_array($sEntity) || is_string($sEntity) && strlen($sEntity) > 0');
+        assert('!empty($mSearch)');
 
         if (empty($sEntity)) {
             throw new SearchException('No entity provided...', self::ERROR_EMPTY_ENTITY);
-        } elseif (empty($aParameters)) {
+        } elseif (empty($mSearch)) {
             throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
         } else {
+            $aParameters = array();
+            $sEntityClassName = App::ENTITIES_NAMESPACE . $sEntity;
             $sEntityCollectionClassName = App::ENTITIES_COLLECTION_NAMESPACE . $sEntity . 'Collection';
+            $oEntity = new $sEntityClassName();
             $oEntityCollection = new $sEntityCollectionClassName();
-            $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit);
+
+            // JSON encoded parameters
+            $mSearch = json_decode($mSearch);
+
+            if (is_array($mSearch) && count($mSearch) > 0) {
+                foreach ($mSearch as $oRequest) {
+                    if(
+                        isset($oRequest->name, $oRequest->value) &&
+                        $oRequest->name === 'search' &&
+                        !empty($oRequest->value)
+                    ) {
+                        // Generic search
+                        $aAttributes = $oEntity->getAttributes();
+                        foreach ($aAttributes as $sKey) {
+                            if ($oEntity->getDataType($sKey) === 'string') {
+                                $aParameters[$sKey] = $oRequest->value;
+                            }
+                        }
+                    } elseif (
+                            isset($oRequest->name, $oRequest->value) &&
+                            !empty($oRequest->name) &&
+                            !empty($oRequest->value)
+                    ) {
+                        // Simple keys values search
+                        $aParameters[$oRequest->name] = $oRequest->value;
+                    } else {
+                        die(var_dump($oRequest));
+                    }
+                }
+            }
+
+            // @important the bStrictMode flag to false (for AND => OR | ' = ?' => LIKE %?%)
+            $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit, false);
             $this->aResults[$sEntity] = $oEntityCollection;
+            $this->aResults[$sEntity]->count = $oEntityCollection->count();
         }
     }
 
