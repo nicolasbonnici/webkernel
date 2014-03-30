@@ -10,13 +10,14 @@ namespace Library\Core;
  *
  */
 
-class Search
+abstract class Search
 {
     /**
      * Errors codes
      * @var integer
      */
     const ERROR_EMPTY_REQUEST           = 2;
+    const ERROR_UNAUTHORIZED_REQUEST    = 403;
     const ERROR_EMPTY_ENTITIES_SCOPE    = 3;
     const ERROR_EMPTY_ENTITY            = 4;
 
@@ -28,10 +29,16 @@ class Search
     protected $oUser;
 
     /**
-     * Scope of entities to search
+     * Scope of requested entities to search
      * @var array
      */
     protected $aEntitiesScope = array();
+
+    /**
+     * Scope of forbidden entities to search
+     * @var array
+     */
+    protected $aForbiddenEntities = array('User', 'Role', 'Permission', 'Ressource');
 
     /**
      * An two dimensionnal array with the Entity name and the Entity collection of founded items
@@ -42,7 +49,7 @@ class Search
     /**
      * Instance constructor
      */
-    public function __construct($mSearch, array $aOrderBy = array(), array $aLimit = array(0, 10), $mEntity = null, $mUser = null)
+    public function __construct($mSearch, array $aOrderBy = array(), array $aLimit = array(0, 100), $mEntity = null, $mUser = null)
     {
         if (empty($mSearch)) {
             throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
@@ -57,7 +64,7 @@ class Search
 
         // Instanciate \app\Entities\User provided at instance constructor
         if ($mUser instanceof \app\Entities\User && $mUser->isLoaded()) {
-            $this->oUser = $mUser;
+            $this->oUser = clone $mUser;
         } elseif (is_int($mUser) && intval($mUser) > 0) {
             try {
                 $this->oUser = new \app\Entities\User($mUser);
@@ -71,10 +78,17 @@ class Search
         if (empty($this->aEntitiesScope)) {
             throw new SearchException('Empty entities scope...', self::ERROR_EMPTY_ENTITIES_SCOPE);
         } else {
+
             // For each entity in scope perform the key => value search if the key attribute exists
             foreach ($this->aEntitiesScope as $sEntity) {
-                if (is_string($sEntity) && strlen($sEntity) > 0 && class_exists(App::ENTITIES_NAMESPACE . $sEntity)) {
-                    $this->doSearch($sEntity, $mSearch, $aOrderBy, $aLimit);
+                if (
+                    is_string($sEntity) &&
+                    strlen($sEntity) > 0 &&
+                    class_exists(App::ENTITIES_NAMESPACE . $sEntity)
+                ) {
+                    try {
+                        $this->doSearch($sEntity, $mSearch, $aOrderBy, $aLimit);
+                    } catch (SearchException $oException) {}
                 }
             }
         }
@@ -86,7 +100,9 @@ class Search
         assert('is_null($sEntity) || is_array($sEntity) || is_string($sEntity) && strlen($sEntity) > 0');
         assert('!empty($mSearch)');
 
-        if (empty($sEntity)) {
+        if (in_array($sEntity, $this->aForbiddenEntities) &&  is_null($this->oUser)) {
+            throw new SearchException('Unauthorized request!', self::ERROR_UNAUTHORIZED_REQUEST);
+        } elseif (empty($sEntity)) {
             throw new SearchException('No entity provided...', self::ERROR_EMPTY_ENTITY);
         } elseif (empty($mSearch)) {
             throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
@@ -122,7 +138,7 @@ class Search
                         // Simple keys values search
                         $aParameters[$oRequest->name] = $oRequest->value;
                     } else {
-                        die(var_dump($oRequest));
+                        throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
                     }
                 }
             }
