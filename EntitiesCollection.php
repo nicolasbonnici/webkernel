@@ -147,7 +147,7 @@ abstract class EntitiesCollection extends Collection
                 $aBindedValues = array_merge($aBindedValues, $mParameterValue);
             } else {
                 $sWhere .= ' ' . (($bStrictMode === true) ? '= ?' : 'LIKE ?' );
-                $aBindedValues[] = $mParameterValue;
+                $aBindedValues[] = (($bStrictMode === true) ? '' : '%' ) . $mParameterValue . (($bStrictMode === true) ? '' : '%' );
             }
         }
 
