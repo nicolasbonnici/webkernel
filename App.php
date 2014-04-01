@@ -8,7 +8,7 @@ namespace Library\Core;
  * @dependancy \Library\Core\Cache
  *
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
- *        
+ *
  */
 class App
 {
@@ -55,9 +55,6 @@ class App
 
     /**
      * Config multi dimensional array parsed from .
-     *
-     *
-     *
      *
      * ini files
      *
@@ -135,52 +132,52 @@ class App
         // PHP
         // @todo SGBD infos
         self::$sPhpVersion = PHP_VERSION;
-        
+
         /**
          * Init environment staging
          */
         self::initEnv();
-        
+
         /**
          *
          * @see paths
          */
         self::initPaths();
-        
+
         /**
          *
          * @see register class autoloader
          */
         self::initAutoloader();
-        
+
         /**
          * Init config
          */
         self::initConfig();
-        
+
         /**
          *
          * @see Errors and log reporting
          */
         self::initReporting();
         self::initLogs();
-        
+
         /**
          * Init cache
          */
         self::initCache();
-        
+
         /**
          * Parse and load bundles, controllers and actions available
          * Read from cache if exists
          */
         self::buildBundles();
-        
+
         /**
          * Parse request
          */
         self::$aRequest = self::initRouter();
-        
+
         /**
          * Init requested controller
          */
@@ -206,7 +203,7 @@ class App
     /**
      * Autoload any class that use namespaces
      *
-     * @param string $sClassName            
+     * @param string $sClassName
      */
     public static function classLoader($sClassName)
     {
@@ -216,15 +213,15 @@ class App
         if ($lastNsPos = strripos($sClassName, '\\')) {
             $namespace = substr($sClassName, 0, $lastNsPos);
             $sClassName = substr($sClassName, $lastNsPos + 1);
-            
+
             $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
         }
         $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
-        
+
         if (is_file(ROOT_PATH . $sFileName)) {
             require_once ROOT_PATH . $sFileName;
         }
-        
+
         if (ENV === 'dev') {
             self::registerLoadedClass($sFileName);
         }
@@ -257,33 +254,29 @@ class App
     {
         $sLogFile = LOG_PATH . '/errors.log';
         if (! is_file($sLogFile)) {
-            
+
             if (! is_dir(LOG_PATH)) {
                 mkdir(LOG_PATH);
             }
-            
+
             // Reconstruire le chemin aussi
             if (! is_dir(substr($sLogFile, 0, strlen($sLogFile) - strlen('/errors.log')))) {
                 mkdir(substr($sLogFile, 0, strlen($sLogFile) - strlen('/errors.log')));
             }
-            
+
             fopen($sLogFile, 'w+');
         }
         ini_set('error_log', $sLogFile);
-        
+
         return;
     }
 
     /**
      * Parse config from a .
-     *
-     *
-     *
-     *
-     * ini file under app/config/
+     * @see app/config/
      *
      * @todo mettre en cache
-     *      
+     *
      * @throws AppException
      */
     private static function initConfig()
@@ -320,11 +313,11 @@ class App
     private static function initController()
     {
         $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst(\Library\Core\Router::getController()) . 'Controller';
-        
+
         if (ENV === 'dev') {
             self::$aLoadedClass[] = $sController;
         }
-        
+
         if (class_exists($sController)) {
             new $sController();
         } else {
@@ -336,9 +329,9 @@ class App
     /**
      * Init template engine and render view
      *
-     * @param string $sTpl            
-     * @param array $aViewParams            
-     * @param boolean $bToString            
+     * @param string $sTpl
+     * @param array $aViewParams
+     * @param boolean $bToString
      * @param boolean $bLoadAllBundleViews
      *            A flag to load all bundles views path (For the CrudController)
      */
@@ -346,12 +339,12 @@ class App
     {
         $sHaangaPath = LIBRARY_PATH . 'Haanga/';
         require_once $sHaangaPath . 'Haanga.php';
-        
+
         $aViewsPaths = array(
             APP_PATH . 'Views/',
             BUNDLES_PATH . \Library\Core\Router::getBundle() . '/Views/'
         );
-        
+
         if ($bLoadAllBundleViews && count(self::$aBundles) > 0) {
             foreach (self::$aBundles as $sBundle => $aController) {
                 if ($sBundle !== \Library\Core\Router::getBundle()) {
@@ -359,12 +352,12 @@ class App
                 }
             }
         }
-        
+
         \Haanga::configure(array(
             'template_dir' => $aViewsPaths,
             'cache_dir' => CACHE_PATH . \Library\Core\Router::getBundle() . '/Views'
         ));
-        
+
         return \Haanga::load($sTpl, $aViewParams, $bToString);
     }
 
@@ -393,7 +386,7 @@ class App
     {
         assert('is_dir(BUNDLES_PATH)');
         $aParsedBundles = array();
-        
+
         self::$aBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundlesTree'));
         if (self::$aBundles === false || count(self::$aBundles) === 0) {
             $aBundles = array_diff(scandir(BUNDLES_PATH), array(
@@ -409,27 +402,27 @@ class App
             Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundlesTree'), $aParsedBundles, false, self::$iBundlesCacheDuration);
         }
     }
-    
+
     /*
      * Get an array of all Controllers and methods for a given module @param string $sBundle The module name @return array A two dimensional array that contain each controller from a module along with his own methods (actions only)
      */
     public static function buildControllers($sBundle)
     {
         assert('!empty($sBundle) && is_string($sBundle) && is_dir(BUNDLES_PATH . "/" . $sBundle . "/Controllers/")');
-        
+
         $aControllers = array();
         $sControllerPath = BUNDLES_PATH . '/' . $sBundle . '/Controllers/';
         $aFiles = array_diff(scandir($sControllerPath), array(
             '..',
             '.'
         ));
-        
+
         foreach ($aFiles as $sController) {
             if (preg_match('#Controller.php$#', $sController)) {
                 $aControllers[substr($sController, 0, strlen($sController) - strlen('Controller.php'))] = self::buildActions($sBundle, $sController);
             }
         }
-        
+
         return $aControllers;
     }
 
@@ -454,7 +447,7 @@ class App
                 }
             }
         }
-        
+
         return $aActions;
     }
 
@@ -465,7 +458,7 @@ class App
      */
     private static function initLocales()
     {
-        
+
         /**
          *
          * @see regenerer les locales
@@ -473,24 +466,24 @@ class App
          *      xgettext -f totranslate.txt -o project.pot
          */
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            
+
             // @todo intégrer intl à ce niveau
             $sLocale = 'FR_fr';
-            
+
             if (strlen($sLocale) === 2) {
                 $sLocale = strtoupper($sLocale) . '_' . $sLocale;
             }
-            
+
             $sFilename = Router::DEFAULT_BUNDLE;
             putenv('LC_ALL=' . $sLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
             setlocale(LC_ALL, $sLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
-            
+
             // @see gettext init (on utilise juste des array pour le moment c'est chiant de tout recompiler)
             // bindtextdomain($sFilename, Router::DEFAULT_BUNDLES_PATH . Router::DEFAULT_BUNDLE . '/Translations/');
             //
             // bind_textdomain_codeset($sFilename, Router::DEFAULT_ENCODING);
             // textdomain(Router::DEFAULT_BUNDLE);
-            
+
             return $sLocale;
         } else {
             throw new AppException('Unable to load locales...');
