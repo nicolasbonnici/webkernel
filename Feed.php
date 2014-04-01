@@ -1,24 +1,25 @@
 <?php
-
 namespace Library\Core;
 
 /**
  * Feed generator and parser abstract class
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
- *
+ *        
  */
 abstract class Feed
 {
 
     /**
      * Feed instance
+     *
      * @var \app\Entities\Feed
      */
     protected $oFeed;
 
     /**
      * Feed items
+     *
      * @var \app\Entities\Collection\FeedItemCollection
      */
     protected $oFeedItems;
@@ -39,10 +40,10 @@ abstract class Feed
     /**
      * Load feed's FeedItems
      *
-     * @param array $aParameters
-     * @param array $aOrderBy
-     * @param array $aLimit
-     * @return boolean              TRUE if feed items was found FALSE otherwhise
+     * @param array $aParameters            
+     * @param array $aOrderBy            
+     * @param array $aLimit            
+     * @return boolean TRUE if feed items was found FALSE otherwhise
      */
     protected function loadFeedITems(array $aParameters = array(), array $aOrderBy = array('created' => 'DESC'), array $aLimit = array(0, 10))
     {
@@ -55,19 +56,25 @@ abstract class Feed
     /**
      * Parse items from feed source url
      *
-     * @param boolean $bPersistNewFeedItem                  TRUE to store feed items delta
-     * @param integer $iDelta                               Feed items query depth from the latest
-     * @return \app\Entities\Collection\FeedItemCollection  Persisted \app\Entities\FeedItem if $bPersist = TRUE otherwhise lastest {$iDelta} feed activities
+     * @param boolean $bPersistNewFeedItem
+     *            TRUE to store feed items delta
+     * @param integer $iDelta
+     *            Feed items query depth from the latest
+     * @return \app\Entities\Collection\FeedItemCollection Persisted \app\Entities\FeedItem if $bPersist = TRUE otherwhise lastest {$iDelta} feed activities
      */
-    protected function parse($bPersistNewFeedItem = false, $iDelta = 256) {}
+    protected function parse($bPersistNewFeedItem = false, $iDelta = 256)
+    {}
 
     /**
+     *
      * @todo Une methode qui construit et retourne un flux en différents format depuis une collection d'entités
      */
-    protected function generate() {}
+    protected function generate()
+    {}
 
     /**
      * Feed items accessor
+     *
      * @return \app\Entities\Collection\FeedItemCollection
      */
     protected function getFeedItems()
@@ -76,4 +83,6 @@ abstract class Feed
     }
 }
 
-class FeedException extends \Exception {}
+class FeedException extends \Exception
+{
+}

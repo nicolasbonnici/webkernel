@@ -1,5 +1,4 @@
 <?php
-
 namespace Library\Core;
 
 /**
@@ -20,58 +19,51 @@ class Auth extends Controller
 
     public function __construct()
     {
-
         $this->loadRequest();
-
+        
         /**
          * Check php session
          */
-        if (
-            isset($_SESSION['token']) &&
-            ($this->_session = $_SESSION) &&
-            $this->checkSessionintegrity()
-        ) {
+        if (isset($_SESSION['token']) && ($this->_session = $_SESSION) && $this->checkSessionintegrity()) {
             parent::__construct($this->oUser);
         } else {
-            $this->redirect($this->buildRedirectUrl( Router::getBundle() ));
+            $this->redirect($this->buildRedirectUrl(Router::getBundle()));
         }
-
     }
 
     /**
      * Validate session integrity
+     *
      * @return bool
      */
     protected function checkSessionintegrity()
     {
         $this->oUser = new \app\Entities\User();
-
+        
         try {
-            $this->oUser->loadByParameters(
-                array(
-                    'iduser' => $this->_session['iduser'],
-                    'mail' => $this->_session['mail'],
-                    'token' => $this->_session['token'],
-                    'created' => $this->_session['created']
-                )
-            );
-
+            $this->oUser->loadByParameters(array(
+                'iduser' => $this->_session['iduser'],
+                'mail' => $this->_session['mail'],
+                'token' => $this->_session['token'],
+                'created' => $this->_session['created']
+            ));
+            
             if ($this->oUser->isLoaded()) {
-
-                foreach ($this->oUser as $key=>$mValue) {
+                
+                foreach ($this->oUser as $key => $mValue) {
                     $_SESSION[$key] = $mValue;
                 }
-
+                
                 // Regenerate session token
                 $_SESSION['token'] = $this->generateToken();
                 // Unset password
                 unset($_SESSION['pass']);
-
+                
                 $this->oUser->token = $_SESSION['token'];
-
+                
                 return $this->oUser->update();
             }
-        } catch(CoreEntityException $oException) {
+        } catch (CoreEntityException $oException) {
             return false;
         }
     }
@@ -83,9 +75,10 @@ class Auth extends Controller
      */
     private function generateToken()
     {
-        return hash('SHA256', uniqid((double)microtime()*1000000, true));
+        return hash('SHA256', uniqid((double) microtime() * 1000000, true));
     }
-
 }
 
-class CoreAuthControllerException extends \Exception {}
+class CoreAuthControllerException extends \Exception
+{
+}

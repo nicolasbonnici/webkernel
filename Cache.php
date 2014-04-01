@@ -1,5 +1,4 @@
 <?php
-
 namespace Library\Core;
 
 /**
@@ -10,25 +9,33 @@ namespace Library\Core;
  */
 class Cache
 {
+
     /**
      * Predifened constants for easier use/reading of cache time durations
+     *
      * @var integer
      */
     const CACHE_TIME_MINUTE = 60;
+
     const CACHE_TIME_HALF_HOUR = 180;
+
     const CACHE_TIME_HOUR = 360;
+
     const CACHE_TIME_HALF_DAY = 43200;
+
     const CACHE_TIME_DAY = 86400;
 
     const prefix = 'Core';
+
     private static $res_memcache;
+
     private static $connected;
 
     private static function memc_res()
     {
         $memcacheServer = CACHE_HOST;
         $memcachePort = CACHE_PORT;
-        if (!isset(self::$res_memcache)) {
+        if (! isset(self::$res_memcache)) {
             if ($memcacheServer && $memcachePort) {
                 self::$res_memcache = new \Memcache();
                 if (self::$res_memcache->connect($memcacheServer, $memcachePort, 2) === true) {
@@ -39,11 +46,7 @@ class Cache
                     return false;
                 }
             } else {
-                throw new \Exception(
-                    "Memcache n'est pas configuré dans le fichier config.ini.<br>".
-                    "server : '".$memcacheServer."'," .
-                    "port : '".$memcachePort."'"
-                );
+                throw new \Exception("Memcache n'est pas configuré dans le fichier config.ini.<br>" . "server : '" . $memcacheServer . "'," . "port : '" . $memcachePort . "'");
             }
         }
     }
@@ -53,29 +56,29 @@ class Cache
         if (isset($_GET['noCache']) && ENV === 'dev') {
             return false;
         }
-
+        
         if (self::$connected) {
-            $ret =  self::$res_memcache->get(self::prefix.'-'.$name);
-        } elseif(self::memc_res()) {
-            $ret =  self::$res_memcache->get(self::prefix.'-'.$name);
+            $ret = self::$res_memcache->get(self::prefix . '-' . $name);
+        } elseif (self::memc_res()) {
+            $ret = self::$res_memcache->get(self::prefix . '-' . $name);
         } else {
             $ret = false;
         }
-
+        
         if (isset($_GET['clearCache']) && ENV === 'dev' && self::$connected) {
-            self::$res_memcache->delete(self::prefix.'-'.$name);
+            self::$res_memcache->delete(self::prefix . '-' . $name);
             $ret = false;
         }
-
+        
         return $ret;
     }
 
     public static function set($name, $value, $flag = false, $expire = 120)
     {
         if (self::$connected) {
-            self::$res_memcache->set(self::prefix.'-'.$name, $value, false, $expire);
+            self::$res_memcache->set(self::prefix . '-' . $name, $value, false, $expire);
         } elseif (self::memc_res()) {
-            self::$res_memcache->set(self::prefix.'-'.$name, $value, false, $expire);
+            self::$res_memcache->set(self::prefix . '-' . $name, $value, false, $expire);
         } else {
             return false;
         }
@@ -84,9 +87,9 @@ class Cache
     public static function delete($name, $timeout = 0)
     {
         if (self::$connected) {
-            self::$res_memcache->delete(self::prefix.'-'.$name, $timeout);
+            self::$res_memcache->delete(self::prefix . '-' . $name, $timeout);
         } elseif (self::memc_res()) {
-            self::$res_memcache->delete(self::prefix.'-'.$name, $timeout);
+            self::$res_memcache->delete(self::prefix . '-' . $name, $timeout);
         } else {
             return false;
         }
@@ -96,7 +99,7 @@ class Cache
     {
         if (self::$connected) {
             self::$res_memcache->flush();
-        } elseif(self::memc_res()) {
+        } elseif (self::memc_res()) {
             self::$res_memcache->flush();
         } else {
             return false;
@@ -107,6 +110,7 @@ class Cache
      * Generate cache key depending on given parameters
      * Variable types "ressource" and "NULL" and "Unknow type" are not handled
      * If key string is more than 250 characters long, MD5 hash is retrieved (Memcache limitation)
+     *
      * @since 1.1.0
      * @return string Cache key
      */
@@ -124,18 +128,21 @@ class Cache
                     $sKey .= (string) $mArgument . '-';
                     break;
                 case 'array':
-                    $sKey .= call_user_func_array(array('self', 'getKey'), $mArgument) . '-';
+                    $sKey .= call_user_func_array(array(
+                        'self',
+                        'getKey'
+                    ), $mArgument) . '-';
                     break;
                 case 'object':
                     $sKey .= serialize($mArgument) . '-';
                     break;
             }
         }
-
+        
         if (strlen($sKey) > 250) {
             $sKey = md5($sKey);
         }
-
+        
         return $sKey;
     }
 }

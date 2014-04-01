@@ -1,5 +1,4 @@
 <?php
-
 namespace Library\Core;
 
 /**
@@ -9,5 +8,4 @@ namespace Library\Core;
  */
 class Session
 {
-
 }

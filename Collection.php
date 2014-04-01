@@ -1,24 +1,27 @@
 <?php
-
 namespace Library\Core;
+
 /**
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
- *
+ *        
  */
 class Collection implements \Iterator
 {
 
     /**
      * List of elements in collection
+     *
      * @var array
      */
     protected $aElements = array();
 
     /**
      * Constructor
-     * @param array $aElements Collection elements
+     *
+     * @param array $aElements
+     *            Collection elements
      */
     public function __construct(array $aElements = array())
     {
@@ -26,6 +29,7 @@ class Collection implements \Iterator
     }
 
     /**
+     *
      * @see Iterator::current()
      */
     public function current()
@@ -34,6 +38,7 @@ class Collection implements \Iterator
     }
 
     /**
+     *
      * @see Iterator::key()
      */
     public function key()
@@ -42,6 +47,7 @@ class Collection implements \Iterator
     }
 
     /**
+     *
      * @see Iterator::next()
      */
     public function next()
@@ -50,13 +56,16 @@ class Collection implements \Iterator
     }
 
     /**
+     *
      * @see Iterator::rewind()
      */
-    public function rewind() {
+    public function rewind()
+    {
         reset($this->aElements);
     }
 
     /**
+     *
      * @see Iterator::valid()
      */
     public function valid()
@@ -66,6 +75,7 @@ class Collection implements \Iterator
 
     /**
      * Count the number of elements in collection
+     *
      * @return integer Number of elements contained in collection
      */
     public function count()
@@ -75,6 +85,7 @@ class Collection implements \Iterator
 
     /**
      * Sort collection elements by value
+     *
      * @return boolean TRUE on success, otherwise FALSE
      */
     public function sort()
@@ -84,6 +95,7 @@ class Collection implements \Iterator
 
     /**
      * Sort collection elements by value
+     *
      * @return boolean TRUE on success, otherwise FALSE
      */
     public function ksort()
@@ -93,25 +105,30 @@ class Collection implements \Iterator
 
     /**
      * Add element to collection
-     * @param integer|string $mKey Element's key
-     * @param mixed $mValue Element's value
+     *
+     * @param integer|string $mKey
+     *            Element's key
+     * @param mixed $mValue
+     *            Element's value
      */
     public function add($mKey, $mValue)
     {
-        if (is_int($mKey) || !empty($mKey)) {
+        if (is_int($mKey) || ! empty($mKey)) {
             $this->aElements[$mKey] = $mValue;
         }
     }
 
     /**
      * Retrieve an element of the collection by its key
-     * @param integer|string $mKey Element's key
+     *
+     * @param integer|string $mKey
+     *            Element's key
      * @return mixed Element if existing, otherwise null
      */
     public function get($mKey)
     {
         assert('is_int($mKey) || !empty($mKey)');
-
+        
         return isset($this->aElements[$mKey]) ? $this->aElements[$mKey] : null;
     }
 
@@ -122,7 +139,6 @@ class Collection implements \Iterator
     {
         $this->aElements = array();
     }
-
 }
 
 ?>
