@@ -306,8 +306,10 @@ abstract class Entity extends Database
         }
 
         try {
+            $oOriginalObject = new $this->sClassName($this->{static::PRIMARY_KEY});
+
             if ($this->bIsHistorized) {
-                $this->saveHistory($oDbOriginalObject);
+                $this->saveHistory($oOriginalObject);
             }
 
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
@@ -607,29 +609,29 @@ abstract class Entity extends Database
 
     /**
      * Save history on update for historized objects
-     * @param CoreObject $oDbOriginalObject Original object before update
+     * @param \app\Entities $oOriginalObject          Original object before update
      */
-    protected function saveHistory($oDbOriginalObject)
+    protected function saveHistory($oOriginalObject)
     {
         $aBefore = array();
         $aAfter = array();
 
         foreach ($this as $sPropertyName => $mValue) {
-            if ($mValue != $oDbOriginalObject->{$sPropertyName}) {
-                $aBefore[$sPropertyName] = $oDbOriginalObject->{$sPropertyName};
+            if ($mValue != $oOriginalObject->{$sPropertyName}) {
+                $aBefore[$sPropertyName] = $oOriginalObject->{$sPropertyName};
                 $aAfter[$sPropertyName] = $mValue;
             }
         }
 
-        $oDbHistorisationObjet = new \db\HistorisationObjet();
-        $oDbHistorisationObjet->classe = substr($this->sClassName, 3);
-        $oDbHistorisationObjet->idobjet = $this->{static::PRIMARY_KEY};
-        $oDbHistorisationObjet->avant = json_encode($aBefore);
-        $oDbHistorisationObjet->apres = json_encode($aAfter);
-        $oDbHistorisationObjet->date_modif = date('Y-m-d');
-        $oDbHistorisationObjet->time_modif = date('H:i:s');
-        $oDbHistorisationObjet->iduser = \model\UserSession::getInstance()->getUserId();
-        $oDbHistorisationObjet->add();
+        $oEntityHistory = new \app\Entities\EntityHistory();
+        $oEntityHistory->classe = substr($this->sClassName, 3);
+        $oEntityHistory->idobjet = $this->{static::PRIMARY_KEY};
+        $oEntityHistory->avant = json_encode($aBefore);
+        $oEntityHistory->apres = json_encode($aAfter);
+        $oEntityHistory->date_modif = date('Y-m-d');
+        $oEntityHistory->time_modif = date('H:i:s');
+        $oEntityHistory->iduser = \model\UserSession::getInstance()->getUserId();
+        $oEntityHistory->add();
     }
 }
 
