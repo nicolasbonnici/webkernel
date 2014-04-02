@@ -118,8 +118,6 @@ abstract class Entity extends Database
         }
 
         $this->sChildClass = get_called_class();
-
-        return;
     }
 
     /**
@@ -306,7 +304,7 @@ abstract class Entity extends Database
         }
 
         try {
-            $oOriginalObject = new $this->sClassName($this->{static::PRIMARY_KEY});
+            $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
 
             if ($this->bIsHistorized) {
                 $this->saveHistory($oOriginalObject);
@@ -624,7 +622,7 @@ abstract class Entity extends Database
         }
 
         $oEntityHistory = new \app\Entities\EntityHistory();
-        $oEntityHistory->classe = substr($this->sClassName, 3);
+        $oEntityHistory->classe = substr($this->sChildClass, 3);
         $oEntityHistory->idobjet = $this->{static::PRIMARY_KEY};
         $oEntityHistory->avant = json_encode($aBefore);
         $oEntityHistory->apres = json_encode($aAfter);
