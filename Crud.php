@@ -8,7 +8,7 @@ namespace Library\Core;
  * If Entity has a foreign key to \app\Entity\User the scope is restricted to current session entities for CRUD, load and search actions
  *
  * @author niko
- *        
+ *
  */
 abstract class Crud
 {
@@ -42,7 +42,7 @@ abstract class Crud
         assert('is_null($mUser) || $mUser instanceof \app\Entities\User && $mUser->isLoaded() || is_int($mUser) && intval($mUser) > 0');
         assert('!empty($sEntityName) || !class_exists(App::ENTITIES_NAMESPACE . $sEntityName)');
         assert('intval($iPrimaryKey) === 0 || intval($iPrimaryKey) > 0');
-        
+
         if (empty($sEntityName) || ! class_exists(App::ENTITIES_NAMESPACE . $sEntityName)) {
             throw new CrudException("Entity requested not found, you need to create manually or scaffold his \app\Entities class.", App::ERROR_ENTITY_EXISTS);
         } else {
@@ -62,7 +62,7 @@ abstract class Crud
             } catch (\Library\Core\EntityException $oException) {
                 throw new CrudException('Invalid user instance provided', App::ERROR_USER_INVALID);
             }
-            
+
             try {
                 $sEntityClassName = App::ENTITIES_NAMESPACE . $sEntityName;
                 $sEntityCollectionClassName = App::ENTITIES_COLLECTION_NAMESPACE . $sEntityName . 'Collection';
@@ -87,41 +87,41 @@ abstract class Crud
         assert('count($aParameters) > 0');
         assert('!is_null($this->oEntity)');
         assert('!is_null($this->oUser)');
-        
+
         // Check for user bypass attempt
         if (($this->oEntity->hasAttribute('user_iduser') && isset($aParameter['user_iduser']) && $this->oUser->getId() !== intval($aParameter['user_iduser'])) || ($this->oEntity->hasAttribute('iduser') && isset($aParameter['iduser']) && $this->oUser->getId() !== intval($aParameter['iduser']))) {
             throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
         } else {
             try {
                 $oEntity = clone $this->oEntity;
-                
+
                 foreach ($aParameters as $aParameter) {
                     if (! empty($aParameter['name']) && ! empty($aParameter['value'])) {
                         $oEntity->{$aParameter['name']} = $aParameter['value'];
                     }
                 }
-                
+
                 // Check for user bypass attempt
                 if ($oEntity->hasAttribute('user_iduser')) {
                     $oEntity->user_iduser = $this->oUser->getId();
                 }
-                
+
                 if ($oEntity->hasAttribute('created')) {
                     $oEntity->created = time();
                 }
                 if ($oEntity->hasAttribute('lastupdate')) {
                     $oEntity->lastupdate = time();
                 }
-                
+
                 // Check for Null attributes
                 foreach ($oEntity->getAttributes() as $sAttr) {
                     if ($sAttr !== $oEntity->getPrimaryKeyName() && ! $oEntity->isNullable($sAttr) && empty($oEntity->{$sAttr})) {
                         throw new CrudException('No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity', App::ERROR_ENTITY_EMPTY_ATTRIBUTE);
                     }
                 }
-                
+
                 $this->oEntity = clone $oEntity;
-                
+
                 return $oEntity->add();
             } catch (\Library\Core\EntityException $oException) {
                 return $oException;
@@ -158,44 +158,44 @@ abstract class Crud
     /**
      * Update an entity restricted to instanciate user scope if entity is mapped with \app\Entities\User
      *
-     * @param array $aParameters            
+     * @param array $aParameters
      * @throws CrudException
      * @return \Library\Core\EntityException
      */
     public function update(array $aParameters = array())
     {
         assert('count($aParameters) > 0');
-        
+
         if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
             throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
         } elseif (! $this->oEntity->isLoaded()) {
             throw new CrudException('Cannot update an unloaded enitity.', App::ERROR_ENTITY_NOT_LOADED);
         } else {
             try {
-                
+
                 foreach ($aParameters as $aParameter) {
                     if (! empty($aParameter['name']) && ! empty($aParameter['value'])) {
-                        
+
                         // Check for user bypass attempt
                         if (($this->oEntity->hasAttribute('user_iduser') && $aParameter['name'] === 'user_iduser' && $this->oUser->getId() !== intval($aParameters['value'])) || ($this->oEntity->hasAttribute('user_iduser') && $aParameter['name'] === 'iduser' && $this->oUser->getId() !== intval($aParameters['value']))) {
                             throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
                         }
-                        
+
                         $this->oEntity->{$aParameter['name']} = $aParameter['value'];
                     }
                 }
-                
+
                 if ($this->oEntity->hasAttribute('lastupdate')) {
                     $this->oEntity->lastupdate = time();
                 }
-                
+
                 // Check for Null attributes
                 foreach ($this->oEntity->getAttributes() as $sAttr) {
                     if (! $this->oEntity->isNullable($sAttr) && empty($this->oEntity->{$sAttr})) {
                         throw new CrudException('No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity', App::ERROR_ENTITY_EMPTY_ATTRIBUTE);
                     }
                 }
-                
+
                 return $this->oEntity->update();
             } catch (\Library\Core\EntityException $oException) {
                 return $oException;
@@ -211,7 +211,7 @@ abstract class Crud
      */
     public function delete()
     {
-        
+
         // Check for user bypass attempt
         if (($this->oEntity->hasAttribute('user_iduser') && (is_null($this->oUser))) || ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser))) {
             throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
@@ -229,12 +229,12 @@ abstract class Crud
     /**
      * Load latest entities
      *
-     * @param array $aParameters            
-     * @param array $aOrderBy            
-     * @param array $aLimit            
+     * @param array $aParameters
+     * @param array $aOrderBy
+     * @param array $aLimit
      * @return boolean
      */
-    public function loadEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10))
+    public function loadEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 25))
     {
         $this->oEntities->loadByParameters($aParameters, $aOrderBy, $aLimit);
         return ($this->oEntities->count() > 0);
@@ -243,9 +243,9 @@ abstract class Crud
     /**
      * Load user's entities
      *
-     * @param array $aParameters            
-     * @param array $aOrderBy            
-     * @param array $aLimit            
+     * @param array $aParameters
+     * @param array $aOrderBy
+     * @param array $aLimit
      * @throws CrudException
      * @return boolean \Library\Core\EntityException
      */
@@ -254,18 +254,18 @@ abstract class Crud
         if (is_null($this->oUser)) {
             throw new CrudException('No \app\Entities\User entity instance found!', App::ERROR_ENTITY_NOT_MAPPED_TO_USERS);
         }
-        
+
         if (! isset($aParameters['user_iduser'])) {
             $aParameters['user_iduser'] = $this->oUser->getId();
         }
-        
+
         try {
             return $this->loadEntities($aParameters, $aOrderBy, $aLimit);
         } catch (\Library\Core\EntityException $oException) {
             return $oException;
         }
     }
-    
+
     /*
      * Get current instance \app\Entities Entity properties @return array
      */

@@ -5,9 +5,9 @@ namespace Library\Core;
  * Search on all entities or a restricted scope with custom parameters and filters
  *
  * @todo add Database LIKE %STRING% support
- *      
+ *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
- *        
+ *
  */
 abstract class Search
 {
@@ -46,6 +46,7 @@ abstract class Search
      */
     protected $aForbiddenEntities = array(
         'User',
+        'Todo',
         'Role',
         'Permission',
         'Ressource'
@@ -73,7 +74,7 @@ abstract class Search
             // By default behavior we take all available Entities
             $this->aEntitiesScope = App::buildEntities();
         }
-        
+
         // Instanciate \app\Entities\User provided at instance constructor
         if ($mUser instanceof \app\Entities\User && $mUser->isLoaded()) {
             $this->oUser = clone $mUser;
@@ -86,11 +87,11 @@ abstract class Search
         } else {
             $this->oUser = null;
         }
-        
+
         if (empty($this->aEntitiesScope)) {
             throw new SearchException('Empty entities scope...', self::ERROR_EMPTY_ENTITIES_SCOPE);
         } else {
-            
+
             // For each entity in scope perform the key => value search if the key attribute exists
             foreach ($this->aEntitiesScope as $sEntity) {
                 if (is_string($sEntity) && strlen($sEntity) > 0 && class_exists(App::ENTITIES_NAMESPACE . $sEntity)) {
@@ -106,7 +107,7 @@ abstract class Search
     {
         assert('is_null($sEntity) || is_array($sEntity) || is_string($sEntity) && strlen($sEntity) > 0');
         assert('!empty($mSearch)');
-        
+
         if (in_array($sEntity, $this->aForbiddenEntities) && is_null($this->oUser)) {
             throw new SearchException('Unauthorized request!', self::ERROR_UNAUTHORIZED_REQUEST);
         } elseif (empty($sEntity)) {
@@ -119,10 +120,10 @@ abstract class Search
             $sEntityCollectionClassName = App::ENTITIES_COLLECTION_NAMESPACE . $sEntity . 'Collection';
             $oEntity = new $sEntityClassName();
             $oEntityCollection = new $sEntityCollectionClassName();
-            
+
             // JSON encoded parameters
             $mSearch = json_decode($mSearch);
-            
+
             if (is_array($mSearch) && count($mSearch) > 0) {
                 foreach ($mSearch as $oRequest) {
                     if (isset($oRequest->name, $oRequest->value) && $oRequest->name === 'search' && ! empty($oRequest->value)) {
@@ -141,7 +142,7 @@ abstract class Search
                     }
                 }
             }
-            
+
             // @important the bStrictMode flag to false (for AND => OR | ' = ?' => LIKE %?%)
             $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit, false);
             $this->aResults[$sEntity] = $oEntityCollection;

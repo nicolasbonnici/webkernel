@@ -68,7 +68,7 @@ class App
      * @todo passer en config
      * @var array
      */
-    private static $aDevelopmentEnvironments = array(
+    private static $aEnvironements = array(
         'core.local',
         'dev.nbonnici.info'
     );
@@ -498,7 +498,7 @@ class App
     private static function initEnv()
     {
         $sEnv = 'prod';
-        if (in_array($_SERVER['SERVER_NAME'], self::$aDevelopmentEnvironments) && self::$aConfig['env']['prod'] !== $_SERVER['SERVER_NAME']) {
+        if (in_array($_SERVER['SERVER_NAME'], self::$aEnvironements) && self::$aConfig['env']['prod'] !== $_SERVER['SERVER_NAME']) {
             $sEnv = 'dev';
         }
         define('ENV', $sEnv);
@@ -531,7 +531,7 @@ class App
 
     public static function registerLoadedClass($sClassname)
     {
-        if (! strlen($sClassname)) {
+        if (strlen($sClassname) > 0) {
             self::$aLoadedClass[] = $sClassname;
         }
     }
