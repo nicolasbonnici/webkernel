@@ -17,6 +17,18 @@ abstract class Entity extends Database
 {
 
     /**
+     * Whether row in database may be deleted or not
+     * @var boolean
+     */
+    protected $bIsDeletable = false;
+
+    /**
+     * Whether historical must be saved in DB on update/delete
+     * @var boolean
+     */
+    protected $bIsHistorized = false;
+
+    /**
      * List of associated table's fields
      *
      * @var array
@@ -83,13 +95,6 @@ abstract class Entity extends Database
      * @var array
      */
     protected $aLinkedEntities = array();
-
-    /**
-     * Whether row in database may be deleted or not
-     *
-     * @var boolean
-     */
-    protected $bIsDeletable = false;
 
     /**
      * Constructor
@@ -301,6 +306,10 @@ abstract class Entity extends Database
         }
 
         try {
+            if ($this->bIsHistorized) {
+                $this->saveHistory($oDbOriginalObject);
+            }
+
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
             $oStatement = \Library\Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
             $this->refresh();
@@ -593,6 +602,34 @@ abstract class Entity extends Database
         }
 
         return $aDatabaseEntities;
+    }
+
+
+    /**
+     * Save history on update for historized objects
+     * @param CoreObject $oDbOriginalObject Original object before update
+     */
+    protected function saveHistory($oDbOriginalObject)
+    {
+        $aBefore = array();
+        $aAfter = array();
+
+        foreach ($this as $sPropertyName => $mValue) {
+            if ($mValue != $oDbOriginalObject->{$sPropertyName}) {
+                $aBefore[$sPropertyName] = $oDbOriginalObject->{$sPropertyName};
+                $aAfter[$sPropertyName] = $mValue;
+            }
+        }
+
+        $oDbHistorisationObjet = new \db\HistorisationObjet();
+        $oDbHistorisationObjet->classe = substr($this->sClassName, 3);
+        $oDbHistorisationObjet->idobjet = $this->{static::PRIMARY_KEY};
+        $oDbHistorisationObjet->avant = json_encode($aBefore);
+        $oDbHistorisationObjet->apres = json_encode($aAfter);
+        $oDbHistorisationObjet->date_modif = date('Y-m-d');
+        $oDbHistorisationObjet->time_modif = date('H:i:s');
+        $oDbHistorisationObjet->iduser = \model\UserSession::getInstance()->getUserId();
+        $oDbHistorisationObjet->add();
     }
 }
 
