@@ -23,6 +23,12 @@ abstract class Entity extends Database
     protected $bIsDeletable = false;
 
     /**
+     * Whether row in database may be deleted or not
+     * @var boolean
+     */
+    protected $bIsSearchable = false;
+
+    /**
      * Whether historical must be saved in DB on update/delete
      * @var boolean
      */
@@ -380,6 +386,16 @@ abstract class Entity extends Database
     public function isLoaded()
     {
         return $this->bIsLoaded;
+    }
+
+    /**
+     * Check if the entity is searchable
+     *
+     * @return boolean
+     */
+    public function isSearchable()
+    {
+        return $this->bIsSearchable;
     }
 
     /**

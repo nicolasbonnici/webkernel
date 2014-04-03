@@ -332,8 +332,7 @@ class App
      * @param string $sTpl
      * @param array $aViewParams
      * @param boolean $bToString
-     * @param boolean $bLoadAllBundleViews
-     *            A flag to load all bundles views path (For the CrudController)
+     * @param boolean $bLoadAllBundleViews      A flag to load all bundles views path (For the CrudController)
      */
     public static function initView($sTpl, $aViewParams, $bToString, $bLoadAllBundleViews = false)
     {
@@ -348,7 +347,7 @@ class App
         if ($bLoadAllBundleViews && count(self::$aBundles) > 0) {
             foreach (self::$aBundles as $sBundle => $aController) {
                 if ($sBundle !== \Library\Core\Router::getBundle()) {
-                    $aViewsPaths[] = BUNDLES_PATH . $sBundle . '/Views/';
+                    $aViewsPaths[$sBundle] = BUNDLES_PATH . $sBundle . '/Views/';
                 }
             }
         }

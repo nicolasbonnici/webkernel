@@ -14,6 +14,15 @@ abstract class Crud
 {
 
     /**
+     * Error codes
+     * @var integer
+     */
+    const ERROR_USER_INVALID        = 402;
+    const ERROR_FORBIDDEN_BY_ACL    = 403;
+    const ERROR_ENTITY_EXISTS       = 404;
+    const ERROR_ENTITY_NOT_LOADED   = 405;
+
+    /**
      * Current user instance (optional if $oEntity has no foreign key attribute to \app\Entities\User)
      *
      * @var \app\Entities\User

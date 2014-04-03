@@ -5,7 +5,7 @@ namespace Library\Core;
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
- *        
+ *
  */
 abstract class EntitiesCollection extends Collection
 {
@@ -41,7 +41,7 @@ abstract class EntitiesCollection extends Collection
         if (is_array($aIds) && count($aIds) > 0) {
             $this->loadByIds($aIds);
         }
-        
+
         return;
     }
 
@@ -52,7 +52,7 @@ abstract class EntitiesCollection extends Collection
      *            database field name
      * @param string $sOrder
      *            DESC|ASC
-     * @param array $aLimit            
+     * @param array $aLimit
      * @throws EntityException
      */
     public function load($sOrderBy = '', $sOrder = 'DESC', array $aLimit = array(0,50))
@@ -60,14 +60,14 @@ abstract class EntitiesCollection extends Collection
         if (empty($sOrderBy)) {
             $sOrderBy = constant($this->sChildClass . '::PRIMARY_KEY');
         }
-        
+
         if (! in_array($sOrder, array(
             'ASC',
             'DESC'
         ))) {
             $sOrder = 'DESC';
         }
-        
+
         $sQuery = 'SELECT *
         FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
         ORDER BY ' . $sOrderBy . ' ' . $sOrder . ' LIMIT ' . $aLimit[0] . ',' . $aLimit[1];
@@ -94,31 +94,31 @@ abstract class EntitiesCollection extends Collection
     public function loadByIds($aIds)
     {
         assert('!empty($aIds)');
-        
+
         if (is_null(constant($this->sChildClass . '::TABLE_NAME'))) {
             throw new EntityException('CoreObject class table name not defined for class ' . $this->sChildClass);
         }
-        
+
         if (is_null(constant($this->sChildClass . '::PRIMARY_KEY'))) {
             throw new EntityException('CoreObject class primary key not defined for class ' . $this->sChildClass);
         }
-        
+
         $this->aOriginIds = $aIds;
         $aCachedObjects = $this->getCachedObjects($aIds);
         $aUncachedObjects = array_values(array_diff($aIds, $aCachedObjects));
-        
+
         foreach ($aCachedObjects as $iObjectId) {
             $oObject = new $this->sChildClass($iObjectId);
             $this->add($oObject->getId(), $oObject);
         }
-        
+
         if (! empty($aUncachedObjects)) {
             $this->loadByQuery('
                 SELECT *
                 FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
                 WHERE `' . constant($this->sChildClass . '::PRIMARY_KEY') . '` IN(?' . str_repeat(', ?', count($aUncachedObjects) - 1) . ')', $aUncachedObjects);
         }
-        
+
         uksort($this->aElements, array(
             $this,
             'sortElementsById'
@@ -141,14 +141,14 @@ abstract class EntitiesCollection extends Collection
     public function loadByParameters(array $aParameters, array $aOrderFields = array(), array $aLimit = array(0,10), $bStrictMode = true)
     {
         assert('is_int($aLimit[0]) && is_int($aLimit[1])');
-        
+
         if (empty($aParameters)) {
             throw new EntitiesCollectionException('No parameter provided for loading collection of type ' . $this->sChildClass);
         }
-        
+
         $sWhere = '';
         $aBindedValues = array();
-        
+
         foreach ($aParameters as $sParameterName => $mParameterValue) {
             if (! empty($sWhere)) {
                 $sWhere .= ' ' . (($bStrictMode === true) ? 'AND' : 'OR') . ' ';
@@ -159,22 +159,22 @@ abstract class EntitiesCollection extends Collection
             } else {
                 $sWhere .= $sParameterName;
             }
-            
+
             if (is_array($mParameterValue)) {
                 $sWhere .= ' IN(?' . str_repeat(', ?', count($mParameterValue) - 1) . ')';
                 $aBindedValues = array_merge($aBindedValues, $mParameterValue);
             } else {
                 $sWhere .= ' ' . (($bStrictMode === true) ? '= ?' : 'LIKE ?');
-                $aBindedValues[] = (($bStrictMode === true) ? '' : '%') . $mParameterValue . (($bStrictMode === true) ? '' : '%');
+                $aBindedValues[] = (($bStrictMode === true) ? $mParameterValue : '%' . $mParameterValue . '%');
             }
         }
-        
+
         $sQuery = '
             SELECT *
             FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
             WHERE ' . $sWhere . '
             ORDER BY ';
-        
+
         if (empty($aOrderFields)) {
             $sQuery .= '`' . constant($this->sChildClass . '::PRIMARY_KEY') . '` DESC';
         } else {
@@ -187,7 +187,7 @@ abstract class EntitiesCollection extends Collection
             }
             $sQuery = trim($sQuery, ', ');
         }
-        
+
         if (is_int($aLimit[0]) && is_int($aLimit[1])) {
             $sQuery .= ' LIMIT ' . $aLimit[0] . ', ' . $aLimit[1];
         }
@@ -210,7 +210,7 @@ abstract class EntitiesCollection extends Collection
         } catch (\PDOException $oException) {
             throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" and values ' . print_r($aValues, true));
         }
-        
+
         if ($oStatement !== false) {
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
                 $oObject = new $this->sChildClass();
@@ -261,9 +261,9 @@ abstract class EntitiesCollection extends Collection
      *
      * @todo ajouter la gestion des filtre pour obtenir des sous collection avec cette methode
      * @todo migrer cette methode vers entitiesCollection!!
-     *      
-     * @param int|string $mKey            
-     * @param int|string $mValue            
+     *
+     * @param int|string $mKey
+     * @param int|string $mValue
      * @return object mixed NULL NULL
      */
     public function search($mKey, $mValue)

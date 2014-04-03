@@ -17,13 +17,10 @@ abstract class Search
      *
      * @var integer
      */
-    const ERROR_EMPTY_REQUEST = 2;
-
-    const ERROR_UNAUTHORIZED_REQUEST = 403;
-
-    const ERROR_EMPTY_ENTITIES_SCOPE = 3;
-
-    const ERROR_EMPTY_ENTITY = 4;
+    const ERROR_UNAUTHORIZED_REQUEST    = 403;
+    const ERROR_EMPTY_REQUEST           = 2;
+    const ERROR_EMPTY_ENTITIES_SCOPE    = 3;
+    const ERROR_EMPTY_ENTITY            = 4;
 
     /**
      * Current user instance (optional if $oEntity has no foreign key attribute to \app\Entities\User)
@@ -38,19 +35,6 @@ abstract class Search
      * @var array
      */
     protected $aEntitiesScope = array();
-
-    /**
-     * Scope of forbidden entities to search
-     *
-     * @var array
-     */
-    protected $aForbiddenEntities = array(
-        'User',
-        'Todo',
-        'Role',
-        'Permission',
-        'Ressource'
-    );
 
     /**
      * An two dimensionnal array with the Entity name and the Entity collection of founded items
@@ -108,9 +92,7 @@ abstract class Search
         assert('is_null($sEntity) || is_array($sEntity) || is_string($sEntity) && strlen($sEntity) > 0');
         assert('!empty($mSearch)');
 
-        if (in_array($sEntity, $this->aForbiddenEntities) && is_null($this->oUser)) {
-            throw new SearchException('Unauthorized request!', self::ERROR_UNAUTHORIZED_REQUEST);
-        } elseif (empty($sEntity)) {
+        if (empty($sEntity)) {
             throw new SearchException('No entity provided...', self::ERROR_EMPTY_ENTITY);
         } elseif (empty($mSearch)) {
             throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
@@ -121,33 +103,46 @@ abstract class Search
             $oEntity = new $sEntityClassName();
             $oEntityCollection = new $sEntityCollectionClassName();
 
-            // JSON encoded parameters
-            $mSearch = json_decode($mSearch);
+            if (!$oEntity->isSearchable()) {
+                throw new SearchException('Yo can\'t search in this entity ' . $oEntity , self::ERROR_EMPTY_ENTITY);
+            } else {
+                // JSON encoded parameters
+                $mSearch = json_decode($mSearch);
 
-            if (is_array($mSearch) && count($mSearch) > 0) {
-                foreach ($mSearch as $oRequest) {
-                    if (isset($oRequest->name, $oRequest->value) && $oRequest->name === 'search' && ! empty($oRequest->value)) {
-                        // Generic search
-                        $aAttributes = $oEntity->getAttributes();
-                        foreach ($aAttributes as $sKey) {
-                            if ($oEntity->getDataType($sKey) === 'string') {
-                                $aParameters[$sKey] = $oRequest->value;
+                if (is_array($mSearch) && count($mSearch) > 0) {
+                    foreach ($mSearch as $oRequest) {
+                        if (isset($oRequest->name, $oRequest->value) && $oRequest->name === 'search' && ! empty($oRequest->value)) {
+                            // Generic search
+                            $aAttributes = $oEntity->getAttributes();
+                            foreach ($aAttributes as $sKey) {
+                                if ($oEntity->getDataType($sKey) === 'string') {
+                                    $aParameters[$sKey] = $oRequest->value;
+                                }
                             }
+                        } elseif (isset($oRequest->name, $oRequest->value) && ! empty($oRequest->name) && ! empty($oRequest->value)) {
+                            // Simple keys values search
+                            $aParameters[$oRequest->name] = $oRequest->value;
+                        } else {
+                            throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
                         }
-                    } elseif (isset($oRequest->name, $oRequest->value) && ! empty($oRequest->name) && ! empty($oRequest->value)) {
-                        // Simple keys values search
-                        $aParameters[$oRequest->name] = $oRequest->value;
-                    } else {
-                        throw new SearchException('No search parameters found!', self::ERROR_EMPTY_REQUEST);
                     }
                 }
+
+                // @important last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
+                $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit, false);
+
+                // store Entity primary key value (id[entity] value)
+                foreach ($oEntityCollection as $oEntity) {
+                    $oEntity->pk = $oEntity->getId();
+                }
+
+                $this->aResults[$sEntity] = $oEntityCollection;
+                $this->aResults[$sEntity]->count = $oEntityCollection->count();
+
             }
 
-            // @important the bStrictMode flag to false (for AND => OR | ' = ?' => LIKE %?%)
-            $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit, false);
-            $this->aResults[$sEntity] = $oEntityCollection;
-            $this->aResults[$sEntity]->count = $oEntityCollection->count();
         }
+
     }
 
     /**
@@ -156,7 +151,6 @@ abstract class Search
      */
     public function getResults()
     {
-        assert('count($this->aResults) > 0');
         return $this->aResults;
     }
 }
