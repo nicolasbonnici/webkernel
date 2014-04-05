@@ -23,7 +23,7 @@ abstract class Entity extends Database
     protected $bIsDeletable = false;
 
     /**
-     * Whether row in database may be deleted or not
+     * Whether row in database may be searchable or not
      * @var boolean
      */
     protected $bIsSearchable = false;

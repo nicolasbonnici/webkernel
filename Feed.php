@@ -5,7 +5,7 @@ namespace Library\Core;
  * Feed generator and parser abstract class
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
- *        
+ *
  */
 abstract class Feed
 {
@@ -40,9 +40,9 @@ abstract class Feed
     /**
      * Load feed's FeedItems
      *
-     * @param array $aParameters            
-     * @param array $aOrderBy            
-     * @param array $aLimit            
+     * @param array $aParameters
+     * @param array $aOrderBy
+     * @param array $aLimit
      * @return boolean TRUE if feed items was found FALSE otherwhise
      */
     protected function loadFeedITems(array $aParameters = array(), array $aOrderBy = array('created' => 'DESC'), array $aLimit = array(0, 10))
