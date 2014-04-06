@@ -20,7 +20,7 @@ class Auth extends Controller
     public function __construct()
     {
         $this->loadRequest();
-        
+
         /**
          * Check php session
          */
@@ -39,7 +39,7 @@ class Auth extends Controller
     protected function checkSessionintegrity()
     {
         $this->oUser = new \app\Entities\User();
-        
+
         try {
             $this->oUser->loadByParameters(array(
                 'iduser' => $this->_session['iduser'],
@@ -47,20 +47,20 @@ class Auth extends Controller
                 'token' => $this->_session['token'],
                 'created' => $this->_session['created']
             ));
-            
+
             if ($this->oUser->isLoaded()) {
-                
+
                 foreach ($this->oUser as $key => $mValue) {
                     $_SESSION[$key] = $mValue;
                 }
-                
+
                 // Regenerate session token
                 $_SESSION['token'] = $this->generateToken();
                 // Unset password
                 unset($_SESSION['pass']);
-                
+
                 $this->oUser->token = $_SESSION['token'];
-                
+
                 return $this->oUser->update();
             }
         } catch (CoreEntityException $oException) {

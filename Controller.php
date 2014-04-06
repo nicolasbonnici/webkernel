@@ -22,41 +22,111 @@ class Controller extends Acl
 
     const XHR_STATUS_SESSION_EXPIRED = 4;
 
-    protected $_config;
+    /**
+     * Current locale "[COUNTRY]_[LANGUAGE]"
+     * @var string
+     */
+    protected $sLang;
 
-    protected $_bundle;
+    /**
+     * Requested bundle
+     * @var string
+     */
+    protected $sBundle;
 
-    protected $_controller;
+    /**
+     * Requested controller
+     * @var string
+     */
+    protected $sController;
 
-    protected $_action;
+    /**
+     * Requested action
+     * @var string
+     */
+    protected $sAction;
 
-    protected $_cookie;
+    /**
+     * Current request parameters
+     * @var array
+     */
+    public $aParams = array();
 
-    protected $_session;
+    /**
+     * Configuration parsed from .ini|.yaml
+     *
+     * @var array
+     */
+    protected $aConfig;
 
-    protected $_lang;
+    /**
+     * Current cookie
+     * @var \Library\Core\Cookie
+     */
+    protected $oCookie;
 
-    public $_params = array();
+    /**
+     * Current PHP session
+     * @var array
+     */
+    protected $aSession;
 
-    public $_view = array();
+    /**
+     * Rendering engine current instance view parameters
+     * @see \Library\Haanga\
+     * @var array
+     */
+    public $aView = array();
 
     public function __construct($oUser = NULL)
     {
-        $this->_config = \Library\Core\App::getConfig();
+        $this->aConfig = \Library\Core\App::getConfig();
         $this->setSession();
         $this->loadRequest();
-        
+
         // Check ACL if we have a logged user
         if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
             parent::__construct($oUser);
         }
-        
+
         // @see run action & pre|post dispatch callback (optionnal)
-        if (method_exists($this, $this->_action)) {
-            
+        if (method_exists($this, $this->sAction)) {
+
+            // Load session
+            if (count($this->aSession) > 0) {
+                $this->aView['aSession'] = $this->aSession;
+
+                // @todo provisoire
+                $this->aView['sGravatarSrc16'] = Tools::getGravatar($this->aSession['mail'], 16);
+                $this->aView['sGravatarSrc32'] = Tools::getGravatar($this->aSession['mail'], 32);
+                $this->aView['sGravatarSrc64'] = Tools::getGravatar($this->aSession['mail'], 64);
+                $this->aView['sGravatarSrc128'] = Tools::getGravatar($this->aSession['mail'], 128);
+
+            }
+
+            // Views common couch
+            $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
+            $this->aView["helpers"] = '../../../app/Views/helpers/';
+
+            // MVC
+            $this->aView['sBundle'] = $this->sBundle;
+            $this->aView["sController"] = $this->sController;
+            $this->aView["sAction"] = $this->sAction;
+
+            // debug
+            $this->aView["sEnv"] = ENV;
+            $this->aView["aLoadedClass"] = \Library\Core\App::getLoadedClass();
+            $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
+
+            // Benchmark
+            $this->aView["render_time"] = microtime(true);
+            $this->aView['framework_started'] = FRAMEWORK_STARTED;
+            $this->aView['current_timestamp'] = time();
+            $this->aView['rendered_time'] = round($this->aView["render_time"] - FRAMEWORK_STARTED, 3);
+
             // @see pre dispatch action
             if (method_exists($this, '__preDispatch')) {
-                
+
                 try {
                     $this->__preDispatch();
                 } catch (Library\Core\ControllerException $oException) {
@@ -64,13 +134,13 @@ class Controller extends Acl
                     exit();
                 }
             }
-            
+
             // Run mothafucka run!
-            $this->{$this->_action}();
-            
+            $this->{$this->sAction}();
+
             // @see post dispatch action
             if (method_exists($this, '__postDispatch')) {
-                
+
                 try {
                     $this->__postDispatch();
                 } catch (Library\Core\ControllerException $oException) {
@@ -79,66 +149,28 @@ class Controller extends Acl
                 }
             }
         } else {
-            
-            throw new ControllerException(__CLASS__ . ' Error cannot find action ' . $this->_action);
+
+            throw new ControllerException(__CLASS__ . ' Error cannot find action ' . $this->sAction);
         }
-        
+
         return;
     }
 
     public function render($sTpl, $iStatusXHR = self::XHR_STATUS_OK, $bToString = false, $bLoadAllBundleViews = false)
     {
-        if (count($this->_params) > 0) {
-            foreach ($this->_params as $key => $val) {
-                $this->_view[$key] = $val;
+
+        if (count($this->aParams) > 0) {
+            foreach ($this->aParams as $key => $val) {
+                $this->aView[$key] = $val;
             }
         }
-        
-        require_once APP_PATH . '/Translations/' . $this->_lang . '/global.php'; // @see globale translation
-        $sTranslationFile = str_replace(".tpl", ".php", $sTpl);
-        if (file_exists(BUNDLES_PATH . '/bundles/' . $this->_bundle . '/Translations/' . $this->_lang . '/' . $sTranslationFile)) {
-            require_once BUNDLES_PATH . '/bundles/' . DEFAULT_BUNDLE . '/translations/' . $this->_lang . '/' . $sTranslationFile;
-        }
-        
-        if (count($this->_session) > 0) {
-            $this->_view['aSession'] = $this->_session;
-            // @todo provisoire
-            $this->_view['sGravatarSrc16'] = Tools::getGravatar($this->_session['mail'], 16);
-            $this->_view['sGravatarSrc32'] = Tools::getGravatar($this->_session['mail'], 32);
-            $this->_view['sGravatarSrc64'] = Tools::getGravatar($this->_session['mail'], 64);
-            $this->_view['sGravatarSrc128'] = Tools::getGravatar($this->_session['mail'], 128);
-        }
-        
-        // Translation
-        $this->_view["sAppName"] = $this->_config['app']['name'];
-        $this->_view["lang"] = $this->_lang;
-        $this->_view["tr"] = $tr; // @see loading de la traduction pour la vue
-                                  
-        // Views common couch
-        $this->_view["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
-        $this->_view["appLoginLayout"] = '../../../app/Views/loginLayout.tpl';
-        $this->_view["helpers"] = '../../../app/Views/helpers/';
-        
-        // MVC
-        $this->_view['sBundle'] = $this->_bundle;
-        $this->_view["sController"] = $this->_controller;
-        $this->_view["sAction"] = $this->_action;
-        
-        // debug
-        $this->_view["sEnv"] = ENV;
-        $this->_view["aLoadedClass"] = \Library\Core\App::getLoadedClass();
-        $this->_view["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
-        
-        // Benchmark
-        $this->_view["render_time"] = microtime(true);
-        $this->_view['framework_started'] = FRAMEWORK_STARTED;
-        $this->_view['current_timestamp'] = time();
-        $this->_view['rendered_time'] = round($this->_view["render_time"] - FRAMEWORK_STARTED, 3);
-        
+
+        $this->loadLocales($sTpl);
+
         // check if it's an XMLHTTPREQUEST
         if ($this->isXHR()) {
-            // var_dump($this->_view);
-            
+            // var_dump($this->aView);
+
             $aResponse = json_encode(array(
                 'status' => $iStatusXHR,
                 'content' => str_replace(array(
@@ -146,25 +178,25 @@ class Controller extends Acl
                     "\r\n",
                     "\n",
                     "\t"
-                ), '', \Library\Core\App::initView($sTpl, $this->_view, true, $bLoadAllBundleViews)),
+                ), '', \Library\Core\App::initView($sTpl, $this->aView, true, $bLoadAllBundleViews)),
                 'debug' => str_replace(array(
                     "\r",
                     "\r\n",
                     "\n",
                     "\t"
-                ), '', \Library\Core\App::initView($this->_view["sDeBugHelper"], $this->_view, true, $bLoadAllBundleViews))
+                ), '', \Library\Core\App::initView($this->aView["sDeBugHelper"], $this->aView, true, $bLoadAllBundleViews))
             ));
             if ($bToString === true) {
                 return $aResponse;
             }
-            
+
             header('Content-Type: application/json');
             echo $aResponse;
             exit();
         }
-        
+
         // Render the view using Haanga
-        \Library\Core\App::initView($sTpl, $this->_view, $bToString, $bLoadAllBundleViews);
+        \Library\Core\App::initView($sTpl, $this->aView, $bToString, $bLoadAllBundleViews);
     }
 
     /**
@@ -179,12 +211,12 @@ class Controller extends Acl
 
     protected function loadRequest()
     {
-        $this->_bundle = Router::getBundle();
-        $this->_controller = ucfirst(Router::getController()) . 'Controller';
-        $this->_action = Router::getAction() . 'Action';
+        $this->sBundle = Router::getBundle();
+        $this->sController = ucfirst(Router::getController()) . 'Controller';
+        $this->sAction = Router::getAction() . 'Action';
         ;
-        $this->_params = Router::getParams();
-        $this->_lang = Router::getLang();
+        $this->aParams = Router::getParams();
+        $this->sLang = Router::getLang();
     }
 
     /**
@@ -198,17 +230,17 @@ class Controller extends Acl
     {
         // Reset if it's an asynch call or the crud bundle
         if ($this->isXHR()) {
-            
+
             if ($sRedirectBundle === 'crud') {
                 $sRedirectBundle = Router::DEFAULT_BACKEND_BUNDLE;
             }
-            
+
             $sRedirectController = 'home';
             $sRedirectAction = 'index';
         }
         $sRedirectParam = '/' . $sRedirectBundle . (($sRedirectController !== 'home') ? '/' . $sRedirectController : '') . (($sRedirectAction !== 'index') ? '/' . $sRedirectAction : '');
         $sRedirectUrl = (($this->isXHR()) ? '/error/forbidden/index/redirect/' : '/auth/home/index/redirect/');
-        
+
         return $sRedirectUrl . urlencode(str_replace('/', '*', $sRedirectParam));
     }
 
@@ -234,7 +266,7 @@ class Controller extends Acl
     public function redirect($mUrl)
     {
         assert('is_string($mUrl) || is_array($mUrl)');
-        
+
         if (is_string($mUrl)) {
             header('Location: ' . $mUrl);
             exit();
@@ -244,14 +276,29 @@ class Controller extends Acl
             } else {
                 throw new RouterException(__METHOD__ . ' malformed redirection request  ');
             }
-            
+
             header('Location: ' . $sUrl);
         } else {
-            
+
             throw new RouterException(__METHOD__ . ' wrong request data type (mixed string|array)  ');
         }
-        
+
         return;
+    }
+
+    /**
+     * Setup app locales and translations for a given template file
+     * @param string $sTpl
+     */
+    public function loadLocales($sTpl)
+    {
+        require_once APP_PATH . '/Translations/' . $this->sLang . '/global.php'; // @see globale translation
+        if (file_exists(BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '/' . $this->sBundle . '.php')) {
+            require_once BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '/' . $this->sBundle . '.php';
+        }
+        $this->aView["sAppName"] = $this->aConfig['app']['name'];
+        $this->aView["lang"] = $this->sLang;
+        $this->aView["tr"] = $tr; // @see loading de la traduction pour la vue
     }
 
     /**
@@ -261,52 +308,52 @@ class Controller extends Acl
      */
     public function getController()
     {
-        return $this->_controller;
+        return $this->sController;
     }
 
-    public function setController($controller)
+    public function setController($sController)
     {
-        $this->_controller = $controller;
+        $this->sController = $sController;
     }
 
     public function getAction()
     {
-        return $this->_action;
+        return $this->sAction;
     }
 
-    public function setAction($action)
+    public function setAction($sAction)
     {
-        $this->_action = $action;
+        $this->sAction = $sAction;
     }
 
     public function getCookie()
     {
-        return $this->_cookie;
+        return $this->oCookie;
     }
 
-    public function setCookie($cookie)
+    public function setCookie(\Library\Core\Cookie $oCookie)
     {
-        $this->_cookie = $cookie;
+        $this->oCookie = $oCookie;
     }
 
     public function getSession()
     {
-        return $this->_session;
+        return $this->aSession;
     }
 
     public function setSession()
     {
-        $this->_session = $_SESSION;
+        $this->aSession = $_SESSION;
     }
 
     public function getLang()
     {
-        return $this->_lang;
+        return $this->sLang;
     }
 
-    public function setLang($lang)
+    public function setLang($slang)
     {
-        $this->_lang = $lang;
+        $this->sLang = $slang;
     }
 }
 
