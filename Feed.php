@@ -56,13 +56,16 @@ abstract class Feed
     /**
      * Parse items from feed source url
      *
+     * @param integer $iFeedId
+     *      \app\Entities\Feed primary key value
      * @param boolean $bPersistNewFeedItem
-     *            TRUE to store feed items delta
+     *      TRUE to store feed items delta
      * @param integer $iDelta
-     *            Feed items query depth from the latest
-     * @return \app\Entities\Collection\FeedItemCollection Persisted \app\Entities\FeedItem if $bPersist = TRUE otherwhise lastest {$iDelta} feed activities
+     *      Feed items query depth from the latest
+     * @return \app\Entities\Collection\FeedItemCollection
+     *      Persisted \app\Entities\FeedItem if $bPersist = TRUE otherwhise lastest {$iDelta} feed activities
      */
-    protected function parse($bPersistNewFeedItem = false, $iDelta = 256)
+    protected function parse($iFeedId, $bPersistNewFeedItem = false, $iDelta = 256)
     {}
 
     /**
