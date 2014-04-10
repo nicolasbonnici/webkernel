@@ -577,6 +577,20 @@ class App
         );
 
         try {
+
+            // @todo fiare une methode qui force le contenu en vidant le fichier d'abord
+            if (is_file($sJsMinFile)) {
+                if (!unlink($sJsMinFile)) {
+                    throw  new AppException('Unable to delete file (' . $sJsMinFile . ')');
+                }
+            }
+
+            if (is_file($sCssMinFile)) {
+                if (!unlink($sCssMinFile)) {
+                    throw  new AppException('Unable to delete file (' . $sCssMinFile . ')');
+                }
+            }
+
             foreach ($aSociableUxJsLibs as $sJsLibPath) {
                 $sMinifiedJsCode .= \Library\Core\Minify::js(file_get_contents(ROOT_PATH . 'public' . $sJsLibPath));
             }

@@ -146,19 +146,21 @@ abstract class Entity extends Database
      *            Whether cache must be updated or not
      * @return boolean TRUE if object was successfully loaded, otherwise FALSE
      */
-    public function loadByData($aData, $bRefreshCache = true)
+    public function loadByData($aData, $bRefreshCache = true, $sCacheKey = null)
     {
-        foreach ($aData as $sName => $mValue) {
-            if (! in_array($sName, $this->aFields)) {
-                $this->aFields[$sName]['value'] = $mValue;
-            }
+        $this->aFields[$this->sChildClass] = array_keys($aData);
 
+        foreach ($aData as $sName => $mValue) {
             $this->{$sName} = $mValue;
         }
 
-        if ($this->bIsCacheable && $bRefreshCache && isset($aData[static::PRIMARY_KEY]) && ! empty($this->iCacheDuration)) {
-            $sCacheKey = Cache::getKey(get_called_class(), $aData[static::PRIMARY_KEY]); // Do not change this key, it must match isInCache() method
-            Cache::set($sCacheKey, $aData, false, $this->iCacheDuration);
+        if ($bRefreshCache && isset($aData[static::PRIMARY_KEY]) && !empty($this->iCacheDuration)) {
+            $sObjectCacheKey = self::getCacheKey($aData[static::PRIMARY_KEY]);
+            // If given cache key is not object main key, we save relation between given cache key and object
+            if (!is_null($sCacheKey) && $sCacheKey !== $sObjectCacheKey) {
+                Cache::set($sCacheKey, $aData[static::PRIMARY_KEY], Cache::CACHE_TIME_DAY);
+            }
+            Cache::set($sObjectCacheKey, $aData, $this->iCacheDuration);
         }
 
         return ($this->bIsLoaded = true);
