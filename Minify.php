@@ -276,6 +276,8 @@ class Minify
         $base64   = base64_encode($contents);
         return 'data:' . $mimeType . ';base64,' . $base64;
     }
+
+
 }
 
 class MinifyException extends \Exception

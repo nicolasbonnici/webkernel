@@ -9,6 +9,26 @@ namespace Library\Core;
  */
 class Tools
 {
+
+    /**
+     * Delete a folder if it's not empty it will recursively delete all sufolders and files
+     * @param string $sPath
+     *                          Absolute path
+     * @return boolean
+     */
+    public static function deleteDirectory($sPath)
+    {
+        foreach(glob($sPath . '/*') as $sDirItem) {
+            // also check for symbolink link because is_dir() return TRUE on them but they are just file so rm_dir will throw an Exception
+            if(is_dir($sDirItem) && !is_link($sDirItem)) {
+                self::deleteDirectory($sDirItem);
+            } else {
+                unlink($sDirItem);
+            }
+        }
+        return rmdir($sPath);
+    }
+
     /**
      * Retrieve gravatar url
      *

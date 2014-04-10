@@ -33,11 +33,11 @@ abstract class Acl
     protected $oPermissions;
 
     /**
-     * User instance current role
+     * User instance current group
      *
-     * @var \app\Entities\Role
+     * @var \app\Entities\Collection\UserGroupCollection
      */
-    protected $oRole;
+    protected $oGroups;
 
     /**
      * An array to store already parsed rights
@@ -62,7 +62,7 @@ abstract class Acl
             throw new AclException(__CLASS__ . ' Empty user instance provided.');
         } else {
             $this->oUser = $oUser;
-            $this->getRole();
+            $this->getUserGroups();
             if ($this->getPermissions()) {
                 $this->getRessources();
             }
@@ -117,7 +117,7 @@ abstract class Acl
 
     protected function getCRUD($sRessource)
     {
-        if (! empty($sRessource) && $this->oRole->isLoaded() && $this->oPermissions->count() > 0) {
+        if (! empty($sRessource) && $this->oGroups->hasItem() && $this->oPermissions->count() > 0) {
             if (($oRessource = $this->oRessources->search('name', $sRessource)) !== NULL) {
                 if (($oPermission = $this->oPermissions->search('ressource_idressource', $oRessource->idressource)) !== NULL) {
                     return json_decode($oPermission->permission);
@@ -129,22 +129,27 @@ abstract class Acl
     }
 
     /**
-     * Load current user instance role
+     * Load current user instance group
      *
      * @return boolean
      * @throws AclException
      */
-    private function getRole()
+    private function getUserGroups()
     {
-        $this->oRole = new \app\Entities\Role();
+        assert('$this->oUser->isLoaded()');
+        $this->oGroups = new \app\Entities\Collection\GroupCollection();
+        $oUserGroups = new \app\Entities\Collection\UserGroupCollection();
         try {
-            $this->oRole->loadByParameters(array(
-                'idrole' => $this->oUser->role_idrole
+            $oUserGroups->loadByParameters(array(
+                'user_iduser' => $this->oUser->getId()
             ));
+            foreach ($oUserGroups as $oGroup) {
+                $this->oGroups->add($this->oGroups->count() + 1, $oGroup);
+            }
         } catch (CoreEntityException $oException) {
-            throw new AclException('Error: No role found for user');
+            throw new AclException('Error: No group found for user');
         }
-        return $this->oRole->isLoaded();
+        return $this->oGroups->hasItem();
     }
 
     /**
@@ -154,12 +159,16 @@ abstract class Acl
      */
     private function getPermissions()
     {
-        assert('$this->oRole->isLoaded()');
+        assert('$this->oGroups->hasItem()');
 
         $this->oPermissions = new \app\Entities\Collection\PermissionCollection();
         try {
+            $aGroups = array();
+            foreach ($this->oGroups as $oGroup) {
+                $aGroups[] = $oGroup->getId();
+            }
             $this->oPermissions->loadByParameters(array(
-                'role_idrole' => $this->oRole->idrole
+                'group_idgroup' => $aGroups
             ));
         } catch (CoreEntityException $oException) {}
         return ($this->oPermissions->count() > 0) ? true : false;
@@ -172,7 +181,7 @@ abstract class Acl
      */
     private function getRessources()
     {
-        assert('$this->oRole->isLoaded() && $this->oPermissions->count() > 0');
+        assert('$this->oGroups->hasItem() && $this->oPermissions->count() > 0');
 
         $this->oRessources = new \app\Entities\Collection\RessourceCollection();
         $aAvailableRessources = array();

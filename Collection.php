@@ -5,7 +5,7 @@ namespace Library\Core;
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
- *        
+ *
  */
 class Collection implements \Iterator
 {
@@ -128,8 +128,18 @@ class Collection implements \Iterator
     public function get($mKey)
     {
         assert('is_int($mKey) || !empty($mKey)');
-        
+
         return isset($this->aElements[$mKey]) ? $this->aElements[$mKey] : null;
+    }
+
+    /**
+     * Tell if the collection contain at least one item
+     * @return boolean
+     *              TRUE if the collection has at least one item otherwhise FALSE
+     */
+    public function hasItem()
+    {
+        return ($this->count() > 0);
     }
 
     /**

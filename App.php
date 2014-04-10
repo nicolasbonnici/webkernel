@@ -516,7 +516,109 @@ class App
         define('CACHE_PATH', __DIR__ . '/../../tmp/cache/');
         define('LOG_PATH', __DIR__ . '/../../tmp/logs/');
         define('BUNDLES_PATH', __DIR__ . '/../../bundles/');
+        define('PUBLIC_PATH', __DIR__ . '/../../public/');
+        define('PUBLIC_BUNDLES_PATH', __DIR__ . '/../../public/lib/bundles/');
     }
+
+    /**
+     * Deploy bundle's assets onto public directory routine
+     * Just flush and create a symlink
+     * @throws AppException
+     * @return array                        The deployed bundles
+     */
+    public static function deployBundlesAssets()
+    {
+        $aDeployedBundles = array();
+        // Clean bundle's assets
+        foreach (self::$aBundles as $sBundleName=>$aControllers) {
+            if (is_dir(PUBLIC_BUNDLES_PATH . $sBundleName)) {
+                if (!Tools::deleteDirectory(PUBLIC_BUNDLES_PATH . $sBundleName)) {
+                    throw  new AppException('Unable to flush bundle\'s assets, check chmod on ' . PUBLIC_BUNDLES_PATH . ' for user ' . self::getServerUsername());
+                }
+            }
+
+            if (!mkdir(PUBLIC_BUNDLES_PATH . $sBundleName, 0777, true)) {
+                throw  new AppException('Unable to create bundle\'s assets, check chmod on ' . PUBLIC_BUNDLES_PATH . ' for user ' . self::getServerUsername());
+            } else {
+                $aDeployedBundles[] = $sBundleName;
+            }
+
+            $sDeployBundlesAssetsCommandLine = 'ln -s ' . BUNDLES_PATH . $sBundleName . '/Assets/* ' . PUBLIC_BUNDLES_PATH . $sBundleName . '/';
+            echo exec($sDeployBundlesAssetsCommandLine);
+        }
+        return $aDeployedBundles;
+    }
+
+    /**
+     * Minify and concatenate all javascript and css assets
+     * @todo First the project assets, then Ux and finaly the bundle's asset
+     */
+    public static function buildAssets()
+    {
+        // @todo conf
+        $sJsMinFile  = ROOT_PATH . 'public/lib/sociableUx/build/sociable.ux.min.js';
+        $sCssMinFile = ROOT_PATH . 'public/lib/sociableUx/build/sociable.ux.min.css';
+        $sMinifiedJsCode = '';
+        $sMinifiedCssCode = '';
+
+        $aSociableUxJsLibs = array(
+            '/lib/js/jquery-1.11.js',
+            '/lib/plugins/layout/js/jquery.layout.min.js',
+            '/lib/plugins/bootstrap3/js/bootstrap.js',
+            '/lib/plugins/bootstrap-switch/js/bootstrap-switch.min.js',
+            '/lib/plugins/pnotify/js/jquery.pnotify.js',
+            '/lib/sociableUx/js/ux.core.js',
+            '/lib/sociableUx/js/charts.core.js',
+            '/lib/sociableUx/js/core.js'
+        );
+        $aSociableUxCssLibs = array(
+            '/lib/sociableUx/css/core.classes.css',
+            '/lib/sociableUx/css/core.ui.css'
+        );
+
+        try {
+            foreach ($aSociableUxJsLibs as $sJsLibPath) {
+                $sMinifiedJsCode .= \Library\Core\Minify::js(file_get_contents(ROOT_PATH . 'public' . $sJsLibPath));
+            }
+            foreach ($aSociableUxCssLibs as $sCssLibPath) {
+                $sMinifiedCssCode .= \Library\Core\Minify::css(file_get_contents(ROOT_PATH . 'public' . $sCssLibPath));
+            }
+
+            if (!$oHandle = fopen($sJsMinFile, 'a+')) {
+                throw  new AppException('Unable to open file (' . $sJsMinFile . ')');
+            }
+            if (fwrite($oHandle, $sMinifiedJsCode) === FALSE) {
+                throw  new AppException('Unable to write file (' . $sJsMinFile . ')');
+            }
+            fclose($oHandle);
+
+            if (!$oHandle = fopen($sCssMinFile, 'a+')) {
+                throw  new AppException('Unable to open file (' . $sCssMinFile . ')');
+            }
+            if (fwrite($oHandle, $sMinifiedCssCode) === FALSE) {
+                throw  new AppException('Unable to write file (' . $sCssMinFile . ')');
+            }
+            fclose($oHandle);
+
+            return true;
+        } catch (\AppException $oAppException) {
+            return false;
+        }
+
+    }
+
+    /**
+     * Return server username
+     * @return string
+     */
+    public static function getServerUsername()
+    {
+        return exec('whoami');
+    }
+
+    /**
+     * Accessors
+     */
 
     public static function getConfig()
     {
@@ -553,6 +655,11 @@ class App
     public static function getPhpVersion()
     {
         return self::$sPhpVersion;
+    }
+
+    public static function getBundles()
+    {
+        return self::$aBundles;
     }
 }
 
