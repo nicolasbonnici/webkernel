@@ -11,6 +11,12 @@ class Collection implements \Iterator
 {
 
     /**
+     * Current \Iterator key
+     * @var unknown
+     */
+    protected $iIndex = 0;
+
+    /**
      * List of elements in collection
      *
      * @var array
@@ -43,7 +49,7 @@ class Collection implements \Iterator
      */
     public function key()
     {
-        return keyreset($this->aElements);
+        return $this->iIndex;
     }
 
     /**
@@ -53,6 +59,7 @@ class Collection implements \Iterator
     public function next()
     {
         next($this->aElements);
+        ++$this->iIndex;
     }
 
     /**
@@ -61,6 +68,7 @@ class Collection implements \Iterator
      */
     public function rewind()
     {
+        $this->iIndex = 0;
         reset($this->aElements);
     }
 

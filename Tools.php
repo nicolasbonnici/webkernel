@@ -2,31 +2,31 @@
 namespace Library\Core;
 
 /**
- * Toolbox
+ * Common Toolbox
  *
- * @todo retrouver la methode file_force_content()
  *
  */
 class Tools
 {
 
     /**
-     * Delete a folder if it's not empty it will recursively delete all sufolders and files
-     * @param string $sPath
-     *                          Absolute path
+     * php chmod native function enhancement to add a recursive option
+     *
+     * @param string $sAbsolutePath
+     * @param array $aMode
+     * @param boolean $bRecursive               The $sAbsolutePath point to a folder and you want to apply chmod recursively
      * @return boolean
      */
-    public static function deleteDirectory($sPath)
+    public static function chmod($sAbsolutePath, $aMode, $bRecursive = false)
     {
-        foreach(glob($sPath . '/*') as $sDirItem) {
-            // also check for symbolink link because is_dir() return TRUE on them but they are just file so rm_dir will throw an Exception
-            if(is_dir($sDirItem) && !is_link($sDirItem)) {
-                self::deleteDirectory($sDirItem);
-            } else {
-                unlink($sDirItem);
+        if ($bRecursive === false ) {
+            return chmod($sAbsolutePath, $aMode[0] . $aMode[1] . $aMode[2] . $aMode[4]);
+        } else {
+            $oRecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sAbsolutePath), \RecursiveIteratorIterator::SELF_FIRST);
+            foreach($oRecursiveIterator as $sDirectoryItem) {
+                chmod($sDirectoryItem, $aMode[0] . $aMode[1] . $aMode[2] . $aMode[4]);
             }
         }
-        return rmdir($sPath);
     }
 
     /**

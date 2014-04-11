@@ -148,8 +148,7 @@ abstract class Entity extends Database
      */
     public function loadByData($aData, $bRefreshCache = true, $sCacheKey = null)
     {
-        $this->aFields[$this->sChildClass] = array_keys($aData);
-
+        $this->loadFields();
         foreach ($aData as $sName => $mValue) {
             $this->{$sName} = $mValue;
         }
