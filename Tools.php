@@ -20,11 +20,11 @@ class Tools
     public static function chmod($sAbsolutePath, $aMode, $bRecursive = false)
     {
         if ($bRecursive === false ) {
-            return chmod($sAbsolutePath, $aMode[0] . $aMode[1] . $aMode[2] . $aMode[4]);
+            return chmod($sAbsolutePath, $aMode[0] . $aMode[1] . $aMode[2] . $aMode[3]);
         } else {
             $oRecursiveIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sAbsolutePath), \RecursiveIteratorIterator::SELF_FIRST);
             foreach($oRecursiveIterator as $sDirectoryItem) {
-                chmod($sDirectoryItem, $aMode[0] . $aMode[1] . $aMode[2] . $aMode[4]);
+                chmod($sDirectoryItem, $aMode[0] . $aMode[1] . $aMode[2] . $aMode[3]);
             }
         }
     }

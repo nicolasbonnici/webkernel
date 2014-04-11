@@ -10,12 +10,6 @@ namespace Library\Core;
 class Assets
 {
     /**
-     * The directory that contain built assets (must be relative to PUBLIC_PATH constant that don't start with "/")
-     * @var string
-     */
-    protected $sBuildPath = 'lib/build/';
-
-    /**
      * The full file path that contain the javascript built code (must be relative to PUBLIC_PATH constant that don't start with "/")
      * @var string
      */
@@ -42,7 +36,6 @@ class Assets
     public function __construct()
     {
         // Build paths
-        $this->sBuildPath =         PUBLIC_PATH . $this->sBuildPath;
         $this->sJsBuildFilePath =   PUBLIC_PATH . $this->sJsBuildFilePath;
         $this->sCssBuildFilePath =  PUBLIC_PATH . $this->sCssBuildFilePath;
     }
@@ -57,19 +50,21 @@ class Assets
             throw new AppException('Unable to assets configuration...');
         } else {
             // Register javascript and stylesheet assets from configuration
-            $oAssetsPackages = new Json(Files::getContent(CONF_PATH . 'assets.ini'));
+            $oAssetsPackages = new Json(Files::getContent(CONF_PATH . 'assets.json'));
+
             /**
              * Load new Assets instance to register libs
+             * @todo rendre tout ca plus generique et souple de facon a pouvoir le surcharger aisement de partout
             */
             $oAssets = new Assets();
             foreach ($oAssetsPackages->get('dependancies') as $sPackageType=>$aPackages) {
                 foreach ($aPackages as $aPackage) {
-                    $oAssets->register($aPackage, $sPackageType);
+                    $this->register($aPackage, $sPackageType);
                 }
             }
             foreach ($oAssetsPackages->get('core') as $sPackageType=>$aPackages) {
                 foreach ($aPackages as $aPackage) {
-                    $oAssets->register($aPackage, $sPackageType);
+                    $this->register($aPackage, $sPackageType);
                 }
             }
         }
@@ -98,7 +93,6 @@ class Assets
                 }
             }
         }
-        Tools::chmod($this->sBuildPath, array(0,7,7,7));
         if (
             Files::write($this->sJsBuildFilePath, $sMinifiedJsCode) &&
             Files::write($this->sCssBuildFilePath, $sMinifiedCssCode)
