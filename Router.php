@@ -65,7 +65,6 @@ class Router extends Singleton
         self::$sAction = self::DEFAULT_ACTION;
 
         if (is_array(self::$aRequest) && count(self::$aRequest) > 0) {
-
             // Test custom routing here
             self::matchRules();
         }

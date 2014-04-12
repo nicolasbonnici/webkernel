@@ -8,20 +8,6 @@ namespace Library\Core;
  */
 class Controller extends Acl
 {
-
-    /**
-     * Errors codes
-     *
-     * @var interger
-     */
-    const XHR_STATUS_OK = 1;
-
-    const XHR_STATUS_ERROR = 2;
-
-    const XHR_STATUS_ACCESS_DENIED = 3;
-
-    const XHR_STATUS_SESSION_EXPIRED = 4;
-
     /**
      * Current locale "[COUNTRY]_[LANGUAGE]"
      * @var string
@@ -50,7 +36,7 @@ class Controller extends Acl
      * Current request parameters
      * @var array
      */
-    public $aParams = array();
+    protected $aParams = array();
 
     /**
      * Configuration parsed from .ini|.yaml
@@ -58,6 +44,13 @@ class Controller extends Acl
      * @var array
      */
     protected $aConfig;
+
+    /**
+     * View instance
+     *
+     * @var \Library\Core\View
+     */
+    protected $oView;
 
     /**
      * Current cookie
@@ -72,17 +65,18 @@ class Controller extends Acl
     protected $aSession;
 
     /**
-     * Rendering engine current instance view parameters
-     * @see \Library\Haanga\
-     * @var array
+     * Controller instance constructor
+     *
+     * @param \app\Entities\User|NULL $oUser
+     * @throws ControllerException
      */
-    public $aView = array();
-
     public function __construct($oUser = NULL)
     {
         $this->aConfig = \Library\Core\App::getConfig();
         $this->setSession();
         $this->loadRequest();
+        // Load a view instance
+        $this->oView = new View();
 
         // Check ACL if we have a logged user
         if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
@@ -91,7 +85,7 @@ class Controller extends Acl
 
         // @see run action & pre|post dispatch callback (optionnal)
         if (method_exists($this, $this->sAction)) {
-
+            $this->loadLocales();
             // Load session
             if (count($this->aSession) > 0) {
                 $this->aView['aSession'] = $this->aSession;
@@ -107,6 +101,10 @@ class Controller extends Acl
             // Views common couch
             $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
             $this->aView["helpers"] = '../../../app/Views/helpers/';
+
+            // App layout
+            $this->aView["sAppName"] = $this->aConfig['app']['name'];
+            $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
 
             // MVC
             $this->aView['sBundle'] = $this->sBundle;
@@ -156,59 +154,19 @@ class Controller extends Acl
         return;
     }
 
-    public function render($sTpl, $iStatusXHR = self::XHR_STATUS_OK, $bToString = false, $bLoadAllBundleViews = false)
-    {
-
-        if (count($this->aParams) > 0) {
-            foreach ($this->aParams as $key => $val) {
-                $this->aView[$key] = $val;
-            }
-        }
-
-        $this->loadLocales($sTpl);
-
-        // check if it's an XMLHTTPREQUEST
-        if ($this->isXHR()) {
-            // var_dump($this->aView);
-
-            $aResponse = json_encode(array(
-                'status' => $iStatusXHR,
-                'content' => str_replace(array(
-                    "\r",
-                    "\r\n",
-                    "\n",
-                    "\t"
-                ), '', \Library\Core\App::initView($sTpl, $this->aView, true, $bLoadAllBundleViews)),
-                'debug' => str_replace(array(
-                    "\r",
-                    "\r\n",
-                    "\n",
-                    "\t"
-                ), '', \Library\Core\App::initView($this->aView["sDeBugHelper"], $this->aView, true, $bLoadAllBundleViews))
-            ));
-            if ($bToString === true) {
-                return $aResponse;
-            }
-
-            header('Content-Type: application/json');
-            echo $aResponse;
-            exit();
-        }
-
-        // Render the view using Haanga
-        \Library\Core\App::initView($sTpl, $this->aView, $bToString, $bLoadAllBundleViews);
-    }
-
     /**
      * Tell if the request is a XmlHttpRequest
      *
      * @return boolean
      */
-    protected function isXHR()
+    public static function isXHR()
     {
         return (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
 
+    /**
+     * Load Http request
+     */
     protected function loadRequest()
     {
         $this->sBundle = Router::getBundle();
@@ -290,15 +248,63 @@ class Controller extends Acl
      * Setup app locales and translations for a given template file
      * @param string $sTpl
      */
-    public function loadLocales($sTpl)
+    public function loadLocales()
     {
         require_once APP_PATH . '/Translations/' . $this->sLang . '/global.php'; // @see globale translation
         if (file_exists(BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '/' . $this->sBundle . '.php')) {
             require_once BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '/' . $this->sBundle . '.php';
         }
-        $this->aView["sAppName"] = $this->aConfig['app']['name'];
         $this->aView["lang"] = $this->sLang;
         $this->aView["tr"] = $tr; // @see loading de la traduction pour la vue
+    }
+
+    /*
+     * Get an array of all Controllers and methods for a given module @param string $sBundle The module name @return array A two dimensional array that contain each controller from a module along with his own methods (actions only)
+    */
+    public static function build($sBundle)
+    {
+        assert('!empty($sBundle) && is_string($sBundle) && is_dir(BUNDLES_PATH . "/" . $sBundle . "/Controllers/")');
+
+        $aControllers = array();
+        $sControllerPath = BUNDLES_PATH . '/' . $sBundle . '/Controllers/';
+        $aFiles = array_diff(scandir($sControllerPath), array(
+            '..',
+            '.'
+        ));
+
+        foreach ($aFiles as $sController) {
+            if (preg_match('#Controller.php$#', $sController)) {
+                $aControllers[substr($sController, 0, strlen($sController) - strlen('Controller.php'))] = self::buildActions($sBundle, $sController);
+            }
+        }
+
+        return $aControllers;
+    }
+
+
+    /**
+     * Get all actions from a given module and controller (this method only return [foo]Action() methods)
+     *
+     * @param string $sBundle
+     *            The module name
+     * @param string $sController
+     *            The controller name to parse
+     * @return array A two dimensional array with the controllers and their methods (actions only)
+     */
+    public static function buildActions($sBundle, $sController)
+    {
+        assert('!empty($sController) && is_string($sController) && !empty($sBundle) && is_string($sBundle)');
+        $aActions = array();
+        $aMethods = get_class_methods('\bundles\\' . $sBundle . '\Controllers\\' . substr($sController, 0, strlen($sController) - strlen('.php')));
+        if (count($aMethods) > 0) {
+            foreach ($aMethods as $sMethod) {
+                if (preg_match('#Action$#', $sMethod) && $sMethod !== 'getAction' && $sMethod !== 'setAction') {
+                    $aActions[] = substr($sMethod, 0, strlen($sMethod) - strlen('Action'));
+                }
+            }
+        }
+
+        return $aActions;
     }
 
     /**
