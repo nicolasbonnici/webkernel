@@ -51,50 +51,9 @@ class Router extends Singleton
 
     public static function init()
     {
-
-        // @todo retrieve from db/config/overwrite
-        self::$aRules = array(
-            '/login' => array(
-                'bundle' => 'auth',
-                'controller' => 'home',
-                'action' => 'index'
-            ),
-            '/logout' => array(
-                'bundle' => 'auth',
-                'controller' => 'logout',
-                'action' => 'index'
-            ),
-            '/profile' => array(
-                'bundle' => 'user',
-                'controller' => 'home',
-                'action' => 'profile'
-            ),
-            '/portfolio' => array(
-                'bundle' => 'frontend',
-                'controller' => 'home',
-                'action' => 'portfolio'
-            ),
-            '/a-propos' => array(
-                'bundle' => 'frontend',
-                'controller' => 'home',
-                'action' => 'about'
-            ),
-            '/activities' => array(
-                'bundle' => 'frontend',
-                'controller' => 'home',
-                'action' => 'activities'
-            )
-        // '/blog' => array(
-        // 'bundle' => 'blog',
-        // 'controller' => 'home',
-        // 'action' => 'index'
-        // ),
-        // '/todo' => array(
-        // 'bundle' => 'todo',
-        // 'controller' => 'home',
-        // 'action' => 'index'
-        // )
-                );
+        // Load custom routes from configuration
+        $oRoutesConf = new Json(Files::getContent(CONF_PATH . 'routes.json'));
+        self::$aRules = $oRoutesConf->getAsArray();
 
         self::$sUrl = $_SERVER['REQUEST_URI'];
 
@@ -128,7 +87,7 @@ class Router extends Singleton
     {
         assert('is_array(self::$aRequest) && count(self::$aRequest)>0');
 
-        // @see flag cstom route found
+        // @see flag custom route found
         $bRouted = false;
 
         foreach (self::$aRules as $sUrl => $aRule) {

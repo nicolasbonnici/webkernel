@@ -62,17 +62,36 @@ class Json
     }
 
     /**
-     * Return Standalone Json object
+     * Return Standalone Json object or attribute value
      * @return object
      */
-    public function get($sAttribute)
+    public function get($sAttribute = null)
     {
         assert('$this->isLoaded() === true');
-        if (strlen($sAttribute) === 0) {
+        if (is_null($sAttribute)) {
             return $this->oJson;
         } else {
             return $this->oJson->{$sAttribute};
         }
+    }
+
+    /**
+     * Return Standalone Json object or attribute value
+     * @return object
+     */
+    public function getAsArray()
+    {
+        assert('$this->isLoaded() === true');
+        return $this->convertToArray($this->oJson);
+    }
+
+    private function convertToArray($oJsonObject)
+    {
+        if(!is_object($oJsonObject) && !is_array($oJsonObject)) {
+            return $oJsonObject;
+        }
+
+        return array_map(array($this, 'convertToArray'), (array) $oJsonObject);
     }
 
     /**
