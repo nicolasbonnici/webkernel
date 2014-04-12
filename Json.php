@@ -49,6 +49,7 @@ class Json
      */
     public function isValid()
     {
+        // @todo also return the parse error line and character
         return (json_last_error() === 0);
     }
 
@@ -77,6 +78,7 @@ class Json
 
     /**
      * Return Standalone Json object or attribute value
+     *
      * @return object
      */
     public function getAsArray()
@@ -85,6 +87,12 @@ class Json
         return $this->convertToArray($this->oJson);
     }
 
+    /**
+     * Convert Json standalone object structure to an array
+     *
+     * @param object $oJsonObject                   Json standalone object
+     * @return array
+     */
     private function convertToArray($oJsonObject)
     {
         if(!is_object($oJsonObject) && !is_array($oJsonObject)) {
