@@ -75,8 +75,10 @@ class Controller extends Acl
         $this->aConfig = \Library\Core\App::getConfig();
         $this->setSession();
         $this->loadRequest();
+
         // Load a view instance
-        $this->oView = new View();
+        $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
+        $this->oView = new View($bLoadAllViewPaths);
 
         // Check ACL if we have a logged user
         if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {

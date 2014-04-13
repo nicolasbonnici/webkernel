@@ -57,6 +57,7 @@ abstract class EntitiesCollection extends Collection
      */
     public function load($sOrderBy = '', $sOrder = 'DESC', array $aLimit = array(0,50))
     {
+
         if (empty($sOrderBy)) {
             $sOrderBy = constant($this->sChildClass . '::PRIMARY_KEY');
         }

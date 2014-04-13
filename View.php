@@ -36,12 +36,11 @@ class View
             BUNDLES_PATH . \Library\Core\Router::getBundle() . '/Views/'
         );
 
-        if ($bLoadAllBundleViews && count(self::$aBundles) > 0) {
+        if ($bLoadAllBundleViews) {
             $oBundles = new Bundles();
-            die(var_dump($oBundles));
             foreach ($oBundles->get() as $sBundle => $aController) {
                 if ($sBundle !== \Library\Core\Router::getBundle()) {
-                    $aViewsPaths[$sBundle] = BUNDLES_PATH . $sBundle . '/Views/';
+                    $aViewsPaths[] = BUNDLES_PATH . $sBundle . '/Views/';
                 }
             }
         }

@@ -243,6 +243,20 @@ abstract class Crud
      * @param array $aLimit
      * @return boolean
      */
+    public function load($sOrderBy = '', $sOrder = 'DESC', array $aLimit = array(0,50))
+    {
+        $this->oEntities->load($sOrderBy, $sOrder, $aLimit);
+        return ($this->oEntities->count() > 0);
+    }
+
+    /**
+     * Load entities on given parameters
+     *
+     * @param array $aParameters
+     * @param array $aOrderBy
+     * @param array $aLimit
+     * @return boolean
+     */
     public function loadEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 25))
     {
         $this->oEntities->loadByParameters($aParameters, $aOrderBy, $aLimit);
