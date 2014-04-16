@@ -8,6 +8,17 @@ namespace Library\Core;
  */
 class Controller extends Acl
 {
+
+    /**
+     * XHR Errors codes
+     *
+     * @var integer
+     */
+    const XHR_STATUS_OK = 1;
+    const XHR_STATUS_ERROR = 2;
+    const XHR_STATUS_ACCESS_DENIED = 3;
+    const XHR_STATUS_SESSION_EXPIRED = 4;
+
     /**
      * Current locale "[COUNTRY]_[LANGUAGE]"
      * @var string

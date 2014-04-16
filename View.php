@@ -12,16 +12,6 @@ class View
 {
 
     /**
-     * Errors codes
-     *
-     * @var integer
-     */
-    const XHR_STATUS_OK = 1;
-    const XHR_STATUS_ERROR = 2;
-    const XHR_STATUS_ACCESS_DENIED = 3;
-    const XHR_STATUS_SESSION_EXPIRED = 4;
-
-    /**
      * View instance constructor
      *
      * @param boolean $bLoadAllBundleViews      A flag to load all bundles views path (For the CrudController)
@@ -58,7 +48,7 @@ class View
      * @param integer $iStatusXHR
      * @param boolean $bToString
      */
-    public function render(array $aViewParams, $sTpl, $iStatusXHR = self::XHR_STATUS_OK, $bToString = false)
+    public function render(array $aViewParams, $sTpl, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
     {
 
         if (count($aViewParams) > 0) {
