@@ -49,7 +49,7 @@ abstract class Crud
     public function __construct($sEntityName, $iPrimaryKey = 0, $mUser = null)
     {
         assert('is_null($mUser) || $mUser instanceof \app\Entities\User && $mUser->isLoaded() || is_int($mUser) && intval($mUser) > 0');
-        assert('!empty($sEntityName) || !class_exists(App::ENTITIES_NAMESPACE . $sEntityName)');
+        assert('!empty($sEntityName) || !class_exists(\Library\Core\App::ENTITIES_NAMESPACE . $sEntityName)');
         assert('intval($iPrimaryKey) === 0 || intval($iPrimaryKey) > 0');
 
         if (empty($sEntityName) || ! class_exists(App::ENTITIES_NAMESPACE . $sEntityName)) {
