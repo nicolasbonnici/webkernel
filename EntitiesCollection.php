@@ -105,8 +105,9 @@ abstract class EntitiesCollection extends Collection
         }
 
         $this->aOriginIds = $aIds;
-        $aCachedObjects = $this->getCachedObjects($aIds);
-        $aUncachedObjects = array_values(array_diff($aIds, $aCachedObjects));
+        if (($aCachedObjects = $this->getCachedObjects($aIds)) === false) {
+            $aUncachedObjects = array_values($aIds);
+        }
 
         foreach ($aCachedObjects as $iObjectId) {
             $oObject = new $this->sChildClass($iObjectId);

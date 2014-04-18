@@ -99,6 +99,7 @@ class Http
     /**
      * Set content type header
      * @param string $sType Content type
+     * @todo declarer en static les type tolérés
      */
     public static function setContentType($sType)
     {

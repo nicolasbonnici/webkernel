@@ -122,7 +122,9 @@ class Controller extends Acl
             // MVC
             $this->aView['sBundle'] = $this->sBundle;
             $this->aView["sController"] = $this->sController;
+            $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
             $this->aView["sAction"] = $this->sAction;
+            $this->aView["sActionName"] = substr($this->sAction, 0, strlen($this->sAction) - strlen('action'));
 
             // debug
             $this->aView["sEnv"] = ENV;
