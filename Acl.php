@@ -28,6 +28,9 @@ abstract class Acl
     /**
      * User instance current permissions
      *
+     * Permission's permission attribute structure
+     * { "create": 1, "read": 1,  "update": 1, "delete": 1, "list":1 }
+     *
      * @var \app\Entities\Collection\PermissionCollection
      */
     protected $oPermissions;
@@ -107,16 +110,21 @@ abstract class Acl
 
     protected function hasListAccess($sRessource)
     {
-        return $this->hasReadAccess($sRessource);
+        if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
+            return $oRights->list === 1;
+        }
+
+        return false;
     }
 
     protected function hasListByUserAccess($sRessource)
     {
-        return $this->hasReadAccess($sRessource);
+        return $this->hasListAccess($sRessource);
     }
 
     protected function getCRUD($sRessource)
     {
+        $sRessource = strtolower($sRessource);
         if (! empty($sRessource) && $this->oGroups->hasItem() && $this->oPermissions->count() > 0) {
             if (($oRessource = $this->oRessources->search('name', $sRessource)) !== NULL) {
                 if (($oPermission = $this->oPermissions->search('ressource_idressource', $oRessource->idressource)) !== NULL) {
@@ -165,7 +173,7 @@ abstract class Acl
         try {
             $aGroups = array();
             foreach ($this->oGroups as $oGroup) {
-                $aGroups[] = $oGroup->getId();
+                $aGroups[] = (int) $oGroup->group_idgroup;
             }
             $this->oPermissions->loadByParameters(array(
                 'group_idgroup' => $aGroups
@@ -186,11 +194,13 @@ abstract class Acl
         $this->oRessources = new \app\Entities\Collection\RessourceCollection();
         $aAvailableRessources = array();
         foreach ($this->oPermissions as $oPermission) {
-            $aAvailableRessources[] = $oPermission->getId();
+            $aAvailableRessources[] = (int) $oPermission->ressource_idressource;
         }
         if (count($aAvailableRessources) > 0) {
             try {
-                $this->oRessources->loadByIds($aAvailableRessources);
+                $this->oRessources->loadByParameters(array(
+                    'idressource' => $aAvailableRessources
+                ));
             } catch (CoreEntityException $oException) {}
         }
 

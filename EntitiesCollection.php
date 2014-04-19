@@ -89,6 +89,8 @@ abstract class EntitiesCollection extends Collection
     /**
      * Load collection regarding given IDs
      *
+     * @todo bug voir avec les test unitaires
+     *
      * @param array $aIds
      *            List of IDs
      */
