@@ -279,10 +279,10 @@ class App
      *
      * @throws AppException
      */
-    private static function initConfig()
+    public static function initConfig()
     {
         if (! Files::exists(CONF_PATH . 'config.ini')) {
-            throw new AppException('Unable to load core configuration...');
+            throw new AppException('Unable to load core configuration: ' . CONF_PATH . 'config.ini');
         } else {
             self::$aConfig = parse_ini_file(CONF_PATH . 'config.ini', true);
         }
@@ -347,38 +347,18 @@ class App
      *
      * @return string Current local on 2 caracters
      */
-    private static function initLocales()
+    private static function initLocales($sDefaultLocale = 'FR-fr')
     {
 
-        /**
-         *
-         * @see regenerer les locales
-         *      find -name *.tpl > totranslate.txt
-         *      xgettext -f totranslate.txt -o project.pot
-         */
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-
-            // @todo intégrer intl à ce niveau
-            $sLocale = 'FR_fr';
-
-            if (strlen($sLocale) === 2) {
-                $sLocale = strtoupper($sLocale) . '_' . $sLocale;
-            }
-
-            $sFilename = Router::DEFAULT_BUNDLE;
-            putenv('LC_ALL=' . $sLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
-            setlocale(LC_ALL, $sLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
-
-            // @see gettext init (on utilise juste des array pour le moment c'est chiant de tout recompiler)
-            // bindtextdomain($sFilename, Router::DEFAULT_BUNDLES_PATH . Router::DEFAULT_BUNDLE . '/Translations/');
-            //
-            // bind_textdomain_codeset($sFilename, Router::DEFAULT_ENCODING);
-            // textdomain(Router::DEFAULT_BUNDLE);
-
-            return $sLocale;
-        } else {
-            throw new AppException('Unable to load locales...');
+        if (strlen(\Locale::getPrimaryLanguage($sDefaultLocale) . '-' . \Locale::getRegion($sDefaultLocale)) > 1) {
+            $sDefaultLocale = \Locale::getPrimaryLanguage($sDefaultLocale) . '-' . \Locale::getRegion($sDefaultLocale);
         }
+
+        $sFilename = Router::DEFAULT_BUNDLE;
+        putenv('LC_ALL=' . $sDefaultLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
+        setlocale(LC_ALL, $sDefaultLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
+
+        return $sDefaultLocale;
     }
 
     /**

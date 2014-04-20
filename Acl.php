@@ -85,7 +85,11 @@ abstract class Acl
      */
     protected function hasCreateAccess($sRessource)
     {
-        if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
+        if (
+            ! empty($sRessource) &&
+            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
+            isset($oRights->create)
+        ) {
             return $oRights->create === 1;
         }
 
@@ -99,7 +103,11 @@ abstract class Acl
      */
     protected function hasReadAccess($sRessource)
     {
-        if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
+        if (
+            ! empty($sRessource) &&
+            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
+            isset($oRights->read)
+        ) {
             return $oRights->read === 1;
         }
 
@@ -113,7 +121,11 @@ abstract class Acl
      */
     protected function hasUpdateAccess($sRessource)
     {
-        if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
+        if (
+            ! empty($sRessource) &&
+            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
+            isset($oRights->update)
+        ) {
             return $oRights->update === 1;
         }
 
@@ -127,7 +139,11 @@ abstract class Acl
      */
     protected function hasDeleteAccess($sRessource)
     {
-        if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
+        if (
+            ! empty($sRessource) &&
+            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
+            isset($oRights->delete)
+        ) {
             return $oRights->delete === 1;
         }
 
@@ -141,7 +157,11 @@ abstract class Acl
      */
     protected function hasListAccess($sRessource)
     {
-        if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
+        if (
+            ! empty($sRessource) &&
+            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
+            isset($oRights->list)
+        ) {
             return $oRights->list === 1;
         }
 
