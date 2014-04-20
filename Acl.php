@@ -28,7 +28,7 @@ abstract class Acl
     /**
      * User instance current permissions
      *
-     * Permission's permission attribute structure
+     * Permission's permission attribute structure:
      * { "create": 1, "read": 1,  "update": 1, "delete": 1, "list":1 }
      *
      * @var \app\Entities\Collection\PermissionCollection
@@ -59,6 +59,11 @@ abstract class Acl
      */
     protected $aAvailableRessources;
 
+    /**
+     * Instance constructor
+     * @param \app\Entities\User $oUser
+     * @throws AclException
+     */
     public function __construct(\app\Entities\User $oUser)
     {
         if (! $oUser->isLoaded()) {
@@ -72,6 +77,12 @@ abstract class Acl
         }
     }
 
+    /**
+     * Tell if current user has create access on a given ressource name
+     *
+     * @param unknown $sRessource
+     * @return boolean
+     */
     protected function hasCreateAccess($sRessource)
     {
         if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
@@ -81,6 +92,11 @@ abstract class Acl
         return false;
     }
 
+    /**
+     * Tell if current user has read access on a given ressource name
+     * @param unknown $sRessource
+     * @return boolean
+     */
     protected function hasReadAccess($sRessource)
     {
         if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
@@ -90,6 +106,11 @@ abstract class Acl
         return false;
     }
 
+    /**
+     * Tell if current user has update access on a given ressource name
+     * @param unknown $sRessource
+     * @return boolean
+     */
     protected function hasUpdateAccess($sRessource)
     {
         if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
@@ -99,6 +120,11 @@ abstract class Acl
         return false;
     }
 
+    /**
+     * Tell if user has delete access on a given entity name
+     * @param unknown $sRessource
+     * @return boolean
+     */
     protected function hasDeleteAccess($sRessource)
     {
         if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
@@ -108,6 +134,11 @@ abstract class Acl
         return false;
     }
 
+    /**
+     * Tell if user has list access on a given entity name
+     * @param unknown $sRessource
+     * @return boolean
+     */
     protected function hasListAccess($sRessource)
     {
         if (! empty($sRessource) && (($oRights = $this->getCRUD($sRessource)) !== NULL)) {
@@ -117,11 +148,21 @@ abstract class Acl
         return false;
     }
 
+    /**
+     * Tell if user has list access on a given entity name
+     * @param unknown $sRessource
+     * @return boolean
+     */
     protected function hasListByUserAccess($sRessource)
     {
         return $this->hasListAccess($sRessource);
     }
 
+    /**
+     * Get user's CRUD rights
+     * @param unknown $sRessource
+     * @return mixed|NULL
+     */
     protected function getCRUD($sRessource)
     {
         $sRessource = strtolower($sRessource);
