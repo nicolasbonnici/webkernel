@@ -12,15 +12,13 @@ class Validator
 
     /**
      * Constantes de validation
+     * @var integer
      */
-    const STATUS_OK = 1; // @todo mettre 0 sinon si on oublie de tester la valeur de retour dans le if, on passera toujours dedans if (\core\Validator::integer('A')) => on passe
-    const STATUS_INVALID = 2;
-
-    const STATUS_OUT_OF_RANGE = 3;
-
-    const STATUS_EMPTY_MANDATORY = 4;
-
-    const STATUS_ALREADY_EXISTS = 5;
+    const STATUS_OK = 2;
+    const STATUS_INVALID = 3;
+    const STATUS_OUT_OF_RANGE = 4;
+    const STATUS_EMPTY_MANDATORY = 5;
+    const STATUS_ALREADY_EXISTS = 6;
 
     /**
      * ****************
@@ -41,21 +39,21 @@ class Validator
     static public function integer(&$iInteger, $iMinValue = null, $iMaxValue = null)
     {
         assert('(is_null($iMinValue) || is_int($iMinValue)) && (is_null($iMaxValue) || is_int($iMaxValue))');
-        
+
         if (! is_numeric($iInteger) || $iInteger != (int) $iInteger) {
             return self::STATUS_INVALID;
         }
-        
+
         if (! is_null($iMinValue) && $iInteger < $iMinValue) {
             return self::STATUS_OUT_OF_RANGE;
         }
-        
+
         if (! is_null($iMaxValue) && $iInteger > $iMaxValue) {
             return self::STATUS_OUT_OF_RANGE;
         }
-        
+
         $iInteger = (int) $iInteger;
-        
+
         return self::STATUS_OK;
     }
 
@@ -73,21 +71,21 @@ class Validator
     static public function float(&$fFloat, $fMinValue = null, $fMaxValue = null)
     {
         assert('(is_null($fMinValue) || is_float($fMinValue)) && (is_null($fMaxValue) || is_float($fMaxValue))');
-        
+
         if (! is_numeric($fFloat) || $fFloat != (float) $fFloat) {
             return self::STATUS_INVALID;
         }
-        
+
         if (! is_null($fMinValue) && $fFloat < $fMinValue) {
             return self::STATUS_OUT_OF_RANGE;
         }
-        
+
         if (! is_null($fMaxValue) && $fFloat > $fMaxValue) {
             return self::STATUS_OUT_OF_RANGE;
         }
-        
+
         $fFloat = (float) $fFloat;
-        
+
         return self::STATUS_OK;
     }
 
@@ -105,19 +103,19 @@ class Validator
     static public function string(&$sString, $iMinLength = null, $iMaxLength = null)
     {
         assert('(is_null($iMinLength) || is_int($iMinLength)) && (is_null($iMaxLength) || is_int($iMaxLength))');
-        
+
         if (! is_string($sString)) {
             return self::STATUS_INVALID;
         }
-        
+
         if (! is_null($iMinLength) && strlen($sString) < $iMinLength) {
             return self::STATUS_OUT_OF_RANGE;
         }
-        
+
         if (! is_null($iMaxLength) && strlen($sString) > $iMaxLength) {
             return self::STATUS_OUT_OF_RANGE;
         }
-        
+
         return self::STATUS_OK;
     }
 
@@ -138,16 +136,16 @@ class Validator
         ))) {
             return self::STATUS_INVALID;
         }
-        
+
         $bBoolean = (bool) $bBoolean;
-        
+
         return self::STATUS_OK;
     }
 
     /**
      * Check and cast a timestamp value
      *
-     * @param integer|mixed $iTimestamp            
+     * @param integer|mixed $iTimestamp
      * @return integer Check status
      */
     static public function timestamp(&$iTimestamp)
@@ -228,7 +226,7 @@ class Validator
         if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2})$/', $sDate, $aMatches) !== 1) {
             return self::STATUS_INVALID;
         }
-        
+
         return checkdate($aMatches[2], $aMatches[3], $aMatches[1]) ? self::STATUS_OK : self::STATUS_INVALID;
     }
 
@@ -244,7 +242,7 @@ class Validator
         if (preg_match('/^([0-9]{2}):([0-9]{2}):([0-9]{2})$/', $sTime, $aMatches) !== 1) {
             return self::STATUS_INVALID;
         }
-        
+
         return (self::integer($aMatches[1], 0, 12) === self::STATUS_OK && self::integer($aMatches[2], 0, 59) === self::STATUS_OK && self::integer($aMatches[3], 0, 59) === self::STATUS_OK) ? self::STATUS_OK : self::STATUS_INVALID;
     }
 
@@ -260,7 +258,7 @@ class Validator
         if (preg_match('/^([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}):([0-9]{2})$/', $sDateTime, $aMatches) !== 1) {
             return self::STATUS_INVALID;
         }
-        
+
         return (checkdate($aMatches[2], $aMatches[3], $aMatches[1]) && self::integer($aMatches[4], 0, 12) === self::STATUS_OK && self::integer($aMatches[5], 0, 59) === self::STATUS_OK && self::integer($aMatches[6], 0, 59) === self::STATUS_OK) ? self::STATUS_OK : self::STATUS_INVALID;
     }
 
@@ -304,7 +302,7 @@ class Validator
     /**
      * Check gender value
      *
-     * @param string $sGender            
+     * @param string $sGender
      * @return integer Check status
      */
     static public function gender(&$sGender)
@@ -375,9 +373,9 @@ class Validator
     static public function address(&$sAddress, $sCountry = COUNTRY)
     {
         assert('self::countryCode($sCountry) === self::STATUS_OK');
-        
+
         $sAddress = trim($sAddress);
-        
+
         switch ($sCountry) {
             default:
                 if (strlen($sAddress) < 4 || strlen($sAddress) > 75) {
@@ -399,9 +397,9 @@ class Validator
     static public function additionalAddress(&$sAddress, $sCountry = COUNTRY)
     {
         assert('self::countryCode($sCountry) === self::STATUS_OK');
-        
+
         $sAddress = trim($sAddress);
-        
+
         switch ($sCountry) {
             default:
                 if (strlen($sAddress) > 75) {
@@ -423,7 +421,7 @@ class Validator
     static public function postCode(&$sPostCode, $sCountry = COUNTRY)
     {
         assert('self::countryCode($sCountry) === self::STATUS_OK');
-        
+
         switch ($sCountry) {
             case 'BE':
             case 'CH':
@@ -433,7 +431,7 @@ class Validator
                 if (preg_match('/^((0[1-9]|[1-8][0-9]|9[0-5]) ?([0-9]{3})|(98) ?(0[0-9]{2})|00001)$/', $sPostCode, $aMatches) !== 1) {
                     return self::STATUS_INVALID;
                 }
-                
+
                 // Monaco
                 if (isset($aMatches[4]) && isset($aMatches[5])) {
                     $sPostCode = $aMatches[4] . $aMatches[5];
@@ -446,7 +444,7 @@ class Validator
                 if (preg_match('/^L-?([0-9]{4})$/', $sPostCode, $aMatches) !== 1) {
                     return self::STATUS_INVALID;
                 }
-                
+
                 $sPostCode = 'L-' . $aMatches[1];
                 return self::STATUS_OK;
             default:
@@ -466,9 +464,9 @@ class Validator
     static public function city(&$sCity, $sCountry = COUNTRY)
     {
         assert('self::countryCode($sCountry) === self::STATUS_OK');
-        
+
         $sCity = trim($sCity);
-        
+
         switch ($sCountry) {
             default:
                 return self::string($sCity, 1, 75);
@@ -487,14 +485,14 @@ class Validator
     static public function phoneNumber(&$sPhoneNumber, $sCountry = COUNTRY)
     {
         assert('self::countryCode($sCountry) === self::STATUS_OK');
-        
+
         $sPhoneNumber = str_replace(array(
             ' ',
             '.',
             ',',
             '-'
         ), '', $sPhoneNumber);
-        
+
         switch ($sCountry) {
             case 'BE':
                 // Fix numbers use 9 digits, GSM use 10 digits
@@ -539,7 +537,7 @@ class Validator
     static public function date(&$sDate, $sCountry = COUNTRY)
     {
         assert('self::countryCode($sCountry) === self::STATUS_OK');
-        
+
         switch ($sCountry) {
             case 'BE':
             case 'FR':

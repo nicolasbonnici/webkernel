@@ -1,18 +1,8 @@
 <?php
 namespace Library\Core\Tests;
 
-
-// Tested class
-include_once __DIR__ . '/../Acl.php';
-
 /**
- * Acl unit test
- * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
- */
-
-/**
- * Abstract Acl component text enteded class
- * @author niko
+ * Abstract Acl component test extended mock class
  *
  */
 class AclEntentedClassTest extends \Library\Core\Acl
@@ -26,12 +16,17 @@ class AclEntentedClassTest extends \Library\Core\Acl
 	{
 	    return $this->oGroups;
 	}
-	public function getCRUD($sRessource)
+	public function getRessources()
 	{
-	    return $this->oGroups;
+	    return $this->oRessources;
 	}
 }
 
+
+/**
+ * Acl unit test
+ * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
+ */
 class AclTest extends \Library\Core\Test
 {
     protected static $oAclInstance;
@@ -50,7 +45,6 @@ class AclTest extends \Library\Core\Test
 
     public function tearDown()
     {
-        unset($_SERVER['SERVER_NAME']);
     }
 
     public function testConstructor()
@@ -65,10 +59,16 @@ class AclTest extends \Library\Core\Test
         $this->assertTrue($oPermissions->count() > 0);
     }
 
-    public function testInvalidPermission($sInvalidRessourceName = 'BULLSHITENTITY')
+    public function testInvalidEntityPermission($sInvalidRessourceName = 'BULLSHITENTITY')
     {
         $oTestedMethod = $this->setMethodAccesible('\Library\Core\Acl', 'hasCreateAccess');
         $this->assertFalse($oTestedMethod->invokeArgs(self::$oAclInstance, array($sInvalidRessourceName)));
+    }
+
+    public function testValidEntityPermission($sValidRessourceName = 'todo')
+    {
+        $oTestedMethod = $this->setMethodAccesible('\Library\Core\Acl', 'hasCreateAccess');
+        $this->assertTrue($oTestedMethod->invokeArgs(self::$oAclInstance, array($sValidRessourceName)));
     }
 
 }

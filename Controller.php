@@ -14,7 +14,7 @@ class Controller extends Acl
      *
      * @var integer
      */
-    const XHR_STATUS_OK = 1;
+    const XHR_STATUS_OK = 1; // @todo attention aux constant integer === 1 || === 0 (false/true)
     const XHR_STATUS_ERROR = 2;
     const XHR_STATUS_ACCESS_DENIED = 3;
     const XHR_STATUS_SESSION_EXPIRED = 4;
@@ -44,7 +44,7 @@ class Controller extends Acl
     protected $sAction;
 
     /**
-     * Current request parameters
+     * Current request sent parameters
      * @var array
      */
     protected $aParams = array();
@@ -62,6 +62,13 @@ class Controller extends Acl
      * @var \Library\Core\View
      */
     protected $oView;
+
+    /**
+     * Parameters to pass to the current View instance
+     *
+     * @var array
+     */
+    protected $aView;
 
     /**
      * Current cookie
@@ -234,7 +241,7 @@ class Controller extends Acl
      *
      * @param
      *            mixed array|string $mUrl
-     * @todo handle router request object totaly abstracted in type and format
+     * @todo handle router request object totaly abstracted in type and format and move to the HTTP component
      */
     public function redirect($mUrl)
     {
@@ -325,7 +332,7 @@ class Controller extends Acl
     /**
      * ********************************
      *
-     * @todo supprimer
+     * @todo grep et supprimer
      */
     public function getController()
     {
