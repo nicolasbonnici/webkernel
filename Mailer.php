@@ -3,9 +3,9 @@ namespace Library\Core;
 
 /**
  * Email managment class that implement Swift mailer
+ * Dois etre instancier avant le message
  *
  * @dependancy \Library\Swift
- *
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */
@@ -44,7 +44,7 @@ class Mailer
      * @param type $iEmailId
      * @param type $sEmail
      */
-    public function __construct(\Swift_Message $oMessage, $oTransporter = null)
+    public function __construct($oTransporter = null)
     {
         require_once ROOT_PATH . 'Library/Swift/swift_required.php';
 
@@ -55,18 +55,21 @@ class Mailer
         }
 
         $this->oMailer = new \Swift_Mailer($oTransporter);
-        $this->oMessage = $oMessage;
 
     }
 
     /**
-     * Methode qui envoi le/les mails
-     * @param integer $iPriority
+     * Send an email
+     *
+     * @param \Swift_Message $oMessage
      * @return integer                  Number of recipients
+     *
+     * (non-PHPdoc)
+     * @see Swift_Mailer::send()
      */
-    public function send()
+    public function send(\Swift_Message $oMessage)
     {
-        return  $this->send($oMessage);
+        return  $this->oMailer->send($oMessage);
     }
 
 }

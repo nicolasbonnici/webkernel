@@ -5,7 +5,7 @@ namespace Library\Core\Tests;
  * Abstract Acl component test extended mock class
  *
  */
-class AclEntentedClassTest extends \Library\Core\Acl
+class AclExtentedClassTest extends \Library\Core\Acl
 {
     /* Accessors for testing purposes */
 	public function getPermissions()
@@ -35,7 +35,7 @@ class AclTest extends \Library\Core\Test
     public static function setUpBeforeClass()
     {
         self::$oUserInstance = new \app\Entities\User(1);
-        self::$oAclInstance = new AclEntentedClassTest(self::$oUserInstance);
+        self::$oAclInstance = new AclExtentedClassTest(self::$oUserInstance);
     }
 
 
