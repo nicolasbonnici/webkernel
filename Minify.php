@@ -226,7 +226,7 @@ class Minify
      * @param unknown $count
      * @return string
      */
-    private static function convertRelativePublicUrl($sFileUrl, $count, $sPublicRootDir = PUBLIC_PATH)
+    private static function convertRelativePublicUrl($sFileUrl, $count, $sPublicRootDir = '')
     {
 
         if (empty($sPublicRootDir)) {
