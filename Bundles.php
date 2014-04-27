@@ -66,18 +66,18 @@ class Bundles
     {
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
-        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundles'));
+        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundles'));
         if ($this->aAvailableBundles === false || count($this->aAvailableBundles) === 0) {
-            $this->aAvailableBundles = array_diff(scandir(BUNDLES_PATH), array(
+            $aBundles = array_diff(scandir(BUNDLES_PATH), array(
                 '..',
                 '.',
                 'composer',
                 'autoload.php'
             ));
-            foreach ($this->aAvailableBundles as $iIndex=>$sBundle) {
-                $this->aAvailableBundles[$iIndex] = Controller::build($sBundle);
+            foreach ($aBundles as $iIndex=>$sBundle) {
+                $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
             }
-            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundles'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
+            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundles'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
         }
     }
 
