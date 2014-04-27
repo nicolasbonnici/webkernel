@@ -122,7 +122,8 @@ class Controller extends Acl
             $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
             $this->aView["helpers"] = '../../../app/Views/helpers/';
 
-            // App layout
+            // App
+            $this->aView["aAppBundles"] = App::getBundles();
             $this->aView["sAppName"] = $this->aConfig['app']['name'];
             $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
 

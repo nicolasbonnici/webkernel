@@ -12,6 +12,7 @@ namespace Library\Core;
  */
 class Minify
 {
+
     /**
      * Minify settings
      * @var array
@@ -225,7 +226,7 @@ class Minify
      * @param unknown $count
      * @return string
      */
-    private static function convertRelativePublicUrl($sFileUrl, $count, $sPublicRootDir = '')
+    private static function convertRelativePublicUrl($sFileUrl, $count, $sPublicRootDir = PUBLIC_PATH)
     {
 
         if (empty($sPublicRootDir)) {
@@ -258,7 +259,7 @@ class Minify
             strpos($_SERVER['REQUEST_URI'], rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/').'/?') === 0) {
                 if (!$baseUrl) return $sPublicRootDir . $sFileUrl;
             }
-            return $baseUrl . $sFileUrl;
+            return $sPublicRootDir . $sFileUrl;
         }
 
         $contents = file_get_contents($sPublicRootDir.$sFileUrl);
