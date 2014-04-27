@@ -45,9 +45,7 @@ class Bundles
                 if (! Directory::delete(PUBLIC_BUNDLES_PATH . $sBundleName)) {
                     throw  new AppException('Unable to flush bundle\'s assets, check chmod on ' . PUBLIC_BUNDLES_PATH . ' for user ' . self::getServerUsername());
                 }
-            }
-
-            if (! Directory::create(PUBLIC_BUNDLES_PATH . $sBundleName, 0777, true)) {
+            } elseif (! Directory::create(PUBLIC_BUNDLES_PATH . $sBundleName, 0777, true)) {
                 throw  new AppException('Unable to create bundle\'s assets directory, check chmod on ' . PUBLIC_BUNDLES_PATH . ' for user ' . self::getServerUsername());
             } else {
                 $aDeployedBundles[] = $sBundleName;
@@ -68,8 +66,7 @@ class Bundles
     {
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
-
-        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundlesTree'));
+        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundles'));
         if ($this->aAvailableBundles === false || count($this->aAvailableBundles) === 0) {
             $this->aAvailableBundles = array_diff(scandir(BUNDLES_PATH), array(
                 '..',
@@ -77,10 +74,10 @@ class Bundles
                 'composer',
                 'autoload.php'
             ));
-            foreach ($this->aAvailableBundles as $sBundle) {
-                $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
+            foreach ($this->aAvailableBundles as $iIndex=>$sBundle) {
+                $this->aAvailableBundles[$iIndex] = Controller::build($sBundle);
             }
-            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundlesTree'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
+            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aAppBundles'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
         }
     }
 
