@@ -17,11 +17,7 @@ class Minify
      * Minify settings
      * @var array
      */
-    public static $aSettings =  array(
-        'embed' => true,
-        'embedMaxSize' => 5120,
-        'embedExceptions' => array('htc')
-    );
+    public static $aSettings =  array();
 
     /**
      * Reconized type that can be base64 encoded
@@ -98,7 +94,7 @@ class Minify
             if (preg_match('/[\n\r\t ]/', $sJavascriptCode[$i])) {
                 if (strlen($sJs) && preg_match('/[\n ]/', $sJs[strlen($sJs)-1])) {
                     if ($sJs[strlen($sJs)-1] == "\n") $LF_needed = true;
-                    $sJs = substr($sJs, 0, -1);
+                    $sJs = mb_substr($sJs, 0, -1);
                 }
                 while ($i+1<strlen($sJavascriptCode) && preg_match('/[\n\r\t ]/', $sJavascriptCode[$i+1])) {
                     if (!$LF_needed && preg_match('/[\n\r]/', $sJavascriptCode[$i])) $LF_needed = true;
@@ -147,9 +143,10 @@ class Minify
      * Minify CSS asset
      *
      * @param string $sCssCode          The CSS code to minify
+     * @param string $sPathContext      The path context
      * @return string
      */
-    public static function css($sCssCode)
+    public static function css($sCssCode, $sPathContext)
     {
         $sCss = '';
         $i=0;
@@ -165,13 +162,13 @@ class Minify
                     }
                     $sFileUrl .= $sCssCode[$i++];
                 }
-                if (strtolower(substr($sCss, -5, 4))=='url(' || strtolower(substr($sCss, -9, 8)) == '@import ') {
-                    $sFileUrl = self::convertRelativePublicUrl($sFileUrl, substr_count($sCssCode, $sFileUrl));
+                if (strtolower(mb_substr($sCss, -5, 4))=='url(' || strtolower(mb_substr($sCss, -9, 8)) == '@import ') {
+                    $sFileUrl = self::convertRelativePublicUrl($sFileUrl, mb_substr_count($sCssCode, $sFileUrl), $sPathContext);
                 }
                 $sCss .= $sFileUrl;
                 $sCss .= $sCssCode[$i++];
                 continue;
-            } elseif (strtolower(substr($sCss, -4))=='url(') {//url detected
+            } elseif (strtolower(mb_substr($sCss, -4))=='url(') {//url detected
                 $sFileUrl = '';
                 do {
                     if ($sCssCode[$i] == '\\') {
@@ -179,7 +176,7 @@ class Minify
                     }
                     $sFileUrl .= $sCssCode[$i++];
                 } while ($i<strlen($sCssCode) && $sCssCode[$i]!=')');
-                $sFileUrl = self::convertRelativePublicUrl($sFileUrl, substr_count($sCssCode, $sFileUrl));
+                $sFileUrl = self::convertRelativePublicUrl($sFileUrl, mb_substr_count($sCssCode, $sFileUrl), $sPathContext);
                 $sCss .= $sFileUrl;
                 $sCss .= $sCssCode[$i++];
                 continue;
@@ -220,57 +217,49 @@ class Minify
     }
 
     /**
-     * Convert file content to base64
+     * Convert file content relative file found on asset to base64
      *
-     * @param string $sFileUrl               File path
-     * @param unknown $count
+     * @param string $sFileUrl          File relative path (mostly found on url() css properties)
+     * @param integer $count
+     * @param string $sPathContext      The path context
      * @return string
      */
-    private static function convertRelativePublicUrl($sFileUrl, $count, $sPublicRootDir = '')
+    private static function convertRelativePublicUrl($sFileUrl, $count, $sPathContext)
     {
-
-        if (empty($sPublicRootDir)) {
-            $sPublicRootDir = ROOT_PATH . 'public';
-        }
-
         $sFileUrl = trim($sFileUrl);
+
+        /**
+         * Check if we got a full url or if not if the absolute path concatenated with the
+         * relative file url is correctly linked with a DIRECTORY_SEPARATOR to avoid broken path
+         */
+        if (mb_substr($sFileUrl, 0, 3) === 'htt') {
+            $sFullAbsoluteFilePath = $sFileUrl;
+        } elseif ((mb_substr($sPathContext, -1) !== DIRECTORY_SEPARATOR) && (mb_substr($sFileUrl, 0, 1) !== DIRECTORY_SEPARATOR)) {
+            $sFullAbsoluteFilePath = $sPathContext . DIRECTORY_SEPARATOR . $sFileUrl;
+        } else {
+            $sFullAbsoluteFilePath = $sPathContext . $sFileUrl;
+        }
 
         if (preg_match('@^[^/]+:@', $sFileUrl)) return $sFileUrl;
 
-        $fileType = substr(strrchr($sFileUrl, '.'), 1);
+        $fileType = mb_substr(strrchr($sFileUrl, '.'), 1);
         if (isset(self::$aMimeTypes[$fileType])) {
             $mimeType = self::$aMimeTypes[$fileType];
         } elseif (function_exists('mime_content_type')) {
-            $mimeType = mime_content_type($sPublicRootDir . $sFileUrl);
+            $mimeType = mime_content_type($sFullAbsoluteFilePath);
         } else {
             $mimeType = null;
         }
 
-        if (
-            !self::$aSettings['embed'] ||
-            !file_exists($sPublicRootDir.$sFileUrl) ||
-            (self::$aSettings['embedMaxSize'] > 0 && filesize($sPublicRootDir.$sFileUrl) > self::$aSettings['embedMaxSize']) ||
-            !$fileType ||
-            in_array($fileType, self::$aSettings['embedExceptions']) ||
-            !$mimeType ||
-            $count > 1
-        ) {
-            if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'].'?') === 0 ||
-            strpos($_SERVER['REQUEST_URI'], rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/').'/?') === 0) {
-                if (!$baseUrl) return $sPublicRootDir . $sFileUrl;
-            }
-            return $sPublicRootDir . $sFileUrl;
-        }
-
-        $contents = file_get_contents($sPublicRootDir.$sFileUrl);
+        $contents = Files::getContent($sFullAbsoluteFilePath);
 
         if ($fileType == 'css') {
-            $oldFileDir = $sPublicRootDir;
-            $sPublicRootDir = rtrim(dirname($sPublicRootDir.$sFileUrl), '\/').'/';
+            $oldFileDir = $sPathContext;
+            $sPathContext = rtrim(dirname($sFullAbsoluteFilePath), '\/').'/';
             $oldBaseUrl = $baseUrl;
-            $baseUrl = 'http'.(@$_SERVER['HTTPS']?'s':'').'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/').'/'.$sPublicRootDir;
+            $baseUrl = 'http'.(@$_SERVER['HTTPS']?'s':'').'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/').'/'.$sPathContext;
             $contents = minify_css($contents);
-            $sPublicRootDir = $oldFileDir;
+            $sPathContext = $oldFileDir;
             $baseUrl = $oldBaseUrl;
         }
 

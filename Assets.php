@@ -85,11 +85,15 @@ class Assets
         foreach ($this->aAssets as $sAssetType=>$aLibFilesPaths) {
             if ($sAssetType === 'js') {
                 foreach ($aLibFilesPaths as $sJsAsset) {
-                    $sMinifiedJsCode .= \Library\Core\Minify::js(Files::getContent(PUBLIC_PATH . $sJsAsset));
+                    $sMinifiedJsCode .= \Library\Core\Minify::js(Files::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
                 }
             } elseif ($sAssetType === 'css') {
                 foreach ($aLibFilesPaths as $sCssAsset) {
-                    $sMinifiedCssCode .= \Library\Core\Minify::css(Files::getContent(PUBLIC_PATH . $sCssAsset));
+                    // Correct the absolute path path if needed
+                    if (mb_substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
+                        $sCssAsset = mb_substr($sCssAsset, 1);
+                    }
+                    $sMinifiedCssCode .= \Library\Core\Minify::css(Files::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
                 }
             }
         }

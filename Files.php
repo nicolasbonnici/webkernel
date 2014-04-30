@@ -91,6 +91,16 @@ class Files extends Singleton
     }
 
     /**
+     * Grab file size
+     * @param string $sFilePath         Absolute path to a file
+     * @return integer
+     */
+    public static function size($sFilePath)
+    {
+        return filesize($sFilePath);
+    }
+
+    /**
      * Empty file content
      *
      * @param unknown $sFilePath
