@@ -138,6 +138,7 @@ class Controller extends Acl
             $this->aView["sEnv"] = ENV;
             $this->aView["aLoadedClass"] = \Library\Core\App::getLoadedClass();
             $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
+            $this->aView["bIsXhr"] = $this->isXHR();
 
             // Benchmark
             $this->aView["render_time"] = microtime(true);
