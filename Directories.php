@@ -50,5 +50,14 @@ class Directories extends Singleton
         return mkdir($sPath, 0777, true);
     }
 
+    /**
+     * Tell if a path exists
+     * @param string $sAbsoluteFolderPath
+     * @return boolean
+     */
+    public static function exists($sAbsoluteFolderPath)
+    {
+        return is_dir($sAbsoluteFolderPath);
+    }
 
 }
