@@ -189,6 +189,15 @@ class Controller extends Acl
     }
 
     /**
+     * Tell if we have a valid logged in user instance
+     * @return boolean
+     */
+    protected function isValidUserLogged()
+    {
+        return (isset($this->oUser) && $this->oUser->isLoaded() && $this->oUser->getId() === intval($this->_session['iduser']));
+    }
+
+    /**
      * Load Http request
      */
     protected function loadRequest()

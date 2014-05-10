@@ -57,6 +57,8 @@ abstract class Search
         } elseif (is_null($mEntity)) {
             // By default behavior we take all available Entities
             $this->aEntitiesScope = App::buildEntities();
+        } elseif (is_array($mEntity) && count($mEntity) > 0) {
+            $this->aEntitiesScope = $mEntity;
         }
 
         // Instanciate \app\Entities\User provided at instance constructor
@@ -73,7 +75,7 @@ abstract class Search
         }
 
         if (empty($this->aEntitiesScope)) {
-            throw new SearchException('Empty entities scope...', self::ERROR_EMPTY_ENTITIES_SCOPE);
+            $this->aEntitiesScope = $this->aEntitiesScope = App::buildEntities();
         } else {
 
             // For each entity in scope perform the key => value search if the key attribute exists
