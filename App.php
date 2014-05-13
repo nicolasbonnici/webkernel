@@ -319,7 +319,13 @@ class App
         }
 
         if (class_exists($sController)) {
-            new $sController();
+            $oUser = null;
+            if (isset($_SESSION['iduser']) && intval($_SESSION['iduser'] > 0)) {
+                $oUser = new \app\Entities\User(intval($_SESSION['iduser']));
+            }
+
+            new $sController($oUser);
+
         } else {
             throw new AppException('No controller found: ' . $sController);
             // \Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here (bundle error)
@@ -403,10 +409,23 @@ class App
         return exec('whoami');
     }
 
+
+    /**
+     * @todo conception
+     */
+    public static function dump()
+    {
+        // Export en json
+    }
+
+    public static function importFixtures()
+    {
+        // simple script d import sql
+    }
+
     /**
      * Accessors
      */
-
     public static function getConfig()
     {
         return self::$aConfig;

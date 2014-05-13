@@ -64,7 +64,7 @@ class Database
     public function __construct()
     {
         $this->setLink();
-        
+
         return;
     }
 
@@ -73,7 +73,7 @@ class Database
         if (! self::$_instance instanceof self) {
             self::$_instance = new self();
         }
-        
+
         return self::$_instance;
     }
 
@@ -85,20 +85,20 @@ class Database
     private static function setLink()
     {
         try {
-            
+
             $aConfig = \Library\Core\App::getConfig();
-            
+
             self::$_driver = $aConfig['database']['driver'];
             self::$_host = $aConfig['database']['host'];
             self::$_name = $aConfig['database']['name'];
             self::$_user = $aConfig['database']['user'];
             self::$_pass = $aConfig['database']['pass'];
-            
+
             self::$_link = new \PDO(self::$_driver . ':dbname=' . self::$_name . ';host=' . self::$_host, self::$_user, self::$_pass);
         } catch (Exception $log) {
             throw new DatabaseException($log);
         }
-        
+
         return;
     }
 
@@ -116,28 +116,28 @@ class Database
     public static function dbQuery($sQuery, array $aValues = array(), $sLink = 'slave')
     {
         assert('is_string($sQuery)');
-        
+
         // if ($sLink === 'slave' && self::isMasterQuery($sQuery)) {
         // $sLink = 'master';
         // }
-        
+
         try {
             if (! isset(self::$_link)) {
                 self::setLink();
             }
-            
+
             $fStart = microtime(true);
             $oStatement = self::$_link->prepare($sQuery, array(
                 \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
             ));
             $oStatement->execute($aValues);
-            
+
             // Must be after query successful execution
             self::$_sLastLink = $sLink;
             self::$_aBenchmark[$sLink]['time'] += microtime(true) - $fStart;
             self::$_aBenchmark[$sLink]['queries_count'] ++;
             self::$_aBenchmark[$sLink]['queries_list'][] = $sQuery;
-            
+
             return $oStatement;
         } catch (Exception $oException) {
             self::$_errors[] = array(
@@ -145,11 +145,11 @@ class Database
                 'server' => $sLink,
                 'error' => $oException->getMessage()
             );
-            
+
             if (defined('ENV') && ENV === 'dev') {
                 echo $oException->getMessage();
             }
-            
+
             return false;
         }
     }
@@ -166,6 +166,7 @@ class Database
         }
         return self::${self::$sLastLink}->lastInsertId();
     }
+
 }
 
 class DatabaseException extends \Exception

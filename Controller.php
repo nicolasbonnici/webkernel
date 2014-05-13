@@ -98,9 +98,12 @@ class Controller extends Acl
         $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
         $this->oView = new View($bLoadAllViewPaths);
 
-        // Check ACL if we have a logged user
         if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
+            $this->oUser = $oUser;
+            // Check ACL parent component if we have a logged user
             parent::__construct($oUser);
+        } else {
+            $this->oUser = null;
         }
 
         // @see run action & pre|post dispatch callback (optionnal)
@@ -194,7 +197,7 @@ class Controller extends Acl
      */
     protected function isValidUserLogged()
     {
-        return (isset($this->oUser) && $this->oUser->isLoaded() && $this->oUser->getId() === intval($this->_session['iduser']));
+        return (isset($this->oUser) && $this->oUser->isLoaded() && $this->oUser->getId() === intval($_SESSION['iduser']));
     }
 
     /**
