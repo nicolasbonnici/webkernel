@@ -468,7 +468,7 @@ abstract class Entity extends Database
      * @param string $sAttributeName
      * @return NULL string SGBD field type if exists otherwhise NULL
      */
-    public function getAttributeType($sAttributeName)
+    private function getAttributeType($sAttributeName)
     {
         assert('strlen($sAttributeName) > 0');
         if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {

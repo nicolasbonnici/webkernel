@@ -53,7 +53,7 @@ abstract class Crud
         assert('intval($iPrimaryKey) === 0 || intval($iPrimaryKey) > 0');
 
         if (empty($sEntityName) || ! class_exists(App::ENTITIES_NAMESPACE . $sEntityName)) {
-            throw new CrudException("Entity requested not found, you need to create manually or scaffold his \app\Entities class.", App::ERROR_ENTITY_EXISTS);
+            throw new CrudException("Entity requested not found (' . $sEntityName . '), you need to create manually or scaffold his \app\Entities class.", App::ERROR_ENTITY_EXISTS);
         } else {
             try {
                 // Instanciate \app\Entities\User provided at instance constructor
