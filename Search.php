@@ -115,7 +115,7 @@ abstract class Search
             $oEntityCollection = new $sEntityCollectionClassName();
 
             if (!$oEntity->isSearchable()) {
-                throw new SearchException('Yo can\'t search in this entity ' . $oEntity , self::ERROR_EMPTY_ENTITY);
+                throw new SearchException('You can\'t search in this entity ' . $oEntity , self::ERROR_EMPTY_ENTITY);
             } else {
 
                 // Generic search
