@@ -104,9 +104,9 @@ abstract class Crud
             try {
                 $oEntity = clone $this->oEntity;
 
-                foreach ($aParameters as $aParameter) {
-                    if (! empty($aParameter['name']) && ! empty($aParameter['value'])) {
-                        $oEntity->{$aParameter['name']} = $aParameter['value'];
+                foreach ($aParameters as $sParameter=>$mValue) {
+                    if ($oEntity->hasAttribute($sParameter)) {
+                        $oEntity->{$sParameter} = $mValue;
                     }
                 }
 
