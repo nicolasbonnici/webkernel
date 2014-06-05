@@ -38,7 +38,7 @@ abstract class Acl
     /**
      * User instance current group
      *
-     * @var \app\Entities\Collection\UserGroupCollection
+     * @var app\Entities\Mapping\Collection\UserGroupCollection
      */
     protected $oGroups;
 
@@ -206,8 +206,8 @@ abstract class Acl
     private function getUserGroups()
     {
         assert('$this->oUser->isLoaded()');
-        $this->oGroups = new \app\Entities\Collection\GroupCollection();
-        $oUserGroups = new \app\Entities\Collection\UserGroupCollection();
+        $this->oGroups = new \app\Entities\Mapping\Collection\UserGroupCollection();
+        $oUserGroups = new \app\Entities\Mapping\Collection\UserGroupCollection();
         try {
             $oUserGroups->loadByParameters(array(
                 'user_iduser' => $this->oUser->getId()
