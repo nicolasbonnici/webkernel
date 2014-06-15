@@ -297,7 +297,7 @@ class App
     private static function initRouter()
     {
         $oRouter = \Library\Core\Router::getInstance();
-        $oRouter->init();
+        $oRouter->init(self::$aConfig);
         return array(
             'bundle' => $oRouter->getBundle(),
             'controller' => $oRouter->getController(),
@@ -360,7 +360,6 @@ class App
             $sDefaultLocale = \Locale::getPrimaryLanguage($sDefaultLocale) . '-' . \Locale::getRegion($sDefaultLocale);
         }
 
-        $sFilename = Router::DEFAULT_BUNDLE;
         putenv('LC_ALL=' . $sDefaultLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
         setlocale(LC_ALL, $sDefaultLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
 

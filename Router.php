@@ -20,37 +20,101 @@ class Router extends Singleton
     const DEFAULT_LOCALE = 'FR_fr';
 
     /**
-     * Default config
+     * Default router settings for frontend
      *
-     * @todo setup and load from app config.ini
      * @var string
      */
-    const DEFAULT_BUNDLE = 'frontend';
+    private static $sDefaultBundle = 'frontend';
+    private static $sDefaultController = 'home';
+    private static $sDefaultAction = 'index';
 
-    const DEFAULT_BACKEND_BUNDLE = 'lifestream';
+    /**
+     * Default router settings for backend
+     * @var string
+     */
+    private static $sDefaultBackendBundle = 'backend';
+    private static $sDefaultBackendAction = 'index';
+    private static $sDefaultBackendController = 'home';
 
-    const DEFAULT_CONTROLLER = 'home';
+    /**
+     * Application language formatted like FR_fr (COUNTRY_langage)
+     * @var string
+     */
+    private static $sLang;
 
-    const DEFAULT_ACTION = 'index';
+    /**
+     * Apllication current bundle loaded
+     * @var string
+     */
+    private static $sBundle;
 
-    protected static $sLang;
+    /**
+     * Application current controller
+     * @var string
+     */
+    private static $sController;
 
-    protected static $sBundle;
+    /**
+     * Application current action
+     * @var string
+     */
+    private static $sAction;
 
-    protected static $sController;
+    /**
+     * Request parameters (Application MVC parameters, $_GET, $_POST, $_FILES) passed to the controller
+     * @var array
+     */
+    private static $aParams;
 
-    protected static $sAction;
+    /**
+     * Current request url
+     * @var string
+     */
+    private static $sUrl;
 
-    protected static $aParams;
+    /**
+     * Current MVC request
+     * @var array
+     */
+    private static $aRequest;
 
-    protected static $sUrl;
+    private static $aRules = array();
 
-    protected static $aRequest;
-
-    protected static $aRules = array();
-
-    public static function init()
+    public static function init(array $aApplicationConf = array())
     {
+            // Load default routing setting
+        if (
+            isset(
+                $aApplicationConf['default_bundle'],
+                $aApplicationConf['default_controller'],
+                $aApplicationConf['default_action']
+            ) && (
+                $aApplicationConf['default_bundle']     !== self::$sDefaultBundle ||
+                $aApplicationConf['default_controller'] !== self::$sDefaultController ||
+                $aApplicationConf['default_action']     !== self::$sDefaultAction
+            )
+        ) {
+            self::$sDefaultBundle       = $aApplicationConf['default_bundle'];
+            self::$sDefaultController   = $aApplicationConf['default_controller'];
+            self::$sDefaultAction       = $aApplicationConf['default_action'];
+        }
+        if (
+            isset(
+                $aApplicationConf['default_backend_bundle'],
+                $aApplicationConf['default_backend_controller'],
+                $aApplicationConf['default_backend_action']
+            ) && (
+                $aApplicationConf['default_backend_bundle']     !== self::$sDefaultBackendBundle ||
+                $aApplicationConf['default_backend_controller'] !== self::$sDefaultBackendController ||
+                $aApplicationConf['default_backend_action']     !== self::$sDefaultBackendAction
+            )
+        ) {
+            self::$sDefaultBackendBundle     = $aApplicationConf['default_backend_bundle'];
+            self::$sDefaultBackendController = $aApplicationConf['default_backend_controller'];
+            self::$sDefaultBackendAction     = $aApplicationConf['default_backend_action'];
+        }
+
+        self::$aRules = $oRoutesConf->getAsArray();
         // Load custom routes from configuration
         $oRoutesConf = new Json(Files::getContent(CONF_PATH . 'routes.json'));
         self::$aRules = $oRoutesConf->getAsArray();
@@ -60,9 +124,6 @@ class Router extends Singleton
         self::$aRequest = self::cleanArray(explode('/', self::$sUrl)); // @todo move function cleanArray to toolbox
 
         self::$sLang = self::DEFAULT_LOCALE;
-        self::$sBundle = self::DEFAULT_BUNDLE;
-        self::$sController = self::DEFAULT_CONTROLLER;
-        self::$sAction = self::DEFAULT_ACTION;
 
         if (is_array(self::$aRequest) && count(self::$aRequest) > 0) {
             // Test custom routing here
@@ -161,6 +222,40 @@ class Router extends Singleton
             }
         }
         return self::$aParams;
+    }
+
+    /**
+     * Accessors
+     */
+
+    public static function getDefaultBundle()
+    {
+        return self::$sDefaultBundle;
+    }
+
+    public static function getDefaultBackendBundle()
+    {
+        return self::$sDefaultBackendBundle;
+    }
+
+    public static function getDefaultController()
+    {
+        return self::$sDefaultController;
+    }
+
+    public static function getDefaultBackendController()
+    {
+        return self::$sDefaultBackendController;
+    }
+
+    public static function getDefaultAction()
+    {
+        return self::$sDefaultAction;
+    }
+
+    public static function getDefaultBackendAction()
+    {
+        return self::$sDefaultBackendAction;
     }
 
     public static function getBundle()
