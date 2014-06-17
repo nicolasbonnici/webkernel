@@ -309,10 +309,12 @@ class App
 
     /**
      * Boostrap app controller
+     *
+     * @todo /!\ ucfirst
      */
     private static function initController()
     {
-        $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst(\Library\Core\Router::getController()) . 'Controller';
+        $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst( \Library\Core\Router::getController() ) . 'Controller';
 
         if (ENV === 'dev') {
             self::registerLoadedClass($sController);

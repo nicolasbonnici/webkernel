@@ -115,12 +115,11 @@ class Router extends Singleton
             self::$sDefaultBackendAction     = $aApplicationConf['default_backend_action'];
         }
 
-        self::$sLang        = self::DEFAULT_LOCALE;
-        self::$sBundle      = self::DEFAULT_BUNDLE;
-        self::$sController  = self::DEFAULT_CONTROLLER;
-        self::$sAction      = self::DEFAULT_ACTION;
+        self::$sLang        = self::DEFAULT_LOCALE; // @todo
+        self::$sBundle      = self::$sDefaultBundle;
+        self::$sController  = self::$sDefaultController;
+        self::$sAction      = self::$sDefaultAction;
 
-        self::$aRules = $oRoutesConf->getAsArray();
         // Load custom routes from configuration
         $oRoutesConf = new Json(Files::getContent(CONF_PATH . 'routes.json'));
         self::$aRules = $oRoutesConf->getAsArray();
