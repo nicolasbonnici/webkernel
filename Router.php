@@ -98,6 +98,7 @@ class Router extends Singleton
             self::$sDefaultController   = $aApplicationConf['default_controller'];
             self::$sDefaultAction       = $aApplicationConf['default_action'];
         }
+
         if (
             isset(
                 $aApplicationConf['default_backend_bundle'],
@@ -113,6 +114,11 @@ class Router extends Singleton
             self::$sDefaultBackendController = $aApplicationConf['default_backend_controller'];
             self::$sDefaultBackendAction     = $aApplicationConf['default_backend_action'];
         }
+
+        self::$sLang        = self::DEFAULT_LOCALE;
+        self::$sBundle      = self::DEFAULT_BUNDLE;
+        self::$sController  = self::DEFAULT_CONTROLLER;
+        self::$sAction      = self::DEFAULT_ACTION;
 
         self::$aRules = $oRoutesConf->getAsArray();
         // Load custom routes from configuration
