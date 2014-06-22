@@ -82,7 +82,7 @@ class Router extends Singleton
 
     public static function init(array $aApplicationConf = array())
     {
-            // Load default routing setting
+        // Load default routing setting
         if (
             isset(
                 $aApplicationConf['routing']['default_bundle'],

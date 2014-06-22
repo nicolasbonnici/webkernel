@@ -544,6 +544,7 @@ abstract class Entity extends Database
         return static::PRIMARY_KEY;
     }
 
+
     /**
      * Reset current instance to blank state
      *

@@ -386,17 +386,20 @@ class App
     private static function initPaths()
     {
         // @see paths info
-        define('ROOT_PATH', __DIR__ . '/../../');
-        define('APP_PATH', __DIR__ . '/../../app/');
-        define('CONF_PATH', __DIR__ . '/../../app/config/');
-        define('LIBRARY_PATH', __DIR__ . '/../');
-        define('TMP_PATH', __DIR__ . '/../../tmp/');
-        define('CACHE_PATH', __DIR__ . '/../../tmp/cache/');
-        define('LOG_PATH', __DIR__ . '/../../tmp/logs/');
-        define('BUNDLES_PATH', __DIR__ . '/../../bundles/');
-        define('PUBLIC_PATH', __DIR__ . '/../../public/');
-        define('PUBLIC_BUNDLES_PATH', __DIR__ . '/../../public/lib/bundles/');
-        define('PUBLIC_BUNDLES_UX_PATH', __DIR__ . '/../../public/lib/sociableUx/');
+        define('ROOT_PATH',             __DIR__ . '/../../');
+        define('APP_PATH',              __DIR__ . '/../../app/');
+        define('ENTITIES_PATH',         __DIR__ . '/../../app/Entities/');
+        define('ENTITIES_MAPPING_PATH', __DIR__ . '/../../app/Entities/Mapping/');
+        define('ENTITIES_DEPLOY_PATH',  __DIR__ . '/../../app/Entities/Deploy/');
+        define('CONF_PATH',             __DIR__ . '/../../app/config/');
+        define('LIBRARY_PATH',          __DIR__ . '/../');
+        define('TMP_PATH',              __DIR__ . '/../../tmp/');
+        define('CACHE_PATH',            __DIR__ . '/../../tmp/cache/');
+        define('LOG_PATH',              __DIR__ . '/../../tmp/logs/');
+        define('BUNDLES_PATH',          __DIR__ . '/../../bundles/');
+        define('PUBLIC_PATH',           __DIR__ . '/../../public/');
+        define('PUBLIC_BUNDLES_PATH',   __DIR__ . '/../../public/lib/bundles/');
+        define('UX_PATH',               __DIR__ . '/../../public/lib/sociableUx/');
     }
 
     /**
