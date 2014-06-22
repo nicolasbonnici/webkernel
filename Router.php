@@ -85,34 +85,34 @@ class Router extends Singleton
             // Load default routing setting
         if (
             isset(
-                $aApplicationConf['default_bundle'],
-                $aApplicationConf['default_controller'],
-                $aApplicationConf['default_action']
+                $aApplicationConf['routing']['default_bundle'],
+                $aApplicationConf['routing']['default_controller'],
+                $aApplicationConf['routing']['default_action']
             ) && (
-                $aApplicationConf['default_bundle']     !== self::$sDefaultBundle ||
-                $aApplicationConf['default_controller'] !== self::$sDefaultController ||
-                $aApplicationConf['default_action']     !== self::$sDefaultAction
+                $aApplicationConf['routing']['default_bundle']     !== self::$sDefaultBundle ||
+                $aApplicationConf['routing']['default_controller'] !== self::$sDefaultController ||
+                $aApplicationConf['routing']['default_action']     !== self::$sDefaultAction
             )
         ) {
-            self::$sDefaultBundle       = $aApplicationConf['default_bundle'];
-            self::$sDefaultController   = $aApplicationConf['default_controller'];
-            self::$sDefaultAction       = $aApplicationConf['default_action'];
+            self::$sDefaultBundle       = $aApplicationConf['routing']['default_bundle'];
+            self::$sDefaultController   = $aApplicationConf['routing']['default_controller'];
+            self::$sDefaultAction       = $aApplicationConf['routing']['default_action'];
         }
 
         if (
             isset(
-                $aApplicationConf['default_backend_bundle'],
-                $aApplicationConf['default_backend_controller'],
-                $aApplicationConf['default_backend_action']
+                $aApplicationConf['routing']['default_backend_bundle'],
+                $aApplicationConf['routing']['default_backend_controller'],
+                $aApplicationConf['routing']['default_backend_action']
             ) && (
-                $aApplicationConf['default_backend_bundle']     !== self::$sDefaultBackendBundle ||
-                $aApplicationConf['default_backend_controller'] !== self::$sDefaultBackendController ||
-                $aApplicationConf['default_backend_action']     !== self::$sDefaultBackendAction
+                $aApplicationConf['routing']['default_backend_bundle']     !== self::$sDefaultBackendBundle ||
+                $aApplicationConf['routing']['default_backend_controller'] !== self::$sDefaultBackendController ||
+                $aApplicationConf['routing']['default_backend_action']     !== self::$sDefaultBackendAction
             )
         ) {
-            self::$sDefaultBackendBundle     = $aApplicationConf['default_backend_bundle'];
-            self::$sDefaultBackendController = $aApplicationConf['default_backend_controller'];
-            self::$sDefaultBackendAction     = $aApplicationConf['default_backend_action'];
+            self::$sDefaultBackendBundle     = $aApplicationConf['routing']['default_backend_bundle'];
+            self::$sDefaultBackendController = $aApplicationConf['routing']['default_backend_controller'];
+            self::$sDefaultBackendAction     = $aApplicationConf['routing']['default_backend_action'];
         }
 
         self::$sLang        = self::DEFAULT_LOCALE; // @todo

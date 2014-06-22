@@ -207,24 +207,22 @@ class App
      */
     public static function classLoader($sClassName)
     {
-        $sClassName = ltrim($sClassName, '\\');
+        $sComponentName = ltrim($sClassName, '\\');
         $sFileName = '';
-        $namespace = '';
+        $sComponentNamespace = '';
         if ($lastNsPos = strripos($sClassName, '\\')) {
-            $namespace = substr($sClassName, 0, $lastNsPos);
+            $sComponentNamespace = substr($sClassName, 0, $lastNsPos);
             $sClassName = substr($sClassName, $lastNsPos + 1);
 
-            $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+            $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sComponentNamespace) . DIRECTORY_SEPARATOR;
         }
         $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
 
         if (is_file(ROOT_PATH . $sFileName)) {
+            self::registerLoadedClass($sClassName, $sComponentNamespace);
             require_once ROOT_PATH . $sFileName;
         }
 
-        if (ENV === 'dev') {
-            self::registerLoadedClass($sFileName);
-        }
     }
 
     /**
@@ -317,7 +315,7 @@ class App
         $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst( \Library\Core\Router::getController() ) . 'Controller';
 
         if (ENV === 'dev') {
-            self::registerLoadedClass($sController);
+            self::registerLoadedClass(\Library\Core\Router::getController(), $sController);
         }
 
         if (class_exists($sController)) {
@@ -425,6 +423,19 @@ class App
     }
 
     /**
+     * Register called class for debug purposes
+     *
+     * @param string $sClassname            Class component name
+     * @param string $sComponentPath        Class component path
+     */
+    public static function registerLoadedClass($sClassname, $sComponentPath = '')
+    {
+        if (strlen($sClassname) > 0) {
+            self::$aLoadedClass[$sClassname . (($sComponentPath != '') ? ' (' . $sComponentPath . ')' : '')] = round(microtime(true) - FRAMEWORK_STARTED, 3);
+        }
+    }
+
+    /**
      * Accessors
      */
     public static function getConfig()
@@ -435,13 +446,6 @@ class App
     public static function setConfig($config)
     {
         self::$aConfig = $config;
-    }
-
-    public static function registerLoadedClass($sClassname)
-    {
-        if (strlen($sClassname) > 0) {
-            self::$aLoadedClass[$sClassname] = round(microtime(true) - FRAMEWORK_STARTED, 3);
-        }
     }
 
     public static function getLoadedClass()
