@@ -391,6 +391,7 @@ class App
         define('ENTITIES_PATH',         __DIR__ . '/../../app/Entities/');
         define('ENTITIES_MAPPING_PATH', __DIR__ . '/../../app/Entities/Mapping/');
         define('ENTITIES_DEPLOY_PATH',  __DIR__ . '/../../app/Entities/Deploy/');
+        define('ENTITIES_UPDATE_PATH',  __DIR__ . '/../../app/Entities/Update/');
         define('CONF_PATH',             __DIR__ . '/../../app/config/');
         define('LIBRARY_PATH',          __DIR__ . '/../');
         define('TMP_PATH',              __DIR__ . '/../../tmp/');

@@ -182,15 +182,15 @@ abstract class Crud
         } else {
             try {
 
-                foreach ($aParameters as $aParameter) {
-                    if (! empty($aParameter['name']) && ! empty($aParameter['value'])) {
+                foreach ($aParameters as $sKey=>$mValue) {
+                    if (! empty($sKey)) { // Since value can be nullable handle later on the Entity component
 
                         // Check for user bypass attempt
-                        if (($this->oEntity->hasAttribute('user_iduser') && $aParameter['name'] === 'user_iduser' && $this->oUser->getId() !== intval($aParameters['value'])) || ($this->oEntity->hasAttribute('user_iduser') && $aParameter['name'] === 'iduser' && $this->oUser->getId() !== intval($aParameters['value']))) {
+                        if (($this->oEntity->hasAttribute('user_iduser') && $sKey === 'user_iduser' && $this->oUser->getId() !== intval($mValue)) || ($this->oEntity->hasAttribute('user_iduser') && $sKey === 'iduser' && $this->oUser->getId() !== intval($mValue))) {
                             throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
                         }
 
-                        $this->oEntity->{$aParameter['name']} = $aParameter['value'];
+                        $this->oEntity->{$sKey} = $mValue;
                     }
                 }
 

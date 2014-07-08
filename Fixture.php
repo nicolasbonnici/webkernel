@@ -99,24 +99,23 @@ class Fixtures
 
         */
     }
-    
+
     /**
      * Alter and update an already deployed entity
      */
     protected function update()
     {
-    	
-    	
-    	$this->sAlterScriptPath = ENTITIES_ALTER_PATH . $sEntityName . '.sql';
-    	
+
+    	$this->sAlterScriptPath = ENTITIES_UPDATE_PATH . $sEntityName . '.sql';
+
     	if (! $this->isDeployed()) {
     		throw new FixturesException('Unable to update an entity not deployed on database');
-    	} elseif (! Files::exists($this) {
+    	} elseif (! Files::exists($this->sAlterScriptPath)) {
 		throw new FixturesException('Unable to find the update script for entity: ' . $sEntityname);
 	} else {
 		// Loader et run le script d'alter
 	}
-    	
+
     }
 
     protected function isDeployed()
