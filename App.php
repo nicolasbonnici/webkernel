@@ -403,15 +403,6 @@ class App
         define('UX_PATH',               __DIR__ . '/../../public/lib/sociableUx/');
     }
 
-    /**
-     * Return server username
-     * @return string
-     */
-    public static function getServerUsername()
-    {
-        return exec('whoami');
-    }
-
 
     /**
      * @todo conception

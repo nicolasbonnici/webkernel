@@ -111,10 +111,10 @@ class Fixtures
     	if (! $this->isDeployed()) {
     		throw new FixturesException('Unable to update an entity not deployed on database');
     	} elseif (! Files::exists($this->sAlterScriptPath)) {
-		throw new FixturesException('Unable to find the update script for entity: ' . $sEntityname);
-	} else {
-		// Loader et run le script d'alter
-	}
+		  throw new FixturesException('Unable to find the update script for entity: ' . $sEntityname);
+    	} else {
+    		// Loader et run le script d'alter
+    	}
 
     }
 
