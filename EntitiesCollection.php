@@ -2,9 +2,17 @@
 namespace Library\Core;
 
 /**
+ * On the fly ORM CRUD managment abstract class
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
+ *
+ * @important Entities need a primary auto incremented index (id[entity])
+ *
+ *       @dependancy \Library\Core\Collection
+ *       @dependancy \Library\Core\Validator
+ *       @dependancy \Library\Core\Cache
+ *       @dependancy \Library\Core\Database
  *
  */
 abstract class EntitiesCollection extends Collection

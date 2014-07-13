@@ -2,13 +2,13 @@
 namespace Library\Core;
 
 /**
- * On the fly ORM CRUD abstract class managment
+ * On the fly ORM CRUD managment abstract class
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
  *
- *         @important Entities need a primary auto incremented index (id[entity])
- * @todo optimiser la gestion du cache dans le composant Cache
+ * @important Entities need a primary auto incremented index (id[entity])
+ *
  *       @dependancy \Library\Core\Validator
  *       @dependancy \Library\Core\Cache
  *       @dependancy \Library\Core\Database
@@ -115,11 +115,11 @@ abstract class Entity extends Database
         $this->loadFields();
         if (! is_null($mPrimaryKey) && is_string($mPrimaryKey) || is_int($mPrimaryKey)) {
 
-            // @see Build only one object
+            // Build only one object
             $this->{static::PRIMARY_KEY} = $mPrimaryKey;
             $this->loadByPrimaryKey();
         } elseif (is_array($mPrimaryKey)) {
-            // @see Sinon si c'est un array je load l'objet via different paramètres
+            // Array case
             $this->loadByParameters($mPrimaryKey);
         }
 

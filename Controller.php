@@ -14,10 +14,10 @@ class Controller extends Acl
      *
      * @var integer
      */
-    const XHR_STATUS_OK = 1; // @todo attention aux constant integer === 1 || === 0 (false/true)
-    const XHR_STATUS_ERROR = 2;
-    const XHR_STATUS_ACCESS_DENIED = 3;
-    const XHR_STATUS_SESSION_EXPIRED = 4;
+    const XHR_STATUS_OK = 200;
+    const XHR_STATUS_SESSION_EXPIRED = 401;
+    const XHR_STATUS_ACCESS_DENIED = 403;
+    const XHR_STATUS_ERROR = 500;
 
     /**
      * Current locale "[COUNTRY]_[LANGUAGE]"
@@ -149,7 +149,7 @@ class Controller extends Acl
             $this->aView['current_timestamp'] = time();
             $this->aView['rendered_time'] = round($this->aView["render_time"] - FRAMEWORK_STARTED, 3);
 
-            // @see pre dispatch action
+            // @see pre dispatch action hook
             if (method_exists($this, '__preDispatch')) {
 
                 try {
@@ -163,7 +163,7 @@ class Controller extends Acl
             // Run mothafucka run!
             $this->{$this->sAction}();
 
-            // @see post dispatch action
+            // @see post dispatch action hook
             if (method_exists($this, '__postDispatch')) {
 
                 try {
@@ -287,8 +287,8 @@ class Controller extends Acl
     public function loadLocales()
     {
         require_once APP_PATH . '/Translations/' . $this->sLang . '/global.php'; // @see globale translation
-        if (file_exists(BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '/' . $this->sBundle . '.php')) {
-            require_once BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '/' . $this->sBundle . '.php';
+        if (file_exists(BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '.php')) {
+            require_once BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '.php';
         }
         $this->aView["lang"] = $this->sLang;
         $this->aView["tr"] = $tr; // @see loading de la traduction pour la vue
