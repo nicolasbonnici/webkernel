@@ -569,6 +569,13 @@ abstract class Entity extends Database
     }
 
     /**
+     *
+     * @todo migrer ces methodes vers leurs composants respectifs
+     *
+     *
+     */
+
+    /**
      * Validate data integrity for the database field
      *
      * @todo remettre la gestion des exceptions

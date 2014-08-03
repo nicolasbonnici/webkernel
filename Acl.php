@@ -2,11 +2,11 @@
 namespace Library\Core;
 
 /**
+ * ACL couch layer to manage CRUD access to entities using permissions setted to user's groups
+ *
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  *
- *         ACL couch layer
- *         Manage CRUD access to entities
  */
 abstract class Acl
 {
@@ -90,7 +90,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->create)
         ) {
-            return $oRights->create === 1;
+            return ($oRights->create === 1);
         }
 
         return false;
@@ -108,7 +108,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->read)
         ) {
-            return $oRights->read === 1;
+            return ($oRights->read === 1);
         }
 
         return false;
@@ -126,7 +126,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->update)
         ) {
-            return $oRights->update === 1;
+            return ($oRights->update === 1);
         }
 
         return false;
@@ -144,7 +144,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->delete)
         ) {
-            return $oRights->delete === 1;
+            return ($oRights->delete === 1);
         }
 
         return false;
@@ -162,7 +162,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->list)
         ) {
-            return $oRights->list === 1;
+            return ($oRights->list === 1);
         }
 
         return false;

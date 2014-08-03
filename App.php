@@ -19,7 +19,7 @@ class App
      * @var string
      */
     const ENTITIES_NAMESPACE = '\app\Entities\\';
-
+    const MAPPING_ENTITIES_NAMESPACE = '\app\Entities\Mapping\\';
     const ENTITIES_COLLECTION_NAMESPACE = '\app\Entities\Collection\\';
 
     /**

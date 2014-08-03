@@ -110,13 +110,15 @@ abstract class Search
         } else {
             $aParameters = array();
             $sEntityClassName = App::ENTITIES_NAMESPACE . $sEntity;
-            $sEntityCollectionClassName = App::ENTITIES_COLLECTION_NAMESPACE . $sEntity . 'Collection';
             $oEntity = new $sEntityClassName();
-            $oEntityCollection = new $sEntityCollectionClassName();
 
-            if (!$oEntity->isSearchable()) {
+            $sEntityCollectionClassName = App::ENTITIES_COLLECTION_NAMESPACE . $sEntity . 'Collection';
+
+            // Entities must be searchable and have a EntitiesCollection class too
+            if (! $oEntity->isSearchable() || ! class_exists($sEntityCollectionClassName)) {
                 throw new SearchException('You can\'t search in this entity ' . $oEntity , self::ERROR_EMPTY_ENTITY);
             } else {
+                $oEntityCollection = new $sEntityCollectionClassName();
 
                 // Generic search
                 $aAttributes = $oEntity->getAttributes();
