@@ -1,11 +1,9 @@
 sociableCore
 ============
 
-Ultra lightweight flexible full stack framework wrote in PHP5 (5.4)
+Ultra lightweight full stack framework (backend and frontend) wrote in PHP5 (5.5). This framework has only 3 guidelines: Performance, security and flexibility.
 
-Demo project here http://dev.nbonnici.info/
-
-Features
+#Features#
 
 * On the fly <strong>ORM</strong>
 
@@ -39,7 +37,7 @@ Features
 
 * This framework can render pages that fetch a hundred entities under 0.002 seconds
 
-Dependancy
+#Dependancy#
 
 Curl, Git & composer See https://getcomposer.org/ for more infos, you need to install composer on your global binaries path.
 
@@ -48,12 +46,17 @@ To install memcache support for PHP5 on Linux you need to install those packages
 
 Note that the path for your php installation may be different on your distribution
 
-
-Installation
+#Installation#
 
 Clone this skeleton web application https://github.com/nicolasbonnici/Skeleton.git then just run ./app/bin/console and choose install.
 
 mkdir myproject
 git clone git@github.com:nicolasbonnici/skeleton.git ./myproject/ && ./myproject/app/bin/console
 
-Then just choose "install" and "deploy assets" 
+Just choose "install" then "deploy assets".
+
+Demo project here http://dev.nbonnici.info/
+
+#Warning#
+
+Do not use this framework on a production environment, the stable release fully tested with the PHPUnit Framework is currently at work.
