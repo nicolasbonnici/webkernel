@@ -7,37 +7,37 @@ Demo project here http://dev.nbonnici.info/
 
 Features
 
-*On the fly <strong>ORM</strong>
+* On the fly <strong>ORM</strong>
 
-*Bundle architectured project structure
+* Bundle architectured project structure
 
-*Connect to any relational SGBD structure and <strong>scaffold your entities</strong>
+* Connect to any relational SGBD structure and <strong>scaffold your entities</strong>
 
-*<strong>Out of the box CRUD and listing methods</strong> on any project Entity
+* <strong>Out of the box CRUD and listing methods</strong> on any project Entity
 
-*<strong>Full scaffolding</strong> of your custom bundles (models, controllers, forms, views and also translations)
+* <strong>Full scaffolding</strong> of your custom bundles (models, controllers, forms, views and also translations)
 
-*<strong>Autocast every SGBD data types to PHP</strong> and auto validate data integrity of your objects
+* <strong>Autocast every SGBD data types to PHP</strong> and auto validate data integrity of your objects
     attributes on CRUD actions
     
-*Flexible <strong>ACL managment for users and groups</strong>
+* Flexible <strong>ACL managment for users and groups</strong>
 
-*<strong>Command line tool</strong> to install or update project, libraries and bundles or also clear render
+* <strong>Command line tool</strong> to install or update project, libraries and bundles or also clear render
     engine cache (and other developer's tools)
     
-*<strong>MVC</strong> pattern, bundles enabled (bundle/controller/action) with a app namespace common couch to each layers
+* <strong>MVC</strong> pattern, bundles enabled (bundle/controller/action) with a app namespace common couch to each layers
 
-*Yaml and ini static config format
+* Yaml and ini static config format
 
-*<strong>PSR</strong> compliant
+* <strong>PSR</strong> compliant
 
-*Use <strong>composer</strong> to manage bundles
+* Use <strong>composer</strong> to manage bundles
 
-*<strong>Full flexible hybrid HTML5 UX</strong> based on Twitter Bootstrap and jQuery 1.10+
+* <strong>Full flexible hybrid HTML5 UX</strong> based on Twitter Bootstrap and jQuery 1.10+
 
-*Lightweight <strong>fast render engine</strong> (Haanga)
+* Lightweight <strong>fast render engine</strong> (Haanga)
 
-*This framework can render pages that fetch a hundred entities under 0.002 seconds
+* This framework can render pages that fetch a hundred entities under 0.002 seconds
 
 Dependancy
 
