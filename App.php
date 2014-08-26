@@ -62,11 +62,6 @@ class App
      */
     private static $aConfig;
 
-    /**
-     *  Assets managment
-     *  @var \Libraries\Core\Assets
-     */
-    private static $oAssetsInstance;
 
     /**
      * An array of dns

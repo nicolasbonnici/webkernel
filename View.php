@@ -2,7 +2,9 @@
 namespace Library\Core;
 
 /**
- * Bundles managment
+ * View managment
+ *
+ * @todo deplacer ici le chargement des assets (App)
  *
  * @dependancy \Library\Haanga
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
@@ -10,6 +12,12 @@ namespace Library\Core;
 
 class View
 {
+
+    /**
+     *  Assets managment
+     *  @var \Libraries\Core\Assets
+     */
+    private static $oAssetsInstance;
 
     /**
      * View instance constructor
@@ -90,7 +98,6 @@ class View
         // Render the view using Haanga
         $this->load($sTpl, $this->aView, $bToString);
     }
-
 
     /**
      * Clear rendering engine cache files for each bundle's views

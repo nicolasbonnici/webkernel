@@ -62,12 +62,12 @@ class Files extends Singleton
      * Write on a file
      *
      * @param string $sFilePath         Absolute path to a file
-     * @param unknown $sContent
+     * @param string $sContent
      * @return boolean
      */
     public static function write($sFilePath, $sContent)
     {
-        return (file_put_contents($sFilePath, $sContent) !== false);
+        return (file_put_contents($sFilePath, $sContent) !== 0);
     }
 
     /**
