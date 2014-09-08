@@ -8,7 +8,7 @@ namespace Library\Core;
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */
-class Mail extends \Swift_Message
+class Email extends \Swift_Message
 {
 
     /**
