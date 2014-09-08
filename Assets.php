@@ -95,8 +95,13 @@ class Assets
                 }
             }
 
-            $aBuiltLog[$sPackageName . '_js']  = Files::write($this->sBuildPath . $sPackageName . '.min.js', $sMinifiedJsCode);
-            $aBuiltLog[$sPackageName . '_css'] = Files::write($this->sBuildPath . $sPackageName . '.min.css', $sMinifiedCssCode);
+            if (! empty($sMinifiedJsCode)) {
+                $aBuiltLog[$sPackageName . '_js']  = Files::write($this->sBuildPath . $sPackageName . '.min.js', $sMinifiedJsCode);
+            }
+
+            if (! empty($sMinifiedCssCode)) {
+                $aBuiltLog[$sPackageName . '_css'] = Files::write($this->sBuildPath . $sPackageName . '.min.css', $sMinifiedCssCode);
+            }
 
         }
 

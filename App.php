@@ -82,6 +82,13 @@ class App
     const APP_VERSION = '1.0';
 
     /**
+     * Current framework version
+     *
+     * @var string
+     */
+    const APP_STAGING = 'beta';
+
+    /**
      * Current framework release name
      *
      * @var string
@@ -196,7 +203,7 @@ class App
     }
 
     /**
-     * Autoload any class that use namespaces
+     * Autoload any class that use namespaces (PSR-4)
      *
      * @param string $sClassName
      */

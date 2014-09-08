@@ -74,5 +74,5 @@ class Mailer
 
 }
 
-class MailException extends \Exception
+class MailerException extends \Exception
 {}
