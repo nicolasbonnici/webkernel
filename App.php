@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use bundles\user\Entities\User;
+
 /**
  * App Model class
  * A simple class to build and manage usefull setup informations
@@ -323,7 +325,7 @@ class App
         if (class_exists($sController)) {
             $oUser = null;
             if (isset($_SESSION['iduser']) && intval($_SESSION['iduser'] > 0)) {
-                $oUser = new \app\Entities\User(intval($_SESSION['iduser']));
+                $oUser = new User(intval($_SESSION['iduser']));
             }
 
             new $sController($oUser);

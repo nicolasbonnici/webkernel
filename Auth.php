@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use bundles\user\Entities\User;
+
 /**
  * Simple auth controller layer
  * Just create a Controller that extend this class to restrict access to logged users
@@ -13,7 +15,7 @@ class Auth extends Controller
     /**
      * Currently logged user instance
      *
-     * @type \app\Entities\User
+     * @type bundles\user\Entities\User
      */
     protected $oUser;
 
@@ -38,7 +40,7 @@ class Auth extends Controller
      */
     protected function checkSessionintegrity()
     {
-        $this->oUser = new \app\Entities\User();
+        $this->oUser = new User();
 
         try {
             $this->oUser->loadByParameters(array(

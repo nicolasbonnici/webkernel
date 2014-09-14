@@ -98,7 +98,7 @@ class Controller extends Acl
         $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
         $this->oView = new View($bLoadAllViewPaths);
 
-        if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
+        if (! is_null($oUser) && $oUser instanceof \bundles\user\Entities\User && $oUser->isLoaded()) {
             $this->oUser = $oUser;
             // Check ACL parent component if we have a logged user
             parent::__construct($oUser);

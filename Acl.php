@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core;
 
+use bundles\user\Entities\User;
 /**
  * ACL couch layer to manage CRUD access to entities using permissions setted to user's groups
  *
@@ -14,14 +15,14 @@ abstract class Acl
     /**
      * User instance
      *
-     * @var \app\Entities\User
+     * @var \bundles\user\Entities\User
      */
     protected $oUser;
 
     /**
      * Entity
      *
-     * @var \app\Entities\Entity
+     * @var \bundles\user\Entities\Entity
      */
     protected $oEntity;
 
@@ -31,7 +32,7 @@ abstract class Acl
      * Permission's permission attribute structure:
      * { "create": 1, "read": 1,  "update": 1, "delete": 1, "list":1 }
      *
-     * @var \app\Entities\Collection\PermissionCollection
+     * @var \bundles\user\Entities\Collection\PermissionCollection
      */
     protected $oPermissions;
 
@@ -54,17 +55,17 @@ abstract class Acl
     /**
      * Availables ressources
      *
-     * @param \app\Entities\User $oUser
+     * @param \bundles\user\Entities\User $oUser
      * @throws AclException
      */
     protected $aAvailableRessources;
 
     /**
      * Instance constructor
-     * @param \app\Entities\User $oUser
+     * @param \bundles\user\Entities\User $oUser
      * @throws AclException
      */
-    public function __construct(\app\Entities\User $oUser)
+    public function __construct(User $oUser)
     {
         if (! $oUser->isLoaded()) {
             throw new AclException(__CLASS__ . ' Empty user instance provided.');
@@ -206,8 +207,8 @@ abstract class Acl
     private function getUserGroups()
     {
         assert('$this->oUser->isLoaded()');
-        $this->oGroups = new \app\Entities\Mapping\Collection\UserGroupCollection();
-        $oUserGroups = new \app\Entities\Mapping\Collection\UserGroupCollection();
+        $this->oGroups = new \bundles\user\Entities\Mapping\Collection\UserGroupCollection();
+        $oUserGroups = new \bundles\user\Entities\Mapping\Collection\UserGroupCollection();
         try {
             $oUserGroups->loadByParameters(array(
                 'user_iduser' => $this->oUser->getId()
