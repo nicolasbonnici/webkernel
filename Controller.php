@@ -128,6 +128,8 @@ class Controller extends Acl
             // App
             $this->aView["aAppBundles"] = App::getBundles();
             $this->aView["sAppName"] = $this->aConfig['app']['name'];
+            $this->aView["sAppSupportName"] = $this->aConfig['support']['name'];
+            $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
             $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
 
             // MVC

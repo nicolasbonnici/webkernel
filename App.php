@@ -56,14 +56,19 @@ class App
     private static $oApp;
 
     /**
-     * Config multi dimensional array parsed from .
-     *
-     * ini files
+     * App global configuration parsed from the config.ini file
      *
      * @var array
      */
     private static $aConfig;
 
+    /**
+     * Bundle config
+     * Currently loaded bundle json configuration
+     *
+     * @var object
+     */
+    private static $oBundleConfig;
 
     /**
      * An array of dns
@@ -286,6 +291,7 @@ class App
         if (! Files::exists(CONF_PATH . 'config.ini')) {
             throw new AppException('Unable to load core configuration: ' . CONF_PATH . 'config.ini');
         } else {
+            // load global app conf
             self::$aConfig = parse_ini_file(CONF_PATH . 'config.ini', true);
         }
     }
@@ -312,11 +318,12 @@ class App
     /**
      * Boostrap app controller
      *
-     * @todo /!\ ucfirst
+     * @todo /!\ ucfirst risque de bug
+     * @todo revoir le chargement du user et isolé dans une methode plus secure
      */
     private static function initController()
     {
-        $sController = 'bundles\\' . \Library\Core\Router::getBundle() . '\Controllers\\' . ucfirst( \Library\Core\Router::getController() ) . 'Controller';
+        $sController = 'bundles\\' . self::$aRequest['bundle'] . '\Controllers\\' . ucfirst( self::$aRequest['controller'] ) . 'Controller';
 
         if (ENV === 'dev') {
             self::registerLoadedClass(\Library\Core\Router::getController(), $sController);
@@ -331,8 +338,8 @@ class App
             new $sController($oUser);
 
         } else {
+            // @todo handle 404 errors here (bundle error)
             throw new AppException('No controller found: ' . $sController);
-            // \Library\Core\Router::redirect ( '/' ); // @todo handle 404 errors here (bundle error)
         }
     }
 
@@ -405,20 +412,6 @@ class App
         define('PUBLIC_PATH',           __DIR__ . '/../../public/');
         define('PUBLIC_BUNDLES_PATH',   __DIR__ . '/../../public/lib/bundles/');
         define('UX_PATH',               __DIR__ . '/../../public/lib/sociableUx/');
-    }
-
-
-    /**
-     * @todo conception
-     */
-    public static function dump()
-    {
-        // Export en json
-    }
-
-    public static function importFixtures()
-    {
-        // simple script d import sql
     }
 
     /**

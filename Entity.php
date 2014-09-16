@@ -569,13 +569,6 @@ abstract class Entity extends Database
     }
 
     /**
-     *
-     * @todo migrer ces methodes vers leurs composants respectifs
-     *
-     *
-     */
-
-    /**
      * Validate data integrity for the database field
      *
      * @todo remettre la gestion des exceptions
@@ -606,29 +599,6 @@ abstract class Entity extends Database
         }
         return false;
     }
-
-    /**
-     * List all database tables
-     *
-     * @todo rendre facilement overidable pour d'autres SGBD que Mysql
-     *
-     * @return \Library\Core\Collection
-     */
-    protected function getDatabaseEntities()
-    {
-        $aDatabaseEntities = array();
-        $aConfig = \Bootstrap::getConfig();
-
-        $oStatement = Database::dbQuery('SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE `TABLE_SCHEMA` = ? ORDER BY `TABLES`.`TABLE_SCHEMA` DESC', array(
-            $aConfig['database']['name']
-        ));
-        if ($oStatement !== false && $oStatement->rowCount() > 0) {
-            $aDatabaseEntities = $oStatement->fetchAll(\PDO::FETCH_ASSOC);
-        }
-
-        return $aDatabaseEntities;
-    }
-
 
     /**
      * Save history on update for historized objects

@@ -23,30 +23,6 @@ class Http
     protected static $aHeaders = array();
 
     /**
-     * Redirect to given URL
-     * If not in production, redirection is not triggered if something is in the buffer
-     * in order to display warnings, notices, debug and so
-     * @param string $sUrl URL to redirect to
-     * @param integer $iHTTPStatus HTTP status code of redirection
-     *          301 Moved Permanently
-     *          302 Found
-    */
-    public static function redirect($sUrl, $iHTTPStatus = 302)
-    {
-        assert('\\core\\Validator::integer($iHTTPStatus, 100) === \\core\\Validator::STATUS_OK');
-
-        if (SERVER_ENV === 'prod' || SERVER_ENV !== 'prod' && ob_get_length() === 0) {
-            header('Location: ' . $sUrl, true, $iHTTPStatus);
-        } else {
-            if (substr($sUrl, 0, 7) !== 'http://') {
-                echo '<br>=> http://' . \core\Utils::getHttpHost() . $sUrl;
-            }
-            echo '<br><a href="' . $sUrl . '">Http::Redirect(' . $sUrl . ')</a>';
-        }
-        exit;
-    }
-
-    /**
      * Set HTTP status code
      * @param integer $iStatus Status code
      * @link http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
