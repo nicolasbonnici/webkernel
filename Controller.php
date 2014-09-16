@@ -85,7 +85,7 @@ class Controller extends Acl
     /**
      * Controller instance constructor
      *
-     * @param \app\Entities\User|NULL $oUser
+     * @param \bundles\user\Entities\User|NULL $oUser
      * @throws ControllerException
      */
     public function __construct($oUser = NULL)

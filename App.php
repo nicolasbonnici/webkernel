@@ -16,13 +16,12 @@ class App
 {
 
     /**
-     * Entities namespace
-     *
+     * Global app Entities, Mapping and EntitiesCollection default namespaces
      * @var string
      */
     const ENTITIES_NAMESPACE = '\app\Entities\\';
-    const MAPPING_ENTITIES_NAMESPACE = '\app\Entities\Mapping\\';
     const ENTITIES_COLLECTION_NAMESPACE = '\app\Entities\Collection\\';
+    const MAPPING_ENTITIES_NAMESPACE = '\app\Entities\Mapping\\';
 
     /**
      * Exceptions error code

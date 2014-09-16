@@ -23,9 +23,9 @@ abstract class Search
     const ERROR_EMPTY_ENTITY            = 5;
 
     /**
-     * Current user instance (optional if $oEntity has no foreign key attribute to \app\Entities\User)
+     * Current user instance (optional if $oEntity has no foreign key attribute to \bundles\user\Entities\User)
      *
-     * @var \app\Entities\User
+     * @var \bundles\user\Entities\User
      */
     protected $oUser;
 
@@ -61,12 +61,12 @@ abstract class Search
             $this->aEntitiesScope = $mEntity;
         }
 
-        // Instanciate \app\Entities\User provided at instance constructor
-        if ($mUser instanceof \app\Entities\User && $mUser->isLoaded()) {
+        // Instanciate \bundles\user\Entities\User provided at instance constructor
+        if ($mUser instanceof \bundles\user\Entities\User && $mUser->isLoaded()) {
             $this->oUser = clone $mUser;
         } elseif (is_int($mUser) && intval($mUser) > 0) {
             try {
-                $this->oUser = new \app\Entities\User($mUser);
+                $this->oUser = new \bundles\user\Entities\User($mUser);
             } catch (\Library\Core\EntityException $oException) {
                 $this->oUser = null;
             }

@@ -34,7 +34,7 @@ class AclTest extends \Library\Core\Test
 
     public static function setUpBeforeClass()
     {
-        self::$oUserInstance = new \app\Entities\User(1);
+        self::$oUserInstance = new \bundles\user\Entities\User(1);
         self::$oAclInstance = new AclExtentedClassTest(self::$oUserInstance);
     }
 
