@@ -22,10 +22,15 @@ class Bundles
      */
     protected static $iBundlesCacheDuration = 1314000;
 
-    public function __construct()
+    /**
+     * Instance constructor
+     *
+     * @param unknown $bCleanCache TRUE to clean bundle's cache
+     */
+    public function __construct($bCleanCache = false)
     {
         // Load available bundles
-        self::build();
+        self::build($bCleanCache);
     }
 
     /**
@@ -59,14 +64,16 @@ class Bundles
 
     /**
      * Get an array of all app bundles
+
+     * @param unknown $bForceNoCache
      * @return array                        A three dimensional array that contain each module along with his own controllers and methods (actions only)
      */
-    public function build()
+    public function build($bCleanCache)
     {
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
-        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundles'));
-        if ($this->aAvailableBundles === false || count($this->aAvailableBundles) === 0) {
+        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
+        if ($bCleanCache || count($this->aAvailableBundles) === 0) {
             $aBundles = array_diff(scandir(BUNDLES_PATH), array(
                 '..',
                 '.',
@@ -76,7 +83,7 @@ class Bundles
             foreach ($aBundles as $iIndex=>$sBundle) {
                 $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
             }
-            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundles'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
+            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
         }
     }
 
