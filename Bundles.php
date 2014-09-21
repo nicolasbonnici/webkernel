@@ -31,7 +31,6 @@ class Bundles
     /**
      * Deploy bundle's javascript, css and images assets
      *
-     * @todo bientôt les assets js et css seront compilé dans les librairies directement donc uniquement pour les images
      *
      * @throws AppException
      * @return array                    Deployed bundles

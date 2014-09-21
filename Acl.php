@@ -39,7 +39,7 @@ abstract class Acl
     /**
      * User instance current group
      *
-     * @var app\Entities\Mapping\Collection\UserGroupCollection
+     * @var \bundles\user\Entities\Mapping\Collection\UserGroupCollection
      */
     protected $oGroups;
 

@@ -10,13 +10,17 @@ class Router extends Singleton
 {
 
     /**
-     * Locales
+     * Encoding
      *
-     * @todo config.ini
      * @var string
      */
     const DEFAULT_ENCODING = 'UTF-8';
 
+    /**
+     * Default language
+     *
+     * @var string
+     */
     const DEFAULT_LOCALE = 'FR_fr';
 
     /**
@@ -30,6 +34,7 @@ class Router extends Singleton
 
     /**
      * Default router settings for backend
+     *
      * @var string
      */
     private static $sDefaultBackendBundle = 'backend';

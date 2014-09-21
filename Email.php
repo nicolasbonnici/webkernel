@@ -65,7 +65,7 @@ class Email extends \Swift_Message
     {
         if (is_string($mRecipientEmail)) {
 
-        } elseif (is_array($mRecipientEmail) {
+        } elseif (is_array($mRecipientEmail)) {
 
         } else {
 
