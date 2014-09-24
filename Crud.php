@@ -48,8 +48,8 @@ abstract class Crud
      */
     public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)
     {
-        assert('is_null($mUser) || $mUser instanceof \bundles\user\Entities\User && $mUser->isLoaded() || is_int($mUser) && intval($mUser) > 0');
-        assert('intval($iPrimaryKey) === 0 || intval($iPrimaryKey) > 0');
+        assert('is_null($mUser) || $mUser instanceof \bundles\user\Entities\User && $mUser->isLoaded() || (is_int($mUser) && intval($mUser) > 0)');
+        assert('$iPrimaryKey === 0 || (is_int($iPrimaryKey) && intval($iPrimaryKey) > 0)');
 
         if (empty($sEntityClassName) || ! class_exists($sEntityClassName)) {
             throw new CrudException("Entity requested not found (' . $sEntityClassName . '), you need to create manually or scaffold his \app\Entities class.", App::ERROR_ENTITY_EXISTS);
