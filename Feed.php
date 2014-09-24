@@ -13,26 +13,26 @@ abstract class Feed
     /**
      * Feed instance
      *
-     * @var \app\Entities\Feed
+     * @var \bundles\lifestream\Entities\Feed
      */
     protected $oFeed;
 
     /**
      * Feed items
      *
-     * @var \app\Entities\Collection\FeedItemCollection
+     * @var \bundles\lifestream\Entities\Collection\FeedItemCollection
      */
     protected $oFeedItems;
 
     /**
      * Instance constructor
      */
-    public function __construct(\app\Entities\Feed $oFeed)
+    public function __construct(\bundles\lifestream\Entities\Feed $oFeed)
     {
         if (! $oFeed->isLoaded()) {
             throw new FeedException('Feed entity not instantiated');
         } else {
-            $this->oFeedItems = new \app\Entities\Collection\FeedItemCollection();
+            $this->oFeedItems = new \bundles\lifestream\Entities\Collection\FeedItemCollection();
             $this->oFeed = $oFeed;
         }
     }
@@ -57,13 +57,13 @@ abstract class Feed
      * Parse items from feed source url
      *
      * @param integer $iFeedId
-     *      \app\Entities\Feed primary key value
+     *      \bundles\lifestream\Entities\Feed primary key value
      * @param boolean $bPersistNewFeedItem
      *      TRUE to store feed items delta
      * @param integer $iDelta
      *      Feed items query depth from the latest
-     * @return \app\Entities\Collection\FeedItemCollection
-     *      Persisted \app\Entities\FeedItem if $bPersist = TRUE otherwhise lastest {$iDelta} feed activities
+     * @return \bundles\lifestream\Entities\Collection\FeedItemCollection
+     *      Persisted \bundles\lifestream\Entities\FeedItem if $bPersist = TRUE otherwhise lastest {$iDelta} feed activities
      */
     protected function parse($iFeedId, $bPersistNewFeedItem = false, $iDelta = 256)
     {}
@@ -78,7 +78,7 @@ abstract class Feed
     /**
      * Feed items accessor
      *
-     * @return \app\Entities\Collection\FeedItemCollection
+     * @return \bundles\lifestream\Entities\Collection\FeedItemCollection
      */
     protected function getFeedItems()
     {
