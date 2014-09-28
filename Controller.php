@@ -132,7 +132,7 @@ class Controller extends Acl
             $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
             $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
 
-            // MVC
+            // MVC infos
             $this->aView['sBundle'] = $this->sBundle;
             $this->aView["sController"] = $this->sController;
             $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
@@ -156,11 +156,16 @@ class Controller extends Acl
 
                 try {
                     $this->__preDispatch();
+
+                    // Load assets dependancies for client components (can be overide under the __preDispatch() method)
+                    $this->aView['sComponentsDependancies'] = $this->oView->buildClientComponents();
+
                 } catch (Library\Core\ControllerException $oException) {
                     throw new ControllerException('Pre dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();
                 }
             }
+
 
             // Run mothafucka run!
             $this->{$this->sAction}();
@@ -170,6 +175,7 @@ class Controller extends Acl
 
                 try {
                     $this->__postDispatch();
+
                 } catch (Library\Core\ControllerException $oException) {
                     throw new ControllerException('Post dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();

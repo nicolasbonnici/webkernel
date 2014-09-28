@@ -349,12 +349,24 @@ class App
      */
     public static function buildEntities()
     {
-        $aFolderContent = scandir(ROOT_PATH . 'app/Entities/');
+        // Scan app level entities
+        $aFolderContent = Directory::scan(ROOT_PATH . 'app/Entities/');
         foreach ($aFolderContent as $sEntity) {
-            if ($sEntity !== '.' && $sEntity !== '..' && $sEntity !== 'Collection') {
+            if ($sEntity !== '.' && $sEntity !== '..' && is_file($sEntity)) {
                 self::$aEntities[] = substr($sEntity, 0, strlen($sEntity) - strlen('.php'));
             }
         }
+die(var_dump(self::$aBundles));
+        // Scan bundles entities
+        foreach (self::$aBundles as $sBundle) {
+            $aFolderContent = Directory::scan(BUNDLES_PATH . $sBundle . '/Entities/');
+            foreach ($aFolderContent as $sEntity) {
+                if ($sEntity !== '.' && $sEntity !== '..' && is_file($sEntity)) {
+                    self::$aEntities[] = substr($sEntity, 0, strlen($sEntity) - strlen('.php'));
+                }
+            }
+        }
+die(var_dump(self::$aEntities));
         return self::$aEntities;
     }
 

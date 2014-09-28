@@ -33,6 +33,9 @@ class Assets
     {
         // Build paths
         $this->sBuildPath =   PUBLIC_PATH . $this->sBuildePath;
+
+        // Load client component package's assets
+        $this->load();
     }
 
     /**
@@ -47,14 +50,10 @@ class Assets
             // Register javascript and stylesheet assets from configuration
             $oAssetsPackages = new Json(Files::getContent(CONF_PATH . 'assets.json'));
 
-            /**
-             * Load new Assets instance to register libs
-             * @todo rendre tout ca plus generique et souple de facon a pouvoir le surcharger aisement de partout
-            */
-            $oAssets = new Assets();
             foreach ($oAssetsPackages->get() as $sPackageName=>$oPackages) {
                 foreach ($oPackages as $sPackageType=>$aPackage) {
                     foreach ($aPackage as $sAssetPath) {
+                        // Register component package's assets
                         $this->register($sAssetPath, $sPackageType, $sPackageName);
                     }
                 }
@@ -64,7 +63,7 @@ class Assets
     }
 
     /**
-     * Minify and concatenate all Ux and bundles javascript and stylesheet assets
+     * Minify and concatenate all client components
      *
      * @throws AppException
      * @return boolean|array                  TRUE if all went smooth otherwhise the log as an array
@@ -73,12 +72,13 @@ class Assets
     {
         $aBuiltLog = array();
 
-        // Collect registered assets
+        // Collect registered components
         foreach ($this->aAssets as $sPackageName=>$aLibFilesPaths) {
 
             $sMinifiedJsCode = '';
             $sMinifiedCssCode = '';
 
+            // Minify component assets
             foreach ($aLibFilesPaths as $sAssetType=>$aLibFilesPaths) {
                 if ($sAssetType === 'js') {
                     foreach ($aLibFilesPaths as $sJsAsset) {
@@ -111,6 +111,33 @@ class Assets
             return $aBuiltLog;
         }
 
+    }
+
+    /**
+     * Build all client compoenents packages assets
+     *
+     * @ see app/config/layout.json
+     * @param array $aComponents one dimensional array of string that represent component name
+     * @return Ambigous <multitype:multitype: , unknown>
+     */
+    public function buildClientComponents($aComponents)
+    {
+        $aClientComponentAssets = array(
+        	'css' => array(),
+        	'js' => array()
+        );
+        foreach ($aComponents as $iIndex=>$sComponentName) {
+            // If the component declaration is found under assets configuration
+            if (array_key_exists($sComponentName, $this->aAssets)) {
+                foreach ($this->aAssets[$sComponentName]['css'] as $iCssAssetIndex=>$sCssAssetPath) {
+                    $aClientComponentAssets['css'][] =  $sCssAssetPath;
+                }
+                foreach ($this->aAssets[$sComponentName]['js'] as $iJsAssetIndex=>$sJsAssetPath) {
+                    $aClientComponentAssets['js'][] = $sJsAssetPath;
+                }
+            }
+        }
+        return $aClientComponentAssets;
     }
 
     /**

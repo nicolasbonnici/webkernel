@@ -2,12 +2,12 @@
 namespace Library\Core;
 
 /**
- * Directories managment component
+ * Directory managment component
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 
-class Directories extends Singleton
+class Directory extends Singleton
 {
     /**
      * Delete a folder if it's not empty this method will recursively delete all sufolders and files
@@ -39,10 +39,8 @@ class Directories extends Singleton
             } else {
                 return true;
             }
-        } else {
-            // That folder doesn't exists so since we want to delete it we return true anyway
-            return true;
         }
+        return true;
     }
 
     public static function create($sPath)
@@ -52,12 +50,27 @@ class Directories extends Singleton
 
     /**
      * Tell if a path exists
+     *
      * @param string $sAbsoluteFolderPath
      * @return boolean
      */
     public static function exists($sAbsoluteFolderPath)
     {
         return is_dir($sAbsoluteFolderPath);
+    }
+
+    /**
+     *  Scan a directory
+     *
+     * @param string $sAbsoluteDirectoryPath
+     * @return array|NULL   Return the directory content as an array, if the directory there's no directory found NULL
+     */
+    public static function scan($sAbsoluteDirectoryPath)
+    {
+        if (self::exists($sAbsoluteDirectoryPath)) {
+            return scandir($sAbsoluteDirectoryPath);
+        }
+        return null;
     }
 
 }

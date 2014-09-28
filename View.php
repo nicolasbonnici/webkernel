@@ -20,6 +20,16 @@ class View
     private static $oAssetsInstance;
 
     /**
+     * Registered client side components to load for the frontend view
+     * @see app/config/assets.json
+     * @var array
+     */
+    protected $aClientComponents = array(
+        'dependancies',
+        'core'
+    );
+
+    /**
      * View instance constructor
      *
      * @param boolean $bLoadAllBundleViews      A flag to load all bundles views path (For the CrudController)
@@ -43,6 +53,11 @@ class View
             }
         }
 
+        // Setup client componetns dependancy managment
+        self::$oAssetsInstance = new Assets();
+
+
+        // Setup Haanga render engine
         \Haanga::configure(array(
             'template_dir' => $aViewsPaths,
             'cache_dir' => CACHE_PATH . \Library\Core\Router::getBundle() . '/Views'
@@ -115,6 +130,33 @@ class View
         } catch (\AppException $oAppException) {
             return false;
         }
+    }
+
+    /**
+     * Register a new client component package
+     *
+     * @see app/config/assets.json
+     * @param string $sComponentName
+     * @return boolean
+     */
+    public function registerClientComponent($sComponentName)
+    {
+        if (array_key_exists($sComponentName, $this->aClientComponents)) {
+            return false;
+        } else {
+            $this->aClientComponents[] = $sComponentName;
+            return true;
+        }
+    }
+
+    /**
+     * Build registered components
+     *
+     * @return array
+     */
+    public function buildClientComponents()
+    {
+        return $this->aClientComponents;
     }
 
     /**
