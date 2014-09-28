@@ -303,12 +303,14 @@ class Controller extends Acl
     }
 
     /*
-     * Get an array of all Controllers and methods for a given module @param string $sBundle The module name @return array A two dimensional array that contain each controller from a module along with his own methods (actions only)
+     * Get an array of all Controllers and methods for a given module
+     *
+     * @param string $sBundle The module name
+     * @return array A two dimensional array that contain each controller from a module along with his own methods (actions only)
     */
     public static function build($sBundle)
     {
         assert('!empty($sBundle) && is_string($sBundle) && is_dir(BUNDLES_PATH . "/" . $sBundle . "/Controllers/")');
-
         $aControllers = array();
         $sControllerPath = BUNDLES_PATH . '/' . $sBundle . '/Controllers/';
         $aFiles = array_diff(scandir($sControllerPath), array(

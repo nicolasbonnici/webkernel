@@ -356,7 +356,7 @@ class App
                 self::$aEntities[] = substr($sEntity, 0, strlen($sEntity) - strlen('.php'));
             }
         }
-die(var_dump(self::$aBundles));
+
         // Scan bundles entities
         foreach (self::$aBundles as $sBundle) {
             $aFolderContent = Directory::scan(BUNDLES_PATH . $sBundle . '/Entities/');
@@ -366,7 +366,7 @@ die(var_dump(self::$aBundles));
                 }
             }
         }
-die(var_dump(self::$aEntities));
+
         return self::$aEntities;
     }
 
