@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core;
 
+use Library\Core\Router;
 use bundles\user\Entities\User;
 
 /**
@@ -14,6 +15,7 @@ use bundles\user\Entities\User;
  */
 class App
 {
+    private static $oInstance;
 
     /**
      * Global app Entities, Mapping and EntitiesCollection default namespaces
@@ -29,30 +31,24 @@ class App
      * @var integer
      */
     const ERROR_ENTITY_EXISTS = 400;
-
     const ERROR_USER_INVALID = 401;
-
     const ERROR_ENTITY_NOT_LOADED = 402;
-
     const ERROR_ENTITY_NOT_OWNED_BY_USER = 403;
-
     const ERROR_ENTITY_NOT_LOADABLE = 404;
-
     const ERROR_ENTITY_NOT_MAPPED_TO_USERS = 405;
-
     const ERROR_FORBIDDEN_BY_ACL = 406;
 
     /**
-     *
-     * @var Bootstrap Instance
-     */
-    private static $oInstance;
-
-    /**
-     *
+     * @todo delete??
      * @var App Instance
      */
     private static $oApp;
+
+    /**
+     * Router instance
+     * @var \Library\Core\Router
+     */
+    private static $oRouterInstance;
 
     /**
      * App global configuration parsed from the config.ini file
@@ -129,6 +125,10 @@ class App
      */
     private static $aLoadedClass = array();
 
+    /**
+     * PHP version
+     * @var string
+     */
     protected static $sPhpVersion;
 
     /**
@@ -156,6 +156,9 @@ class App
          * @see register class autoloader
          */
         self::initAutoloader();
+
+        // Init Router component
+        self::$oRouterInstance = Router::getInstance();
 
         /**
          * Init config
@@ -185,6 +188,11 @@ class App
          * Parse request
          */
         self::$aRequest = self::initRouter();
+
+        /**
+         * Load json encoded bundle configuration if found
+         */
+        self::loadBundleConfig();
 
         /**
          * Init requested controller
@@ -278,7 +286,7 @@ class App
     }
 
     /**
-     * Parse config from a .
+     * Parse global config from a ini file
      * @see app/config/
      *
      * @todo mettre en cache
@@ -295,6 +303,20 @@ class App
         }
     }
 
+
+    /**
+     * Load bundle config if found
+     */
+    public static function loadBundleConfig()
+    {
+        if (Files::exists(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json')) {
+            $sBundleConfig = Files::getContent(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json');
+            if (! empty($sBundleConfig)) {
+                self::$oBundleConfig = new Json($sBundleConfig);
+            }
+        }
+    }
+
     /**
      * Init router to parse current request
      *
@@ -303,13 +325,12 @@ class App
      */
     private static function initRouter()
     {
-        $oRouter = \Library\Core\Router::getInstance();
-        $oRouter->init(self::$aConfig);
+        self::$oRouterInstance->init(self::$aConfig);
         return array(
-            'bundle' => $oRouter->getBundle(),
-            'controller' => $oRouter->getController(),
-            'action' => $oRouter->getAction(),
-            'params' => $oRouter->getParams(),
+            'bundle' => self::$oRouterInstance->getBundle(),
+            'controller' => self::$oRouterInstance->getController(),
+            'action' => self::$oRouterInstance->getAction(),
+            'params' => self::$oRouterInstance->getParams(),
             'lang' => self::initLocales()
         );
     }
@@ -325,16 +346,19 @@ class App
         $sController = 'bundles\\' . self::$aRequest['bundle'] . '\Controllers\\' . ucfirst( self::$aRequest['controller'] ) . 'Controller';
 
         if (ENV === 'dev') {
-            self::registerLoadedClass(\Library\Core\Router::getController(), $sController);
+            self::registerLoadedClass(Router::getController(), $sController);
         }
 
         if (class_exists($sController)) {
             $oUser = null;
+            $oBundleConfig = null;
             if (isset($_SESSION['iduser']) && intval($_SESSION['iduser'] > 0)) {
                 $oUser = new User(intval($_SESSION['iduser']));
             }
-
-            new $sController($oUser);
+            if (! is_null(self::$oBundleConfig)) {
+                $oBundleConfig = self::$oBundleConfig;
+            }
+            new $sController($oUser, $oBundleConfig);
 
         } else {
             // @todo handle 404 errors here (bundle error)

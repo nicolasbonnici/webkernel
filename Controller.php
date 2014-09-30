@@ -50,11 +50,17 @@ class Controller extends Acl
     protected $aParams = array();
 
     /**
-     * Configuration parsed from .ini|.yaml
+     * Configuration parsed from .ini|.yaml|json
      *
      * @var array
      */
     protected $aConfig;
+
+    /**
+     * JSON bundle's parsed config
+     * @var object
+     */
+    protected $oBundleConfig;
 
     /**
      * View instance
@@ -86,11 +92,16 @@ class Controller extends Acl
      * Controller instance constructor
      *
      * @param \bundles\user\Entities\User|NULL $oUser
+     * @param string $oBundleConfig     JSON encoded bundle's configuration
      * @throws ControllerException
      */
-    public function __construct($oUser = NULL)
+    public function __construct($oUser = null, $oBundleConfig = null)
     {
         $this->aConfig = \Library\Core\App::getConfig();
+        if (! is_null($oBundleConfig)) {
+            $this->oBundleConfig = $oBundleConfig;
+        }
+
         $this->setSession();
         $this->loadRequest();
 
