@@ -9,6 +9,7 @@ namespace Library\Core;
 
 class Directory extends Singleton
 {
+
     /**
      * Delete a folder if it's not empty this method will recursively delete all sufolders and files
      * @param string $sPath
@@ -49,7 +50,7 @@ class Directory extends Singleton
     }
 
     /**
-     * Tell if a path exists
+     * Tell if a folder exists and assert that the element is a correct directory element
      *
      * @param string $sAbsoluteFolderPath
      * @return boolean
@@ -68,7 +69,14 @@ class Directory extends Singleton
     public static function scan($sAbsoluteDirectoryPath)
     {
         if (self::exists($sAbsoluteDirectoryPath)) {
-            return scandir($sAbsoluteDirectoryPath);
+            $aDirectoryContent = array();
+            foreach (scandir($sAbsoluteDirectoryPath) as $sDirectoryItem) {
+                // Still filter for "." and ".."
+                if ($sDirectoryItem !== '.' && $sDirectoryItem !== '..') {
+                    $aDirectoryContent[] = $sDirectoryItem;
+                }
+            }
+            return $aDirectoryContent;
         }
         return null;
     }

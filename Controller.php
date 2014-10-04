@@ -169,7 +169,7 @@ class Controller extends Acl
                     $this->__preDispatch();
 
                     // Load assets dependancies for client components (can be overide under the __preDispatch() method)
-                    $this->aView['sComponentsDependancies'] = $this->oView->buildClientComponents();
+                    $this->aView['sComponentsDependancies'] = $this->oView->getClientComponents();
 
                 } catch (Library\Core\ControllerException $oException) {
                     throw new ControllerException('Pre dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());

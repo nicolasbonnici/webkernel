@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use Library\Core\Directory;
+
 /**
  * View managment
  *
@@ -73,12 +75,7 @@ class View
      */
     public function render(array $aViewParams, $sTpl, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
     {
-
-        if (count($aViewParams) > 0) {
-            foreach ($aViewParams as $key => $val) {
-                $this->aView[$key] = $val;
-            }
-        }
+        $this->loadViewParameters($aViewParams);
 
         // check if it's an XMLHTTPREQUEST
         if (Controller::isXHR()) {
@@ -91,14 +88,14 @@ class View
                         "\n",
                         "\t"
                     ), '', $this->load($sTpl, $this->aView, true)),
-                    'debug' => str_replace(
+                    'debug' => isset($this->aView["sDeBugHelper"]) ? str_replace(
                         array(
                             "\r",
                             "\r\n",
                             "\n",
                             "\t"
                         ), '', $this->load($this->aView["sDeBugHelper"], $this->aView, true)
-                    )
+                    ) : null
                 )
             );
             if ($bToString === true) {
@@ -124,9 +121,10 @@ class View
     public function clearCache($bRetry = false)
     {
         try {
-            if (! Directories::deleteDirectory(CACHE_PATH)) {
+            if (! Directory::deleteDirectory(CACHE_PATH)) {
                 throw  new AppException('Unable to clear cache folder (' . CACHE_PATH . ')');
             }
+            return Directory::exists(CACHE_PATH);
         } catch (\AppException $oAppException) {
             return false;
         }
@@ -149,14 +147,19 @@ class View
         }
     }
 
+
     /**
-     * Build registered components
+     * Build the parameters to send to the template view
      *
-     * @return array
+     * @param array $aViewParams
+     * @return boolean
      */
-    public function buildClientComponents()
+    private function loadViewParameters(array $aViewParams = array())
     {
-        return $this->aClientComponents;
+        foreach ($aViewParams as $key => $val) {
+            $this->aView[$key] = $val;
+        }
+        return (count($this->aView) > 0);
     }
 
     /**
@@ -169,5 +172,15 @@ class View
     private function load($sTpl, $aViewParams, $bToString)
     {
         return \Haanga::load($sTpl, $aViewParams, $bToString);
+    }
+
+    /**
+     * Registered client components accessor
+     *
+     * @return array
+     */
+    public function getClientComponents()
+    {
+        return $this->aClientComponents;
     }
 }
