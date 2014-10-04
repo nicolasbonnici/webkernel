@@ -181,7 +181,7 @@ class App
          * Parse and load bundles, controllers and actions available
          * Read from cache if exists
          */
-        $oBundles = new Bundles(true);
+        $oBundles = new Bundles();
         self::$aBundles = $oBundles->get();
 
         /**
