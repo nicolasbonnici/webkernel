@@ -61,24 +61,43 @@ class Directory extends Singleton
     }
 
     /**
-     *  Scan a directory
-     *
-     * @param string $sAbsoluteDirectoryPath
-     * @return array|NULL   Return the directory content as an array, if the directory there's no directory found NULL
+     * Recursve scanning method for user's workspace
+     * @return array
      */
-    public static function scan($sAbsoluteDirectoryPath)
+    public static function scan($sPathToScan = null, array $aItems = array())
     {
-        if (self::exists($sAbsoluteDirectoryPath)) {
-            $aDirectoryContent = array();
-            foreach (scandir($sAbsoluteDirectoryPath) as $sDirectoryItem) {
-                // Still filter for "." and ".."
-                if ($sDirectoryItem !== '.' && $sDirectoryItem !== '..') {
-                    $aDirectoryContent[] = $sDirectoryItem;
+        if (is_null($sPathToScan)) {
+            $sPathToScan = $sPathToScan;
+        }
+        if(file_exists($sPathToScan)) {
+            foreach(scandir($sPathToScan) as $f) {
+
+                if(!$f || $f[0] == '.') {
+                    continue;
+                }
+
+                if(is_dir($sPathToScan . '/' . $f)) {
+                    // Folder
+                    $aItems[] = array(
+                        "name" => $f,
+                        "type" => "folder",
+                        "path" => $sPathToScan . '/' . $f,
+                        "items" => self::scan($sPathToScan . '/' . $f)
+                    );
+                } else {
+                    // File
+                    $aItems[] = array(
+                        "name" => $f,
+                        "type" => "file",
+                        "path" => $sPathToScan . '/' . $f,
+                        "size" => filesize($sPathToScan . '/' . $f)
+                    );
                 }
             }
-            return $aDirectoryContent;
+
         }
-        return null;
+
+        return $aItems;
     }
 
 }
