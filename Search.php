@@ -128,7 +128,6 @@ abstract class Search
                     }
                 }
 
-
                 // @important last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
                 $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit, false);
 
