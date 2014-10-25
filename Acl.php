@@ -231,7 +231,7 @@ abstract class Acl
     {
         assert('$this->oGroups->hasItem()');
 
-        $this->oPermissions = new \bundles\admin\Entities\Collection\PermissionCollection();
+        $this->oPermissions = new \bundles\adm\Entities\Collection\PermissionCollection();
         try {
             $aGroups = array();
             foreach ($this->oGroups as $oGroup) {
@@ -253,7 +253,7 @@ abstract class Acl
     {
         assert('$this->oGroups->hasItem() && $this->oPermissions->count() > 0');
 
-        $this->oRessources = new \bundles\admin\Entities\Collection\RessourceCollection();
+        $this->oRessources = new \bundles\adm\Entities\Collection\RessourceCollection();
         $aAvailableRessources = array();
         foreach ($this->oPermissions as $oPermission) {
             $aAvailableRessources[] = (int) $oPermission->ressource_idressource;
