@@ -69,8 +69,6 @@ class Auth extends Controller
         }
     }
 
-
-
     /**
      * Generate session token
      *
