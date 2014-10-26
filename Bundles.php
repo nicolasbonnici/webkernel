@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use Library\Core\Cache;
+
 /**
  * Bundles managment
  *

@@ -338,8 +338,7 @@ class App
     /**
      * Boostrap app controller
      *
-     * @todo /!\ ucfirst risque de bug
-     * @todo revoir le chargement du user et isolé dans une methode plus secure
+     * @todo /!\ ucfirst risque de bug élévé car ne prend pas en charge le camel case
      */
     private static function initController()
     {
@@ -352,9 +351,6 @@ class App
         if (class_exists($sController)) {
             $oUser = null;
             $oBundleConfig = null;
-            if (isset($_SESSION['iduser']) && intval($_SESSION['iduser'] > 0)) {
-                $oUser = new User(intval($_SESSION['iduser']));
-            }
             if (! is_null(self::$oBundleConfig)) {
                 $oBundleConfig = self::$oBundleConfig;
             }

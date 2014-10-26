@@ -41,7 +41,6 @@ class Auth extends Controller
     protected function checkSessionintegrity()
     {
         $this->oUser = new User();
-
         try {
             $this->oUser->loadByParameters(array(
                 'iduser' => $this->_session['iduser'],
@@ -69,6 +68,8 @@ class Auth extends Controller
             return false;
         }
     }
+
+
 
     /**
      * Generate session token

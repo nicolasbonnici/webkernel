@@ -4,6 +4,8 @@ namespace Library\Core;
 /**
  * MVC basic router
  *
+ * @todo refactoring et optimisation de ce composant
+ *
  * bundle/controler/action/:param
  */
 class Router extends Singleton
