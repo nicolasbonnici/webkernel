@@ -36,7 +36,7 @@ class Bundles
     /**
      * Deploy bundle's javascript, css and images assets
      *
-     *
+     * @deprecated use Asset component
      * @throws AppException
      * @return array                    Deployed bundles
      */
@@ -64,27 +64,33 @@ class Bundles
 
     /**
      * Get an array of all app bundles
-
-     * @param unknown $bForceNoCache
      * @return array                        A three dimensional array that contain each module along with his own controllers and methods (actions only)
      */
-    public function build($bCleanCache)
+    public function build()
     {
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
         $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDist'));
-        if ($bCleanCache || count($this->aAvailableBundles) === 0) {
-            $aBundles = array_diff(scandir(BUNDLES_PATH), array(
-                '..',
-                '.',
-                'composer',
-                'autoload.php'
-            ));
-            foreach ($aBundles as $iIndex=>$sBundle) {
-                $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
-            }
-            Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDist'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
+        if (count($this->aAvailableBundles) === 0) {
+            $this->parseBundles();
         }
+    }
+
+    /**
+     * Parse all available bundles the store them on the cache engine
+     */
+    private function parseBundles()
+    {
+        $aBundles = array_diff(scandir(BUNDLES_PATH), array(
+            '..',
+            '.',
+            'composer',
+            'autoload.php'
+        ));
+        foreach ($aBundles as $iIndex=>$sBundle) {
+            $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
+        }
+        Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDist'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
     }
 
     /**

@@ -81,7 +81,7 @@ class Directory extends Singleton
                     $aItems[] = array(
                         "name" => $f,
                         "type" => "folder",
-                        "path" => $sPathToScan . '/' . $f,
+                        "path" => $sPathToScan . $f,
                         "items" => self::scan($sPathToScan . '/' . $f)
                     );
                 } else {
@@ -89,7 +89,7 @@ class Directory extends Singleton
                     $aItems[] = array(
                         "name" => $f,
                         "type" => "file",
-                        "path" => $sPathToScan . '/' . $f,
+                        "path" => $sPathToScan . $f,
                         "size" => filesize($sPathToScan . '/' . $f)
                     );
                 }

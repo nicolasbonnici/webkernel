@@ -374,24 +374,34 @@ class App
     public static function buildEntities()
     {
         // Scan app level entities
-        $aFolderContent = Directory::scan(ROOT_PATH . 'app/Entities/');
-        foreach ($aFolderContent as $sEntity) {
-            if ($sEntity !== '.' && $sEntity !== '..' && is_file($sEntity)) {
-                self::$aEntities[] = substr($sEntity, 0, strlen($sEntity) - strlen('.php'));
-            }
-        }
+        $aAppEntities = Directory::scan(APP_PATH . 'Entities/');
+        self::parseEntities($aAppEntities);
 
         // Scan bundles entities
-        foreach (self::$aBundles as $sBundle) {
-            $aFolderContent = Directory::scan(BUNDLES_PATH . $sBundle . '/Entities/');
-            foreach ($aFolderContent as $sEntity) {
-                if ($sEntity !== '.' && $sEntity !== '..' && is_file($sEntity)) {
-                    self::$aEntities[] = substr($sEntity, 0, strlen($sEntity) - strlen('.php'));
-                }
-            }
+        foreach (self::$aBundles as $sBundleName=>$aBundleStructure) {
+            $aBundleEntities = Directory::scan(BUNDLES_PATH . 'Entities/');
+            self::parseEntities($aBundleEntities);
         }
 
         return self::$aEntities;
+    }
+
+    /**
+     * Parse entites from a scanned directory (bundles or core app)
+     *
+     * @param array $aScannedEntities
+     */
+    private static function parseEntities(array $aScannedEntities = array())
+    {
+        foreach ($aScannedEntities as $aScannedEntity) {
+            if ($aScannedEntity['type'] === 'file') {
+                self::$aEntities[] = substr($aScannedEntity['name'], 0, strlen($aScannedEntity['name']) - strlen('.php'));
+            } elseif ($aScannedEntity['type'] === 'folder') {
+                foreach ($aScannedEntity['items'] as $aEntities) {
+                    self::$aEntities[] = substr($aEntities['name'], 0, strlen($aEntities['name']) - strlen('.php'));
+                }
+            }
+        }
     }
 
     /**
@@ -434,10 +444,6 @@ class App
         // @see paths info
         define('ROOT_PATH',             __DIR__ . '/../../');
         define('APP_PATH',              __DIR__ . '/../../app/');
-        define('ENTITIES_PATH',         __DIR__ . '/../../app/Entities/');
-        define('ENTITIES_MAPPING_PATH', __DIR__ . '/../../app/Entities/Mapping/');
-        define('ENTITIES_DEPLOY_PATH',  __DIR__ . '/../../app/Entities/Deploy/');
-        define('ENTITIES_UPDATE_PATH',  __DIR__ . '/../../app/Entities/Update/');
         define('CONF_PATH',             __DIR__ . '/../../app/config/');
         define('LIBRARY_PATH',          __DIR__ . '/../');
         define('TMP_PATH',              __DIR__ . '/../../tmp/');
