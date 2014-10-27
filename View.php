@@ -2,11 +2,10 @@
 namespace Library\Core;
 
 use Library\Core\Directory;
+use \Library\Core\Router;
 
 /**
  * View managment
- *
- * @todo deplacer ici le chargement des assets (App)
  *
  * @dependancy \Library\Haanga
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
@@ -43,13 +42,13 @@ class View
 
         $aViewsPaths = array(
             APP_PATH . 'Views/',
-            BUNDLES_PATH . \Library\Core\Router::getBundle() . '/Views/'
+            BUNDLES_PATH . Router::getBundle() . '/Views/'
         );
 
         if ($bLoadAllBundleViews) {
             $oBundles = new Bundles();
             foreach ($oBundles->get() as $sBundle => $aController) {
-                if ($sBundle !== \Library\Core\Router::getBundle()) {
+                if ($sBundle !== Router::getBundle()) {
                     $aViewsPaths[] = BUNDLES_PATH . $sBundle . '/Views/';
                 }
             }
@@ -58,11 +57,10 @@ class View
         // Setup client componetns dependancy managment
         self::$oAssetsInstance = new Assets();
 
-
         // Setup Haanga render engine
         \Haanga::configure(array(
             'template_dir' => $aViewsPaths,
-            'cache_dir' => CACHE_PATH . \Library\Core\Router::getBundle() . '/Views'
+            'cache_dir' => CACHE_PATH . Router::getBundle() . '/Views'
         ));
     }
 

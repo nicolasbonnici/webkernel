@@ -27,12 +27,12 @@ class Bundles
     /**
      * Instance constructor
      *
-     * @param unknown $bCleanCache TRUE to clean bundle's cache
+     * @param bool $bFlushBundlesCache TRUE to flush bundle's cache
      */
-    public function __construct($bCleanCache = false)
+    public function __construct($bFlushBundlesCache = false)
     {
         // Load available bundles
-        self::build($bCleanCache);
+        self::build($bFlushBundlesCache);
     }
 
     /**
@@ -66,14 +66,16 @@ class Bundles
 
     /**
      * Get an array of all app bundles
+     *
+     * @param bool $bFlushBundlesCache
      * @return array                        A three dimensional array that contain each module along with his own controllers and methods (actions only)
      */
-    public function build()
+    public function build($bFlushBundlesCache)
     {
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
         $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDist'));
-        if (count($this->aAvailableBundles) === 0) {
+        if ($bFlushBundlesCache || count($this->aAvailableBundles) === 0) {
             $this->parseBundles();
         }
     }
