@@ -1,39 +1,21 @@
 <?php
 namespace Library\Core\Tests;
 
-/**
- * Abstract Acl component test extended mock class
- *
- */
-class AclExtentedClassTest extends \Library\Core\Acl
-{
-    /* Accessors for testing purposes */
-	public function getPermissions()
-	{
-	    return $this->oPermissions;
-	}
-	public function getGroups()
-	{
-	    return $this->oGroups;
-	}
-	public function getRessources()
-	{
-	    return $this->oRessources;
-	}
-}
-
+use \Library\Core\Test as Test;
+use \Library\Core\Acl as Acl;
 
 /**
  * Acl unit test
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class AclTest extends \Library\Core\Test
+class AclTest extends Test
 {
     protected static $oAclInstance;
     protected static $oUserInstance;
 
     public static function setUpBeforeClass()
     {
+        parent::setUpBeforeClass();
         self::$oUserInstance = new \bundles\user\Entities\User(1);
         self::$oAclInstance = new AclExtentedClassTest(self::$oUserInstance);
     }
@@ -73,3 +55,23 @@ class AclTest extends \Library\Core\Test
 
 }
 
+/**
+ * Abstract Acl component test extended mock class
+ *
+ */
+class AclExtentedClassTest extends Acl
+{
+    /* Accessors for testing purposes */
+    public function getPermissions()
+    {
+        return $this->oPermissions;
+    }
+    public function getGroups()
+    {
+        return $this->oGroups;
+    }
+    public function getRessources()
+    {
+        return $this->oRessources;
+    }
+}

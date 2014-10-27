@@ -426,7 +426,7 @@ class App
     private static function initEnv()
     {
         $sEnv = 'prod';
-        if (in_array($_SERVER['SERVER_NAME'], self::$aEnvironements) && self::$aConfig['env']['prod'] !== $_SERVER['SERVER_NAME']) {
+        if (isset($_SERVER['SERVER_NAME']) && in_array($_SERVER['SERVER_NAME'], self::$aEnvironements) && self::$aConfig['env']['prod'] !== $_SERVER['SERVER_NAME']) {
             $sEnv = 'dev';
         }
         define('ENV', $sEnv);
