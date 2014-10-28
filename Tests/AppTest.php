@@ -32,5 +32,16 @@ class AppTest extends Test
         $oApp = App::getInstance();
         $this->assertTrue($oApp instanceof App);
     }
+    
+    public function testBuildEntities()
+    {
+        $aEntities = App::buildEntities();
+        $this->assertTrue(is_array($aEntities));
+    }
 
+    public function testRegisterLoadedClassClass()
+    {
+        // Try register a class
+        // Assert that the class is registered
+    }
 }
