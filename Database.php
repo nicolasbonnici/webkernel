@@ -22,23 +22,51 @@ class Database
     protected static $_link;
 
     /**
-     *
+     * SGBD driver (mysql|sqllite)
      * @var string
      */
     protected static $_driver = '';
 
+    /**
+     * SGBD host
+     * @var string
+     */
     protected static $_host = '';
 
+    /**
+     * database name
+     * @var string
+     */
     protected static $_name = '';
 
+    /**
+     * SGBD user
+     * @var string
+     */
     protected static $_user = '';
 
+    /**
+     * SGBD user's password
+     * @var string
+     */
     protected static $_pass = '';
 
+    /**
+     * SGBD errors
+     * @var array
+     */
     protected static $_errors = array();
 
+    /**
+     * SGBD last link ressource
+     * @var ressource
+     */
     protected static $_sLastLink = array();
 
+    /**
+     * Benchmark SGBD queries
+     * @var array
+     */
     protected static $_aBenchmark = array(
         'master' => array(
             'time' => 0.0,
@@ -68,6 +96,9 @@ class Database
         return;
     }
 
+    /**
+     * Get Database instance
+     */
     public function getInstance()
     {
         if (! self::$_instance instanceof self) {
@@ -77,11 +108,18 @@ class Database
         return self::$_instance;
     }
 
+    /**
+     * Instance is a singleton so block cloning it
+     */
     final public function __clone()
     {
         return;
     }
 
+    /**
+     * Connect to SGBD
+     * @throws DatabaseException
+     */
     private static function setLink()
     {
         try {

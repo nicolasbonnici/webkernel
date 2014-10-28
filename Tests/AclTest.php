@@ -5,7 +5,7 @@ use \Library\Core\Test as Test;
 use \Library\Core\Acl as Acl;
 
 /**
- * Acl unit test
+ * Acl component unit test
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 class AclTest extends Test
@@ -19,7 +19,6 @@ class AclTest extends Test
         self::$oUserInstance = new \bundles\user\Entities\User(1);
         self::$oAclInstance = new AclExtentedClassTest(self::$oUserInstance);
     }
-
 
     public function setUp()
     {
