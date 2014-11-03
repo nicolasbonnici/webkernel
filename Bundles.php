@@ -75,7 +75,7 @@ class Bundles
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
         $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDist'));
-        if ($bFlushBundlesCache || count($this->aAvailableBundles) === 0) {
+        if ($bFlushBundlesCache || $this->aAvailableBundles === false ) {
             $this->parseBundles();
         }
     }
