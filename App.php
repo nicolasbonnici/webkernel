@@ -448,7 +448,7 @@ class App
         define('BUNDLES_PATH',          __DIR__ . '/../../bundles/');
         define('PUBLIC_PATH',           __DIR__ . '/../../public/');
         define('PUBLIC_BUNDLES_PATH',   __DIR__ . '/../../public/lib/bundles/');
-        define('UX_PATH',               __DIR__ . '/../../public/lib/sociableUx/');
+        define('UX_PATH',               __DIR__ . '/../../public/lib/ux/');
     }
 
     /**
