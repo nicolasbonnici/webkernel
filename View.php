@@ -41,8 +41,8 @@ class View
         require_once $sHaangaPath . 'Haanga.php';
 
         $aViewsPaths = array(
-            APP_PATH . 'Views/',
-            BUNDLES_PATH . Router::getBundle() . '/Views/'
+            BUNDLES_PATH . Router::getBundle() . '/Views/',
+            APP_PATH . 'Views/'
         );
 
         if ($bLoadAllBundleViews) {
