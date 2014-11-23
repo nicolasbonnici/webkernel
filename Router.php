@@ -178,7 +178,6 @@ class Router extends Singleton
                 if (($aParams = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))))) && count($aParams) > 0) {
                     self::setParams($aParams);
                 }
-
                 return;
             }
         }
