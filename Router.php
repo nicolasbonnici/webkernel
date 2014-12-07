@@ -2,11 +2,10 @@
 namespace Library\Core;
 
 /**
- * MVC basic router
+ * MVC Router component
  *
- * @todo refactoring et optimisation de ce composant
+ * bundle/controler/action/param/value or /customRoute/paramValue
  *
- * bundle/controler/action/:param
  */
 class Router extends Singleton
 {
@@ -19,7 +18,7 @@ class Router extends Singleton
     const DEFAULT_ENCODING = 'UTF-8';
 
     /**
-     * Default language
+     * Default country_language
      *
      * @var string
      */
@@ -35,22 +34,19 @@ class Router extends Singleton
     private static $sDefaultAction = 'index';
 
     /**
-     * Default router settings for backend
-     *
-     * @var string
-     */
-    private static $sDefaultBackendBundle = 'backend';
-    private static $sDefaultBackendAction = 'index';
-    private static $sDefaultBackendController = 'home';
-
-    /**
-     * Application language formatted like FR_fr (COUNTRY_langage)
+     * Application localization settings (COUNTRY_langage)
      * @var string
      */
     private static $sLang;
 
     /**
-     * Apllication current bundle loaded
+     * Current request url
+     * @var string
+     */
+    private static $sUrl;
+
+    /**
+     * Application current bundle loaded
      * @var string
      */
     private static $sBundle;
@@ -68,58 +64,41 @@ class Router extends Singleton
     private static $sAction;
 
     /**
-     * Request parameters (Application MVC parameters, $_GET, $_POST, $_FILES) passed to the controller
+     * Request parameters (Application MVC parameters, $_GET, $_POST, $_FILES)
      * @var array
      */
-    private static $aParams;
-
-    /**
-     * Current request url
-     * @var string
-     */
-    private static $sUrl;
+    private static $aParams = array();
 
     /**
      * Current MVC request
      * @var array
      */
-    private static $aRequest;
+    private static $aRequest = array();
 
+    /**
+     * Parsed routes from config
+     * @var array
+     */
     private static $aRules = array();
 
+    /**
+     * Init Router component
+     *
+     * @param array $aApplicationConf
+     */
     public static function init(array $aApplicationConf = array())
     {
-        // Load default routing setting
+        // Load default routing settings
         if (
             isset(
                 $aApplicationConf['routing']['default_bundle'],
                 $aApplicationConf['routing']['default_controller'],
                 $aApplicationConf['routing']['default_action']
-            ) && (
-                $aApplicationConf['routing']['default_bundle']     !== self::$sDefaultBundle ||
-                $aApplicationConf['routing']['default_controller'] !== self::$sDefaultController ||
-                $aApplicationConf['routing']['default_action']     !== self::$sDefaultAction
             )
         ) {
             self::$sDefaultBundle       = $aApplicationConf['routing']['default_bundle'];
             self::$sDefaultController   = $aApplicationConf['routing']['default_controller'];
             self::$sDefaultAction       = $aApplicationConf['routing']['default_action'];
-        }
-
-        if (
-            isset(
-                $aApplicationConf['routing']['default_backend_bundle'],
-                $aApplicationConf['routing']['default_backend_controller'],
-                $aApplicationConf['routing']['default_backend_action']
-            ) && (
-                $aApplicationConf['routing']['default_backend_bundle']     !== self::$sDefaultBackendBundle ||
-                $aApplicationConf['routing']['default_backend_controller'] !== self::$sDefaultBackendController ||
-                $aApplicationConf['routing']['default_backend_action']     !== self::$sDefaultBackendAction
-            )
-        ) {
-            self::$sDefaultBackendBundle     = $aApplicationConf['routing']['default_backend_bundle'];
-            self::$sDefaultBackendController = $aApplicationConf['routing']['default_backend_controller'];
-            self::$sDefaultBackendAction     = $aApplicationConf['routing']['default_backend_action'];
         }
 
         self::$sLang        = self::DEFAULT_LOCALE; // @todo
@@ -133,15 +112,16 @@ class Router extends Singleton
 
         self::$sUrl = $_SERVER['REQUEST_URI'];
 
-        self::$aRequest = self::cleanArray(explode('/', self::$sUrl)); // @todo move function cleanArray to toolbox
+        self::$aRequest = self::cleanArray(explode('/', self::$sUrl));
 
         self::$sLang = self::DEFAULT_LOCALE;
 
         if (is_array(self::$aRequest) && count(self::$aRequest) > 0) {
-            // Test custom routing here
-            self::matchRules();
+            // Try to match a custom route or dispatch a basic MVC routing
+            self::process();
         }
 
+        // Parse requestion GET, POST and files upload parameters
         foreach ($_FILES as $key => $value) {
             self::$aParams[$key] = $value;
         }
@@ -155,56 +135,80 @@ class Router extends Singleton
         }
     }
 
-    private static function matchRules()
+    /**
+     * Test if a custom route was requested otherwhise perform a regular MVC routing
+     *
+     * @return boolean      TRUE if a custom route matched otherwhise false
+     */
+    private static function process()
     {
         assert('is_array(self::$aRequest) && count(self::$aRequest)>0');
 
-        // @see flag custom route found
+        // Flag if a custom route was founded
         $bRouted = false;
 
         foreach (self::$aRules as $sUrl => $aRule) {
 
-            // @see custom routing rule match with request
+            // Separte url from parameters
             $aUrl = explode(':', $sUrl);
-            if (preg_match('#^/' . self::$aRequest[0] . '#', $aUrl[0])) {
+            if (substr(self::$sUrl, 0, strlen($aUrl[0])) === $aUrl[0]) {
 
                 assert('is_array($aRule)');
 
-                $bRouted = false;
-
+                $bRouted = true;
                 self::$sBundle = self::$aRules[$sUrl]['bundle'];
                 self::$sController = self::$aRules[$sUrl]['controller'];
                 self::$sAction = self::$aRules[$sUrl]['action'];
-                if (($aParams = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))))) && count($aParams) > 0) {
-                    self::setParams($aParams);
-                }
-                return;
-            }
-        }
-        if (! $bRouted) {
-            // @see no custom route matched so we proceed with a basic routing treatment
-            if (($iRequestCount = count(self::$aRequest)) > 0) {
-                // @todo optimiser ce traitement
-                if (isset(self::$aRequest[0])) {
-                    self::$sBundle = self::$aRequest[0];
-                }
 
-                if (isset(self::$aRequest[1])) {
-                    self::$sController = self::$aRequest[1];
+                // if we got at least one parameter to check for
+                if (isset($aUrl[1]) && count($aRule['params'] > 0)) {
+                    $aParsedParameters = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))));
+                    foreach ($aParsedParameters as $iIndex=>$mParameters) {
+                        self::$aParams[$aRule['params'][$iIndex]] = $mParameters;
+                    }
                 }
-
-                if (isset(self::$aRequest[2])) {
-                    self::$sAction = self::$aRequest[2];
-                }
-
-                self::setParams(array_slice(self::$aRequest, 3));
+                return true;
             }
         }
 
-        return;
+        // No custom route matched so we proceed with a basic routing treatment
+        if ($bRouted === false) {
+            self::dispatch();
+        }
+
+        return false;
+
     }
 
-    // @todo c'est deguelasse y'a array_values pour faire ce genre de traitement
+    /**
+     * Perform a basic MVC routing parsing
+     */
+    private static function dispatch()
+    {
+        if (($iRequestCount = count(self::$aRequest)) > 0) {
+
+            if (isset(self::$aRequest[0])) {
+                self::$sBundle = self::$aRequest[0];
+            }
+
+            if (isset(self::$aRequest[1])) {
+                self::$sController = self::$aRequest[1];
+            }
+
+            if (isset(self::$aRequest[2])) {
+                self::$sAction = self::$aRequest[2];
+            }
+
+            self::setParams(array_slice(self::$aRequest, 3));
+        }
+    }
+
+    /**
+     * Parse MVC parameters from requested URI
+     *
+     * @param array $aArray
+     * @return array
+     */
     private static function cleanArray(array $aArray = array())
     {
         if (count($aArray) > 0) {
@@ -218,16 +222,16 @@ class Router extends Singleton
     }
 
     /**
-     * Parse parameters from request url
+     * Set MVC parameters from requested uri
      *
      * @param array $items
      * @return array
      */
     private static function setParams(array $items)
     {
-        if ((! empty($items)) && (count($items) % 2 == 0)) {
+        if ((! empty($items)) && (count($items) % 2 === 0)) {
             for ($i = 0; $i < count($items); $i ++) {
-                if ($i % 2 == 0) {
+                if ($i % 2 === 0) {
                     self::$aParams[$items[$i]] = $items[$i + 1];
                 }
             }
