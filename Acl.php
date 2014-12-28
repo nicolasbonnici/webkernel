@@ -201,21 +201,17 @@ abstract class Acl
     /**
      * Load current user instance group
      *
-     * @return boolean
      * @throws AclException
+     * @return boolean
      */
     private function getUserGroups()
     {
         assert('$this->oUser->isLoaded()');
         $this->oGroups = new \bundles\user\Entities\Mapping\Collection\UserGroupCollection();
-        $oUserGroups = new \bundles\user\Entities\Mapping\Collection\UserGroupCollection();
         try {
-            $oUserGroups->loadByParameters(array(
+            $this->oGroups->loadByParameters(array(
                 'user_iduser' => $this->oUser->getId()
             ));
-            foreach ($oUserGroups as $oGroup) {
-                $this->oGroups->add($this->oGroups->count() + 1, $oGroup);
-            }
         } catch (CoreEntityException $oException) {
             throw new AclException('Error: No group found for user');
         }

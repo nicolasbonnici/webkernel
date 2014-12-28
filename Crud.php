@@ -17,10 +17,11 @@ abstract class Crud
      * Error codes
      * @var integer
      */
-    const ERROR_USER_INVALID        = 402;
-    const ERROR_FORBIDDEN_BY_ACL    = 403;
-    const ERROR_ENTITY_EXISTS       = 404;
-    const ERROR_ENTITY_NOT_LOADED   = 405;
+    const ERROR_USER_INVALID                        = 402;
+    const ERROR_FORBIDDEN_BY_ACL                    = 403;
+    const ERROR_ENTITY_EXISTS                       = 404;
+    const ERROR_ENTITY_NOT_LOADED                   = 405;
+    const ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE   = 406;
 
     /**
      * Current user instance (optional if $oEntity has no foreign key attribute to \bundles\user\Entities\User)
@@ -122,7 +123,10 @@ abstract class Crud
                 // Check for Null attributes
                 foreach ($oEntity->getAttributes() as $sAttr) {
                     if ($sAttr !== $oEntity->getPrimaryKeyName() && ! $oEntity->isNullable($sAttr) && empty($oEntity->{$sAttr})) {
-                        throw new CrudException('No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity', App::ERROR_ENTITY_EMPTY_ATTRIBUTE);
+                        throw new CrudException(
+                            'No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity',
+                            self::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE
+                        );
                     }
                 }
 
