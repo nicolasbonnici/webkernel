@@ -17,6 +17,15 @@ abstract class Entity extends Database
 {
 
     /**
+     * Entity attribute's types
+     * @var string
+     */
+    const DATA_TYPE_STRING  = 'string';
+    const DATA_TYPE_INTEGER = 'integer';
+    const DATA_TYPE_FLOAT   = 'float';
+    const DATA_TYPE_ENUM    = 'array';
+
+    /**
      * Whether row in database may be deleted or not
      * @var boolean
      */
@@ -520,13 +529,13 @@ abstract class Entity extends Database
             $sDataType = $this->getAttributeType($sName);
 
             if (preg_match('#(^int|^integer|^tinyint|^smallmint|^mediumint|^tinyint|^bigint)#', $sDataType)) {
-                $sDataType = 'integer';
+                $sDataType = self::DATA_TYPE_INTEGER;
             } elseif (preg_match('#(^float|^decimal|^numeric)#', $this->aFields[$sName]['Type'])) {
-                $sDataType = 'float';
+                $sDataType = self::DATA_TYPE_FLOAT;
             } elseif (preg_match('#(^varchar|^text|^blob|^tinyblob|^tinytext|^mediumblob|^mediumtext|^longblob|^longtext|^date|^datetime|^timestamp)#', $this->aFields[$sName]['Type'])) {
-                $sDataType = 'string';
+                $sDataType = self::DATA_TYPE_STRING;
             } elseif (preg_match('#^enum#', $this->aFields[$sName]['Type'])) {
-                $sDataType = 'array'; // @todo ajouter un type enum dans validator puis un inArray pour valider
+                $sDataType = self::DATA_TYPE_ENUM; // @todo ajouter un type enum dans validator puis un inArray pour valider
             } else {
                 throw new EntityException(__CLASS__ . ' Unsuported database field type: ' . $this->aFields[$sName]['Type']);
             }
@@ -586,9 +595,8 @@ abstract class Entity extends Database
         $iValidatorStatus = 0;
         $sDataType = '';
 
-        // @todo prendre en charge les variables nullables à ce niveau en fonctions des infos sur le champs mysql
-        // @todo Dépend d'une feature experimentale de PDO attendre la version stable
-        if (is_null($mValue) && $this->aFields[$sFieldName]['Null'] === 'YES') {
+        // If nullable
+        if (is_null($mValue) && $this->isNullable($sFieldName)) {
             return true;
         }
 

@@ -9,7 +9,7 @@ namespace Library\Core;
 class Scaffold
 {
 
-    public static function generateEntity($sTableName, $iCacheDuration = 120)
+    public function generateEntity($sTableName, $iCacheDuration = 120)
     {
         if (! empty($sTableName)) {
             $sEntityName = self::formatEntityName($sTableName);
@@ -40,16 +40,37 @@ class ' . $sEntityName . ' extends \Library\Core\Entity {
 }
             ';
         }
-        
+
         return false;
+    }
+
+    public function generateEntityCollection() {}
+
+    /**
+     * Scaffold a form for an entity
+     *
+     * @param \Library\Core\Entity $oEntity
+     */
+    public function form(\Library\Core\Entity $oEntity)
+    {
+        foreach ($oEntity->getAttributes() as $sAttrName) {
+            $sDatatype = $oEntity->getDataType($sAttrName);
+        	switch ($sDatatype) {
+        		case Entity::DATA_TYPE_STRING:
+
+        		    break;
+        	   default:
+
+        	       break;
+        	}
+        }
     }
 
     /**
      * Convert table name to \app\Entities valid name
      *
-     * @todo convention dégueulasse et trop relou a gérer utiliser le nom des table avec juste un ucfirst() ou directement nommer correctement les tables dans le shema
-     *      
-     * @param string $sTableName            
+     *
+     * @param string $sTableName
      */
     public static function formatEntityName($sTableName)
     {
