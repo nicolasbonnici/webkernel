@@ -45,6 +45,13 @@ abstract class Crud
     protected $oEntities;
 
     /**
+     * Restricted attributes scope for update
+     *
+     * @var array
+     */
+    protected $aEntityRestrictedAttributes = array();
+
+    /**
      * Instance constructor
      */
     public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)
@@ -84,8 +91,7 @@ abstract class Crud
     /**
      * Create new entity
      *
-     * @param array $aParameters
-     *            A one dimensional array: attribute name => value
+     * @param array $aParameters A one dimensional array: attribute name => value
      * @throws CrudException If the currently loaded user session is different than the ne entity one
      * @return boolean Library\Core\EntityException
      */
@@ -199,11 +205,18 @@ abstract class Crud
                     $this->oEntity->lastupdate = time();
                 }
 
-                // Check for Null attributes
                 foreach ($this->oEntity->getAttributes() as $sAttr) {
-                    if (empty($this->oEntity->{$sAttr}) && ! $this->oEntity->isNullable($sAttr)) {
-                        throw new CrudException('No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity', App::ERROR_ENTITY_EMPTY_ATTRIBUTE);
+
+                    // Check for restricted attributes
+                    if (array_key_exists($sAttr, $this->getRestrictedEntityAttributes()) === true) {
+                        unset($this->oEntity->{$sAttr});
                     }
+
+                    // Check for not null value
+                    if (empty($this->oEntity->{$sAttr}) && $this->oEntity->isNullable($sAttr) === false) {
+                        unset($this->oEntity->{$sAttr});
+                    }
+
                 }
 
                 return $this->oEntity->update();
@@ -288,6 +301,28 @@ abstract class Crud
         } catch (\Library\Core\EntityException $oException) {
             return $oException;
         }
+    }
+
+    /**
+     * Get allowed entity attributes scope
+     *
+     * @return array
+     */
+    public function getRestrictedEntityAttributes()
+    {
+        return $this->aEntityRestrictedAttributes;
+    }
+
+    /**
+     * Set allowed entity attributes scope
+     *
+     * @param unknown $aEntityRestrictedAttributes
+     * @return \Library\Core\Crud
+     */
+    public function setRestrictedEntityAttributes($aEntityRestrictedAttributes)
+    {
+        $this->aEntityRestrictedAttributes = $aEntityRestrictedAttributes;
+        return $this;
     }
 
     /*
