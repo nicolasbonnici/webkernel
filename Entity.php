@@ -286,12 +286,10 @@ abstract class Entity extends Database
         try {
             $oStatement = \Library\Core\Database::dbQuery('INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')', $aInsertedValues);
             $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
-            $this->refresh();
+            return $this->refresh();
         } catch (PDOException $oException) {
             return false;
         }
-
-        return ($this->bIsLoaded = true);
     }
 
     /**
@@ -328,17 +326,18 @@ abstract class Entity extends Database
 
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
             $oStatement = \Library\Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
-            $this->refresh();
+            return $this->refresh();
         } catch (\PDOException $oException) {
             return false;
         }
 
-        return ($this->bIsLoaded = true);
     }
 
     /**
      * Delete row corresponding to current instance in database and reset instance
-     *
+     * 
+     * @todo Need review on return ...
+     * 
      * @throws EntityException
      * @return boolean TRUE if deletion was successful, otherwise FALSE
      */
@@ -357,11 +356,13 @@ abstract class Entity extends Database
                 $this->{static::PRIMARY_KEY}
             ));
             $this->reset();
+            
+	        return true;
+	        
         } catch (\PDOException $oException) {
             return false;
         }
 
-        return true;
     }
 
     /**

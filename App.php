@@ -71,10 +71,7 @@ class App
      * @todo passer en config
      * @var array
      */
-    private static $aEnvironements = array(
-        'core.local',
-        'dev.nbonnici.info'
-    );
+    private static $aEnvironements = array();
 
     /**
      * Current framework version
@@ -133,6 +130,9 @@ class App
 
     /**
      * Instance constructor
+     * 
+     * @todo refactoriser tout ce code
+     * 
      */
     public function __construct()
     {
@@ -141,30 +141,30 @@ class App
         self::$sPhpVersion = PHP_VERSION;
 
         /**
-         * Init environment staging
+         * @todo en conf
          */
-        self::initEnv();
-
-        /**
-         *
-         * @see paths
-         */
-        self::initPaths();
+        self::initPaths();        
 
         /**
          *
          * @see register class autoloader
          */
-        self::initAutoloader();
-
-        // Init Router component
-        self::$oRouterInstance = Router::getInstance();
-
+        self::initAutoloader();        
+        
         /**
          * Init config
          */
-        self::initConfig();
+        self::initConfig();        
+        
+        /**
+         * Init environment staging
+         */
+        self::initEnv();
 
+
+        // Init Router component
+        self::$oRouterInstance = Router::getInstance();
+        
         /**
          *
          * @see Errors and log reporting
@@ -255,8 +255,8 @@ class App
      */
     private static function initReporting()
     {
-        // @ see init logs and errors reporting
-        error_reporting((ENV === 'dev') ? - 1 : 0);
+        // init logs and errors reporting
+        error_reporting((ENV === 'dev') ? -1 : 0);
         ini_set('display_errors', (ENV === 'dev') ? 'On' : 'Off');
         ini_set('log_errors', 'On');
     }
@@ -426,7 +426,15 @@ class App
     private static function initEnv()
     {
         $sEnv = 'prod';
-        if (isset($_SERVER['SERVER_NAME']) && in_array($_SERVER['SERVER_NAME'], self::$aEnvironements) && self::$aConfig['env']['prod'] !== $_SERVER['SERVER_NAME']) {
+        
+        // Init environments from application configuration
+        self::$aEnvironements = self::$aConfig['env'];
+        
+        if (
+        	isset($_SERVER['SERVER_NAME']) && 
+        	in_array($_SERVER['SERVER_NAME'], self::$aEnvironements) && 
+        	self::$aConfig['env']['prod'] !== $_SERVER['SERVER_NAME']
+    	) {
             $sEnv = 'dev';
         }
         define('ENV', $sEnv);

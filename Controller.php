@@ -243,7 +243,7 @@ class Controller extends Acl
     {
         // Reset if it's an asynch call or the crud bundle
         if ($this->isXHR()) {
-
+			
             if ($sRedirectBundle === 'crud') {
                 $sRedirectBundle = Router::DEFAULT_BACKEND_BUNDLE;
             }
@@ -282,17 +282,14 @@ class Controller extends Acl
 
         if (is_string($mUrl)) {
             header('Location: ' . $mUrl);
-            exit();
         } elseif (is_array($mUrl)) {
             if (array_key_exists('request', $mUrl) && isset($mUrl['request']['bundle'], $mUrl['request']['controller'], $mUrl['request']['action'])) {
                 $sUrl = '/' . $mUrl['request']['bundle'] . '/' . $mUrl['request']['controller'] . '/' . $mUrl['request']['action'];
             } else {
                 throw new RouterException(__METHOD__ . ' malformed redirection request  ');
             }
-
             header('Location: ' . $sUrl);
         } else {
-
             throw new RouterException(__METHOD__ . ' wrong request data type (mixed string|array)  ');
         }
 

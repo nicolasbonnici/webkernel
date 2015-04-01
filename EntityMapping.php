@@ -2,7 +2,7 @@
 namespace Library\Core;
 
 /**
- * Mapping entities component for on the fly ORM Crud managment of the Entity component
+ * Mapping entities component
  *
  * @author niko <nicolasbonnici@gmail.com>
  *
@@ -12,7 +12,7 @@ namespace Library\Core;
  * @dependancy \Library\Core\Cache
  * @dependancy \Library\Core\Database
  */
-abstract class MappingEntity extends Entity
+abstract class EntityMapping extends Entity
 {
     /**
      * Source Entity
@@ -83,7 +83,7 @@ abstract class MappingEntity extends Entity
             ! class_exists($sMappedEntityCollectionClassName)
         )  {
 
-            throw new MappingEntityException('No EntitiesCollection found for the mapped Entity instance.');
+            throw new MappingEntityException('No EntitiesCollection found for the mapping Entity instance.');
 
         } elseif (
             ($sMappingEntity = App::MAPPING_ENTITIES_NAMESPACE . get_class($oSourceEntity) . get_class($oMappedEntity)) &&

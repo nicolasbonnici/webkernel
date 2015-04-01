@@ -29,7 +29,7 @@ class Auth extends Controller
         if (isset($_SESSION['token']) && ($this->_session = $_SESSION) && $this->checkSessionintegrity()) {
             parent::__construct($this->oUser, $this->oBundleConfig);
         } else {
-            $this->redirect($this->buildRedirectUrl(Router::getBundle()));
+            $this->redirect($this->buildRedirectUrl(Router::getBundle(), Router::getController(), Router::getAction()));
         }
     }
 
