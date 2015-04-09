@@ -200,7 +200,7 @@ class Database
     public static function lastInsertId()
     {
         if (! isset(self::$sLastLink)) {
-            return '0';
+            return 0;
         }
         return self::${self::$sLastLink}->lastInsertId();
     }

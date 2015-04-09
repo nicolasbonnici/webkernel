@@ -170,8 +170,9 @@ abstract class Entity extends Database
             }
             Cache::set($sObjectCacheKey, $aData, $this->iCacheDuration);
         }
-
-        return ($this->bIsLoaded = true);
+        $this->bIsLoaded = true;
+        
+        return $this->isLoaded();
     }
 
     /**
@@ -286,10 +287,13 @@ abstract class Entity extends Database
         try {
             $oStatement = \Library\Core\Database::dbQuery('INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')', $aInsertedValues);
             $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
-            return $this->refresh();
-        } catch (PDOException $oException) {
+	        
+            return (intval($this->{static::PRIMARY_KEY}) > 0);
+            
+        } catch (\Exception $oException) {
             return false;
         }
+		
     }
 
     /**
@@ -326,8 +330,10 @@ abstract class Entity extends Database
 
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
             $oStatement = \Library\Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
+            
+            // @todo ($oStatement !== false);
             return $this->refresh();
-        } catch (\PDOException $oException) {
+        } catch (\Exception $oException) {
             return false;
         }
 
@@ -357,9 +363,9 @@ abstract class Entity extends Database
             ));
             $this->reset();
             
-	        return true;
+	        return ($this->isLoaded() === false);
 	        
-        } catch (\PDOException $oException) {
+        } catch (\Exception $oException) {
             return false;
         }
 

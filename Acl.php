@@ -225,19 +225,22 @@ abstract class Acl
      */
     private function getPermissions()
     {
-        assert('$this->oGroups->hasItem()');
-
-        $this->oPermissions = new \bundles\adm\Entities\Collection\PermissionCollection();
         try {
-            $aGroups = array();
-            foreach ($this->oGroups as $oGroup) {
-                $aGroups[] = (int) $oGroup->group_idgroup;
-            }
-            $this->oPermissions->loadByParameters(array(
-                'group_idgroup' => $aGroups
-            ));
-        } catch (CoreEntityException $oException) {}
-        return ($this->oPermissions->count() > 0) ? true : false;
+        	$this->oPermissions = new \bundles\adm\Entities\Collection\PermissionCollection();
+	        if ($this->oGroups->hasItem()) {
+		        
+	            $aGroups = array();
+	            foreach ($this->oGroups as $oGroup) {
+	                $aGroups[] = (int) $oGroup->group_idgroup;
+	            }
+	            $this->oPermissions->loadByParameters(array(
+	                'group_idgroup' => $aGroups
+	            ));
+	        }
+	        return ($this->oPermissions->count() > 0) ? true : false;
+        } catch (CoreEntityException $oException) {
+        	return false;
+        }
     }
 
     /**

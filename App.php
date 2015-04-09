@@ -18,7 +18,7 @@ class App
     private static $oInstance;
 
     /**
-     * Global app Entities, Mapping and EntitiesCollection default namespaces
+     * Global app Entities, Mapping and EntityCollection default namespaces
      * @var string
      */
     const ENTITIES_NAMESPACE = '\app\Entities\\';
@@ -113,7 +113,7 @@ class App
      *
      * @var array
      */
-    private static $aEntities;
+    private static $aEntities = array();
 
     /**
      * Loaded classes for debug
@@ -370,33 +370,44 @@ class App
     public static function buildEntities()
     {
         // Scan app level entities
-        $aAppEntities = Directory::scan(APP_PATH . 'Entities/');
-        self::parseEntities($aAppEntities);
+        self::parseEntities(APP_PATH . 'Entities/');
 
         // Scan bundles entities
         foreach (self::$aBundles as $sBundleName=>$aBundleStructure) {
-            $aBundleEntities = Directory::scan(BUNDLES_PATH . 'Entities/');
-            self::parseEntities($aBundleEntities);
+            self::parseEntities(BUNDLES_PATH . $sBundleName . '/Entities/');
         }
 
         return self::$aEntities;
     }
 
     /**
-     * Parse entites from a scanned directory (bundles or core app)
+     * Parse entites from a given path and subfolders then pass them to the self::$aEntities attribute
      *
-     * @param array $aScannedEntities
+     * @param string $sAbsolutePath
      */
-    private static function parseEntities(array $aScannedEntities = array())
+    private static function parseEntities($sAbsolutePath)
     {
-        foreach ($aScannedEntities as $aScannedEntity) {
-            if ($aScannedEntity['type'] === 'file') {
-                self::$aEntities[] = substr($aScannedEntity['name'], 0, strlen($aScannedEntity['name']) - strlen('.php'));
-            } elseif ($aScannedEntity['type'] === 'folder') {
-                foreach ($aScannedEntity['items'] as $aEntities) {
-                    self::$aEntities[] = substr($aEntities['name'], 0, strlen($aEntities['name']) - strlen('.php'));
-                }
-            }
+    	$aFolderContent = Directory::scan($sAbsolutePath);
+    	$aExcludedPath = array(
+    		'',
+    		'Deploy'
+    	);
+    	
+        foreach ($aFolderContent as $aFolderItem) {
+            if (
+            	$aFolderItem['type'] === 'file' && 
+            	is_null($aFolderItem['name']) === false
+    		) {
+                $sFilename = substr($aFolderItem['name'], 0, strlen($aFolderItem['name']) - strlen('.php'));
+            	if (in_array($sFilename, self::$aEntities) === false) {
+            		self::$aEntities[] = $sFilename;            		
+            	}
+            } elseif (
+            		$aFolderItem['type'] === 'folder' && 
+            		in_array($aFolderItem['name'], $aExcludedPath) === false
+    		) {
+            	self::parseEntities($sAbsolutePath . $aFolderItem['name']);
+            } 
         }
     }
 

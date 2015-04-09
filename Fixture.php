@@ -19,9 +19,9 @@ class Fixtures
 
     /**
      * Current instance entity collection
-     * @var EntitiesCollection
+     * @var EntityCollection
      */
-    private $oEntitiesCollection;
+    private $oEntityCollection;
 
     /**
      * Path to the current instance entity deploy script
@@ -55,11 +55,11 @@ class Fixtures
 
             try {
                 $this->oEntity = new $sEntityName;
-                $this->oEntitiesCollection = new $sEntityNameCollection;
+                $this->oEntityCollection = new $sEntityNameCollection;
             } catch (\Library\Core\EntityException $oEntityException) {
                 throw new FixturesException($oEntityException->getMessage());
-            } catch (\Library\Core\EntitiesCollectionException $oEntitiesCollectionException) {
-                throw new FixturesException($oEntitiesCollectionException->getMessage());
+            } catch (\Library\Core\EntityCollectionException $oEntityCollectionException) {
+                throw new FixturesException($oEntityCollectionException->getMessage());
             }
 
         }

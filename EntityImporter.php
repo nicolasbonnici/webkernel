@@ -7,7 +7,30 @@ namespace Library\Core;
  */
 class EntityImporter
 {
-	public function _construct() 
+	/**
+	 * Latest found schema version for Entity import file
+	 * @var string
+	 */
+	private $sLatestSchemaVersionAvailable = '';
+	
+	
+	public function _construct($sEntityname, $sAbsoluteDeployPath = 'app/Entities/Deploy/') 
+	{
+		if (empty($sEntityname) === true) {
+			throw new EntityImporterException('No entity name provided.');
+		} elseif (Directory::exists($sAbsoluteDeployPath) === true) {
+			throw new EntityImporterException('Dump path not found.');			
+		} else {
+			
+			$aAvailableEntities = Directory::scan($sAbsoluteDeployPath);
+			foreach ($aAvailableEntities as $sEntityDump) {
+				die(var_dump($sEntityDump));
+			}
+			
+		}
+	}
+	
+	private function getlatestSchemaVersionAvailable()
 	{
 		
 	}
@@ -17,12 +40,12 @@ class EntityImporter
 		
 	}
 	
-	private function compareTable()
+	private function getTableSchemaVersion()
 	{
 		
 	}
 	
-	private function createTable()
+	private function import()
 	{
 		
 	}

@@ -114,7 +114,7 @@ abstract class Search
 
             $sEntityCollectionClassName = App::ENTITIES_COLLECTION_NAMESPACE . $sEntity . 'Collection';
 
-            // Entities must be searchable and have a EntitiesCollection class too
+            // Entities must be searchable and have a EntityCollection class too
             if (! $oEntity->isSearchable() || ! class_exists($sEntityCollectionClassName)) {
                 throw new SearchException('You can\'t search in this entity ' . $oEntity , self::ERROR_EMPTY_ENTITY);
             } else {

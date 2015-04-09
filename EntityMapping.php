@@ -7,7 +7,7 @@ namespace Library\Core;
  * @author niko <nicolasbonnici@gmail.com>
  *
  * @dependancy \Library\Core\Entity
- * @dependancy \Library\Core\EntitiesCollection
+ * @dependancy \Library\Core\EntityCollection
  * @dependancy \Library\Core\Validator
  * @dependancy \Library\Core\Cache
  * @dependancy \Library\Core\Database
@@ -28,7 +28,7 @@ abstract class EntityMapping extends Entity
 
     /**
      * Mapped entities collection to the instantiated source Entity
-     * @var Library\Core\EntitiesCollection
+     * @var Library\Core\EntityCollection
      */
     protected $oMappedEntities;
 
@@ -83,7 +83,7 @@ abstract class EntityMapping extends Entity
             ! class_exists($sMappedEntityCollectionClassName)
         )  {
 
-            throw new MappingEntityException('No EntitiesCollection found for the mapping Entity instance.');
+            throw new MappingEntityException('No EntityCollection found for the mapping Entity instance.');
 
         } elseif (
             ($sMappingEntity = App::MAPPING_ENTITIES_NAMESPACE . get_class($oSourceEntity) . get_class($oMappedEntity)) &&
@@ -140,7 +140,7 @@ abstract class EntityMapping extends Entity
 
     /**
      * Mapped entities accessor
-     * @return \Library\Core\Library\Core\EntitiesCollection
+     * @return \Library\Core\Library\Core\EntityCollection
      */
     public function getMappedEntities()
     {

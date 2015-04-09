@@ -292,7 +292,7 @@ abstract class Crud
             throw new CrudException('No \bundles\user\Entities\User entity instance found!', App::ERROR_ENTITY_NOT_MAPPED_TO_USERS);
         }
 
-        if (! isset($aParameters['user_iduser'])) {
+        if (isset($aParameters['user_iduser']) === false) {
             $aParameters['user_iduser'] = $this->oUser->getId();
         }
 
