@@ -199,10 +199,10 @@ class Database
      */
     public static function lastInsertId()
     {
-        if (! isset(self::$sLastLink)) {
+        if (isset(self::$_link) === false) {
             return 0;
         }
-        return self::${self::$sLastLink}->lastInsertId();
+        return self::$_link->lastInsertId();
     }
 
 }

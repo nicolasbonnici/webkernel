@@ -285,9 +285,9 @@ abstract class Entity extends Database
         }
 
         try {
+        	$sQuery = 'INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
             $oStatement = \Library\Core\Database::dbQuery('INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')', $aInsertedValues);
             $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
-	        
             return (intval($this->{static::PRIMARY_KEY}) > 0);
             
         } catch (\Exception $oException) {
