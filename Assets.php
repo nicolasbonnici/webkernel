@@ -82,6 +82,9 @@ class Assets
             foreach ($aLibFilesPaths as $sAssetType=>$aLibFilesPaths) {
                 if ($sAssetType === 'js') {
                     foreach ($aLibFilesPaths as $sJsAsset) {
+                    	if (mb_substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
+                    		$sJsAsset = mb_substr($sJsAsset, 1);
+                    	}                    	
                         $sMinifiedJsCode .= \Library\Core\Minify::js(Files::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
                     }
                 } elseif ($sAssetType === 'css') {

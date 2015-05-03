@@ -133,6 +133,7 @@ class Router extends Singleton
         foreach ($_GET as $key => $value) {
             self::$aParams[$key] = $value;
         }
+
     }
 
     /**
@@ -229,6 +230,7 @@ class Router extends Singleton
      */
     private static function setParams(array $items)
     {
+    	// @todo Attention au modulo !!! (3 parametres sans clef par exemple)
         if ((! empty($items)) && (count($items) % 2 === 0)) {
             for ($i = 0; $i < count($items); $i ++) {
                 if ($i % 2 === 0) {

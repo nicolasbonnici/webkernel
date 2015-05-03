@@ -97,12 +97,12 @@ abstract class EntityCollection extends Collection
     /**
      * Load collection regarding given IDs
      *
-     * @todo bug voir avec les test unitaires
+     * @todo Algo pas du tout clair et bug... Need code review
      *
      * @param array $aIds
      *            List of IDs
      */
-    public function loadByIds($aIds)
+    protected function loadByIds($aIds)
     {
         assert('!empty($aIds)');
 
@@ -115,16 +115,17 @@ abstract class EntityCollection extends Collection
         }
 
         $this->aOriginIds = $aIds;
-        if (($aCachedObjects = $this->getCachedObjects($aIds)) === false) {
+        $aCachedObjects = $this->getCachedObjects($aIds);
+        if (count($aCachedObjects) === 0) {
             $aUncachedObjects = array_values($aIds);
+        } else {
+        	foreach ($aCachedObjects as $iObjectId => $aCachedObject) {
+        		$oObject = new $this->sChildClass();
+        		$oObject->loadByData($aCachedObject);
+        		$this->add($oObject->getId(), $oObject);
+        	}
         }
-
-        foreach ($aCachedObjects as $iObjectId) {
-            $oObject = new $this->sChildClass($iObjectId);
-            $this->add($oObject->getId(), $oObject);
-        }
-
-        if (! empty($aUncachedObjects)) {
+        if (empty($aUncachedObjects) === false) {
             $this->loadByQuery('
                 SELECT *
                 FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
@@ -301,6 +302,15 @@ abstract class EntityCollection extends Collection
     {
         $aKeys = array_flip($this->aOriginIds);
         return ($aKeys[$iFirstKey] > $aKeys[$iSecondKey]) ? 1 : - 1;
+    }
+    
+    /**
+     * Child class accessor
+     * @return string
+     */
+    public function getChildClass()
+    {
+    	return $this->sChildClass;
     }
 }
 

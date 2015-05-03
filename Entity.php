@@ -93,23 +93,12 @@ abstract class Entity extends Database
     protected $aOriginIds = array();
 
     /**
-     * List of class members that may be used to chain
-     * This array is composed of arrays with
-     * keys being class member name
-     * values being 'field' and 'class'
-     * 'field' refers to current class member name which value will be used as the ID of chained object
-     * 'class' refers to chained object class name
-     * Example:
-     * protected $aLinkedEntities = array(
-     * 'membre' => array(
-     * 'field' => 'idmembre',
-     * 'class' => 'db_Membres'
-     * )
-     * );
+     * Mapped entities with mapping properties
      *
+     * @see EntityMapper 
      * @var array
      */
-    protected $aLinkedEntities = array();
+    protected $aMappedEntities = array();
 
     /**
      * Constructor
@@ -123,7 +112,6 @@ abstract class Entity extends Database
         // If we just want to instanciate a blank object, do not pass any parameter to constructor
         $this->loadFields();
         if (! is_null($mPrimaryKey) && is_string($mPrimaryKey) || is_int($mPrimaryKey)) {
-
             // Build only one object
             $this->{static::PRIMARY_KEY} = $mPrimaryKey;
             $this->loadByPrimaryKey();
@@ -133,6 +121,7 @@ abstract class Entity extends Database
         }
 
         $this->sChildClass = get_called_class();
+        
     }
 
     /**
@@ -236,7 +225,6 @@ abstract class Entity extends Database
             $aObject = $oStatement->fetchAll(\PDO::FETCH_ASSOC);
             $aObject = $aObject[0];
         }
-
         return $this->loadByData($aObject, $bRefreshCache);
     }
 
@@ -286,7 +274,7 @@ abstract class Entity extends Database
 
         try {
         	$sQuery = 'INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
-            $oStatement = \Library\Core\Database::dbQuery('INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')', $aInsertedValues);
+            $oStatement = \Library\Core\Database::dbQuery($sQuery, $aInsertedValues);
             $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
             return (intval($this->{static::PRIMARY_KEY}) > 0);
             
@@ -394,6 +382,15 @@ abstract class Entity extends Database
         }
         return (int) $this->{static::PRIMARY_KEY};
     }
+    
+    /**
+     * Linked entities accessor
+     * @return array
+     */
+    public function getMappedEntities()
+    {
+    	return $this->aMappedEntities;
+    }
 
     /**
      * Check whether object was successfully loaded
@@ -445,9 +442,24 @@ abstract class Entity extends Database
             $this->{static::PRIMARY_KEY}
         ), $bUseCache, Cache::getKey(get_called_class(), $this->{static::PRIMARY_KEY}));
     }
+    
+    /**
+     * Method to load all mapped Entities using Entity foreign keys (only oneToOne relationship)
+     * @see EntityMapper component for more relationship types 
+     * 
+     * @param boolean $bForceLoad			Flag to bypass Entity mapping settings 'loadByDefault'
+     */
+    public function loadMappedEntities($bForceLoad = false)
+    {
+		foreach ($this->aLinkedEntities as $sMappedEntityClassName => $aMappingConfiguration) {
+			$this->loadMappedEntity($sMappedEntityClassName, $aMappingConfiguration, $bForceLoad);
+        }
+    }
 
     /**
      * Load the list of fields of the associated database table
+     *
+     * @todo possibiliter de flusher le cache a ce level
      *
      * @throws EntityException
      */
@@ -465,6 +477,11 @@ abstract class Entity extends Database
 
             Cache::set($sCacheKey, $this->aFields, false, Cache::CACHE_TIME_MINUTE);
         }
+        
+        if (empty($this->aFields) === true) {
+        	throw new EntityException('No field found for table ' . static::TABLE_NAME . ' please check Entity.');
+        }
+        
     }
 
     /**
@@ -583,7 +600,7 @@ abstract class Entity extends Database
 
         $this->bIsLoaded = false;
     }
-
+    
     /**
      * Validate data integrity for the database field
      *

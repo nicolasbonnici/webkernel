@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use bundles\user\Entities\User;
+
 /**
  * Main app controller class
  *
@@ -308,6 +310,15 @@ class Controller extends Acl
         }
         $this->aView["lang"] = $this->sLang;
         $this->aView["tr"] = $tr; // @see loading de la traduction pour la vue
+    }
+    
+    /**
+     * Dynamicaly build the logged user if needed for a public Controller 
+     * @return mixed NULL, \Library\Core\User
+     */
+    public function getLoggedUser()
+    {
+    	return (isset($this->aSession['iduser']) === true) ? new User(intval($this->aSession['iduser'])) : null;
     }
 
     /*
