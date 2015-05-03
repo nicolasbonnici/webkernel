@@ -63,7 +63,7 @@ class EntityMapper
 	 * 
 	 * @param Entity $oSourceEntity
 	 */
-	public function __construct(Entity $oSourceEntity) 
+	public function __construct(Entity $oSourceEntity, $bForceLoad = false) 
 	{
 		if ($oSourceEntity->isLoaded() === false) {
 			throw new EntityMapperException(
@@ -83,10 +83,10 @@ class EntityMapper
 	/**
 	 * Load all mapped entities (useless and potentialy dangerous)
 	 */
-	public function load()
+	public function load($bForceLoad = false)
 	{
 		foreach ($this->oSourceEntity->getMappedEntities() as $sLinkedEntity => $aMappingSetup) {
-			$this->loadMapping($sLinkedEntity, $aMappingSetup);
+			$this->loadMapping($sLinkedEntity, $aMappingSetup, $bForceLoad);
 		}
 	}	
 	
@@ -95,10 +95,10 @@ class EntityMapper
 	 * 
 	 * @param string $sEntityClassName
 	 * @param array $aParameters
+	 * @param boolean $bForceLoad
 	 * @throws EntityMapperException
-	 * @return unknown
 	 */
-	public function loadMapping($sEntityClassName, array $aParameters = array())
+	public function loadMapping($sEntityClassName, array $aParameters = array(), $bForceLoad = false)
 	{
 // 		try {
 			if (empty($sEntityClassName) === true) {
@@ -124,32 +124,13 @@ class EntityMapper
 					);
 				}
 				
+				// @todo decouper en methodes
 				switch ($sMappingType) {
 					case self::MAPPING_ONE_TO_ONE:
-							$oMappedEntity = new $sEntityClassName($this->oSourceEntity->{$aMappingSetup['mappedByField']});
-							// Store mapped entities
-							$this->aMapping[$sEntityClassName] = $oMappedEntity;					
+						return $this->loadMappedEntity($sEntityClassName, $aMappingSetup, $bForceLoad);				
 						break;
 					case self::MAPPING_ONE_TO_MANY:
-							$oLinkedEntityCollection = new $sEntityClassName;
-							$oMappingEntities = new $aMappingSetup['mappingEntity'];
-							$oMappingEntities->loadByParameters(array(
-									$aMappingSetup['mappedByField'] => $this->oSourceEntity->getId()
-							));
-							$aMappedEntityIds = array();
-							foreach ($oMappingEntities as $oMappingEntity) {
-								$aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
-							}
-							
-							// Restrict scope to mapped entities
-							$aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
-							$oLinkedEntityCollection->loadByParameters(
-								$aParameters
-							);
-														
-							// Store mapped entities 
-							$this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
-							return $oLinkedEntityCollection;
+						return $this->loadMappedEntities($sEntityClassName, $aMappingSetup, $bForceLoad);
 						break;
 					case self::MAPPING_MANY_TO_MANY:
 							// @todo instancier et mapper deux collections
@@ -184,7 +165,31 @@ class EntityMapper
 		}
 		// Store mapped object
 		$this->aMappedEntities[$sEntityClassName] = $oMappedEntity;
+		return $oMappedEntity;
 	}	
+	
+	public function loadMappedEntities($sEntityClassName, array $aMappingSetup, $bForceLoad = false)
+	{
+		$oLinkedEntityCollection = new $sEntityClassName;
+		$oMappingEntities = new $aMappingSetup['mappingEntity'];
+		$oMappingEntities->loadByParameters(array(
+				$aMappingSetup['mappedByField'] => $this->oSourceEntity->getId()
+		));
+		$aMappedEntityIds = array();
+		foreach ($oMappingEntities as $oMappingEntity) {
+			$aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
+		}
+			
+		// Restrict scope to mapped entities
+		$aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
+		$oLinkedEntityCollection->loadByParameters(
+				$aParameters
+		);
+		
+		// Store mapped entities
+		$this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
+		return $oLinkedEntityCollection;
+	}
 	
 	/**
 	 * Generic mapped entities generic accessor
