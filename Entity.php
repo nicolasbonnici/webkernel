@@ -442,19 +442,6 @@ abstract class Entity extends Database
             $this->{static::PRIMARY_KEY}
         ), $bUseCache, Cache::getKey(get_called_class(), $this->{static::PRIMARY_KEY}));
     }
-    
-    /**
-     * Method to load all mapped Entities using Entity foreign keys (only oneToOne relationship)
-     * @see EntityMapper component for more relationship types 
-     * 
-     * @param boolean $bForceLoad			Flag to bypass Entity mapping settings 'loadByDefault'
-     */
-    public function loadMappedEntities($bForceLoad = false)
-    {
-		foreach ($this->aLinkedEntities as $sMappedEntityClassName => $aMappingConfiguration) {
-			$this->loadMappedEntity($sMappedEntityClassName, $aMappingConfiguration, $bForceLoad);
-        }
-    }
 
     /**
      * Load the list of fields of the associated database table
