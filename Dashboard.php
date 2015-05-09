@@ -11,12 +11,19 @@ namespace Library\Core;
 
 class Dashboard extends Crud {
 	
+
+    public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)	
+    {
+   		parent::__construct(
+				$sEntityClassName,
+   				$sEntityCollectionClassName, 
+   				$iPrimaryKey, 
+   				$mUser
+		);
+    }
+	
 	/**
-	 * Count the current number of records for a given Entity
-	 * @todo terminer cette methode en mode generique
-	 * @return integer
-	 */
-	/**
+	 * Count any entity with or without parameters
 	 * 
 	 * @param Entity $oEntity
 	 * @param array $aWhereClause
@@ -26,11 +33,14 @@ class Dashboard extends Crud {
 	{
 		try {
 			$sWhereCondition = '';
-			foreach ($aWhereClause as $sField => $mValue) {
-				$sWhereCondition .= ' `' . $sField . '` = :' . $sField;
+			if (count($aWhereClause) > 0 && (count($aWhereClause) % 2) === 0) {
+				$sWhereCondition = ' sWHERE ';
+				foreach ($aWhereClause as $sField => $mValue) {
+					$sWhereCondition .= ' `' . $sField . '` = :' . $sField;
+				}
 			}
 			
-			$sQuery = 'SELECT COUNT(1) FROM `' . $oEntity::TABLE_NAME . '` WHERE' . $sWhereCondition;
+			$sQuery = 'SELECT COUNT(1) FROM `' . $oEntity::TABLE_NAME . '`' . $sWhereCondition;
 			$oStatement = Database::dbQuery($sQuery, $aWhereClause);
 			if ($oStatement !== false) {
 				return $oStatement->fetchColumn();
