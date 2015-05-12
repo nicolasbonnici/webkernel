@@ -26,7 +26,11 @@ class Auth extends Controller
         /**
          * Check php session
          */
-        if (isset($_SESSION['token']) && ($this->_session = $_SESSION) && $this->checkSessionintegrity()) {
+        if (
+        	isset($_SESSION['token']) && 
+        	($this->_session = $_SESSION) && 
+        	$this->checkSessionintegrity()
+		) {
             parent::__construct($this->oUser, $this->oBundleConfig);
         } else {
             $this->redirect($this->buildRedirectUrl(Router::getBundle(), Router::getController(), Router::getAction()));

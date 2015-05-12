@@ -33,8 +33,8 @@ class Dashboard extends Crud {
 	{
 		try {
 			$sWhereCondition = '';
-			if (count($aWhereClause) > 0 && (count($aWhereClause) % 2) === 0) {
-				$sWhereCondition = ' sWHERE ';
+			if (count($aWhereClause) > 0) {
+				$sWhereCondition = ' WHERE ';
 				foreach ($aWhereClause as $sField => $mValue) {
 					$sWhereCondition .= ' `' . $sField . '` = :' . $sField;
 				}

@@ -53,6 +53,9 @@ abstract class Crud
 
     /**
      * Instance constructor
+     * 
+     * @todo virer le param entity collection et plutot computer entity avec un methode generique
+     * 
      */
     public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)
     {

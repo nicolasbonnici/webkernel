@@ -230,8 +230,7 @@ class Router extends Singleton
      */
     private static function setParams(array $items)
     {
-    	// @todo Attention au modulo !!! (3 parametres sans clef par exemple)
-        if ((! empty($items)) && (count($items) % 2 === 0)) {
+        if (! empty($items)) {
             for ($i = 0; $i < count($items); $i ++) {
                 if ($i % 2 === 0) {
                     self::$aParams[$items[$i]] = $items[$i + 1];
