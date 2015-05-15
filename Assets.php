@@ -108,12 +108,7 @@ class Assets
 
         }
 
-        if (! in_array(false, $aBuiltLog)) {
-            return true;
-        } else {
-            return $aBuiltLog;
-        }
-
+        return (in_array(false, $aBuiltLog) === false) ? true : $aBuiltLog;
     }
 
     /**

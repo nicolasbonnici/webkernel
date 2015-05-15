@@ -27,7 +27,7 @@ class View
      */
     protected $aClientComponents = array(
         'dependancies',
-        'core'
+        'ux'
     );
 
     /**

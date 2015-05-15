@@ -40,7 +40,7 @@ class EntityImporter
 		
 	}
 	
-	private function getTableSchemaVersion()
+	private function getDatabaseSchemaVersion()
 	{
 		
 	}
