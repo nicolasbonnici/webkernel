@@ -3,7 +3,6 @@ namespace Library\Core;
 /**
  * Json managment class
  *
- *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 class Json
@@ -23,14 +22,27 @@ class Json
     /**
      *  Instance constructor
      *
-     * @param string $sJson         Json decoded string
+     * @param mixed string|array $mJson	Array or a Json encoded string
      * @throws JsonException
      */
-    public function __construct($sJson)
+    public function __construct($mJson)
     {
-        if(! $this->decode($sJson)) {
-            throw new JsonException('Invalid json error code: ' . json_last_error());
-        }
+		try {
+			if (is_array($mJson) === true && count($mJson) > 0) {
+				if($this->encode($mJson) === false) {
+					throw new JsonException('Unable to encode Array, json error code: ' . json_last_error());
+				}
+			} elseif (is_string($mJson) === true && empty($mJson) === false) {
+				if($this->decode($mJson) === false) {
+					throw new JsonException('Unable to decode JSON, json error code: ' . json_last_error());
+				}
+			} else {
+				throw new JsonException('Invalid constructor parameter type, must be: Array|String');
+			}
+			return $this->oJson;			
+		} catch (\Exception $oException) {
+			return null;
+		}        
     }
 
     /**
@@ -40,7 +52,7 @@ class Json
     public function __toString()
     {
         assert('$this->isLoaded() === true');
-        return $this->encode();
+        return $this->oJson;
     }
 
     /**
@@ -64,67 +76,56 @@ class Json
 
     /**
      * Return Standalone Json object or attribute value
-     * @return object
+     * @return mixed
      */
     public function get($sAttribute = null)
     {
         assert('$this->isLoaded() === true');
         if (is_null($sAttribute)) {
-            return $this->oJson;
+            return $this->aJson;
         } else {
-            return $this->oJson->{$sAttribute};
+            return isset($this->aJson[$sAttribute]) === true ? $this->aJson[$sAttribute] : null;
         }
     }
 
     /**
-     * Return Standalone Json object or attribute value
+     * Return array reprensatation of the json object
      *
      * @return object
      */
     public function getAsArray()
     {
         assert('$this->isLoaded() === true');
-        return $this->convertToArray($this->oJson);
+        return $this->aJson;
     }
 
     /**
-     * Convert Json standalone object structure to an array
+     *  Decode a json encoded string
      *
-     * @param object $oJsonObject                   Json standalone object
-     * @return array
-     */
-    private function convertToArray($oJsonObject)
-    {
-        if(!is_object($oJsonObject) && !is_array($oJsonObject)) {
-            return $oJsonObject;
-        }
-
-        return array_map(array($this, 'convertToArray'), (array) $oJsonObject);
-    }
-
-    /**
-     *  Return decoded json standalone object
-     *
-     * @param string $sJson
+     * @param string $sJson		Json encoded string
      * @return boolean
      */
     private function decode($sJson)
     {
-        $this->oJson = json_decode($sJson);
-        if (is_object($this->oJson)) {
+        $this->aJson = json_decode($sJson, JSON_PRETTY_PRINT);
+        if (is_array($this->aJson) === true) {
+	    	$this->oJson = $sJson;
             $this->bIsLoaded = true;
         }
         return $this->bIsLoaded;
     }
 
     /**
-     *  Return encoded json object
+     *  Encode an array
      *
-     * @return boolean
+     * @param boolean
      */
-    private function encode()
+    private function encode($aJson)
     {
-        return json_encode($this->oJson);
+    	$this->aJson = $aJson;
+        $this->oJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
+       	$this->bIsLoaded = (is_string($this->oJson) === true);
+        return $this->bIsLoaded;        
     }
 }
 

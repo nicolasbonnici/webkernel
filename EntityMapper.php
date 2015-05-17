@@ -175,20 +175,23 @@ class EntityMapper
 		$oMappingEntities->loadByParameters(array(
 				$aMappingSetup['mappedByField'] => $this->oSourceEntity->getId()
 		));
-		$aMappedEntityIds = array();
-		foreach ($oMappingEntities as $oMappingEntity) {
-			$aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
-		}
+		if ($oMappingEntities->count() > 0) {
+			$aMappedEntityIds = array();
+			foreach ($oMappingEntities as $oMappingEntity) {
+				$aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
+			}
+				
+			// Restrict scope to mapped entities
+			$aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
+			$oLinkedEntityCollection->loadByParameters(
+					$aParameters
+			);
 			
-		// Restrict scope to mapped entities
-		$aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
-		$oLinkedEntityCollection->loadByParameters(
-				$aParameters
-		);
-		
-		// Store mapped entities
-		$this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
-		return $oLinkedEntityCollection;
+			// Store mapped entities
+			$this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
+			return $oLinkedEntityCollection;			
+		}
+		return null;
 	}
 	
 	/**

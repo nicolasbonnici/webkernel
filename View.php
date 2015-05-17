@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core;
 
-use Library\Core\Directory;
 use \Library\Core\Router;
+use Library\Core\Directory;
 
 /**
  * View managment
@@ -13,6 +13,12 @@ use \Library\Core\Router;
 
 class View
 {
+	/**
+	 * Blank layout template file path
+	 * @see instance constructor
+	 * @var string
+	 */
+	const BLANK_LAYOUT = 'layout_blank.tpl';
 
     /**
      *  Assets managment
@@ -71,29 +77,24 @@ class View
      * @param integer $iStatusXHR
      * @param boolean $bToString
      */
-    public function render(array $aViewParams, $sTpl, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
+    public function render(array $aViewParams, $sTpl = self::BLANK_LAYOUT, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
     {
         $this->loadViewParameters($aViewParams);
-
+        
+        /**
+         * @todo refactoring and Json component usage
+         */
+        
         // check if it's an XMLHTTPREQUEST
-        if (Controller::isXHR()) {
+        if (isset($aViewParams['bIsXhr']) && $aViewParams['bIsXhr'] === true) {
+        	$aCharsToStrip = array("\r", "\r\n", "\n", "\t");
             $aResponse = json_encode(
                 array(
                     'status' => $iStatusXHR,
-                    'content' => str_replace(array(
-                        "\r",
-                        "\r\n",
-                        "\n",
-                        "\t"
-                    ), '', $this->load($sTpl, $this->aView, true)),
-                    'debug' => isset($this->aView["sDeBugHelper"]) ? str_replace(
-                        array(
-                            "\r",
-                            "\r\n",
-                            "\n",
-                            "\t"
-                        ), '', $this->load($this->aView["sDeBugHelper"], $this->aView, true)
-                    ) : null
+                    'content' => str_replace($aCharsToStrip, '', $this->load($sTpl, $this->aView, true)),
+                    'debug' => isset($this->aView["sDeBugHelper"]) ? 
+                		str_replace($aCharsToStrip, '', $this->load($this->aView["sDeBugHelper"], $this->aView, true)) :
+                	    null
                 )
             );
             if ($bToString === true) {

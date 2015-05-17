@@ -205,11 +205,9 @@ class Controller extends Acl
     /**
      * Tell if the request is a XmlHttpRequest
      * 
-     * @todo static for View...
-     * 
      * @return boolean
      */
-    public static function isXHR()
+    public function isXHR()
     {
         return (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
