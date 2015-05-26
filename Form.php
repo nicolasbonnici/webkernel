@@ -28,34 +28,10 @@ class Form
     private $sId;
 
     /**
-     * Form's target url
-     * @var string
-     */
-    private $sAction;
-
-    /**
-     * Form's method (GET|POST)
-     * @var string
-     */
-    private $sMethod = self::HTTP_METHOD_POST;
-
-    /**
-     * Form's enctype attribute
-     * @var string
-     */
-    private $sEnctype = '';
-
-    /**
-     * Form classes
+     * Form attributes
      * @var array
      */
-    private $aFormClasses = array();
-
-    /**
-     * Form's data attributes
-     * @var array
-     */
-    private $aFormDataAttributes = array();
+    private $aFormAttributes = array();
 
     /**
      * Form's sub forms container
@@ -83,91 +59,37 @@ class Form
      */
     public function render()
     {
-        // @todo support des classes
-        // @todo support des data attributes
-        // @todo support du enctype
+        // @todo render des attributs
         $sOutput = '<form id="' . $this->getId() . '" action="' . $this->getAction() . '" method="' . $this->getMethod() . '"></form>';
         return $sOutput;
     }
 
-    /**
-     * Form's DOM id getter
-     * @return string
-     */
-    public function getId()
+    public function renderAttributes()
     {
-        return $this->sId;
+        // @todo
     }
 
     /**
-     * Form'sDOM id setter
-     * @param string $sId
-     * @return \Library\Core\Form
-     */
-    public function setId($sId)
-    {
-        $this->sId = $sId;
-        return $this;
-    }
-
-    /**
-     * Form's action getter
-     * @return string
-     */
-    public function getAction()
-    {
-        return $this->sAction;
-    }
-
-    /**
-     * Form's action setter
-     * @param string $sAction
-     * @return \Library\Core\Form
-     */
-    public function setAction($sAction)
-    {
-        $this->sAction = $sAction;
-        return $this;
-    }
-
-    /**
-     * Form's method attribute getter
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->sMethod;
-    }
-
-    /**
-     * Form's method attribute setter
-     * @param string $sMethod
-     * @return \Library\Core\Form
-     */
-    public function setMethod($sMethod)
-    {
-        $this->sMethod = $sMethod;
-        return $this;
-    }
-
-    /**
-     * Enctype attribute accessor
-     * @return string
-     */
-    public function getEnctype()
-    {
-        return $this->sEnctype;
-    }
-
-    /**
-     * Enctype attribute setter
-     * @param $sEnctype
+     * Set a form attribute
+     *
+     * @param string $sAttrName
+     * @param string $mAttrValue
      * @return Form
      */
-    public function setEnctype($sEnctype)
+    public function setAttribute($sAttrName, $mAttrValue)
     {
-        $this->sEnctype = $sEnctype;
+        $this->aFormAttributes[$sAttrName] = $mAttrValue;
         return $this;
+    }
+
+    /**
+     * Get a form attribute value
+     * @param string $sAttrName
+     * @return mixed string|int|array
+     */
+    public function getAttribute($sAttrName)
+    {
+        return (isset($this->aFormAttributes[$sAttrName]) === true) ? $this->aFormAttributes[$sAttrName] : null;
     }
 
     /**
