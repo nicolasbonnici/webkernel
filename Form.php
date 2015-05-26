@@ -9,8 +9,20 @@ namespace Library\Core;
 class Form
 {
 
+    const HTTP_METHOD_POST  = 'POST';
+    const HTTP_METHOD_GET   = 'GET';
+
     /**
-     * DOM id
+     * Form allowed values for attribute method
+     * @var array
+     */
+    protected $aAllowedMethods = array(
+        self::HTTP_METHOD_GET,
+        self::HTTP_METHOD_POST
+    );
+
+    /**
+     * Form DOM node id
      * @var string
      */
     private $sId;
@@ -25,16 +37,34 @@ class Form
      * Form's method (GET|POST)
      * @var string
      */
-    private $sMethod;
+    private $sMethod = self::HTTP_METHOD_POST;
 
     /**
-     * Form's sub forms
+     * Form's enctype attribute
+     * @var string
+     */
+    private $sEnctype = '';
+
+    /**
+     * Form classes
+     * @var array
+     */
+    private $aFormClasses = array();
+
+    /**
+     * Form's data attributes
+     * @var array
+     */
+    private $aFormDataAttributes = array();
+
+    /**
+     * Form's sub forms container
      * @var array
      */
     private $aSubForms = array();
 
     /**
-     * Form's elements
+     * Form's elements container
      * @var array
      */
     private $aElements = array();
@@ -53,7 +83,11 @@ class Form
      */
     public function render()
     {
-        return '<form id="" action="" method=""></form>';
+        // @todo support des classes
+        // @todo support des data attributes
+        // @todo support du enctype
+        $sOutput = '<form id="' . $this->getId() . '" action="' . $this->getAction() . '" method="' . $this->getMethod() . '"></form>';
+        return $sOutput;
     }
 
     /**
@@ -97,7 +131,7 @@ class Form
     }
 
     /**
-     * Form's method getter
+     * Form's method attribute getter
      * @return string
      */
     public function getMethod()
@@ -106,13 +140,33 @@ class Form
     }
 
     /**
-     * Form's methode setter
+     * Form's method attribute setter
      * @param string $sMethod
      * @return \Library\Core\Form
      */
     public function setMethod($sMethod)
     {
         $this->sMethod = $sMethod;
+        return $this;
+    }
+
+    /**
+     * Enctype attribute accessor
+     * @return string
+     */
+    public function getEnctype()
+    {
+        return $this->sEnctype;
+    }
+
+    /**
+     * Enctype attribute setter
+     * @param $sEnctype
+     * @return Form
+     */
+    public function setEnctype($sEnctype)
+    {
+        $this->sEnctype = $sEnctype;
         return $this;
     }
 
@@ -132,6 +186,30 @@ class Form
     public function getElements()
     {
         return $this->aElements;
+    }
+
+    /**
+     * Retrieve all elements values
+     * @return array
+     */
+    public function getValues()
+    {
+        $aValues = array();
+        foreach ($this->getElements() as $sName => $mValue) {
+            $aValues[$sName] = $mValue;
+        }
+
+        // Also iterate on all sub forms elements
+        foreach ($this->getSubForms() as $sSubFormName => $oSubForm) {
+            $aValues[$sSubFormName] = $oSubForm->getValues();
+        }
+
+        return $aValues;
+    }
+
+    public function getValue($sElementName)
+    {
+        // @todo
     }
 
 }
