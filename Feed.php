@@ -3,6 +3,8 @@ namespace Library\Core;
 
 /**
  * Feed generator and parser abstract class
+ * 
+ * @todo deplacer ce code dans le bundle lifestream et le refacto au passage
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  *

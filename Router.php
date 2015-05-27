@@ -107,7 +107,7 @@ class Router extends Singleton
         self::$sAction      = self::$sDefaultAction;
 
         // Load custom routes from configuration
-        $oRoutesConf = new Json(Files::getContent(CONF_PATH . 'routes.json'));
+        $oRoutesConf = new Json(File::getContent(CONF_PATH . 'routes.json'));
         self::$aRules = $oRoutesConf->getAsArray();
 
         self::$sUrl = $_SERVER['REQUEST_URI'];

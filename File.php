@@ -3,9 +3,11 @@ namespace Library\Core;
 /**
  * Files managment component
  *
+ * @todo renamed to File
+ *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class Files extends Singleton
+class File extends Singleton
 {
     /**
      * Delete a file

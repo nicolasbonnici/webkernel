@@ -22,16 +22,21 @@ class Form
     );
 
     /**
-     * Form DOM node id
-     * @var string
-     */
-    private $sId;
-
-    /**
      * Form attributes
+     *
+     * Example :
+     * array(
+     *      'id'     => 'form-dom-node-id',
+     *      'method' => ['post'|'get'],
+     *      'action' => '/some/url/',
+     *      'multiple' => [null|''],
+     *      'class' => array('some-class', 'otherone', 'andsoon'),
+     *      'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
+     * )
+     *
      * @var array
      */
-    private $aFormAttributes = array();
+    private $aAttributes = array();
 
     /**
      * Form's sub forms container
@@ -54,19 +59,20 @@ class Form
     }
 
     /**
-     * @todo
+     *  __toString overload to directly display the form
+     */
+    public function __toString()
+    {
+        return $this->render();
+    }
+
+    /**
+     * Render the form HTML markup
      * @return string
      */
     public function render()
     {
-        // @todo render des attributs
-        $sOutput = '<form id="' . $this->getId() . '" action="' . $this->getAction() . '" method="' . $this->getMethod() . '"></form>';
-        return $sOutput;
-    }
-
-    public function renderAttributes()
-    {
-        // @todo
+        return '<form' . $this->renderAttributes() . '>' . $this->renderElements() . '</form>';
     }
 
     /**
@@ -78,7 +84,19 @@ class Form
      */
     public function setAttribute($sAttrName, $mAttrValue)
     {
-        $this->aFormAttributes[$sAttrName] = $mAttrValue;
+        $this->aAttributes[$sAttrName] = $mAttrValue;
+        return $this;
+    }
+
+    /**
+     * Set all form attributes
+     *
+     * @param array $aAttributes
+     * @return Form
+     */
+    public function setAttributes(array $aAttributes)
+    {
+        $this->aAttributes = $aAttributes;
         return $this;
     }
 
@@ -89,7 +107,16 @@ class Form
      */
     public function getAttribute($sAttrName)
     {
-        return (isset($this->aFormAttributes[$sAttrName]) === true) ? $this->aFormAttributes[$sAttrName] : null;
+        return (isset($this->aAttributes[$sAttrName]) === true) ? $this->aAttributes[$sAttrName] : null;
+    }
+
+    /**
+     * Get all form attributes
+     * @return array
+     */
+    public function getAttributes()
+    {
+        return $this->aAttributes;
     }
 
     /**
@@ -132,6 +159,73 @@ class Form
     public function getValue($sElementName)
     {
         // @todo
+    }
+
+    /**
+     * Render form HTML DOM attributes
+     * @return string
+     */
+    protected function renderAttributes()
+    {
+        $sAttributes = '';
+        foreach ($this->getAttributes() as $sAttrName => $mAttrValue) {
+            $sAttributes .= $this->renderAttribute($sAttrName, $mAttrValue);
+        }
+        return $sAttributes;
+    }
+
+    /**
+     * Render form HTML attribute
+     *
+     * @param string $sAttrName
+     * @param string $mAttrValue
+     * @return string
+     */
+    protected function renderAttribute($sAttrName, $mAttrValue = '')
+    {
+        $sAttribute = '';
+        if (empty($sAttrName) === false) {
+            if (is_array($mAttrValue) === true && empty($mAttrValue) === false) {
+
+                if ($sAttrName === 'data') {
+                    return $this->renderDataAttributes($mAttrValue);
+                }
+
+                $sAttribute .= ' ' . $sAttrName . '="' . implode(' ', $mAttrValue) . '"';
+            } elseif (is_string($mAttrValue) === true && empty($mAttrValue) === false) {
+                $sAttribute .=  ' ' . $sAttrName . '="' . $mAttrValue . '"';
+            } else {
+                // Just output the attribute name
+                $sAttribute .= ' ' . $sAttrName;
+            }
+        }
+        return $sAttribute;
+    }
+
+    /**
+     * Render HTML5 data attributes
+     *
+     * @param array $aDataAttributes    The array to compute from
+     * @return string
+     */
+    protected function renderDataAttributes(array $aDataAttributes)
+    {
+        $sDataAttributes = '';
+        foreach ($aDataAttributes as $sKey => $sValue) {
+            $sDataAttributes .= ' data-' . $sKey;
+        }
+        return $sDataAttributes;
+    }
+
+    /**
+     * @todo
+     */
+    protected function renderElements()
+    {
+        foreach ($this->getElements() as $sElementName => $oFormElement) {
+            // @todo ici appeler la methode de build de l element
+        }
+        return 'elements...';
     }
 
 }

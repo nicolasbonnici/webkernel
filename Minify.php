@@ -251,7 +251,7 @@ class Minify
             $mimeType = null;
         }
 
-        $contents = Files::getContent($sFullAbsoluteFilePath);
+        $contents = File::getContent($sFullAbsoluteFilePath);
 
         if ($fileType == 'css') {
             $oldFileDir = $sPathContext;

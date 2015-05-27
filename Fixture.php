@@ -42,7 +42,7 @@ class Fixtures
      */
     public function __construct($sEntityName)
     {
-        if (! Files::exists(ENTITIES_DEPLOY_PATH . $sEntityName . '.sql')) {
+        if (! File::exists(ENTITIES_DEPLOY_PATH . $sEntityName . '.sql')) {
             throw new FixturesException('No schema found to properly deploy this Entity');
         } else {
             $this->sDeployScriptPath = ENTITIES_DEPLOY_PATH . $sEntityName . '.sql';
@@ -110,7 +110,7 @@ class Fixtures
 
     	if (! $this->isDeployed()) {
     		throw new FixturesException('Unable to update an entity not deployed on database');
-    	} elseif (! Files::exists($this->sAlterScriptPath)) {
+    	} elseif (! File::exists($this->sAlterScriptPath)) {
 		  throw new FixturesException('Unable to find the update script for entity: ' . $sEntityname);
     	} else {
     		// Loader et run le script d'alter

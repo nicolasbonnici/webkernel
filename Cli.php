@@ -20,13 +20,12 @@ class Cli
 	}
 	
 	/**
-	 * Run a command on the CLI interface with the apache2 user
-	 * and return result as a string
+	 * Run a command on the CLI interface and return result as a string
 	 * 
 	 * @param string $sCommand
 	 * @return string
 	 */
-	private function run($sCommand)
+	protected function run($sCommand)
 	{
 		return passthru($sCommand);
 	}

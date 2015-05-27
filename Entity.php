@@ -619,9 +619,20 @@ abstract class Entity extends Database
         return false;
     }
 
+    public function computeCollectionClassName()
+    {
+        $sCollectionClassName = str_replace(array(
+        '\\Entities',
+        ), '\\Entities\Collection', get_called_class());
+        return $sCollectionClassName . 'Collection';
+    }
+
     /**
      * Save history on update for historized objects
-     * @param \app\Entities $oOriginalObject          Original object before update
+     *
+     * @ŧodo
+     *
+     * @param $oOriginalObject          Original object before update
      */
     protected function saveHistory($oOriginalObject)
     {
@@ -642,7 +653,7 @@ abstract class Entity extends Database
         $oEntityHistory->apres = json_encode($aAfter);
         $oEntityHistory->date_modif = date('Y-m-d');
         $oEntityHistory->time_modif = date('H:i:s');
-        $oEntityHistory->iduser = \model\UserSession::getInstance()->getUserId();
+        //$oEntityHistory->iduser = \model\UserSession::getInstance()->getUserId();
         $oEntityHistory->add();
     }
 }

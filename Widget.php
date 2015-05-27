@@ -7,6 +7,8 @@ use Library\Core\Json;
 /**
  * Website builder widget abstract class
  *
+ * @todo => bundle builder
+ *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 

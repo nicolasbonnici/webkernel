@@ -295,7 +295,7 @@ class App
      */
     public static function initConfig()
     {
-        if (! Files::exists(CONF_PATH . 'config.ini')) {
+        if (! File::exists(CONF_PATH . 'config.ini')) {
             throw new AppException('Unable to load core configuration: ' . CONF_PATH . 'config.ini');
         } else {
             // load global app conf
@@ -309,8 +309,8 @@ class App
      */
     public static function loadBundleConfig()
     {
-        if (Files::exists(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json')) {
-            $sBundleConfig = Files::getContent(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json');
+        if (File::exists(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json')) {
+            $sBundleConfig = File::getContent(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json');
             if (! empty($sBundleConfig)) {
                 self::$oBundleConfig = new Json($sBundleConfig);
             }

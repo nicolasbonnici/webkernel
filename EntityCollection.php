@@ -42,10 +42,7 @@ abstract class EntityCollection extends Collection
      */
     public function __construct($aIds = array())
     {
-        $this->sChildClass = str_replace(array(
-            '\Collection',
-            'Collection'
-        ), '', get_called_class());
+        $this->sChildClass = $this->computeEntityClassName();
         if (is_array($aIds) && count($aIds) > 0) {
             $this->loadByIds($aIds);
         }
@@ -303,7 +300,19 @@ abstract class EntityCollection extends Collection
         $aKeys = array_flip($this->aOriginIds);
         return ($aKeys[$iFirstKey] > $aKeys[$iSecondKey]) ? 1 : - 1;
     }
-    
+
+    /**
+     * Compute the child Entity instance class name
+     * @return string
+     */
+    private function computeEntityClassName()
+    {
+        return str_replace(array(
+            '\Collection',
+            'Collection'
+        ), '', get_called_class());
+    }
+
     /**
      * Child class accessor
      * @return string

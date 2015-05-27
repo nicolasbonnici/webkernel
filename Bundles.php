@@ -42,7 +42,7 @@ class Bundles
      * @throws AppException
      * @return array                    Deployed bundles
      */
-    public static function deploy()
+    public function deploy()
     {
         $aDeployedBundles = array();
         // Clean bundle's assets

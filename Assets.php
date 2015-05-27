@@ -44,11 +44,11 @@ class Assets
      */
     public function load()
     {
-        if (! Files::exists(CONF_PATH . 'assets.json')) {
+        if (! File::exists(CONF_PATH . 'assets.json')) {
             throw new AppException('Unable to assets configuration...');
         } else {
             // Register javascript and stylesheet assets from configuration
-            $oAssetsPackages = new Json(Files::getContent(CONF_PATH . 'assets.json'));
+            $oAssetsPackages = new Json(File::getContent(CONF_PATH . 'assets.json'));
 
             foreach ($oAssetsPackages->get() as $sPackageName=>$oPackages) {
                 foreach ($oPackages as $sPackageType=>$aPackage) {
@@ -85,7 +85,7 @@ class Assets
                     	if (mb_substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
                     		$sJsAsset = mb_substr($sJsAsset, 1);
                     	}                    	
-                        $sMinifiedJsCode .= \Library\Core\Minify::js(Files::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
+                        $sMinifiedJsCode .= \Library\Core\Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
                     }
                 } elseif ($sAssetType === 'css') {
                     foreach ($aLibFilesPaths as $sCssAsset) {
@@ -93,17 +93,17 @@ class Assets
                         if (mb_substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
                             $sCssAsset = mb_substr($sCssAsset, 1);
                         }
-                        $sMinifiedCssCode .= \Library\Core\Minify::css(Files::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
+                        $sMinifiedCssCode .= \Library\Core\Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
                     }
                 }
             }
 
             if (! empty($sMinifiedJsCode)) {
-                $aBuiltLog[$sPackageName . '_js']  = Files::write($this->sBuildPath . $sPackageName . '.min.js', $sMinifiedJsCode);
+                $aBuiltLog[$sPackageName . '_js']  = File::write($this->sBuildPath . $sPackageName . '.min.js', $sMinifiedJsCode);
             }
 
             if (! empty($sMinifiedCssCode)) {
-                $aBuiltLog[$sPackageName . '_css'] = Files::write($this->sBuildPath . $sPackageName . '.min.css', $sMinifiedCssCode);
+                $aBuiltLog[$sPackageName . '_css'] = File::write($this->sBuildPath . $sPackageName . '.min.css', $sMinifiedCssCode);
             }
 
         }
@@ -149,7 +149,7 @@ class Assets
      */
     public function register($sFilePath, $sType, $sPackageName = 'core')
     {
-        if (empty($sFilePath) && ! Files::exists($sFilePath)) {
+        if (empty($sFilePath) && ! File::exists($sFilePath)) {
             throw  new AppException('Asset doesn\'t exists or no parameter provided.');
         } elseif(!in_array($sType, $this->aAssetTypes)) {
             throw  new AppException('Asset type (' . $sType . ') not supported.');

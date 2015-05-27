@@ -30,11 +30,11 @@ class Json
 		try {
 			if (is_array($mJson) === true && count($mJson) > 0) {
 				if($this->encode($mJson) === false) {
-					throw new JsonException('Unable to encode Array, json error code: ' . json_last_error());
+					throw new JsonException('Unable to encode Array, json error code: ' . $this->getLastError());
 				}
 			} elseif (is_string($mJson) === true && empty($mJson) === false) {
 				if($this->decode($mJson) === false) {
-					throw new JsonException('Unable to decode JSON, json error code: ' . json_last_error());
+					throw new JsonException('Unable to decode JSON, json error code: ' . $this->getLastError());
 				}
 			} else {
 				throw new JsonException('Invalid constructor parameter type, must be: Array|String');
@@ -55,6 +55,15 @@ class Json
         return $this->oJson;
     }
 
+    /**
+     * Last json error code
+     * @return integer
+     */
+    public function getLastError()
+    {
+    	return json_last_error();
+    }
+    
     /**
      * Tell if the json code provided at instance is valid
      * @return boolean
