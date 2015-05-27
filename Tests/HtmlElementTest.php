@@ -1,18 +1,20 @@
 <?php
 namespace Library\Core\Tests;
 
-use Library\Core\Form;
+use Library\Core\HtmlElement;
 use \Library\Core\Test as Test;
 
+use Library\Core\Tests\Mocks\HtmlElementMock;
+
 /**
- * Form component unit tests
+ * HtmlElement component unit tests
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class FormTest extends Test
+class HtmlElementTest extends Test
 {
 
-    protected static $oFormInstance;
+    protected static $oHtmlElementInstance;
 
     const TEST_STRING_KEY   = 'test';
     const TEST_STRING_VALUE = 'test-value';
@@ -25,6 +27,9 @@ class FormTest extends Test
         'class' => array('some-class', 'otherone', 'andsoon'),
         'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
     );
+
+    protected $sExpected = ' id="form-dom-node-id" method="post" action="/some/url/" multiple class="some-class otherone andsoon" data-key="value" data-otherKey="otherValue"';
+
 
     public static function setUpBeforeClass()
     {
@@ -41,25 +46,21 @@ class FormTest extends Test
 
     public function testConstructor()
     {
-    	self::$oFormInstance = new Form();
-        $this->assertTrue(self::$oFormInstance instanceof Form);
+        self::$oHtmlElementInstance = new HtmlElementMock();
+        $this->assertTrue(self::$oHtmlElementInstance instanceof HtmlElementMock);
     }
 
-    public function testToString()
-    {
-        $this->assertEquals(self::$oFormInstance, self::$oFormInstance->render());
-    }
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oFormInstance->setAttributes($this->aTestDataArray) instanceof Form);
+        $this->assertTrue(self::$oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof HtmlElement);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oFormInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Form
+            self::$oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof HtmlElement
         );
     }
 
@@ -67,40 +68,16 @@ class FormTest extends Test
     {
         // Assert that the generic accessors work properly
         foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oFormInstance->getAttribute($sKey), $mValue);
+            $this->assertEquals(self::$oHtmlElementInstance->getAttribute($sKey), $mValue);
         }
-        $this->assertEquals(self::$oFormInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
+        $this->assertEquals(self::$oHtmlElementInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
     }
 
     public function testGetAttributes()
     {
         $this->assertEquals(
-            self::$oFormInstance->getAttributes(),
+            self::$oHtmlElementInstance->getAttributes(),
             array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
         );
     }
-
-    public function testRender()
-    {
-        $this->assertTrue(is_string(self::$oFormInstance->render()));
-    }
-
-    public function testGetSubForms()
-    {
-        $this->assertTrue(is_array(self::$oFormInstance->getSubForms()));
-    }
-
-    public function testGetElements()
-    {
-        $this->assertTrue(is_array(self::$oFormInstance->getElements()));
-    }
-
-    public function getValues()
-    {
-        $this->assertTrue(is_array(self::$oFormInstance->getValues()));
-    }
-
-    /**
-     * @todo test getValue('someKey')
-     */
 }
