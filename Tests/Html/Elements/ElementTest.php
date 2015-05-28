@@ -1,17 +1,17 @@
 <?php
-namespace Library\Core\Tests;
+namespace Library\Core\Tests\Html\Elements;
 
-use Library\Core\HtmlElement;
+use Library\Core\Html\Element;
 use \Library\Core\Test as Test;
 
 use Library\Core\Tests\Mocks\HtmlElementMock;
 
 /**
- * HtmlElement component unit tests
+ * Html Element component unit tests
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class HtmlElementTest extends Test
+class ElementTest extends Test
 {
 
     protected static $oHtmlElementInstance;
@@ -53,14 +53,14 @@ class HtmlElementTest extends Test
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof HtmlElement);
+        $this->assertTrue(self::$oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof Element);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof HtmlElement
+            self::$oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Element
         );
     }
 

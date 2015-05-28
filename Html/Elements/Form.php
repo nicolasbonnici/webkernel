@@ -1,13 +1,20 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Html\Elements;
+
+use Library\Core\Html\Element;
 
 /**
  * HTML5 form handler
  *
  * @author niko <nicolasbonnici@gmail.com>
  */
-class Form extends HtmlElement
+class Form extends Element
 {
+    /**
+     * HTML dom node label
+     * @var string
+     */
+    protected $sMarkupTag = 'form';
 
     const HTTP_METHOD_POST  = 'POST';
     const HTTP_METHOD_GET   = 'GET';
@@ -32,37 +39,6 @@ class Form extends HtmlElement
      * @var array
      */
     protected $aElements = array();
-
-    /**
-     * HtmlAttributes instance
-     * @var HtmlAttributes
-     */
-    private $oHtmlAttributes;
-
-    /**
-     * Instance constructor
-     */
-    public function __construct()
-    {
-        $this->oHtmlAttributes = new HtmlAttributes();
-    }
-
-    /**
-     *  __toString overload to directly display the form
-     */
-    public function __toString()
-    {
-        return $this->render();
-    }
-
-    /**
-     * Render the form HTML markup
-     * @return string
-     */
-    public function render()
-    {
-        return '<form' . $this->oHtmlAttributes->render($this->getAttributes()) . '>' . $this->renderElements() . '</form>';
-    }
 
     /**
      * Form's subforms getter

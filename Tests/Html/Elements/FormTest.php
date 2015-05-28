@@ -1,7 +1,7 @@
 <?php
-namespace Library\Core\Tests;
+namespace Library\Core\Tests\Html\Elements;
 
-use Library\Core\Form;
+use Library\Core\Html\Elements\Form;
 use \Library\Core\Test as Test;
 
 /**

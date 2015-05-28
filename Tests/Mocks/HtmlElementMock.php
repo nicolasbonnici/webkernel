@@ -1,14 +1,14 @@
 <?php
 namespace Library\Core\Tests\Mocks;
 
-use Library\Core\HtmlElement;
+use Library\Core\Html\Element;
 
 /**
  * HtmlElementMock
  *
  * @author niko <nicolasbonnici@gmail.com>
  */
-class HtmlElementMock extends HtmlElement
+class HtmlElementMock extends Element
 {
 
     public function render()

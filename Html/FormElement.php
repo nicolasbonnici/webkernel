@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Html;
 
 /**
  * HTML5 form elements abstract layer
@@ -7,8 +7,10 @@ namespace Library\Core;
  * @see Form component
  * @author niko <nicolasbonnici@gmail.com>
  */
-abstract class FormElement
+abstract class FormElement extends Element
 {
+    const DEFAULT_VALUE = '';
+
     /**
      * Required form element flag
      * @var bool
@@ -27,7 +29,6 @@ abstract class FormElement
      */
     protected $aValidators = array();
 
-
     /**
      * Form element constructor
      * @param array $aValidators
@@ -35,32 +36,40 @@ abstract class FormElement
     public function __construct(array $aValidators = array())
     {
         $this->aValidators = $aValidators;
-    }
 
-    /**
-     * Build form element HTML markup
-     * @return string
-     */
-    abstract public function render();
+        $this->setAttribute('class', 'form-control');
+
+        parent::__construct();
+    }
 
     /**
      * Set form element value
      * @param mixed int|string|array $mValue
      * @return FormElement instance
      */
-    abstract public function setValue($mValue);
+    public function setValue($mValue)
+    {
+        $this->aAttributes['value'] = $mValue;
+        return $this;
+    }
 
     /**
      * Get form element value
      * @return mixed int|string|array $mValue
      */
-    abstract public function getValue();
+    public function getValue()
+    {
+        return (isset($this->aAttributes['value']) ? $this->aAttributes['value'] : null);
+    }
 
     /**
      * Tell if the setted value is valid using validators array setted at instance constructor
      * @return bool
      */
-    abstract public function isValid();
+    public function isValid()
+    {
+        // @todo passer les validateurs et retourner un bool
+    }
 
     /**
      * Set element required
