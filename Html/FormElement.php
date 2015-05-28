@@ -24,6 +24,12 @@ abstract class FormElement extends Element
     protected $bIsDisabled = false;
 
     /**
+     * Form element read/write flag
+     * @var bool
+     */
+    protected $bIsReadOnly = false;
+
+    /**
      * Validator instances to validate form element data integrity
      * @var array
      */
@@ -89,10 +95,49 @@ abstract class FormElement extends Element
      * @param bool $bIsDisable
      * @return FormElement instance
      */
-    final public function setDisable($bIsDisable)
+    final public function setDisabled($bIsDisable)
     {
         $this->bIsDisabled = (bool) $bIsDisable;
         return $this;
+    }
+
+    /**
+     * Set form element read/write status
+     *
+     * @param bool $bIsDisable
+     * @return FormElement instance
+     */
+    final public function setReadOnly($bIsReadOnly)
+    {
+        $this->bIsReadOnly = (bool) $bIsReadOnly;
+        return $this;
+    }
+
+    /**
+     * Tell if the FormElement is required
+     * @return bool
+     */
+    final public function isRequired()
+    {
+        return ($this->bIsRequired === true);
+    }
+
+    /**
+     * Tell if the FormElement is disabled
+     * @return bool
+     */
+    final public function isDisabled()
+    {
+        return ($this->bIsDisabled === true);
+    }
+
+    /**
+     * Tell if the FormElement is on readonly mode
+     * @return bool
+     */
+    final public function isReadOnly()
+    {
+        return ($this->bIsReadOnly === true);
     }
 
 }

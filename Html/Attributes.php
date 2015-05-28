@@ -40,7 +40,27 @@ class Attributes
     public function renderAttributes()
     {
         $sAttributes = '';
-        foreach ($this->getAttributes() as $sAttrName => $mAttrValue) {
+        $aAttributes = $this->getAttributes();
+
+        // if FormElement::bIsRequired || bIsDisabled || bIsReadOnly and no attribute related
+        if (isset($this->bIsRequired, $this->bIsDisabled, $this->bIsReadOnly)) {
+            if (
+                $this->isRequired() === true &&
+                (isset($aAttributes['required']) === false || $aAttributes['required'] === 'false')
+            ) {
+                $this->setAttribute('required', 'true');
+            }
+
+            if ($this->isDisabled() === true && isset($aAttributes['disabled']) === false) {
+                $this->setAttribute('disabled', '');
+            }
+
+            if ($this->isReadOnly === true && isset($aAttributes['readonly']) === false) {
+                $this->setAttribute('readonly', '');
+            }
+        }
+
+        foreach ($aAttributes as $sAttrName => $mAttrValue) {
             $sAttributes .= $this->renderAttribute($sAttrName, $mAttrValue);
         }
         return $sAttributes;
