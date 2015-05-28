@@ -9,10 +9,10 @@ use \Library\Core\Test as Test;
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class AutocompleteTest extends Test
+class TagTest extends Test
 {
 
-protected static $oAutocompleteInstance;
+protected static $oTagInstance;
 
     const INPUT_TAG    = 'select';
     const TEST_STRING_KEY   = 'test';
@@ -44,35 +44,35 @@ protected static $oAutocompleteInstance;
 
     public function testConstructor()
     {
-    	self::$oAutocompleteInstance = new Textarea(array());
-        $this->assertTrue(self::$oAutocompleteInstance instanceof Autocomplete);
+    	self::$oTagInstance = new Textarea(array());
+        $this->assertTrue(self::$oTagInstance instanceof Tag);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oAutocompleteInstance->__toString(), self::$oAutocompleteInstance->render());
+        $this->assertEquals(self::$oTagInstance->__toString(), self::$oTagInstance->render());
     }
 
     public function testSetValue()
     {
-        $this->assertTrue(self::$oAutocompleteInstance->setValue(self::TEST_STRING_VALUE) instanceof Autocomplete);
+        $this->assertTrue(self::$oTagInstance->setValue(self::TEST_STRING_VALUE) instanceof Tag);
     }
 
     public function testGetValue()
     {
-        $this->assertEquals(self::$oAutocompleteInstance->getValue(), self::TEST_STRING_VALUE);
+        $this->assertEquals(self::$oTagInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oAutocompleteInstance->setAttributes($this->aTestDataArray) instanceof Autocomplete);
+        $this->assertTrue(self::$oTagInstance->setAttributes($this->aTestDataArray) instanceof Tag);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oAutocompleteInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Autocomplete
+            self::$oTagInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Tag
         );
     }
 
@@ -80,23 +80,23 @@ protected static $oAutocompleteInstance;
     {
         // Assert that the generic accessors work properly
         foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oAutocompleteInstance->getAttribute($sKey), $mValue);
+            $this->assertEquals(self::$oTagInstance->getAttribute($sKey), $mValue);
         }
-        $this->assertEquals(self::$oAutocompleteInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
+        $this->assertEquals(self::$oTagInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
     }
 
     public function testGetAttributes()
     {
         $this->assertEquals(
-            self::$oAutocompleteInstance->getAttributes(),
+            self::$oTagInstance->getAttributes(),
             array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
         );
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oAutocompleteInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oAutocompleteInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string(self::$oTagInstance->render()));
+        $this->assertNotEmpty(strstr(self::$oTagInstance->render(), self::INPUT_TAG));
     }
 
 }
