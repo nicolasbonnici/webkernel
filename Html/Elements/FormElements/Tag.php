@@ -12,7 +12,7 @@ use Library\Core\Html\FormElement;
  * Date: 27/05/15
  * Time: 16:24
  */
-class Tag extends Select {
+class Tag extends FormElement {
 
     /**
      * HTML dom node label

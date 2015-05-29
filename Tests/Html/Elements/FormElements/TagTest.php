@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Tests\Html\Elements;
 
-use Library\Core\Html\Elements\FormElements\Select;
+use Library\Core\Html\Elements\FormElements\Tag;
 use \Library\Core\Test as Test;
 
 /**
@@ -44,7 +44,7 @@ protected static $oTagInstance;
 
     public function testConstructor()
     {
-    	self::$oTagInstance = new Textarea(array());
+    	self::$oTagInstance = new Tag(array());
         $this->assertTrue(self::$oTagInstance instanceof Tag);
     }
 

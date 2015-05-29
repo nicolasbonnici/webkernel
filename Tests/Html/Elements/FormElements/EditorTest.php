@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Tests\Html\Elements;
 
-use Library\Core\Html\Elements\FormElements\SelectOption;
+use Library\Core\Html\Elements\FormElements\Editor;
 use \Library\Core\Test as Test;
 
 /**
@@ -9,12 +9,12 @@ use \Library\Core\Test as Test;
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class SelectOptionTest extends Test
+class EditorTest extends Test
 {
 
-protected static $oSelectOptionInstance;
+protected static $oEditorInstance;
 
-    const INPUT_TAG    = 'option';
+    const INPUT_TAG    = 'div';
     const TEST_STRING_KEY   = 'test';
     const TEST_STRING_VALUE = 'test-value';
 
@@ -27,6 +27,13 @@ protected static $oSelectOptionInstance;
         'multiple' => null,
         'class' => array('some-class', 'otherone', 'andsoon'),
         'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
+    );
+
+    protected $aTestOptions = array(
+        1    => 'Test 1',
+        2    => 'Test 2',
+        3    => 'Test 3',
+        4    => 'Test 4'
     );
 
     public static function setUpBeforeClass()
@@ -44,35 +51,36 @@ protected static $oSelectOptionInstance;
 
     public function testConstructor()
     {
-    	self::$oSelectOptionInstance = new SelectOption(array());
-        $this->assertTrue(self::$oSelectOptionInstance instanceof SelectOption);
+    	self::$oEditorInstance = new Editor(array());
+        $this->assertTrue(self::$oEditorInstance instanceof Editor);
+        $this->assertEquals(self::$oEditorInstance->getAttribute('contenteditable'), 'true');
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oSelectOptionInstance->__toString(), self::$oSelectOptionInstance->render());
+        $this->assertEquals(self::$oEditorInstance->__toString(), self::$oEditorInstance->render());
     }
 
     public function testSetValue()
     {
-        $this->assertTrue(self::$oSelectOptionInstance->setValue(self::TEST_STRING_VALUE) instanceof SelectOption);
+        $this->assertTrue(self::$oEditorInstance->setValue(self::TEST_STRING_VALUE) instanceof Editor);
     }
 
     public function testGetValue()
     {
-        $this->assertEquals(self::$oSelectOptionInstance->getValue(), self::TEST_STRING_VALUE);
+        $this->assertEquals(self::$oEditorInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oSelectOptionInstance->setAttributes($this->aTestDataArray) instanceof SelectOption);
+        $this->assertTrue(self::$oEditorInstance->setAttributes($this->aTestDataArray) instanceof Editor);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oSelectOptionInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof SelectOption
+            self::$oEditorInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Editor
         );
     }
 
@@ -80,23 +88,23 @@ protected static $oSelectOptionInstance;
     {
         // Assert that the generic accessors work properly
         foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oSelectOptionInstance->getAttribute($sKey), $mValue);
+            $this->assertEquals(self::$oEditorInstance->getAttribute($sKey), $mValue);
         }
-        $this->assertEquals(self::$oSelectOptionInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
+        $this->assertEquals(self::$oEditorInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
     }
 
     public function testGetAttributes()
     {
         $this->assertEquals(
-            self::$oSelectOptionInstance->getAttributes(),
+            self::$oEditorInstance->getAttributes(),
             array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
         );
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oSelectOptionInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oSelectOptionInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string(self::$oEditorInstance->render()));
+        $this->assertNotEmpty(strstr(self::$oEditorInstance->render(), self::INPUT_TAG));
     }
 
 }

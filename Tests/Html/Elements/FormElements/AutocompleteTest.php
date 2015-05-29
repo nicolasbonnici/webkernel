@@ -28,8 +28,7 @@ class AutocompleteTest extends Test
         'class' => array('some-class', 'otherone', 'andsoon'),
         'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
     );
-
-
+    
     protected $aTestOptions = array(
         1    => 'Test 1',
         2    => 'Test 2',

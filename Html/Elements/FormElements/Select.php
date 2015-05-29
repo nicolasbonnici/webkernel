@@ -79,14 +79,14 @@ class Select extends FormElement {
     }
 
     /**
-     * Render slect options
+     * Render select options
      *
      * @return string
      */
     protected function renderOptions()
     {
         $sOptions = '';
-        foreach ($this->aOptions as $sOptionValue => $sLabel) {
+        foreach ($this->getOptions() as $sOptionValue => $sLabel) {
             $oOption = new SelectOption(array());
             $oOption->setAttribute('value', $sOptionValue);
             $oOption->setContent($sLabel);

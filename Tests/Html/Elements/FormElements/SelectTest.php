@@ -29,6 +29,13 @@ protected static $oSelectInstance;
         'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
     );
 
+    protected $aTestOptions = array(
+        1    => 'Test 1',
+        2    => 'Test 2',
+        3    => 'Test 3',
+        4    => 'Test 4'
+    );
+
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
@@ -44,7 +51,7 @@ protected static $oSelectInstance;
 
     public function testConstructor()
     {
-    	self::$oSelectInstance = new Textarea(array());
+    	self::$oSelectInstance = new Select($this->aTestOptions, array());
         $this->assertTrue(self::$oSelectInstance instanceof Select);
     }
 

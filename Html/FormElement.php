@@ -43,7 +43,7 @@ abstract class FormElement extends Element
     {
         $this->aValidators = $aValidators;
 
-        $this->setAttribute('class', 'form-control');
+        $this->setAttribute('class', array('form-control'));
 
         parent::__construct();
     }

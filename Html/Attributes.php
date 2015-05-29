@@ -55,7 +55,7 @@ class Attributes
                 $this->setAttribute('disabled', '');
             }
 
-            if ($this->isReadOnly === true && isset($aAttributes['readonly']) === false) {
+            if ($this->isReadOnly() === true && isset($aAttributes['readonly']) === false) {
                 $this->setAttribute('readonly', '');
             }
         }
