@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Tests\Html\Elements;
 
-use Library\Core\Html\Elements\FormElements\Select;
+use Library\Core\Html\Elements\FormElements\Autocomplete;
 use \Library\Core\Test as Test;
 
 /**
@@ -12,7 +12,7 @@ use \Library\Core\Test as Test;
 class AutocompleteTest extends Test
 {
 
-protected static $oAutocompleteInstance;
+    protected static $oAutocompleteInstance;
 
     const INPUT_TAG    = 'select';
     const TEST_STRING_KEY   = 'test';
@@ -27,6 +27,14 @@ protected static $oAutocompleteInstance;
         'multiple' => null,
         'class' => array('some-class', 'otherone', 'andsoon'),
         'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
+    );
+
+
+    protected $aTestOptions = array(
+        1    => 'Test 1',
+        2    => 'Test 2',
+        3    => 'Test 3',
+        4    => 'Test 4'
     );
 
     public static function setUpBeforeClass()
@@ -44,7 +52,7 @@ protected static $oAutocompleteInstance;
 
     public function testConstructor()
     {
-    	self::$oAutocompleteInstance = new Textarea(array());
+        self::$oAutocompleteInstance = new Autocomplete($this->aTestOptions, array());
         $this->assertTrue(self::$oAutocompleteInstance instanceof Autocomplete);
     }
 

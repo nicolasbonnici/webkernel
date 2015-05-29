@@ -24,4 +24,11 @@ class Autocomplete extends Select {
         'class' => array('form-control', 'ui-autocomplete')
     );
 
+    public function __construct(array $aOptions = array(), array $aValidators)
+    {
+        $this->setOptions($aOptions);
+        $this->setContent($this->renderOptions());
+
+        parent::__construct($aOptions, $aValidators);
+    }
 }
