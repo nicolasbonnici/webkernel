@@ -25,7 +25,8 @@ class InputFile extends FormElement {
     protected $bAutoCloseMarkup = true;
 
     protected $aAttributes = array(
-        'type' => 'file'
+        'type' => 'file',
+        'name' => ''
     );
 
 }

@@ -21,7 +21,9 @@ class Textarea extends FormElement {
     protected $sMarkupTag = 'textarea';
 
     protected $aAttributes = array(
-        'class' => 'form-control'
+        'class' => 'form-control',
+        'row' => 3,
+        'name' => '',
     );
 
 }

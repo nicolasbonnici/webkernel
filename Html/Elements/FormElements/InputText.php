@@ -24,6 +24,7 @@ class InputText extends FormElement {
 
     protected $aAttributes = array(
         'type' => 'text',
+        'name' => '',
         'value' => self::DEFAULT_VALUE,
     );
 

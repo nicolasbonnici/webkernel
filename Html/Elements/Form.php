@@ -2,6 +2,7 @@
 namespace Library\Core\Html\Elements;
 
 use Library\Core\Html\Element;
+use Library\Core\Html\FormElement;
 
 /**
  * HTML5 form handler
@@ -40,6 +41,12 @@ class Form extends Element
      */
     protected $aElements = array();
 
+    public function __construct()
+    {
+        // Set default method attribute
+        $this->setAttribute('method', self::HTTP_METHOD_POST);
+    }
+
     /**
      * Form's subforms getter
      * @return array
@@ -47,6 +54,39 @@ class Form extends Element
     public function getSubForms()
     {
         return $this->aSubForms;
+    }
+
+    /**
+     *
+     * Add a new element to the form
+     *
+     * @param FormElement $oFormElement
+     * @return $this
+     */
+    public function addElement(FormElement $oFormElement)
+    {
+        $this->aElements[] = $oFormElement;
+        return $this;
+    }
+
+    /**
+     *
+     * Add a new elements to the form
+     *
+     * @param array $aFormElements
+     * @return $this
+     */
+    public function addElements(array $aFormElements)
+    {
+
+        foreach ($aFormElements as $iIndex => $oFormElement) {
+            try {
+                $this->addElement($oFormElement);
+            } catch (\Exception $oException) {
+                continue;
+            }
+        }
+        return $this;
     }
 
     /**
@@ -83,14 +123,34 @@ class Form extends Element
     }
 
     /**
-     * @todo
+     * Build the form elements markup
+     * @return string
      */
-    protected function renderElements()
+    public function getContent()
     {
-        foreach ($this->getElements() as $sElementName => $oFormElement) {
-            // @todo ici appeler la methode de build de l element
+        $sElementsMarkup = '';
+        foreach ($this->getElements() as $iIndex => $oFormElement) {
+            $sElementsMarkup .= $oFormElement->render();
         }
-        return 'elements...';
+        return $sElementsMarkup;
     }
 
+    public function getAsynchSubmitButton()
+    {
+        $oButton = new Button();
+        $oButton->setAttributes(array(
+            'type' => 'button',
+            'class' => array(
+                'btn',
+                'btn-lg',
+                'btn-primary',
+                'ui-sendform'
+            ),
+            'data' => array(
+                'form' => '#' . $this->getAttribute('id')
+            )
+        ));
+        $oButton->setContent('<span class="glyphicon glyphicon-floppy-saved"></span> Sauvegarder');
+        return $oButton;
+    }
 }

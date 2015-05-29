@@ -1,19 +1,20 @@
 <?php
 namespace Library\Core\Tests\Html\Elements;
 
-use Library\Core\Html\Attributes;
+use Library\Core\Html\Elements\Div;
 use \Library\Core\Test as Test;
 
 /**
- * Html Attributes component unit tests
+ * Div component unit tests
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class AttributesTest extends Test
+class DivTest extends Test
 {
 
-    protected static $oAttributesInstance;
+    protected static $oDivInstance;
 
+    const INPUT_TAG = 'div';
     const TEST_STRING_KEY   = 'test';
     const TEST_STRING_VALUE = 'test-value';
 
@@ -25,9 +26,6 @@ class AttributesTest extends Test
         'class' => array('some-class', 'otherone', 'andsoon'),
         'data'  => array('key' => 'value', 'otherKey' => 'otherValue')
     );
-
-    protected $sExpected = ' id="form-dom-node-id" method="post" action="/some/url/" multiple class="some-class otherone andsoon" data-key="value" data-otherKey="otherValue" test="test-value"';
-
 
     public static function setUpBeforeClass()
     {
@@ -44,21 +42,25 @@ class AttributesTest extends Test
 
     public function testConstructor()
     {
-    	self::$oAttributesInstance = new Attributes();
-        $this->assertTrue(self::$oAttributesInstance instanceof Attributes);
+    	self::$oDivInstance = new Div();
+        $this->assertTrue(self::$oDivInstance instanceof Div);
     }
 
+    public function testToString()
+    {
+        $this->assertEquals(self::$oDivInstance, self::$oDivInstance->render());
+    }
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oAttributesInstance->setAttributes($this->aTestDataArray) instanceof Attributes);
+        $this->assertTrue(self::$oDivInstance->setAttributes($this->aTestDataArray) instanceof Div);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oAttributesInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Attributes
+            self::$oDivInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Div
         );
     }
 
@@ -66,23 +68,23 @@ class AttributesTest extends Test
     {
         // Assert that the generic accessors work properly
         foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oAttributesInstance->getAttribute($sKey), $mValue);
+            $this->assertEquals(self::$oDivInstance->getAttribute($sKey), $mValue);
         }
-        $this->assertEquals(self::$oAttributesInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
+        $this->assertEquals(self::$oDivInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
     }
 
     public function testGetAttributes()
     {
         $this->assertEquals(
-            self::$oAttributesInstance->getAttributes(),
+            self::$oDivInstance->getAttributes(),
             array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
         );
     }
 
-    public function testRenderAttributes()
+    public function testRender()
     {
-        $this->assertTrue(is_string(self::$oAttributesInstance->renderAttributes()));
-        $this->assertEquals(self::$oAttributesInstance->renderAttributes($this->aTestDataArray), $this->sExpected);
+        $this->assertTrue(is_string(self::$oDivInstance->render()));
+        $this->assertNotEmpty(strstr(self::$oDivInstance->render(), self::INPUT_TAG));
     }
 
 }

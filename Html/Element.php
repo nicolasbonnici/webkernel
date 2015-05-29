@@ -60,12 +60,21 @@ abstract class Element extends Attributes
         return $this->render();
     }
 
+    /**
+     * Set element content
+     * @param $sContent
+     * @return Element
+     */
     public function setContent($sContent)
     {
         $this->sContent = $sContent;
         return $this;
     }
 
+    /**
+     * Get element content
+     * @return string
+     */
     public function getContent()
     {
         return $this->sContent;

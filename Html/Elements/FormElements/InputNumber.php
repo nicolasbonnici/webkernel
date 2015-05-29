@@ -26,6 +26,7 @@ class InputNumber extends FormElement {
 
     protected $aAttributes = array(
         'type' => 'number',
+        'name' => '',
         'value' => self::DEFAULT_VALUE,
     );
 

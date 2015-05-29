@@ -2,6 +2,11 @@
 namespace Library\Core\Tests\Html\Elements;
 
 use Library\Core\Html\Elements\Form;
+use Library\Core\Html\Elements\FormElements\Autocomplete;
+use Library\Core\Html\Elements\FormElements\InputFile;
+use Library\Core\Html\Elements\FormElements\InputNumber;
+use Library\Core\Html\Elements\FormElements\InputText;
+use Library\Core\Html\Elements\FormElements\Select;
 use \Library\Core\Test as Test;
 
 /**
@@ -90,9 +95,29 @@ class FormTest extends Test
         $this->assertTrue(is_array(self::$oFormInstance->getSubForms()));
     }
 
+    public function testAddElement()
+    {
+        $oInputText = new InputText();
+        $this->assertTrue(self::$oFormInstance->addElement($oInputText) instanceof Form);
+    }
+
+    public function testAddElements()
+    {
+        $aElements = array(
+            new InputText(array()),
+            new InputNumber(array()),
+            new InputFile(array()),
+            new Select(array(), array()),
+            new Autocomplete(array())
+        );
+        $this->assertTrue(self::$oFormInstance->addElements($aElements) instanceof Form);
+    }
+
     public function testGetElements()
     {
         $this->assertTrue(is_array(self::$oFormInstance->getElements()));
+        // Assert that the previous tests add 6 elements... quick and dirty dependancy between tests... puke
+        $this->assertTrue(count(self::$oFormInstance->getElements()) === 6);
     }
 
     public function getValues()

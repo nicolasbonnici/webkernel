@@ -36,6 +36,12 @@ abstract class FormElement extends Element
     protected $aValidators = array();
 
     /**
+     * Form element label content
+     * @var string
+     */
+    protected $sLabel = 'Label';
+
+    /**
      * Form element constructor
      * @param array $aValidators
      */
@@ -66,6 +72,28 @@ abstract class FormElement extends Element
     public function getValue()
     {
         return (isset($this->aAttributes['value']) ? $this->aAttributes['value'] : null);
+    }
+
+    /**
+     * Form element label setter
+     *
+     * @param $sLabel
+     * @return $this
+     */
+    public function setLabel($sLabel)
+    {
+        $this->sLabel = $sLabel;
+        return $this;
+    }
+
+    /**
+     * Form element label getter
+     *
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->sLabel;
     }
 
     /**
