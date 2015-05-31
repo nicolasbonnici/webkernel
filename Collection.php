@@ -141,6 +141,14 @@ class Collection implements \Iterator
     }
 
     /**
+     * @todo remove member
+     */
+    public function delete()
+    {
+
+    }
+
+    /**
      * Tell if the collection contain at least one item
      * @return boolean
      *              TRUE if the collection has at least one item otherwhise FALSE

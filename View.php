@@ -1,9 +1,6 @@
 <?php
 namespace Library\Core;
 
-use \Library\Core\Router;
-use Library\Core\Directory;
-
 /**
  * View managment
  *
@@ -80,15 +77,11 @@ class View
     public function render(array $aViewParams, $sTpl = self::BLANK_LAYOUT, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
     {
         $this->loadViewParameters($aViewParams);
-        
-        /**
-         * @todo refactoring and Json component usage
-         */
-        
+
         // check if it's an XMLHTTPREQUEST
         if (isset($aViewParams['bIsXhr']) && $aViewParams['bIsXhr'] === true) {
         	$aCharsToStrip = array("\r", "\r\n", "\n", "\t");
-            $aResponse = json_encode(
+            $oResponse = new Json(
                 array(
                     'status' => $iStatusXHR,
                     'content' => str_replace($aCharsToStrip, '', $this->load($sTpl, $this->aView, true)),
@@ -98,11 +91,11 @@ class View
                 )
             );
             if ($bToString === true) {
-                return $aResponse;
+                return $oResponse->__toString();
             }
 
             header('Content-Type: application/json');
-            echo $aResponse;
+            echo $oResponse;
             exit();
         }
 
