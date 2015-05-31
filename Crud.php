@@ -63,7 +63,10 @@ abstract class Crud
         assert('is_null($iPrimaryKey) || $iPrimaryKey === 0 || (is_int($iPrimaryKey) && intval($iPrimaryKey) > 0)');
 
         if (empty($sEntityClassName) || ! class_exists($sEntityClassName)) {
-            throw new CrudException("Entity requested not found (' . $sEntityClassName . '), you need to create manually or scaffold his \app\Entities class.", App::ERROR_ENTITY_EXISTS);
+            throw new CrudException(
+                'Entity requested not found (' . $sEntityClassName . '), you need to create manually or scaffold his \app\Entities class.',
+                App::ERROR_ENTITY_EXISTS
+            );
         } else {
             try {
                 // Instanciate \bundles\user\Entities\User provided at instance constructor
@@ -84,7 +87,7 @@ abstract class Crud
 
             try {
                 $this->oEntity = new $sEntityClassName(((intval($iPrimaryKey) > 0) ? $iPrimaryKey : null));
-                $this->oEntities = new $sEntityCollectionClassName();
+                $this->oEntities = new $sEntityCollectionClassName;
             } catch (\Library\Core\EntityException $oException) {
                 throw new CrudException('Invalid entity provided, unable to load...', App::ERROR_ENTITY_NOT_LOADABLE);
             }

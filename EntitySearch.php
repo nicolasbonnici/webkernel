@@ -83,10 +83,14 @@ class EntitySearch
     {
         $oExceptions = new Collection();
         // For each entity in scope perform the key => value search if the key attribute exists
-        foreach ($this->aEntitiesScope as $sEntity) {
-            if (is_string($sEntity) && strlen($sEntity) > 0 && class_exists($sEntity)) {
+        foreach ($this->aEntitiesScope as $sEntity => $aEntityParams) {
+            if (
+                is_string($aEntityParams['entity']) &&
+                strlen($aEntityParams['entity']) > 0 &&
+                class_exists($aEntityParams['entity'])
+            ) {
                 try {
-                    $this->doSearch($sEntity, $sSearch, $aOrderBy, $aLimit);
+                    $this->doSearch($aEntityParams['entity'], $sSearch, $aOrderBy, $aLimit, $aEntityParams['constraints']);
                 } catch (\Exception $oException) {
                     $oExceptions->add(($oExceptions->count() + 1), $oException);
                     continue;
@@ -105,7 +109,7 @@ class EntitySearch
      * @param array $aLimit
      * @throws SearchException
      */
-    protected function doSearch($sEntity, $sSearch, array $aOrderBy = array(), array $aLimit = array(0, 100))
+    protected function doSearch($sEntity, $sSearch, array $aOrderBy = array(), array $aLimit = array(0, 100), array $aConstraints = array())
     {
         assert('!empty($sSearch)');
 
@@ -134,16 +138,29 @@ class EntitySearch
                     }
                 }
 
-                // @important last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
+                // @todo handle last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
                 $oEntityCollection->loadByParameters($aParameters, $aOrderBy, $aLimit, false);
+
+                // Filter results with attribute constraints
+                if (count($aConstraints) > 0) {
+                    foreach ($oEntityCollection as $oEntity) {
+                        foreach ($aConstraints as $sKey => $mValue) {
+                            if ($oEntity->{$sKey} !== $mValue) {
+                                die(var_dump($oEntity));
+                                unset($oEntity);
+                            }
+                        }
+                    }
+                }
+
 
                 // store Entity primary key value (id[entity] value)
                 foreach ($oEntityCollection as $oEntity) {
                     $oEntity->pk = $oEntity->getId();
                 }
 
-                $this->aResults[$sEntity] = $oEntityCollection;
-                $this->aResults[$sEntity]->count = $oEntityCollection->count();
+                $this->aResults[$oEntity::ENTITY] = $oEntityCollection;
+                $this->aResults[$oEntity::ENTITY]->count = $oEntityCollection->count();
 
             }
 
