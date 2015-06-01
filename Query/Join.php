@@ -15,7 +15,7 @@ class Join {
 
 
     /**
-     * Add column
+     * Add join statement
      *
      * @param string $sColumn
      * @return Query
@@ -27,7 +27,7 @@ class Join {
     }
 
     /**
-     * Add columns
+     * Add join statements
      *
      * @param array $aJoins
      * @return Query
@@ -39,7 +39,7 @@ class Join {
     }
 
     /**
-     * Get query columns
+     * Get join statements
      * @return array
      */
     public function getJoins()

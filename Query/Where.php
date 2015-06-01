@@ -34,5 +34,4 @@ class Where {
         return $this->aWhere;
     }
 
-
 }

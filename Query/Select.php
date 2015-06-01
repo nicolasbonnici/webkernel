@@ -17,6 +17,10 @@ class Select extends Query {
      */
     protected $sQueryType = Query::QUERY_TYPE_SELECT;
 
+    /**
+     * Query columns
+     * @var array
+     */
     protected $aColumns = array();
 
     /**
