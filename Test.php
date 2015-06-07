@@ -22,6 +22,12 @@ class Test extends \PHPUnit_Framework_TestCase
         if (defined('ROOT_PATH') === false) {
         	define('ROOT_PATH', __DIR__ . '/../../');
         }
+        if (defined('CACHE_HOST') === false) {
+        	define('CACHE_HOST', '127.0.0.1');
+        }
+        if (defined('CACHE_PORT') === false) {
+        	define('CACHE_PORT', '11211');
+        }
 
         // Register autoload and load config for given staging environment
         include_once __DIR__ . '/App.php';

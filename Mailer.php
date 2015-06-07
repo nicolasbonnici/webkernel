@@ -40,7 +40,7 @@ class Mailer
     protected $oMessage;
 
     /**
-     * Constructeur de la classe \kernel\Email
+     * Mailer instance constructor
      * @param type $iEmailId
      * @param type $sEmail
      */
@@ -48,13 +48,13 @@ class Mailer
     {
         require_once ROOT_PATH . 'Library/Swift/swift_required.php';
 
-        if (! is_null($oTransporter) && $oTransporter instanceof \Swift_Transport) {
+        if (is_null($oTransporter) === false && $oTransporter instanceof \Swift_Transport) {
             $this->oTransporter = $oTransporter;
         } else {
-            $oTransporter = \Swift_SendmailTransport::newInstance();
+            $this->oTransporter = \Swift_SendmailTransport::newInstance();
         }
 
-        $this->oMailer = new \Swift_Mailer($oTransporter);
+        $this->oMailer = new \Swift_Mailer($this->oTransporter);
 
     }
 

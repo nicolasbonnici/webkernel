@@ -1,5 +1,7 @@
 <?php
 /**
+ * Query jointure component
+ *
  * Created by PhpStorm.
  * User: niko
  * Date: 01/06/15
@@ -10,6 +12,10 @@ namespace Library\Core\Query;
 
 
 class Join {
+
+    const QUERY_JOIN_ON      = 'ON';
+    const QUERY_JOIN_USING   = 'USING';
+    const QUERY_JOIN_DEFAULT = self::QUERY_JOIN_ON;
 
     protected $aJoins = array();
 
@@ -47,4 +53,8 @@ class Join {
         return $this->aJoins;
     }
 
+    public function prepareJoinStatement($sJoin)
+    {
+        // compute join statement ON|USING
+    }
 }

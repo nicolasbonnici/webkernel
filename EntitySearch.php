@@ -52,7 +52,7 @@ class EntitySearch
     /**
      * Instance constructor
      *
-     * @todo revoir la signature du constructeur...
+     * @todo revoir la signature du constructeur trier et utiliser un scope de bundle
      *
      * @param string $sSearch
      * @param array $aOrderBy

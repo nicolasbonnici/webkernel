@@ -61,7 +61,7 @@ class Email extends \Swift_Message
 
     }
 
-    public function setRecipîent($mRecipientEmail)
+    public function setRecipient($mRecipientEmail)
     {
         if (is_string($mRecipientEmail)) {
 

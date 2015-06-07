@@ -1,5 +1,8 @@
 <?php
 namespace Library\Core;
+
+use Library\Core\Pattern\Singleton;
+
 /**
  * Files managment component
  *

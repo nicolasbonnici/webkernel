@@ -4,7 +4,6 @@ namespace Library\Core;
 /**
  * On the fly ORM CRUD managment abstract class
  *
- * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
  *
  * @important Entities need a primary auto incremented index (id[entity])
@@ -619,6 +618,10 @@ abstract class Entity extends Database
         return false;
     }
 
+    /**
+     * Compute the EntityCollection class name
+     * @return string
+     */
     public function computeCollectionClassName()
     {
         $sCollectionClassName = str_replace(array(

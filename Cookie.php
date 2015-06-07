@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use Library\Core\Pattern\Singleton;
+
 class Cookie extends Singleton
 {
 
