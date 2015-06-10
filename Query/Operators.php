@@ -19,8 +19,10 @@ class Operators {
     const OPERATOR_SMALLER          = '<';
     const OPERATOR_BIGGER_OR_EQUAL  = '>=';
     const OPERATOR_SMALLER_OR_EQUAL = '<=';
+    const OPERATOR_IN               = 'IN';
     const OPERATOR_LIKE             = 'LIKE';
     const OPERATOR_LIKE_WILDCARDS   = '%';
+    const OPERATOR_DEFAULT          = self::OPERATOR_EQUAL;
 
     public function __construct()
     {
@@ -28,82 +30,104 @@ class Operators {
     }
 
     /**
-     * Equal condition
+     * Build bounded parameter
      *
-     * @param strig $mFieldValue
      * @return string
      */
-    public function equalAs($mFieldValue)
+    public static function buildBoundParameter()
     {
-        return ' ' . self::OPERATOR_EQUAL . ' ' . $mFieldValue;
+        return Where::QUERY_WHERE_BOUNDED_VALUE . Where::QUERY_WHERE_BOUNDED_PARAMETER;
+    }
+
+    /**
+     * Equal condition
+     *
+     * @param strig $sFieldName
+     * @return string
+     */
+    public static function equal($sFieldName)
+    {
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_EQUAL . ' ' . self::buildBoundParameter();
     }
 
     /**
      * Different condition
      *
-     * @param string $mFieldValue
+     * @param string $sFieldName
      * @return string
      */
-    public function differentThan($mFieldValue)
+    public static function different($sFieldName)
     {
-        return ' ' . self::OPERATOR_DIFFERENT . ' ' . $mFieldValue;
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_DIFFERENT . ' ' . self::buildBoundParameter();
     }
 
     /**
      * Bigger condition
      *
-     * @param string $mFieldValue
+     * @param string $sFieldName
      * @return string
      */
-    public function biggerThan($mFieldValue)
+    public static function bigger($sFieldName)
     {
-        return ' ' . self::OPERATOR_BIGGER . ' ' . $mFieldValue;
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER . ' ' . self::buildBoundParameter();
     }
 
     /**
      * Bigger or equal condition
      *
-     * @param string $mFieldValue
+     * @param string $sFieldName
      * @return string
      */
-    public function biggerOrEqualThan($mFieldValue)
+    public static function biggerOrEqual($sFieldName)
     {
-        return ' ' . self::OPERATOR_BIGGER_OR_EQUAL . ' ' . $mFieldValue;
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER_OR_EQUAL . ' ' . self::buildBoundParameter();
     }
 
     /**
      * Smaller than condition
      *
-     * @param string $mFieldValue
+     * @param string $sFieldName
      * @return string
      */
-    public function smallerThan($mFieldValue)
+    public static function smaller($sFieldName)
     {
-        return ' ' . self::OPERATOR_SMALLER . ' ' . $mFieldValue;
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER . ' ' . self::buildBoundParameter();
     }
 
     /**
      * Smaller or equal condition
      *
-     * @param $mFieldValue
+     * @param $sFieldName
      * @return string
      */
-    public function smallerOrEqualThan($mFieldValue)
+    public static function smallerOrEqual($sFieldName)
     {
-        return ' ' . self::OPERATOR_SMALLER_OR_EQUAL . ' ' . $mFieldValue;
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER_OR_EQUAL . ' ' . self::buildBoundParameter();
+    }
+
+    /**
+     * @param string $sFieldName
+     * @param integer $iFactor              Bound parameters count
+     * @return string
+     */
+    public static function in($sFieldName, $iFactor)
+    {
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_IN . '(' . WHERE::QUERY_WHERE_BOUNDED_PARAMETER .
+            str_repeat(',' . WHERE::QUERY_WHERE_BOUNDED_PARAMETER, ($iFactor - 1)) . ')';
     }
 
     /**
      * Like condition
      *
-     * @param string $mFieldValue
+     * @param string $sFieldName
      * @param bool $bStartWildCards
      * @param bool $bEndWildCards
      * @return string
      */
-    public function like($mFieldValue, $bStartWildCards = true, $bEndWildCards = true)
+    public static function like($sFieldName, $bStartWildCards = true, $bEndWildCards = true)
     {
-        return ' ' . self::OPERATOR_LIKE . ' ' . $this->prepareLikeParameter($mFieldValue, $bStartWildCards, $bEndWildCards);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_LIKE . ' ' .
+            self::prepareLikeParameter($sFieldName, $bStartWildCards, $bEndWildCards);
     }
 
     /**
@@ -114,11 +138,18 @@ class Operators {
      * @param bool $bEndWildCards
      * @return string
      */
-    protected function prepareLikeParameter($sValue, $bStartWildCards = true, $bEndWildCards = true)
+    public static function prepareLikeParameter($sValue, $bStartWildCards = true, $bEndWildCards = true)
     {
-        return (($bStartWildCards === true) ? self::OPERATOR_LIKE_WILDCARDS : '') .
-        $sValue .
-        (($bEndWildCards === true) ? self::OPERATOR_LIKE_WILDCARDS : '');
+        return (
+            ($bStartWildCards === true)
+                ? self::OPERATOR_LIKE_WILDCARDS
+                : ''
+        ) . $sValue .
+        (
+            ($bEndWildCards === true)
+                ? self::OPERATOR_LIKE_WILDCARDS
+                : ''
+        );
     }
 
 }

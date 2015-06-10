@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Tests\Query;
 
+use Library\Core\Query\Operators;
 use Library\Core\Query\Where;
 use \Library\Core\Test as Test;
 
@@ -34,14 +35,21 @@ class WhereTest extends Test
 
     }
 
-    public function testAddWhere()
+    public function testAddWhereCondition()
     {
-        $this->assertTrue(self::$oWhereInstance->addWhere('prop1 != 1') instanceof Where);
-        $this->assertTrue(self::$oWhereInstance->addWhere('prop2 != 9') instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::equal('prop1')) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::different('prop2'), Where::QUERY_WHERE_CONNECTOR_AND) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::equal('prop3'), Where::QUERY_WHERE_CONNECTOR_AND) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::bigger('prop4'), Where::QUERY_WHERE_CONNECTOR_AND) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::smaller('prop5'), Where::QUERY_WHERE_CONNECTOR_AND) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::biggerOrEqual('prop6'), Where::QUERY_WHERE_CONNECTOR_AND) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::smallerOrEqual('prop7'), Where::QUERY_WHERE_CONNECTOR_AND) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::like('prop8'), Where::QUERY_WHERE_CONNECTOR_OR) instanceof Where);
+        $this->assertTrue(self::$oWhereInstance->addWhereCondition(Operators::in('prop8', 8)) instanceof Where);
     }
 
-    public function testGetWhere()
+    public function testBuildWhere()
     {
-        $this->assertEquals(self::$oWhereInstance->getWhere(), array('prop1 != 1', 'prop2 != 9'));
+        $this->assertEquals(self::$oWhereInstance->buildWhere(), '`prop1` = :? AND `prop2` != :? AND `prop3` = :? AND `prop4` > :? AND `prop5` < :? AND `prop6` >= :? AND `prop7` <= :? OR `prop8` LIKE %prop8%`prop8` IN(?,?,?,?,?,?,?,?)');
     }
 }

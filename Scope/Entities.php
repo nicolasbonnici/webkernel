@@ -2,6 +2,11 @@
 namespace Library\Core\Scope;
 
 /**
+ * Bad practices
+ */
+
+
+/**
  * EntityScope component to manage Entities parameters with constraints on field support
  * 
  * @author niko <nicolasbonnici@gmail.com>

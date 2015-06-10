@@ -114,6 +114,8 @@ class Collection implements \Iterator
     /**
      * Add element to collection
      *
+     * @todo modifier la signature rendre $mKey optionnel et utiliser l'index Iterator a defaut
+     *
      * @param integer|string $mKey
      *            Element's key
      * @param mixed $mValue

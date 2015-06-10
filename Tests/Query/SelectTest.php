@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Tests\Select;
 
+use Library\Core\Query\Query;
 use Library\Core\Query\Select;
 use \Library\Core\Test as Test;
 
@@ -37,6 +38,7 @@ class SelectTest extends Test
     {
         self::$oSelectInstance = new Select();
         $this->assertTrue(self::$oSelectInstance instanceof Select);
+        $this->assertEquals(self::$oSelectInstance->getQueryType(), Query::QUERY_TYPE_SELECT);
 
     }
 
@@ -112,4 +114,12 @@ class SelectTest extends Test
         $this->assertEquals(self::$oSelectInstance->getLimit() , array(1099, 25));
     }
 
+
+    public function testBuild()
+    {
+        $this->assertEquals(
+            self::$oSelectInstance->build(),
+            'SELECT prop1, prop2, prop3, prop4 FROM table_name AS t GROUP BY prop1, prop2, prop3 ORDER BY prop1, prop2, prop3 DESC LIMIT 1099, 25'
+        );
+    }
 }

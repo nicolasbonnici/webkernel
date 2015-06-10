@@ -34,8 +34,6 @@ class ScopeTest extends DummyScope
 
     public function testAdd()
     {
-
-
         $this->assertTrue(self::$oScopeInstance->add('test1') instanceof Entities);
         $this->assertTrue(self::$oScopeInstance->add('test2') instanceof Entities);
         $this->assertTrue(self::$oScopeInstance->add('test3') instanceof Entities);
@@ -48,6 +46,51 @@ class ScopeTest extends DummyScope
         $this->assertTrue(in_array('test2', self::$oScopeInstance->getScope()));
         $this->assertTrue(in_array('test3', self::$oScopeInstance->getScope()));
 
+    }
+
+    public function testAddItems()
+    {
+        $aTest = array(
+            'test4',
+            'test5',
+            'test6'
+        );
+        $this->assertTrue(self::$oScopeInstance->addItems($aTest) instanceof Entities);
+
+        $this->assertTrue(in_array('test4', self::$oScopeInstance->getScope()));
+        $this->assertTrue(in_array('test5', self::$oScopeInstance->getScope()));
+        $this->assertTrue(in_array('test6', self::$oScopeInstance->getScope()));
+        $this->assertEquals(self::$oScopeInstance->getScope(), array(
+            'test1',
+            'test2',
+            'test3',
+            'test4',
+            'test5',
+            'test6'
+        ));
+    }
+
+    public function testGetWithNoParameter()
+    {
+        $this->assertEquals(self::$oScopeInstance->get(), array(
+            'test1',
+            'test2',
+            'test3',
+            'test4',
+            'test5',
+            'test6'
+        ));
+    }
+
+    public function testAddWithItemWithKey()
+    {
+        $this->assertTrue(self::$oScopeInstance->addItem('testValue', 'testKey') instanceof Entities);
+        $this->assertTrue(array_key_exists('testValue', self::$oScopeInstance->getScope()));
+    }
+
+    public function testGetWithParameter()
+    {
+        $this->assertEquals(self::$oScopeInstance->addItem('testKey'), 'testValue');
     }
 
 }
