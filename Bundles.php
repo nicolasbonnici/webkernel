@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * Bundles managment
@@ -17,7 +17,7 @@ class Bundles
     protected $aAvailableBundles = array();
 
     /**
-     * \Library\Core\Bundles::$aAvailableBundles \Library\Core\Cache duration in seconds
+     * \Core\Bundles::$aAvailableBundles \Core\Cache duration in seconds
      * @var integer
      */
     protected static $iBundlesCacheDuration = 1314000;
@@ -72,7 +72,7 @@ class Bundles
     {
         assert('is_dir(BUNDLES_PATH)');
         $this->aAvailableBundles = array();
-        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
+        $this->aAvailableBundles = \Core\Cache::get(\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
         if ($bFlushBundlesCache || $this->aAvailableBundles === false ) {
             $this->parseBundles();
         }
@@ -92,7 +92,7 @@ class Bundles
         foreach ($aBundles as $iIndex=>$sBundle) {
             $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
         }
-        Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
+        Cache::set(\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
     }
 
     /**

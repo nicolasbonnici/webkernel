@@ -1,7 +1,7 @@
 <?php
-namespace Library\Core\Tests\Mocks;
+namespace Core\Tests\Mocks;
 
-use Library\Core\Html\Element;
+use Core\Html\Element;
 
 /**
  * HtmlElementMock

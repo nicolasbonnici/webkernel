@@ -1,7 +1,5 @@
 <?php
-namespace Library\Core;
-
-use Library\Core\Entity;
+namespace Core\Orm;
 
 /**
  * Entity Generator to generate random data records

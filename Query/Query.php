@@ -3,7 +3,7 @@
  * Generic Query component abstract
  */
 
-namespace Library\Core\Query;
+namespace Core\Query;
 
 
 abstract class Query  extends  Join {

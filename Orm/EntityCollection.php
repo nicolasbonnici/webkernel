@@ -1,5 +1,8 @@
 <?php
-namespace Library\Core;
+namespace Core\Orm;
+
+use Core\Collection;
+use Core\Database;
 
 /**
  * On the fly ORM CRUD managment abstract class
@@ -8,10 +11,10 @@ namespace Library\Core;
  *
  * @important Entities need a primary auto incremented index (id[entity])
  *
- *       @dependancy \Library\Core\Collection
- *       @dependancy \Library\Core\Validator
- *       @dependancy \Library\Core\Cache
- *       @dependancy \Library\Core\Database
+ *       @dependancy \Core\Collection
+ *       @dependancy \Core\Validator
+ *       @dependancy \Core\Cache
+ *       @dependancy \Core\Database
  *
  */
 abstract class EntityCollection extends Collection

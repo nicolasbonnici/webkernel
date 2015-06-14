@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Html;
+namespace Core\Tests\Html;
 
-use Library\Core\Html\Attributes;
-use \Library\Core\Test as Test;
+use Core\Html\Attributes;
+use \Core\Test as Test;
 
 /**
  * Html Attributes component unit tests

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Library\Core\Html\Elements\FormElements;
+namespace Core\Html\Elements\FormElements;
 
 
-use Library\Core\Html\FormElement;
+use Core\Html\FormElement;
 
 /**
  * Created by PhpStorm.

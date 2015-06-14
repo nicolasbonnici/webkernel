@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
-use Library\Core\View;
-use Library\Core\Json;
+use Core\View;
+use Core\Json;
 
 /**
  * Website builder widget abstract class
@@ -52,7 +52,7 @@ abstract class Widget
 
     /*
      * View component instance to render widgets
-     * @var Library\Core\View
+     * @var Core\View
      */
     protected $oViewInstance;
 
@@ -116,7 +116,7 @@ abstract class Widget
     /**
      * Render mode setter
      * @param string $sRenderMode
-     * @return \Library\Core\Widget
+     * @return \Core\Widget
      */
     public function setRenderMode($sRenderMode)
     {

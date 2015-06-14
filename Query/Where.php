@@ -6,11 +6,12 @@
  * Time: 00:31
  */
 
-namespace Library\Core\Query;
+namespace Core\Query;
 
 
 class Where  {
 
+    const QUERY_WHERE                    = 'WHERE';
     const QUERY_WHERE_CONNECTOR_AND      = 'AND';
     const QUERY_WHERE_CONNECTOR_OR       = 'OR';
     const QUERY_WHERE_CONNECTOR_DEFAULT  = self::QUERY_WHERE_CONNECTOR_AND;
@@ -25,10 +26,15 @@ class Where  {
 
     protected $aWhere = array();
 
+    /**
+     * Build where condition
+     *
+     * @return null|string
+     */
     public function buildWhere()
     {
         if (empty($this->aWhere) === false) {
-            $sWhere = '';
+            $sWhere = self::QUERY_WHERE . ' ';
             foreach ($this->aWhere as $aWhereCondition) {
                 $sWhere .= ((is_null($aWhereCondition['connector']) === false)
                     ? ' ' . $aWhereCondition['connector'] . ' '

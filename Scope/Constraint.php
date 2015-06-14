@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Scope;
+namespace Core\Scope;
 
 /**
  * Constraint component to restrict Scopes

@@ -1,14 +1,14 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
-use Library\Core\Router;
+use Core\Router;
 use bundles\user\Entities\User;
 
 /**
  * App Model class
  * A simple class to build and manage usefull setup informations
  *
- * @dependancy \Library\Core\Cache
+ * @dependancy \Core\Cache
  *
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
@@ -46,7 +46,7 @@ class App
 
     /**
      * Router instance
-     * @var \Library\Core\Router
+     * @var \Core\Router
      */
     private static $oRouterInstance;
 
@@ -213,7 +213,7 @@ class App
      */
     public static function initAutoloader()
     {
-        spl_autoload_register('\Library\Core\App::classLoader');
+        spl_autoload_register('\Core\App::classLoader');
     }
 
     /**

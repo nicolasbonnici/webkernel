@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core\Orm;
 
 /**
  * Entity mapper component to resolve relationship between entities

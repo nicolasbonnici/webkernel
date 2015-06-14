@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Query;
+namespace Core\Tests\Query;
 
-use Library\Core\Query\Join;
-use \Library\Core\Test as Test;
+use Core\Query\Join;
+use \Core\Test as Test;
 
 
 /**

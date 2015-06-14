@@ -1,10 +1,10 @@
 <?php
-namespace Library\Core\Tests\Html;
+namespace Core\Tests\Html;
 
-use Library\Core\Html\Element;
-use \Library\Core\Test as Test;
+use Core\Html\Element;
+use \Core\Test as Test;
 
-use Library\Core\Tests\Mocks\HtmlElementMock;
+use Core\Tests\Mocks\HtmlElementMock;
 
 /**
  * Html Element component unit tests

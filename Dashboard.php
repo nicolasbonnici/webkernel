@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * Dashboard common couch

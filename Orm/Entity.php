@@ -1,5 +1,7 @@
 <?php
-namespace Library\Core;
+namespace Core\Orm;
+
+use Core\Cache;
 
 /**
  * On the fly ORM CRUD managment abstract class
@@ -8,21 +10,12 @@ namespace Library\Core;
  *
  * @important Entities need a primary auto incremented index (id[entity])
  *
- *       @dependancy \Library\Core\Validator
- *       @dependancy \Library\Core\Cache
- *       @dependancy \Library\Core\Database
+ *       @dependancy \Core\Validator
+ *       @dependancy \Core\Cache
+ *       @dependancy \Core\Database
  */
-abstract class Entity extends Database
+abstract class Entity extends EntityAttributes
 {
-
-    /**
-     * Entity attribute's types
-     * @var string
-     */
-    const DATA_TYPE_STRING  = 'string';
-    const DATA_TYPE_INTEGER = 'integer';
-    const DATA_TYPE_FLOAT   = 'float';
-    const DATA_TYPE_ENUM    = 'array';
 
     /**
      * Whether row in database may be deleted or not
@@ -209,7 +202,7 @@ abstract class Entity extends Database
         if (! isset($aObject) || $aObject === false) {
             $bRefreshCache = true;
 
-            if (($oStatement = \Library\Core\Database::dbQuery($sQuery, $aBindedValues)) === false) {
+            if (($oStatement = \Core\Database::dbQuery($sQuery, $aBindedValues)) === false) {
                 throw new EntityException('Unable to construct object of class ' . get_called_class() . ' with query ' . $sQuery);
             }
 
@@ -236,7 +229,7 @@ abstract class Entity extends Database
      */
     public static function getCached($iId)
     {
-        return \Library\Core\Cache::get(self::getCacheKey($iId));
+        return \Core\Cache::get(self::getCacheKey($iId));
     }
 
     /**
@@ -247,7 +240,7 @@ abstract class Entity extends Database
      */
     public static function getCacheKey($iId)
     {
-        return \Library\Core\Cache::getKey(get_called_class(), $iId);
+        return \Core\Cache::getKey(get_called_class(), $iId);
     }
 
     /**
@@ -273,8 +266,8 @@ abstract class Entity extends Database
 
         try {
         	$sQuery = 'INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
-            $oStatement = \Library\Core\Database::dbQuery($sQuery, $aInsertedValues);
-            $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
+            $oStatement = \Core\Database::dbQuery($sQuery, $aInsertedValues);
+            $this->{static::PRIMARY_KEY} = \Core\Database::lastInsertId();
             return $this->bIsLoaded = (intval($this->{static::PRIMARY_KEY}) > 0);
             
         } catch (\Exception $oException) {
@@ -293,7 +286,8 @@ abstract class Entity extends Database
     {
         $aUpdatedFields = array();
         $aUpdatedValues = array();
-        foreach ($this->aFields as $sFieldName => $aFieldInfos) {
+
+        foreach ($this->getAttributes() as $sFieldName => $aFieldInfos) {
             if (isset($this->{$sFieldName}) && ! is_null($this->{$sFieldName}) && $this->validateDataIntegrity($sFieldName, $this->{$sFieldName})) {
                 $aUpdatedFields[] = $sFieldName;
                 $aUpdatedValues[] = $this->{$sFieldName};
@@ -316,7 +310,7 @@ abstract class Entity extends Database
             }
 
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
-            $oStatement = \Library\Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
+            $oStatement = \Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
             
             // @todo ($oStatement !== false);
             return $this->refresh();
@@ -345,7 +339,7 @@ abstract class Entity extends Database
         }
 
         try {
-            $oStatement = \Library\Core\Database::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
+            $oStatement = \Core\Database::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
                 $this->{static::PRIMARY_KEY}
             ));
             $this->reset();
@@ -453,7 +447,7 @@ abstract class Entity extends Database
     {
         $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
         if (($this->aFields = Cache::get($sCacheKey)) === false) {
-            if (($oStatement = \Library\Core\Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
+            if (($oStatement = \Core\Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
                 throw new EntityException('Unable to list fields for table ' . static::TABLE_NAME);
             }
 
@@ -468,89 +462,6 @@ abstract class Entity extends Database
         	throw new EntityException('No field found for table ' . static::TABLE_NAME . ' please check Entity.');
         }
         
-    }
-
-    /**
-     * Query if an attribute exists
-     *
-     * @return boolean
-     */
-    public function hasAttribute($sAttributeName)
-    {
-        assert('strlen($sAttributeName) > 0');
-        return array_key_exists($sAttributeName, $this->aFields);
-    }
-
-    /**
-     * Get Entity SGBD type from experimental PDO driver
-     *
-     * @param string $sAttributeName
-     * @return NULL string SGBD field type if exists otherwhise NULL
-     */
-    private function getAttributeType($sAttributeName)
-    {
-        assert('strlen($sAttributeName) > 0');
-        if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {
-            return $this->aFields[$sAttributeName]['Type'];
-        }
-        return null;
-    }
-
-    /**
-     * Determine if an Entity attribute can be nullable
-     *
-     * @param string $sAttributeName
-     * @return boolean TRUE if Entity attribute can be null otherwhise FALSE
-     */
-    public function isNullable($sAttributeName)
-    {
-        assert('strlen($sAttributeName) > 0');
-        if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {
-            return $this->aFields[$sAttributeName]['Null'] !== 'NO';
-        }
-        return false;
-    }
-
-    /**
-     * Get Entity attributes
-     *
-     * @return array A one dimensional array with all Entity attributes
-     */
-    public function getAttributes()
-    {
-        return array_keys($this->aFields);
-    }
-
-    /**
-     * Translate a SGBD field type to PHP types
-     *
-     * @todo optimiser cette méthode et utiliser un switch
-     * @param string $sName
-     * @return string null
-     * @throws EntityException
-     */
-    public function getDataType($sName = null)
-    {
-        assert('$this->getAttributeType($sName) !== null');
-
-        $sDataType = null;
-        if (! is_null($sName)) {
-
-            $sDataType = $this->getAttributeType($sName);
-
-            if (preg_match('#(^int|^integer|^tinyint|^smallmint|^mediumint|^tinyint|^bigint)#', $sDataType)) {
-                $sDataType = self::DATA_TYPE_INTEGER;
-            } elseif (preg_match('#(^float|^decimal|^numeric)#', $this->aFields[$sName]['Type'])) {
-                $sDataType = self::DATA_TYPE_FLOAT;
-            } elseif (preg_match('#(^varchar|^text|^blob|^tinyblob|^tinytext|^mediumblob|^mediumtext|^longblob|^longtext|^date|^datetime|^timestamp)#', $this->aFields[$sName]['Type'])) {
-                $sDataType = self::DATA_TYPE_STRING;
-            } elseif (preg_match('#^enum#', $this->aFields[$sName]['Type'])) {
-                $sDataType = self::DATA_TYPE_ENUM; // @todo ajouter un type enum dans validator puis un inArray pour valider
-            } else {
-                throw new EntityException(__CLASS__ . ' Unsuported database field type: ' . $this->aFields[$sName]['Type']);
-            }
-        }
-        return $sDataType;
     }
 
     /**
@@ -586,37 +497,6 @@ abstract class Entity extends Database
 
         $this->bIsLoaded = false;
     }
-    
-    /**
-     * Validate data integrity for the database field
-     *
-     * @todo remettre la gestion des exceptions
-     *
-     * @param string $sFieldName
-     * @param
-     *            mixed string|int|float $mValue
-     * @throws EntityException
-     * @return bool
-     */
-    protected function validateDataIntegrity($sFieldName, $mValue)
-    {
-        assert('isset($this->aFields[$sFieldName]["Type"])');
-
-        $iValidatorStatus = 0;
-        $sDataType = '';
-
-        // If nullable
-        if (is_null($mValue) && $this->isNullable($sFieldName)) {
-            return true;
-        }
-
-        if (! empty($sFieldName) && ! empty($mValue)) {
-            if (($sDataType = $this->getDataType($sFieldName)) !== NULL && method_exists(__NAMESPACE__ . '\\Validator', $sDataType) && ($iValidatorStatus = Validator::$sDataType($mValue)) === Validator::STATUS_OK) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Compute the EntityCollection class name
@@ -630,35 +510,6 @@ abstract class Entity extends Database
         return $sCollectionClassName . 'Collection';
     }
 
-    /**
-     * Save history on update for historized objects
-     *
-     * @ŧodo
-     *
-     * @param $oOriginalObject          Original object before update
-     */
-    protected function saveHistory($oOriginalObject)
-    {
-        $aBefore = array();
-        $aAfter = array();
-
-        foreach ($this as $sPropertyName => $mValue) {
-            if ($mValue != $oOriginalObject->{$sPropertyName}) {
-                $aBefore[$sPropertyName] = $oOriginalObject->{$sPropertyName};
-                $aAfter[$sPropertyName] = $mValue;
-            }
-        }
-
-        $oEntityHistory = new \app\Entities\EntityHistory();
-        $oEntityHistory->classe = substr($this->sChildClass, 3);
-        $oEntityHistory->idobjet = $this->{static::PRIMARY_KEY};
-        $oEntityHistory->avant = json_encode($aBefore);
-        $oEntityHistory->apres = json_encode($aAfter);
-        $oEntityHistory->date_modif = date('Y-m-d');
-        $oEntityHistory->time_modif = date('H:i:s');
-        //$oEntityHistory->iduser = \model\UserSession::getInstance()->getUserId();
-        $oEntityHistory->add();
-    }
 }
 
 class EntityException extends \Exception

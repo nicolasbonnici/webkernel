@@ -1,6 +1,6 @@
 <?php
-namespace Library\Core;
-use Library\Core\Pattern\Singleton;
+namespace Core;
+use Core\Pattern\Singleton;
 
 /**
  * Directory managment component

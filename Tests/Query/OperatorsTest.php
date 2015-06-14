@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Select;
+namespace Core\Tests\Select;
 
-use Library\Core\Query\Operators;
-use \Library\Core\Test as Test;
+use Core\Query\Operators;
+use \Core\Test as Test;
 
 
 /**

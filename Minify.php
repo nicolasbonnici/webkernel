@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * A simple class to build Js and CSS assets

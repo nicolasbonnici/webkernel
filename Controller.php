@@ -1,7 +1,8 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 use bundles\user\Entities\User;
+use Core\App\Session;
 
 /**
  * Main app controller class
@@ -67,7 +68,7 @@ class Controller extends Acl
     /**
      * View instance
      *
-     * @var \Library\Core\View
+     * @var \Core\View
      */
     protected $oView;
 
@@ -80,15 +81,11 @@ class Controller extends Acl
 
     /**
      * Current cookie
-     * @var \Library\Core\Cookie
+     * @var \Core\Cookie
      */
     protected $oCookie;
 
-    /**
-     * Current PHP session
-     * @var array
-     */
-    protected $aSession;
+    protected $oSession;
 
     /**
      * Controller instance constructor
@@ -99,13 +96,16 @@ class Controller extends Acl
      */
     public function __construct($oUser = null, $oBundleConfig = null)
     {
-        $this->aConfig = \Library\Core\App::getConfig();
+        $this->aConfig = \Core\App::getConfig();
         if (! is_null($oBundleConfig)) {
             $this->oBundleConfig = $oBundleConfig;
         }
 
-        $this->setSession();
         $this->loadRequest();
+
+        if (($this->oSession instanceof Session) === false) {
+            $this->oSession = new Session($_SESSION);
+        }
 
         // Load a view instance
         $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
@@ -123,14 +123,14 @@ class Controller extends Acl
         if (method_exists($this, $this->sAction)) {
             $this->loadLocales();
             // Load session
-            if (count($this->aSession) > 0) {
-                $this->aView['aSession'] = $this->aSession;
+            if (count($this->oSession->getSession()) > 0) {
+                $this->aView['aSession'] = $this->oSession->getSession();
 
                 // @todo provisoire
-                $this->aView['sGravatarSrc16'] = Tools::getGravatar($this->aSession['mail'], 16);
-                $this->aView['sGravatarSrc32'] = Tools::getGravatar($this->aSession['mail'], 32);
-                $this->aView['sGravatarSrc64'] = Tools::getGravatar($this->aSession['mail'], 64);
-                $this->aView['sGravatarSrc128'] = Tools::getGravatar($this->aSession['mail'], 128);
+                $this->aView['sGravatarSrc16'] = Tools::getGravatar($this->oSession->getSession('mail'), 16);
+                $this->aView['sGravatarSrc32'] = Tools::getGravatar($this->oSession->getSession('mail'), 32);
+                $this->aView['sGravatarSrc64'] = Tools::getGravatar($this->oSession->getSession('mail'), 64);
+                $this->aView['sGravatarSrc128'] = Tools::getGravatar($this->oSession->getSession('mail'), 128);
 
             }
 
@@ -154,7 +154,7 @@ class Controller extends Acl
 
             // debug
             $this->aView["sEnv"] = ENV;
-            $this->aView["aLoadedClass"] = \Library\Core\App::getLoadedClass();
+            $this->aView["aLoadedClass"] = \Core\App::getLoadedClass();
             $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
             $this->aView["bIsXhr"] = $this->isXHR();
 
@@ -173,7 +173,7 @@ class Controller extends Acl
                     // Load assets dependancies for client components (can be overide under the __preDispatch() method)
                     $this->aView['sComponentsDependancies'] = $this->oView->getClientComponents();
 
-                } catch (Library\Core\ControllerException $oException) {
+                } catch (Core\ControllerException $oException) {
                     throw new ControllerException('Pre dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();
                 }
@@ -189,7 +189,7 @@ class Controller extends Acl
                 try {
                     $this->__postDispatch();
 
-                } catch (Library\Core\ControllerException $oException) {
+                } catch (Core\ControllerException $oException) {
                     throw new ControllerException('Post dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();
                 }
@@ -316,7 +316,7 @@ class Controller extends Acl
     
     /**
      * Dynamicaly build the logged user if needed for a public Controller 
-     * @return mixed NULL, \Library\Core\User
+     * @return mixed NULL, \Core\User
      */
     public function getLoggedUser()
     {
@@ -404,19 +404,9 @@ class Controller extends Acl
         return $this->oCookie;
     }
 
-    public function setCookie(\Library\Core\Cookie $oCookie)
+    public function setCookie(\Core\Cookie $oCookie)
     {
         $this->oCookie = $oCookie;
-    }
-
-    public function getSession()
-    {
-        return $this->aSession;
-    }
-
-    public function setSession()
-    {
-        $this->aSession = $_SESSION;
     }
 
     public function getLang()

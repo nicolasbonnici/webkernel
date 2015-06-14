@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Html\Elements;
+namespace Core\Tests\Html\Elements;
 
-use Library\Core\Html\Elements\FormElements\InputFile;
-use \Library\Core\Test as Test;
+use Core\Html\Elements\FormElements\InputFile;
+use \Core\Test as Test;
 
 /**
  * Form element InputFile component unit tests

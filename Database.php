@@ -1,17 +1,19 @@
 <?php
-namespace Library\Core;
+namespace Core;
+use Core\App\Config;
 
 /**
  * Manage SGBD with PDO
  *
  * @todo extends Singleton component
+ * @todo abstract and add a mysql|sqlite driver to this component
  */
 class Database
 {
 
     /**
      *
-     * @var object Library\Core\Database instance
+     * @var object Core\Database instance
      */
     private static $_instance;
 
@@ -63,6 +65,8 @@ class Database
      */
     protected static $_sLastLink = array();
 
+    protected $oConfig;
+
     /**
      * Benchmark SGBD queries
      * @var array
@@ -91,7 +95,9 @@ class Database
      */
     public function __construct()
     {
-        $this->setLink();
+
+        $this->$oConfig = Config::getInstance();
+        $this->setLink(self::$oConfiggetConfig());
 
         return;
     }
@@ -120,12 +126,9 @@ class Database
      * Connect to SGBD
      * @throws DatabaseException
      */
-    private static function setLink()
+    private static function setLink(array $aConfig)
     {
         try {
-
-            $aConfig = \Library\Core\App::getConfig();
-
             self::$_driver = $aConfig['database']['driver'];
             self::$_host = $aConfig['database']['host'];
             self::$_name = $aConfig['database']['name'];

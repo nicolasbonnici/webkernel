@@ -1,9 +1,9 @@
 <?php
-namespace Library\Core\Tests\Scope;
+namespace Core\Tests\Scope;
 
-use \Library\Core\Test as Test;
+use \Core\Test as Test;
 
-use Library\Core\Scope\Entities;
+use Core\Scope\Entities;
 
 use bundles\blog\Entities\Post;
 use bundles\lifestream\Entities\FeedItem;

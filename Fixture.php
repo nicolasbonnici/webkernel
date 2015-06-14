@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  *  Data Fixtures managment class
@@ -56,9 +56,9 @@ class Fixtures
             try {
                 $this->oEntity = new $sEntityName;
                 $this->oEntityCollection = new $sEntityNameCollection;
-            } catch (\Library\Core\EntityException $oEntityException) {
+            } catch (\Core\Orm\EntityException $oEntityException) {
                 throw new FixturesException($oEntityException->getMessage());
-            } catch (\Library\Core\EntityCollectionException $oEntityCollectionException) {
+            } catch (\Core\Orm\EntityCollectionException $oEntityCollectionException) {
                 throw new FixturesException($oEntityCollectionException->getMessage());
             }
 

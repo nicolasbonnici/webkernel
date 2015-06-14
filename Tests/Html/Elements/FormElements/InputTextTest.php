@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Html\Elements;
+namespace Core\Tests\Html\Elements;
 
-use Library\Core\Html\Elements\FormElements\InputText;
-use \Library\Core\Test as Test;
+use Core\Html\Elements\FormElements\InputText;
+use \Core\Test as Test;
 
 /**
  * Form element InputText component unit tests

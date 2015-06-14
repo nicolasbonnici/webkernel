@@ -1,9 +1,9 @@
 <?php
-namespace Library\Core\Tests;
+namespace Core\Tests;
 
-use \Library\Core\Test as Test;
+use \Core\Test as Test;
 
-use Library\Core\Json;
+use Core\Json;
 
 /**
  * Json component unit tests

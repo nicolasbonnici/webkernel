@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Html\Elements;
+namespace Core\Html\Elements;
 
-use Library\Core\Html\Element;
-use Library\Core\Html\FormElement;
+use Core\Html\Element;
+use Core\Html\FormElement;
 
 /**
  * HTML5 form for Twitter Bootstrap 3+

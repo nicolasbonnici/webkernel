@@ -1,7 +1,7 @@
 <?php
-namespace Library\Core\Tests\Scope;
+namespace Core\Tests\Scope;
 
-use Library\Core\Scope\Scope;
+use Core\Scope\Scope;
 
 
 /**

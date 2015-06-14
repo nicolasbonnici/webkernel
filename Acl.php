@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 use bundles\user\Entities\User;
 /**

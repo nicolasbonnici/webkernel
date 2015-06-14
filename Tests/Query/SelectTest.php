@@ -1,9 +1,9 @@
 <?php
-namespace Library\Core\Tests\Select;
+namespace Core\Tests\Select;
 
-use Library\Core\Query\Query;
-use Library\Core\Query\Select;
-use \Library\Core\Test as Test;
+use Core\Query\Query;
+use Core\Query\Select;
+use \Core\Test as Test;
 
 
 /**

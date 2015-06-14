@@ -8,7 +8,7 @@
  * Time: 00:31
  */
 
-namespace Library\Core\Query;
+namespace Core\Query;
 
 
 class Join  extends Where {

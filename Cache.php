@@ -1,8 +1,10 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * Memcached
+ *
+ * @todo code review for refactoring abstract Cache and memcache driver
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>

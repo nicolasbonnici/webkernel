@@ -1,5 +1,7 @@
 <?php
-namespace Library\Core;
+namespace Core;
+
+use Core\App\Configuration;
 
 /**
  * Test component
@@ -12,27 +14,14 @@ class Test extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_NAME'] = $sDomainName;
 
-        // Overwrite global project constants
-        if (defined('FRAMEWORK_STARTED') === false) {
-        	define('FRAMEWORK_STARTED', microtime(true));
-        }
-        if (defined('CONF_PATH') === false) {
-        	define('CONF_PATH', __DIR__ . '/../../app/config/');
-        }
         if (defined('ROOT_PATH') === false) {
-        	define('ROOT_PATH', __DIR__ . '/../../');
-        }
-        if (defined('CACHE_HOST') === false) {
-        	define('CACHE_HOST', '127.0.0.1');
-        }
-        if (defined('CACHE_PORT') === false) {
-        	define('CACHE_PORT', '11211');
+            define('ROOT_PATH', substr(__DIR__, 0, strlen(__DIR__) - strlen('Library/Core')));
         }
 
-        // Register autoload and load config for given staging environment
-        include_once __DIR__ . '/App.php';
-        \Library\Core\App::initAutoloader();
-        \Library\Core\App::initConfig();
+        require_once ROOT_PATH . '/Library/Core/App/Bootstrap.php';
+        App\Bootstrap::getInstance();
+
+        die('Bootstrapey!');
     }
 
     /**

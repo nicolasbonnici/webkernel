@@ -1,10 +1,10 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * Email wrapper class
  *
- * @dependancy \Library\Swift
+ * @dependancy \Swift
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */

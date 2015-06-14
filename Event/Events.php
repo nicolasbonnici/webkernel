@@ -1,11 +1,11 @@
 <?php
-namespace Library\Core\Event;
+namespace Core\Event;
 
 /**
  * Events managment abstract component
  *
  * Class Event
- * @package Library\Core\Event
+ * @package Core\Event
  */
 
 abstract class Events {

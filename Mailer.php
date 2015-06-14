@@ -1,11 +1,11 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * Email managment class that implement Swift mailer
  * Dois etre instancier avant le message
  *
- * @dependancy \Library\Swift
+ * @dependancy \Swift
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */

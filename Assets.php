@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * Javascript and stylesheet assets managment
@@ -85,7 +85,7 @@ class Assets
                     	if (mb_substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
                     		$sJsAsset = mb_substr($sJsAsset, 1);
                     	}                    	
-                        $sMinifiedJsCode .= \Library\Core\Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
+                        $sMinifiedJsCode .= \Core\Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
                     }
                 } elseif ($sAssetType === 'css') {
                     foreach ($aLibFilesPaths as $sCssAsset) {
@@ -93,7 +93,7 @@ class Assets
                         if (mb_substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
                             $sCssAsset = mb_substr($sCssAsset, 1);
                         }
-                        $sMinifiedCssCode .= \Library\Core\Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
+                        $sMinifiedCssCode .= \Core\Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
                     }
                 }
             }

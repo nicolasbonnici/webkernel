@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Scope;
+namespace Core\Scope;
 
 /**
  * Generic Scope component abstract layer

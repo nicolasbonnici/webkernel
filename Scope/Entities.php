@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Scope;
+namespace Core\Scope;
 
 /**
  * Bad practices
@@ -20,7 +20,7 @@ class Entities extends Scope
      * @param Entity $oEntity
      * @return EntityScope
      */
-    public function add(\Library\Core\Entity $oEntity, array $aConstraints = array())
+    public function add(\Core\Orm\Entity $oEntity, array $aConstraints = array())
     {
         $this->aScope[$oEntity::ENTITY] = array(
             'class'         => get_class($oEntity),

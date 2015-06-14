@@ -1,10 +1,10 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * View managment
  *
- * @dependancy \Library\Haanga
+ * @dependancy \Haanga
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 

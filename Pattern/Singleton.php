@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Pattern;
+namespace Core\Pattern;
 
 /**
  * Singleton design pattern implementation class
@@ -17,9 +17,9 @@ abstract class Singleton
     /**
      * Constructor
      */
-    public function __construct()
+    protected function __construct()
     {
-        if (self::isInstanceRegistered()) {
+        if (self::isInstanceRegistered() === true) {
             trigger_error('Trying to re-instance singleton class ' . get_called_class(), E_USER_WARNING);
         }
     }
@@ -47,7 +47,7 @@ abstract class Singleton
      */
     public static function isInstanceRegistered()
     {
-        return isset(self::$aInstances[get_called_class()]);
+        return (isset(self::$aInstances[get_called_class()]) === true);
     }
 
     /**

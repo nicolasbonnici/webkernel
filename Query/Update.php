@@ -7,7 +7,7 @@
  * Time: 01:15
  */
 
-namespace Library\Core\Query;
+namespace Core\Query;
 
 
 class Update extends Query {

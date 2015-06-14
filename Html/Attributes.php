@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Html;
+namespace Core\Html;
 
 /**
  * HTML5 attributes processor class

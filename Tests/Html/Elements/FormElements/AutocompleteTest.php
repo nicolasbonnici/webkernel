@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Html\Elements;
+namespace Core\Tests\Html\Elements;
 
-use Library\Core\Html\Elements\FormElements\Autocomplete;
-use \Library\Core\Test as Test;
+use Core\Html\Elements\FormElements\Autocomplete;
+use \Core\Test as Test;
 
 /**
  * Form element autocomplete component unit tests

@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core;
 
 /**
  * CRUD action model layer abstract class
@@ -75,20 +75,20 @@ abstract class Crud
                 } elseif (is_int($mUser) && intval($mUser) > 0) {
                     try {
                         $this->oUser = new \bundles\user\Entities\User($mUser);
-                    } catch (\Library\Core\EntityException $oException) {
+                    } catch (\Core\Orm\EntityException $oException) {
                         $this->oUser = null;
                     }
                 } else {
                     $this->oUser = null;
                 }
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Core\Orm\EntityException $oException) {
                 throw new CrudException('Invalid user instance provided', App::ERROR_USER_INVALID);
             }
 
             try {
                 $this->oEntity = new $sEntityClassName(((intval($iPrimaryKey) > 0) ? $iPrimaryKey : null));
                 $this->oEntities = new $sEntityCollectionClassName;
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Core\Orm\EntityException $oException) {
                 throw new CrudException('Invalid entity provided, unable to load...', App::ERROR_ENTITY_NOT_LOADABLE);
             }
         }
@@ -99,7 +99,7 @@ abstract class Crud
      *
      * @param array $aParameters A one dimensional array: attribute name => value
      * @throws CrudException If the currently loaded user session is different than the ne entity one
-     * @return boolean Library\Core\EntityException
+     * @return boolean Core\Orm\EntityException
      */
     public function create(array $aParameters = array())
     {
@@ -145,7 +145,7 @@ abstract class Crud
                 $this->oEntity = clone $oEntity;
 
                 return $oEntity->add();
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Core\Orm\EntityException $oException) {
                 return $oException;
             }
         }
@@ -155,7 +155,7 @@ abstract class Crud
      * Read an entity restricted to user scope
      *
      * @throws CrudException
-     * @return mixed \app\Entities\{Entity}|\Library\Core\EntityException TRUE is entity is correctly deleted otherwhise the \Library\Core\EntityException
+     * @return mixed \app\Entities\{Entity}|\Core\Orm\EntityException TRUE is entity is correctly deleted otherwhise the \Core\Orm\EntityException
      */
     public function read()
     {
@@ -170,7 +170,7 @@ abstract class Crud
             } else {
                 try {
                     return $this->getEntity();
-                } catch (\Library\Core\EntityException $oException) {
+                } catch (\Core\Orm\EntityException $oException) {
                     return $oException;
                 }
             }
@@ -182,7 +182,7 @@ abstract class Crud
      *
      * @param array $aParameters
      * @throws CrudException
-     * @return \Library\Core\EntityException
+     * @return \Core\Orm\EntityException
      */
     public function update(array $aParameters = array())
     {
@@ -226,7 +226,7 @@ abstract class Crud
                 }
 
                 return $this->oEntity->update();
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Core\Orm\EntityException $oException) {
                 return $oException;
             }
         }
@@ -236,7 +236,7 @@ abstract class Crud
      * Delete an entity restricted to user scope
      *
      * @throws CrudException
-     * @return mixed \app\Entities\{Entity}|\Library\Core\EntityException
+     * @return mixed \app\Entities\{Entity}|\Core\Orm\EntityException
      */
     public function delete()
     {
@@ -249,7 +249,7 @@ abstract class Crud
         } else {
             try {
                 return $this->oEntity->delete();
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Core\Orm\EntityException $oException) {
                 return $oException;
             }
         }
@@ -290,7 +290,7 @@ abstract class Crud
      * @param array $aOrderBy
      * @param array $aLimit
      * @throws CrudException
-     * @return boolean \Library\Core\EntityException
+     * @return boolean \Core\Orm\EntityException
      */
     public function loadUserEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10))
     {
@@ -304,7 +304,7 @@ abstract class Crud
 
         try {
             return $this->loadEntities($aParameters, $aOrderBy, $aLimit);
-        } catch (\Library\Core\EntityException $oException) {
+        } catch (\Core\Orm\EntityException $oException) {
             return $oException;
         }
     }
@@ -323,7 +323,7 @@ abstract class Crud
      * Set allowed entity attributes scope
      *
      * @param unknown $aEntityRestrictedAttributes
-     * @return \Library\Core\Crud
+     * @return \Core\Crud
      */
     public function setRestrictedEntityAttributes($aEntityRestrictedAttributes)
     {

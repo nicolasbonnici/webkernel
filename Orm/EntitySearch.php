@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Core\Orm;
 
 use bundles\user\Entities\User;
 
@@ -45,7 +45,7 @@ class EntitySearch
 
     /**
      * Bundles scope to perform search on
-     * @var \Library\Core\Scope\Bundles
+     * @var \Core\Scope\Bundles
      */
     protected $oScope;
 
@@ -212,7 +212,7 @@ class EntitySearch
         } elseif (is_int($mUser) && intval($mUser) > 0) {
             try {
                 $this->oUser = new User($mUser);
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Core\Orm\EntityException $oException) {
                 $this->oUser = null;
             }
         } else {

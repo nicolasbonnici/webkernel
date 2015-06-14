@@ -1,9 +1,9 @@
 <?php
-namespace Library\Core\Tests\Query;
+namespace Core\Tests\Query;
 
-use Library\Core\Query\Operators;
-use Library\Core\Query\Where;
-use \Library\Core\Test as Test;
+use Core\Query\Operators;
+use Core\Query\Where;
+use \Core\Test as Test;
 
 
 /**
@@ -50,6 +50,6 @@ class WhereTest extends Test
 
     public function testBuildWhere()
     {
-        $this->assertEquals(self::$oWhereInstance->buildWhere(), '`prop1` = :? AND `prop2` != :? AND `prop3` = :? AND `prop4` > :? AND `prop5` < :? AND `prop6` >= :? AND `prop7` <= :? OR `prop8` LIKE %prop8%`prop8` IN(?,?,?,?,?,?,?,?)');
+        $this->assertEquals(self::$oWhereInstance->buildWhere(), 'WHERE `prop1` = :? AND `prop2` != :? AND `prop3` = :? AND `prop4` > :? AND `prop5` < :? AND `prop6` >= :? AND `prop7` <= :? OR `prop8` LIKE %prop8%`prop8` IN(?,?,?,?,?,?,?,?)');
     }
 }

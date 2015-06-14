@@ -1,10 +1,10 @@
 <?php
-namespace Library\Core\Tests\Update;
+namespace Core\Tests\Update;
 
-use Library\Core\Query\Operators;
-use Library\Core\Query\Query;
-use Library\Core\Query\Update;
-use \Library\Core\Test as Test;
+use Core\Query\Operators;
+use Core\Query\Query;
+use Core\Query\Update;
+use \Core\Test as Test;
 
 
 /**
@@ -86,6 +86,10 @@ class UpdateTest extends Test
     public function testAddWhereCondition()
     {
         $this->assertTrue(self::$oUpdateInstance->addWhereCondition(Operators::equal('otherField1')) instanceof Update);
+        $this->assertEquals(
+            self::$oUpdateInstance->build(),
+            'UPDATE table_name (`prop1`, `prop2`, `prop3`, `prop4`) VALUES("value1", 2, "lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ", "value for prop 4") WHERE `otherField1` = :?'
+        );
     }
     
 }
