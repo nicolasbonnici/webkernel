@@ -30,9 +30,9 @@ class Test extends \PHPUnit_Framework_TestCase
         }
 
         // Register autoload and load config for given staging environment
-        include_once __DIR__ . '/App.php';
-        \Library\Core\App::initAutoloader();
-        \Library\Core\App::initConfig();
+        include_once __DIR__ . '/Bootstrap.php';
+        \Library\Core\Bootstrap::initAutoloader();
+        \Library\Core\Bootstrap::initConfig();
     }
 
     /**

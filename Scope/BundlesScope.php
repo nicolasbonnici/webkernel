@@ -7,11 +7,11 @@ namespace Library\Core\Scope;
  * @author niko <nicolasbonnici@gmail.com>
  *
  */
-class Bundles extends Scope
+class BundlesScope extends Scope
 {
 
 }
 
-class BundlesException extends \Exception
+class BundlesScopeException extends \Exception
 {
 }

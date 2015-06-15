@@ -124,7 +124,7 @@ class Database
     {
         try {
 
-            $aConfig = \Library\Core\App::getConfig();
+            $aConfig = \Library\Core\Bootstrap::getConfig();
 
             self::$_driver = $aConfig['database']['driver'];
             self::$_host = $aConfig['database']['host'];

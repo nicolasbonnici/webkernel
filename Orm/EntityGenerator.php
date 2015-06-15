@@ -1,7 +1,5 @@
 <?php
-namespace Library\Core;
-
-use Library\Core\Entity;
+namespace Library\Core\Orm;
 
 /**
  * Entity Generator to generate random data records
@@ -24,7 +22,7 @@ class EntityGenerator
 			$this->aEntitiesToGenerate = $aEntities;
 		} else {
 			// Per default grab all entities
-			$this->aEntitiesToGenerate = Bootstrap::buildEntities();
+			$this->aEntitiesToGenerate = App::buildEntities();
 		}
 		// @todo prendre un tableau et bouclé dessus pour generer les entités
 	}

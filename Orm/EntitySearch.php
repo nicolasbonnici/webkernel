@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Orm;
 
 use bundles\user\Entities\User;
 
@@ -191,7 +191,7 @@ class EntitySearch
 
         if (is_array($mEntity) && count($mEntity) > 0) {
             $this->aEntitiesScope = $mEntity;
-        } elseif (is_string($mEntity) && empty($mEntity) === false && class_exists(Bootstrap::ENTITIES_NAMESPACE . $mEntity)) {
+        } elseif (is_string($mEntity) && empty($mEntity) === false && class_exists(App::ENTITIES_NAMESPACE . $mEntity)) {
             $this->aEntitiesScope[] = $mEntity;
         } elseif (is_null($mEntity) || empty($mEntity) === true) {
             // By default behavior we take all available Entities
@@ -212,7 +212,7 @@ class EntitySearch
         } elseif (is_int($mUser) && intval($mUser) > 0) {
             try {
                 $this->oUser = new User($mUser);
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Library\Core\Orm\EntityException $oException) {
                 $this->oUser = null;
             }
         } else {

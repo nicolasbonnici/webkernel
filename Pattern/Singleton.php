@@ -17,11 +17,9 @@ abstract class Singleton
     /**
      * Constructor
      */
-    public function __construct()
+    protected function __construct()
     {
-        if (self::isInstanceRegistered()) {
-            trigger_error('Trying to re-instance singleton class ' . get_called_class(), E_USER_WARNING);
-        }
+
     }
 
     /**

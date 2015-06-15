@@ -5,7 +5,7 @@ use Library\Core\Router;
 use bundles\user\Entities\User;
 
 /**
- * App Model class
+ * Bootstrap Model class
  * A simple class to build and manage usefull setup informations
  *
  * @dependancy \Library\Core\Cache
@@ -13,7 +13,7 @@ use bundles\user\Entities\User;
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */
-class App
+class Bootstrap
 {
     private static $oInstance;
 
@@ -40,7 +40,7 @@ class App
 
     /**
      * @todo delete??
-     * @var App Instance
+     * @var Bootstrap Instance
      */
     private static $oApp;
 
@@ -51,7 +51,7 @@ class App
     private static $oRouterInstance;
 
     /**
-     * App global configuration parsed from the config.ini file
+     * Bootstrap global configuration parsed from the config.ini file
      *
      * @var array
      */
@@ -143,14 +143,17 @@ class App
         /**
          * @todo en conf
          */
-        self::initPaths();        
+        self::initPaths();
 
         /**
          *
          * @see register class autoloader
          */
-        self::initAutoloader();        
-        
+        //self::initAutoloader();
+        require ROOT_PATH . 'Library/Core/Autoload.php';
+        $oAutoload = new Autoload();
+        $oAutoload->register();
+
         /**
          * Init config
          */
@@ -213,7 +216,7 @@ class App
      */
     public static function initAutoloader()
     {
-        spl_autoload_register('\Library\Core\App::classLoader');
+        spl_autoload_register('\Library\Core\Bootstrap::classLoader');
     }
 
     /**

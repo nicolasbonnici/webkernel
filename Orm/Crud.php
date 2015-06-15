@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Orm;
 
 /**
  * CRUD action model layer abstract class
@@ -65,7 +65,7 @@ abstract class Crud
         if (empty($sEntityClassName) || ! class_exists($sEntityClassName)) {
             throw new CrudException(
                 'Entity requested not found (' . $sEntityClassName . '), you need to create manually or scaffold his \app\Entities class.',
-                Bootstrap::ERROR_ENTITY_EXISTS
+                App::ERROR_ENTITY_EXISTS
             );
         } else {
             try {
@@ -75,21 +75,21 @@ abstract class Crud
                 } elseif (is_int($mUser) && intval($mUser) > 0) {
                     try {
                         $this->oUser = new \bundles\user\Entities\User($mUser);
-                    } catch (\Library\Core\EntityException $oException) {
+                    } catch (\Library\Core\Orm\EntityException $oException) {
                         $this->oUser = null;
                     }
                 } else {
                     $this->oUser = null;
                 }
-            } catch (\Library\Core\EntityException $oException) {
-                throw new CrudException('Invalid user instance provided', Bootstrap::ERROR_USER_INVALID);
+            } catch (\Library\Core\Orm\EntityException $oException) {
+                throw new CrudException('Invalid user instance provided', App::ERROR_USER_INVALID);
             }
 
             try {
                 $this->oEntity = new $sEntityClassName(((intval($iPrimaryKey) > 0) ? $iPrimaryKey : null));
                 $this->oEntities = new $sEntityCollectionClassName;
-            } catch (\Library\Core\EntityException $oException) {
-                throw new CrudException('Invalid entity provided, unable to load...', Bootstrap::ERROR_ENTITY_NOT_LOADABLE);
+            } catch (\Library\Core\Orm\EntityException $oException) {
+                throw new CrudException('Invalid entity provided, unable to load...', App::ERROR_ENTITY_NOT_LOADABLE);
             }
         }
     }
@@ -99,7 +99,7 @@ abstract class Crud
      *
      * @param array $aParameters A one dimensional array: attribute name => value
      * @throws CrudException If the currently loaded user session is different than the ne entity one
-     * @return boolean Library\Core\EntityException
+     * @return boolean Library\Core\Orm\EntityException
      */
     public function create(array $aParameters = array())
     {
@@ -109,7 +109,7 @@ abstract class Crud
 
         // Check for user bypass attempt
         if (($this->oEntity->hasAttribute('user_iduser') && isset($aParameter['user_iduser']) && $this->oUser->getId() !== intval($aParameter['user_iduser'])) || ($this->oEntity->hasAttribute('iduser') && isset($aParameter['iduser']) && $this->oUser->getId() !== intval($aParameter['iduser']))) {
-            throw new CrudException('Invalid user', Bootstrap::ERROR_USER_INVALID);
+            throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
         } else {
             try {
                 $oEntity = clone $this->oEntity;
@@ -145,7 +145,7 @@ abstract class Crud
                 $this->oEntity = clone $oEntity;
 
                 return $oEntity->add();
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Library\Core\Orm\EntityException $oException) {
                 return $oException;
             }
         }
@@ -155,22 +155,22 @@ abstract class Crud
      * Read an entity restricted to user scope
      *
      * @throws CrudException
-     * @return mixed \app\Entities\{Entity}|\Library\Core\EntityException TRUE is entity is correctly deleted otherwhise the \Library\Core\EntityException
+     * @return mixed \app\Entities\{Entity}|\Library\Core\Orm\EntityException TRUE is entity is correctly deleted otherwhise the \Library\Core\Orm\EntityException
      */
     public function read()
     {
         if (is_null($this->oUser)) {
-            throw new CrudException('Invalid user', Bootstrap::ERROR_USER_INVALID);
+            throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
         } else {
             // Check for user bypass attempt
             if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
-                throw new CrudException('Invalid user', Bootstrap::ERROR_USER_INVALID);
+                throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
             } elseif (! $this->oEntity->isLoaded()) {
-                throw new CrudException('Cannot read an unloaded entity.', Bootstrap::ERROR_ENTITY_NOT_LOADED);
+                throw new CrudException('Cannot read an unloaded entity.', App::ERROR_ENTITY_NOT_LOADED);
             } else {
                 try {
                     return $this->getEntity();
-                } catch (\Library\Core\EntityException $oException) {
+                } catch (\Library\Core\Orm\EntityException $oException) {
                     return $oException;
                 }
             }
@@ -182,16 +182,16 @@ abstract class Crud
      *
      * @param array $aParameters
      * @throws CrudException
-     * @return \Library\Core\EntityException
+     * @return \Library\Core\Orm\EntityException
      */
     public function update(array $aParameters = array())
     {
         assert('count($aParameters) > 0');
 
         if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
-            throw new CrudException('Invalid user', Bootstrap::ERROR_USER_INVALID);
+            throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
         } elseif (! $this->oEntity->isLoaded()) {
-            throw new CrudException('Cannot update an unloaded enitity.', Bootstrap::ERROR_ENTITY_NOT_LOADED);
+            throw new CrudException('Cannot update an unloaded enitity.', App::ERROR_ENTITY_NOT_LOADED);
         } else {
             try {
 
@@ -200,7 +200,7 @@ abstract class Crud
 
                         // Check for user bypass attempt
                         if (($this->oEntity->hasAttribute('user_iduser') && $sKey === 'user_iduser' && $this->oUser->getId() !== intval($mValue)) || ($this->oEntity->hasAttribute('user_iduser') && $sKey === 'iduser' && $this->oUser->getId() !== intval($mValue))) {
-                            throw new CrudException('Invalid user', Bootstrap::ERROR_USER_INVALID);
+                            throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
                         }
 
                         $this->oEntity->{$sKey} = $mValue;
@@ -226,7 +226,7 @@ abstract class Crud
                 }
 
                 return $this->oEntity->update();
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Library\Core\Orm\EntityException $oException) {
                 return $oException;
             }
         }
@@ -236,20 +236,20 @@ abstract class Crud
      * Delete an entity restricted to user scope
      *
      * @throws CrudException
-     * @return mixed \app\Entities\{Entity}|\Library\Core\EntityException
+     * @return mixed \app\Entities\{Entity}|\Library\Core\Orm\EntityException
      */
     public function delete()
     {
 
         // Check for user bypass attempt
         if (($this->oEntity->hasAttribute('user_iduser') && (is_null($this->oUser))) || ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser))) {
-            throw new CrudException('Invalid user', Bootstrap::ERROR_USER_INVALID);
+            throw new CrudException('Invalid user', App::ERROR_USER_INVALID);
         } elseif (! $this->oEntity->isLoaded()) {
-            throw new CrudException('Cannot delete an unloaded entity.', Bootstrap::ERROR_ENTITY_NOT_LOADED);
+            throw new CrudException('Cannot delete an unloaded entity.', App::ERROR_ENTITY_NOT_LOADED);
         } else {
             try {
                 return $this->oEntity->delete();
-            } catch (\Library\Core\EntityException $oException) {
+            } catch (\Library\Core\Orm\EntityException $oException) {
                 return $oException;
             }
         }
@@ -290,12 +290,12 @@ abstract class Crud
      * @param array $aOrderBy
      * @param array $aLimit
      * @throws CrudException
-     * @return boolean \Library\Core\EntityException
+     * @return boolean \Library\Core\Orm\EntityException
      */
     public function loadUserEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10))
     {
         if (is_null($this->oUser)) {
-            throw new CrudException('No \bundles\user\Entities\User entity instance found!', Bootstrap::ERROR_ENTITY_NOT_MAPPED_TO_USERS);
+            throw new CrudException('No \bundles\user\Entities\User entity instance found!', App::ERROR_ENTITY_NOT_MAPPED_TO_USERS);
         }
 
         if (isset($aParameters['user_iduser']) === false) {
@@ -304,7 +304,7 @@ abstract class Crud
 
         try {
             return $this->loadEntities($aParameters, $aOrderBy, $aLimit);
-        } catch (\Library\Core\EntityException $oException) {
+        } catch (\Library\Core\Orm\EntityException $oException) {
             return $oException;
         }
     }

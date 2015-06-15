@@ -86,6 +86,10 @@ class UpdateTest extends Test
     public function testAddWhereCondition()
     {
         $this->assertTrue(self::$oUpdateInstance->addWhereCondition(Operators::equal('otherField1')) instanceof Update);
+        $this->assertEquals(
+            self::$oUpdateInstance->build(),
+            'UPDATE table_name (`prop1`, `prop2`, `prop3`, `prop4`) VALUES("value1", 2, "lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ", "value for prop 4") WHERE `otherField1` = :?'
+        );
     }
     
 }

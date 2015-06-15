@@ -36,7 +36,7 @@ class Directory extends Singleton
                     self::Tools($sPath, array(0,7,7,7), true);
                     return self::delete($sPath, true);
                 } else {
-                    throw new ToolsException('Unable to delete ' . $sPath . ' check the ' . App::getServerUsername() . ' user rights on your server.');
+                    throw new ToolsException('Unable to delete ' . $sPath . ' check the ' . Bootstrap::getServerUsername() . ' user rights on your server.');
                 }
             } else {
                 return true;

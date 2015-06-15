@@ -3,7 +3,7 @@ namespace Library\Core\Tests\Scope;
 
 use \Library\Core\Test as Test;
 
-use Library\Core\Scope\Entities;
+use Library\Core\Scope\EntitiesScope;
 
 use bundles\blog\Entities\Post;
 use bundles\lifestream\Entities\FeedItem;
@@ -34,8 +34,8 @@ class EntityScopeTest extends Test
 
     public function testConstructor()
     {
-        self::$oScopeEntitiesInstance = new Entities();
-        $this->assertTrue(self::$oScopeEntitiesInstance instanceof Entities);
+        self::$oScopeEntitiesInstance = new EntitiesScope();
+        $this->assertTrue(self::$oScopeEntitiesInstance instanceof EntitiesScope);
     }
 
     public function testAdd()
@@ -48,9 +48,9 @@ class EntityScopeTest extends Test
          * @todo also test constraints parameter
          */
 
-        $this->assertTrue(self::$oScopeEntitiesInstance->add($oPost) instanceof Entities);
-        $this->assertTrue(self::$oScopeEntitiesInstance->add($oFeedItem) instanceof Entities);
-        $this->assertTrue(self::$oScopeEntitiesInstance->add($oUser) instanceof Entities);
+        $this->assertTrue(self::$oScopeEntitiesInstance->add($oPost) instanceof EntitiesScope);
+        $this->assertTrue(self::$oScopeEntitiesInstance->add($oFeedItem) instanceof EntitiesScope);
+        $this->assertTrue(self::$oScopeEntitiesInstance->add($oUser) instanceof EntitiesScope);
     }
 
     public function testGetScope()

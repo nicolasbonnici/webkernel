@@ -1,0 +1,124 @@
+<?php
+
+namespace Library\Core;
+
+
+class Autoload {
+
+    /**
+     * PSR 4 prefixes
+     * @var array
+     */
+    protected $aPrefixes = array();
+
+    /**
+     * Loaded classes for debug
+     *
+     * @var array
+     */
+    protected $aLoadedClass = array();
+
+    /**
+     * Find a class on project
+     * @todo refactor and optimize also add prefixe managment
+     * @param string $sClassName
+     * @return string           The complete absolute path of the class otherwise NULL
+     */
+    protected function findClass($sClassName)
+    {
+        $sComponentName = ltrim($sClassName, '\\');
+        $sFileName = '';
+        $sComponentNamespace = '';
+        // PSR4 compliant class call
+        if ($lastNsPos = strripos($sClassName, '\\')) {
+            $sComponentNamespace = substr($sClassName, 0, $lastNsPos);
+            $sClassName = substr($sClassName, $lastNsPos + 1);
+
+            $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sComponentNamespace) . DIRECTORY_SEPARATOR;
+        }
+        $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
+        if (file_exists(ROOT_PATH . $sFileName) === true) {
+            $this->registerLoadedClass($sClassName, $sComponentNamespace);
+            return ROOT_PATH . $sFileName;
+        }
+        return null;
+    }
+
+    /**
+     * Autoload any class that use namespaces (PSR-4)
+     * @param $sClassName
+     * @return bool         TRUE if class was loaded otherwise FALSE
+     */
+    public function load($sClassName)
+    {
+        $sFilename = $this->findClass($sClassName);
+        if (is_null($sFilename) === false) {
+            require $sFilename;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Register called class for debug purposes
+     *
+     * @todo also use for cache managment not only @load but persistent with memcache
+     * @param string $sClassname            Class component name
+     * @param string $sComponentPath        Class component path
+     */
+    protected function registerLoadedClass($sClassname, $sComponentPath = '')
+    {
+        if (strlen($sClassname) > 0) {
+            $this->aLoadedClass[$sClassname . (($sComponentPath != '') ? ' (' . $sComponentPath . ')' : '')] = round(microtime(true) - FRAMEWORK_STARTED, 3);
+        }
+    }
+
+    /**
+     *
+     * @return mixed
+     */
+    public function getLoadedClass()
+    {
+        return $this->aLoadedClass;
+    }
+
+    /**
+     * Add a PSR 4 compliant prefix
+     *
+     * @param string $sNsPrefix
+     * @param string $sRelativePath
+     */
+    public function addPrefix($sNsPrefix, $sRelativePath)
+    {
+        $this->aPrefixes[] = array($sNsPrefix, $sRelativePath);
+        return $this;
+    }
+
+    public function getPrefixes()
+    {
+        return $this->aPrefixes;
+    }
+
+    /**
+     * Register this Autoloader component instance
+     *
+     * @param bool $bPrepend
+     * @return bool
+     */
+    public function register($bPrepend = false)
+    {
+        return spl_autoload_register(array($this, 'load'), true, $bPrepend);
+    }
+
+
+    /**
+     * Removes this instance from the registered autoloaders
+     *
+     * @return bool
+     */
+    public function unregister()
+    {
+        return spl_autoload_unregister(array($this, 'load'));
+    }
+
+}

@@ -99,7 +99,7 @@ class Controller extends Acl
      */
     public function __construct($oUser = null, $oBundleConfig = null)
     {
-        $this->aConfig = \Library\Core\App::getConfig();
+        $this->aConfig = \Library\Core\Bootstrap::getConfig();
         if (! is_null($oBundleConfig)) {
             $this->oBundleConfig = $oBundleConfig;
         }
@@ -138,8 +138,8 @@ class Controller extends Acl
             $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
             $this->aView["helpers"] = '../../../app/Views/helpers/';
 
-            // App
-            $this->aView["aAppBundles"] = App::getBundles();
+            // Bootstrap
+            $this->aView["aAppBundles"] = Bootstrap::getBundles();
             $this->aView["sAppName"] = $this->aConfig['app']['name'];
             $this->aView["sAppSupportName"] = $this->aConfig['support']['name'];
             $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
@@ -154,7 +154,7 @@ class Controller extends Acl
 
             // debug
             $this->aView["sEnv"] = ENV;
-            $this->aView["aLoadedClass"] = \Library\Core\App::getLoadedClass();
+            $this->aView["aLoadedClass"] = \Library\Core\Bootstrap::getLoadedClass();
             $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
             $this->aView["bIsXhr"] = $this->isXHR();
 

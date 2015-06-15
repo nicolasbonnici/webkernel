@@ -12,7 +12,7 @@ namespace Library\Core\Scope;
  * @author niko <nicolasbonnici@gmail.com>
  *
  */
-class Entities extends Scope
+class EntitiesScope extends Scope
 {
     /**
      * Add a new Entity to the scope
@@ -20,7 +20,7 @@ class Entities extends Scope
      * @param Entity $oEntity
      * @return EntityScope
      */
-    public function add(\Library\Core\Entity $oEntity, array $aConstraints = array())
+    public function add(\Library\Core\Orm\Entity $oEntity, array $aConstraints = array())
     {
         $this->aScope[$oEntity::ENTITY] = array(
             'class'         => get_class($oEntity),
@@ -46,6 +46,6 @@ class Entities extends Scope
     }
 }
 
-class EntitiesException extends \Exception
+class EntitiesScopeException extends \Exception
 {
 }
