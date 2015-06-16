@@ -60,8 +60,23 @@ class Where  {
                 ? $sConnector
                 : null
             ),
-            'condition' =>$sWhereCondition
+            'condition' => $sWhereCondition
         );
+        return $this;
+    }
+
+
+    /**
+     * Add several where conditions to query
+     *
+     * @param array $sWhere
+     * @return Where
+     */
+    public function addWhereConditions(array $aWhere)
+    {
+        foreach ($aWhere as $sWhereCondition => $sConnector) {
+            $this->addWhereCondition($sWhereCondition, $sConnector);
+        }
         return $this;
     }
 

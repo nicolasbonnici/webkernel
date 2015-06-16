@@ -3,6 +3,8 @@ namespace Library\Core\Orm;
 
 use Library\Core\Database;
 use Library\Core\Cache;
+use Library\Core\Query\Select;
+use Library\Core\Query\Where;
 
 /**
  * On the fly ORM CRUD managment abstract class
@@ -98,7 +100,7 @@ abstract class Entity extends EntityAttributes
     public function __construct($mPrimaryKey = null)
     {
         // If we just want to instanciate a blank object, do not pass any parameter to constructor
-        $this->loadFields();
+        $this->loadAttributes();
         if (! is_null($mPrimaryKey) && is_string($mPrimaryKey) || is_int($mPrimaryKey)) {
             // Build only one object
             $this->{static::PRIMARY_KEY} = $mPrimaryKey;
@@ -117,7 +119,7 @@ abstract class Entity extends EntityAttributes
      *
      * @return string
      */
-    public final function __toString()
+    public function __toString()
     {
         return $this->sChildClass . (($this->isLoaded()) ? ' #' . $this->getId() : '');
     }
@@ -134,7 +136,7 @@ abstract class Entity extends EntityAttributes
      */
     public function loadByData($aData, $bRefreshCache = true, $sCacheKey = null)
     {
-        $this->loadFields();
+        $this->loadAttributes();
         foreach ($aData as $sName => $mValue) {
             $this->{$sName} = $mValue;
         }
@@ -167,7 +169,12 @@ abstract class Entity extends EntityAttributes
             throw new EntityException('No parameter provided for loading object of type ' . get_called_class());
         }
 
-        return $this->loadByQuery('SELECT * FROM ' . static::TABLE_NAME . ' WHERE `' . implode('` = ? AND `', array_keys($aParameters)) . '` = ? ', array_values($aParameters), true, Cache::getKey(__METHOD__, $aParameters));
+        return $this->loadByQuery(
+            'SELECT * FROM ' . static::TABLE_NAME .
+                ' WHERE `' . implode('` = ? AND `', array_keys($aParameters)) . '` = ? ', array_values($aParameters),
+            true,
+            Cache::getKey(__METHOD__, $aParameters)
+        );
     }
 
     /**
@@ -250,7 +257,7 @@ abstract class Entity extends EntityAttributes
         $aInsertedFields = array();
         $aInsertedValues = array();
         foreach ($this->aFields as $sFieldName => $aFieldInfos) {
-            if (isset($this->{$sFieldName}) && ! is_null($this->{$sFieldName}) && $this->validateDataIntegrity($sFieldName, $this->{$sFieldName})) {
+            if (isset($this->{$sFieldName}) && ! is_null($this->{$sFieldName}) && $this->validate($sFieldName, $this->{$sFieldName})) {
                 $aInsertedFields[] = $sFieldName;
                 $aInsertedValues[] = $this->{$sFieldName};
             }
@@ -264,7 +271,7 @@ abstract class Entity extends EntityAttributes
         	$sQuery = 'INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
             $oStatement = \Library\Core\Database::dbQuery($sQuery, $aInsertedValues);
             $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
-            return $this->bIsLoaded = (intval($this->{static::PRIMARY_KEY}) > 0);
+            return $this->bIsLoaded = ($oStatement !== false && intval($this->{static::PRIMARY_KEY}) > 0);
             
         } catch (\Exception $oException) {
             return false;
@@ -307,8 +314,7 @@ abstract class Entity extends EntityAttributes
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
             $oStatement = \Library\Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
             
-            // @todo ($oStatement !== false);
-            return $this->refresh();
+            return ($oStatement !== false && $this->refresh());
         } catch (\Exception $oException) {
             return false;
         }
@@ -339,7 +345,7 @@ abstract class Entity extends EntityAttributes
             ));
             $this->reset();
             
-	        return ($this->isLoaded() === false);
+	        return ($oStatement !== false && $this->isLoaded() === false);
 	        
         } catch (\Exception $oException) {
             return false;
@@ -355,61 +361,6 @@ abstract class Entity extends EntityAttributes
     public function refresh()
     {
         return $this->loadByPrimaryKey(false);
-    }
-
-    /**
-     * Retrieve instance ID (primary key)
-     *
-     * @return mixed Instance ID
-     * @throws EntityException
-     */
-    public function getId()
-    {
-        if (! $this->bIsLoaded) {
-            throw new EntityException('Cannot get ID of object not loaded');
-        }
-        return (int) $this->{static::PRIMARY_KEY};
-    }
-    
-    /**
-     * Linked entities accessor
-     * @return array
-     */
-    public function getMappedEntities()
-    {
-    	return $this->aMappedEntities;
-    }
-
-    /**
-     * Check whether object was successfully loaded
-     *
-     * @return boolean TRUE if object was successfully loaded, otherwise FALSE
-     */
-    public function isLoaded()
-    {
-        return $this->bIsLoaded;
-    }
-
-    /**
-     * Check if the entity is searchable
-     *
-     * @return boolean
-     */
-    public function isSearchable()
-    {
-        return $this->bIsSearchable;
-    }
-
-    /**
-     * Check whether instance is in cache or not
-     *
-     * @param integer $iId
-     *            Instance ID (primary key of table)
-     * @return boolean TRUE if instance is in cache, otherwise false
-     */
-    public static function isInCache($iId)
-    {
-        return (Cache::get(Cache::getKey(get_called_class(), $iId)) !== false);
     }
 
     /**
@@ -432,72 +383,25 @@ abstract class Entity extends EntityAttributes
     }
 
     /**
-     * Get entity primary key attribute name
-     *
-     * @return string
-     */
-    public function getPrimaryKeyName()
-    {
-        return static::PRIMARY_KEY;
-    }
-
-
-    /**
      * Reset current instance to blank state
-     *
-     * @todo aucun interet autant re instancier la class appelé
      */
     public function reset()
     {
-        $aOriginProperties = array();
-        $oReflection = new \ReflectionClass($this);
-
-        foreach ($oReflection->getProperties() as $oRelectionProperty) {
-            $aOriginProperties[] = $oRelectionProperty->getName();
-        }
-
+        $aEntityAttributes = $this->getAttributes();
         foreach ($this as $sKey => $mValue) {
-            if (! in_array($sKey, $aOriginProperties)) {
+            if (! in_array($sKey, $aEntityAttributes)) {
                 unset($this->$sKey);
+            } else {
+                $this->$sKey = null;
             }
         }
 
         $this->bIsLoaded = false;
     }
-    
-    /**
-     * Validate data integrity for the database field
-     *
-     * @todo remettre la gestion des exceptions
-     *
-     * @param string $sFieldName
-     * @param
-     *            mixed string|int|float $mValue
-     * @throws EntityException
-     * @return bool
-     */
-    protected function validateDataIntegrity($sFieldName, $mValue)
-    {
-        assert('isset($this->aFields[$sFieldName]["Type"])');
-
-        $iValidatorStatus = 0;
-        $sDataType = '';
-
-        // If nullable
-        if (is_null($mValue) && $this->isNullable($sFieldName)) {
-            return true;
-        }
-
-        if (! empty($sFieldName) && ! empty($mValue)) {
-            if (($sDataType = $this->getDataType($sFieldName)) !== NULL && method_exists(__NAMESPACE__ . '\\Validator', $sDataType) && ($iValidatorStatus = Validator::$sDataType($mValue)) === Validator::STATUS_OK) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * Compute the EntityCollection class name
+     *
      * @return string
      */
     public function computeCollectionClassName()
@@ -509,31 +413,120 @@ abstract class Entity extends EntityAttributes
     }
 
     /**
-     * Save history on update for historized objects
-     * @param \app\Entities $oOriginalObject          Original object before update
+     * Check whether object was successfully loaded
+     *
+     * @return boolean TRUE if object was successfully loaded, otherwise FALSE
      */
-    protected function saveHistory($oOriginalObject)
+    public function isLoaded()
     {
-        $aBefore = array();
-        $aAfter = array();
-
-        foreach ($this as $sPropertyName => $mValue) {
-            if ($mValue != $oOriginalObject->{$sPropertyName}) {
-                $aBefore[$sPropertyName] = $oOriginalObject->{$sPropertyName};
-                $aAfter[$sPropertyName] = $mValue;
-            }
-        }
-
-        $oEntityHistory = new \app\Entities\EntityHistory();
-        $oEntityHistory->classe = substr($this->sChildClass, 3);
-        $oEntityHistory->idobjet = $this->{static::PRIMARY_KEY};
-        $oEntityHistory->avant = json_encode($aBefore);
-        $oEntityHistory->apres = json_encode($aAfter);
-        $oEntityHistory->date_modif = date('Y-m-d');
-        $oEntityHistory->time_modif = date('H:i:s');
-        $oEntityHistory->iduser = \model\UserSession::getInstance()->getUserId();
-        $oEntityHistory->add();
+        return $this->bIsLoaded;
     }
+
+    /**
+     * Check whether instance is in cache or not
+     *
+     * @param integer $iId
+     *            Instance ID (primary key of table)
+     * @return boolean TRUE if instance is in cache, otherwise false
+     */
+    public static function isInCache($iId)
+    {
+        return (Cache::get(Cache::getKey(get_called_class(), $iId)) !== false);
+    }
+
+    /**
+     * Check if the entity is searchable
+     *
+     * @return boolean
+     */
+    public function isSearchable()
+    {
+        return $this->bIsSearchable;
+    }
+
+    /**
+     * Check if the Entity is deletable
+     *
+     * @return bool
+     */
+    public function isDeletable()
+    {
+        return $this->bIsDeletable;
+    }
+
+    /**
+     * Check if Entity is cachable
+     *
+     * @return bool
+     */
+    public function isCachable()
+    {
+        return $this->bIsCacheable;
+    }
+
+    /**
+     * Check if Entity is historized
+     *
+     * @return bool
+     */
+    public function isHistorized()
+    {
+        return $this->bIsHistorized;
+    }
+
+    /**
+     * Retrieve instance ID (primary key)
+     *
+     * @return mixed Instance ID
+     * @throws EntityException
+     */
+    public function getId()
+    {
+        if (! $this->bIsLoaded) {
+            throw new EntityException('Cannot get ID of object not loaded');
+        }
+        return (int) $this->{static::PRIMARY_KEY};
+    }
+
+    /**
+     * Mapped entities configuration accessor
+     * @return array
+     */
+    public function getMappedEntities()
+    {
+        return $this->aMappedEntities;
+    }
+
+    /**
+     * Return Entity instance name
+     *
+     * @return string
+     */
+    public function getEntityName()
+    {
+        return static::ENTITY;
+    }
+
+    /**
+     * Get entity SGBD table name
+     *
+     * @return string
+     */
+    public function getTableName()
+    {
+        return static::TABLE_NAME;
+    }
+
+    /**
+     * Get entity primary key attribute name
+     *
+     * @return string
+     */
+    public function getPrimaryKeyName()
+    {
+        return static::PRIMARY_KEY;
+    }
+
 }
 
 class EntityException extends \Exception

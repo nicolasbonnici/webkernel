@@ -2,6 +2,7 @@
 namespace Library\Core\Orm;
 
 use Library\Core\Cache;
+use Library\Core\Validator;
 
 /**
  * Entities attributes generic abstract
@@ -18,7 +19,7 @@ abstract class EntityAttributes {
     const DATA_TYPE_STRING  = 'string';
     const DATA_TYPE_INTEGER = 'integer';
     const DATA_TYPE_FLOAT   = 'float';
-    const DATA_TYPE_ENUM    = 'array';
+    const DATA_TYPE_ARRAY   = 'array';
 
 
     /**
@@ -33,7 +34,7 @@ abstract class EntityAttributes {
      *
      * @throws EntityException
      */
-    protected function loadFields()
+    protected function loadAttributes()
     {
         $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
         if (($this->aFields = Cache::get($sCacheKey)) === false) {
@@ -108,31 +109,34 @@ abstract class EntityAttributes {
     /**
      * Translate a SGBD field type to PHP types
      *
-     * @todo optimiser cette méthode et utiliser un switch
      * @param string $sName
-     * @return string null
+     * @return string
      * @throws EntityException
      */
     public function getDataType($sName = null)
     {
         assert('$this->getAttributeType($sName) !== null');
 
-        $sDataType = null;
+        $sDataType = '';
         if (! is_null($sName)) {
 
-            $sDataType = $this->getAttributeType($sName);
-
-            if (preg_match('#(^int|^integer|^tinyint|^smallmint|^mediumint|^tinyint|^bigint)#', $sDataType)) {
-                $sDataType = self::DATA_TYPE_INTEGER;
-            } elseif (preg_match('#(^float|^decimal|^numeric)#', $this->aFields[$sName]['Type'])) {
-                $sDataType = self::DATA_TYPE_FLOAT;
-            } elseif (preg_match('#(^varchar|^text|^blob|^tinyblob|^tinytext|^mediumblob|^mediumtext|^longblob|^longtext|^date|^datetime|^timestamp)#', $this->aFields[$sName]['Type'])) {
-                $sDataType = self::DATA_TYPE_STRING;
-            } elseif (preg_match('#^enum#', $this->aFields[$sName]['Type'])) {
-                $sDataType = self::DATA_TYPE_ENUM; // @todo ajouter un type enum dans validator puis un inArray pour valider
-            } else {
-                throw new EntityException(__CLASS__ . ' Unsuported database field type: ' . $this->aFields[$sName]['Type']);
+            $sDatabaseType = $this->getAttributeType($sName);
+            switch ($sDatabaseType) {
+                case preg_match('#(^int|^integer|^tinyint|^smallmint|^mediumint|^tinyint|^bigint)#', $sDataType):
+                    $sDataType = self::DATA_TYPE_INTEGER;
+                    break;
+                case preg_match('#(^float|^decimal|^numeric)#', $sDataType):
+                    $sDataType = self::DATA_TYPE_FLOAT;
+                    break;
+                case preg_match('#^enum#', $sDataType):
+                    $sDataType = self::DATA_TYPE_ARRAY;
+                    break;
+                default:
+                    throw new EntityException(
+                        __CLASS__ . ' Unsuported database field type: ' . $sDataType);
+                    break;
             }
+
         }
         return $sDataType;
     }
@@ -141,15 +145,13 @@ abstract class EntityAttributes {
     /**
      * Validate data integrity for the database field
      *
-     * @todo renommer validate()
-     *
      * @param string $sFieldName
      * @param
      *            mixed string|int|float $mValue
      * @throws EntityException
      * @return bool
      */
-    protected function validateDataIntegrity($sFieldName, $mValue)
+    protected function validate($sFieldName, $mValue)
     {
         assert('isset($this->aFields[$sFieldName]["Type"])');
 
@@ -162,7 +164,13 @@ abstract class EntityAttributes {
         }
 
         if (! empty($sFieldName) && ! empty($mValue)) {
-            if (($sDataType = $this->getDataType($sFieldName)) !== NULL && method_exists(__NAMESPACE__ . '\\Validator', $sDataType) && ($iValidatorStatus = Validator::$sDataType($mValue)) === Validator::STATUS_OK) {
+            if (
+                (
+                    $sDataType = $this->getDataType($sFieldName)) !== NULL &&
+                    method_exists(__NAMESPACE__ . '\\Validator', $sDataType) &&
+                    ($iValidatorStatus = Validator::$sDataType($mValue)
+                ) === Validator::STATUS_OK
+            ) {
                 return true;
             }
         }
