@@ -104,7 +104,6 @@ class Controller extends Acl
             $this->oBundleConfig = $oBundleConfig;
         }
 
-        $this->setSession();
         $this->loadRequest();
 
         // Load a view instance

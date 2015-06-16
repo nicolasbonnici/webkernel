@@ -52,7 +52,7 @@ class Bootstrap
 
     /**
      * Bootstrap global configuration parsed from the config.ini file
-     *
+     * @todo merger avec la conf du bundle
      * @var array
      */
     private static $aConfig;
@@ -72,27 +72,6 @@ class Bootstrap
      * @var array
      */
     private static $aEnvironements = array();
-
-    /**
-     * Current framework version
-     *
-     * @var string
-     */
-    const APP_VERSION = '1.0';
-
-    /**
-     * Current framework version
-     *
-     * @var string
-     */
-    const APP_STAGING = 'beta';
-
-    /**
-     * Current framework release name
-     *
-     * @var string
-     */
-    const APP_RELEASE_NAME = 'ihop';
 
     /**
      * Http request
@@ -136,6 +115,9 @@ class Bootstrap
      */
     public function __construct()
     {
+        // Grab microtime at load for benchmark purposes
+        define('FRAMEWORK_STARTED', microtime(true));
+
         // PHP
         // @todo SGBD infos
         self::$sPhpVersion = PHP_VERSION;

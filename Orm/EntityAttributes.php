@@ -1,18 +1,15 @@
 <?php
 namespace Library\Core\Orm;
 
+use Library\Core\Cache;
+
 /**
+ * Entities attributes generic abstract
  *
- * @todo code review
- *
- * User: niko
- * Date: 11/06/15
- * Time: 01:49
+ * Class EntityAttributes
+ * @package Library\Core\Orm
  */
-
-use Library\Core\Database;
-
-class EntityAttributes extends Database {
+abstract class EntityAttributes {
 
     /**
      * Entity attribute's types
@@ -22,6 +19,40 @@ class EntityAttributes extends Database {
     const DATA_TYPE_INTEGER = 'integer';
     const DATA_TYPE_FLOAT   = 'float';
     const DATA_TYPE_ENUM    = 'array';
+
+
+    /**
+     * List of associated table's fields
+     *
+     * @var array
+     */
+    protected $aFields = array();
+
+    /**
+     * Load the list of fields of the associated database table
+     *
+     * @throws EntityException
+     */
+    protected function loadFields()
+    {
+        $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
+        if (($this->aFields = Cache::get($sCacheKey)) === false) {
+            if (($oStatement = \Library\Core\Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
+                throw new EntityException('Unable to list fields for table ' . static::TABLE_NAME);
+            }
+
+            foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aColumn) {
+                $this->aFields[$aColumn['Field']] = $aColumn;
+            }
+
+            Cache::set($sCacheKey, $this->aFields, false, Cache::CACHE_TIME_MINUTE);
+        }
+
+        if (empty($this->aFields) === true) {
+            throw new EntityException('No field found for table ' . static::TABLE_NAME . ' please check Entity.');
+        }
+
+    }
 
     /**
      * Query if an attribute exists

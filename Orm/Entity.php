@@ -1,11 +1,15 @@
 <?php
 namespace Library\Core\Orm;
 
+use Library\Core\Database;
 use Library\Core\Cache;
 
 /**
  * On the fly ORM CRUD managment abstract class
  *
+ * @todo decouper en composants unit testés
+ *
+ * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
  *
  * @important Entities need a primary auto incremented index (id[entity])
@@ -16,7 +20,6 @@ use Library\Core\Cache;
  */
 abstract class Entity extends EntityAttributes
 {
-
     /**
      * Whether row in database may be deleted or not
      * @var boolean
@@ -34,13 +37,6 @@ abstract class Entity extends EntityAttributes
      * @var boolean
      */
     protected $bIsHistorized = false;
-
-    /**
-     * List of associated table's fields
-     *
-     * @var array
-     */
-    protected $aFields = array();
 
     /**
      * Whether object may be put in cache or not
@@ -286,9 +282,8 @@ abstract class Entity extends EntityAttributes
     {
         $aUpdatedFields = array();
         $aUpdatedValues = array();
-
-        foreach ($this->getAttributes() as $sFieldName => $aFieldInfos) {
-            if (isset($this->{$sFieldName}) && ! is_null($this->{$sFieldName}) && $this->validateDataIntegrity($sFieldName, $this->{$sFieldName})) {
+        foreach ($this->aFields as $sFieldName => $aFieldInfos) {
+            if (isset($this->{$sFieldName})) {
                 $aUpdatedFields[] = $sFieldName;
                 $aUpdatedValues[] = $this->{$sFieldName};
             }
@@ -437,34 +432,6 @@ abstract class Entity extends EntityAttributes
     }
 
     /**
-     * Load the list of fields of the associated database table
-     *
-     * @todo possibiliter de flusher le cache a ce level
-     *
-     * @throws EntityException
-     */
-    protected function loadFields()
-    {
-        $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
-        if (($this->aFields = Cache::get($sCacheKey)) === false) {
-            if (($oStatement = \Library\Core\Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
-                throw new EntityException('Unable to list fields for table ' . static::TABLE_NAME);
-            }
-
-            foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aColumn) {
-                $this->aFields[$aColumn['Field']] = $aColumn;
-            }
-
-            Cache::set($sCacheKey, $this->aFields, false, Cache::CACHE_TIME_MINUTE);
-        }
-        
-        if (empty($this->aFields) === true) {
-        	throw new EntityException('No field found for table ' . static::TABLE_NAME . ' please check Entity.');
-        }
-        
-    }
-
-    /**
      * Get entity primary key attribute name
      *
      * @return string
@@ -497,6 +464,37 @@ abstract class Entity extends EntityAttributes
 
         $this->bIsLoaded = false;
     }
+    
+    /**
+     * Validate data integrity for the database field
+     *
+     * @todo remettre la gestion des exceptions
+     *
+     * @param string $sFieldName
+     * @param
+     *            mixed string|int|float $mValue
+     * @throws EntityException
+     * @return bool
+     */
+    protected function validateDataIntegrity($sFieldName, $mValue)
+    {
+        assert('isset($this->aFields[$sFieldName]["Type"])');
+
+        $iValidatorStatus = 0;
+        $sDataType = '';
+
+        // If nullable
+        if (is_null($mValue) && $this->isNullable($sFieldName)) {
+            return true;
+        }
+
+        if (! empty($sFieldName) && ! empty($mValue)) {
+            if (($sDataType = $this->getDataType($sFieldName)) !== NULL && method_exists(__NAMESPACE__ . '\\Validator', $sDataType) && ($iValidatorStatus = Validator::$sDataType($mValue)) === Validator::STATUS_OK) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Compute the EntityCollection class name
@@ -505,11 +503,37 @@ abstract class Entity extends EntityAttributes
     public function computeCollectionClassName()
     {
         $sCollectionClassName = str_replace(array(
-        '\\Entities',
+            '\\Entities',
         ), '\\Entities\Collection', get_called_class());
         return $sCollectionClassName . 'Collection';
     }
 
+    /**
+     * Save history on update for historized objects
+     * @param \app\Entities $oOriginalObject          Original object before update
+     */
+    protected function saveHistory($oOriginalObject)
+    {
+        $aBefore = array();
+        $aAfter = array();
+
+        foreach ($this as $sPropertyName => $mValue) {
+            if ($mValue != $oOriginalObject->{$sPropertyName}) {
+                $aBefore[$sPropertyName] = $oOriginalObject->{$sPropertyName};
+                $aAfter[$sPropertyName] = $mValue;
+            }
+        }
+
+        $oEntityHistory = new \app\Entities\EntityHistory();
+        $oEntityHistory->classe = substr($this->sChildClass, 3);
+        $oEntityHistory->idobjet = $this->{static::PRIMARY_KEY};
+        $oEntityHistory->avant = json_encode($aBefore);
+        $oEntityHistory->apres = json_encode($aAfter);
+        $oEntityHistory->date_modif = date('Y-m-d');
+        $oEntityHistory->time_modif = date('H:i:s');
+        $oEntityHistory->iduser = \model\UserSession::getInstance()->getUserId();
+        $oEntityHistory->add();
+    }
 }
 
 class EntityException extends \Exception

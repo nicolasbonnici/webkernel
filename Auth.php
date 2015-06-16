@@ -22,13 +22,14 @@ class Auth extends Controller
     public function __construct()
     {
         $this->loadRequest();
+        $this->setSession();
 
         /**
          * Check php session
          */
         if (
         	isset($_SESSION['token']) && 
-        	($this->_session = $_SESSION) && 
+        	($this->_session = $_SESSION) &&
         	$this->checkSessionintegrity()
 		) {
             parent::__construct($this->oUser, $this->oBundleConfig);
@@ -65,7 +66,6 @@ class Auth extends Controller
                 unset($_SESSION['pass']);
 
                 $this->oUser->token = $_SESSION['token'];
-
                 return $this->oUser->update();
             }
         } catch (CoreEntityException $oException) {
