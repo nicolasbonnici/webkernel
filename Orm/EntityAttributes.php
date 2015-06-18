@@ -133,7 +133,7 @@ abstract class EntityAttributes {
                     break;
                 default:
                     throw new EntityException(
-                        __CLASS__ . ' Unsuported database field type: ' . $sDataType);
+                        __CLASS__ . ' Unsuported database field type: ' . $sDatabaseType);
                     break;
             }
 

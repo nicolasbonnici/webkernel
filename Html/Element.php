@@ -8,7 +8,6 @@ namespace Library\Core\Html;
  */
 abstract class Element extends Attributes
 {
-
     /**
      * HTML dom node label
      * @var string

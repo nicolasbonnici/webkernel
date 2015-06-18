@@ -20,7 +20,9 @@ class Autoload {
 
     /**
      * Find a class on project
-     * @todo refactor and optimize also add prefixe managment
+     *
+     * @todo refactor and optimize also add prefix management
+     *
      * @param string $sClassName
      * @return string           The complete absolute path of the class otherwise NULL
      */

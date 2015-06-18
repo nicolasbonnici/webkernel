@@ -459,7 +459,7 @@ abstract class Entity extends EntityAttributes
      *
      * @return bool
      */
-    public function isCachable()
+    public function isCacheable()
     {
         return $this->bIsCacheable;
     }

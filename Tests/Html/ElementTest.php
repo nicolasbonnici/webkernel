@@ -3,8 +3,8 @@ namespace Library\Core\Tests\Html;
 
 use Library\Core\Html\Element;
 use \Library\Core\Test as Test;
+use Library\Core\Tests\Mocks\Html\ElementMock;
 
-use Library\Core\Tests\Mocks\HtmlElementMock;
 
 /**
  * Html Element component unit tests
@@ -46,21 +46,21 @@ class ElementTest extends Test
 
     public function testConstructor()
     {
-        self::$oHtmlElementInstance = new HtmlElementMock();
-        $this->assertTrue(self::$oHtmlElementInstance instanceof HtmlElementMock);
+        self::$oHtmlElementInstance = new ElementMock();
+        $this->assertTrue(self::$oHtmlElementInstance instanceof ElementMock);
     }
 
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof Element);
+        $this->assertTrue(self::$oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof ElementMock);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Element
+            self::$oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof ElementMock
         );
     }
 
