@@ -119,16 +119,21 @@ abstract class EntityAttributes {
 
         $sDataType = '';
         if (! is_null($sName)) {
-
             $sDatabaseType = $this->getAttributeType($sName);
             switch ($sDatabaseType) {
-                case preg_match('#(^int|^integer|^tinyint|^smallmint|^mediumint|^tinyint|^bigint)#', $sDataType):
+                case (preg_match('/^(int|integer|tinyint|smallint|mediumint|tinyint|bigint)/', $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_INTEGER;
                     break;
-                case preg_match('#(^float|^decimal|^numeric)#', $sDataType):
+                case (preg_match(
+                        '/^(varchar|text|blob|tinyblob|tinytext|mediumblob|mediumtext|longblob|longtext|date|datetime)/',
+                        $sDatabaseType
+                    ) === 1) :
+                    $sDataType = self::DATA_TYPE_STRING;
+                    break;
+                case (preg_match('/^(float|decimal|numeric)/', $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_FLOAT;
                     break;
-                case preg_match('#^enum#', $sDataType):
+                case (preg_match('/(enum|list)/', $sDataType) === 1) :
                     $sDataType = self::DATA_TYPE_ARRAY;
                     break;
                 default:
@@ -159,22 +164,25 @@ abstract class EntityAttributes {
         $sDataType = '';
 
         // If nullable
-        if (is_null($mValue) && $this->isNullable($sFieldName)) {
+        if (is_null($mValue) === true && $this->isNullable($sFieldName)) {
             return true;
         }
 
-        if (! empty($sFieldName) && ! empty($mValue)) {
-            if (
-                (
-                    $sDataType = $this->getDataType($sFieldName)) !== NULL &&
-                    method_exists(__NAMESPACE__ . '\\Validator', $sDataType) &&
-                    ($iValidatorStatus = Validator::$sDataType($mValue)
-                ) === Validator::STATUS_OK
-            ) {
-                return true;
+        $sDataType = $this->getDataType($sFieldName);
+        var_dump($sDataType);
+        $oValidator = new Validator();
+        if (is_null($sDataType) === true || method_exists($oValidator , $sDataType) === false) {
+            throw new EntityException('Attribute data type not support: ' . $sDataType);
+        } else {
+            if (! empty($sFieldName) && ! empty($mValue)) {
+                $iValidatorStatus = Validator::$sDataType($mValue);
+                if ($iValidatorStatus === Validator::STATUS_OK) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+
     }
 
 }

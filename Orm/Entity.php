@@ -238,7 +238,7 @@ abstract class Entity extends EntityAttributes
     /**
      * Retrieve cache key for single instance of class for given ID
      *
-     * @param unknown $iId
+     * @param int $iId
      * @return string
      */
     public static function getCacheKey($iId)
@@ -257,7 +257,10 @@ abstract class Entity extends EntityAttributes
         $aInsertedFields = array();
         $aInsertedValues = array();
         foreach ($this->aFields as $sFieldName => $aFieldInfos) {
-            if (isset($this->{$sFieldName}) && ! is_null($this->{$sFieldName}) && $this->validate($sFieldName, $this->{$sFieldName})) {
+            if (
+                isset($this->{$sFieldName}) &&
+                $this->validate($sFieldName, $this->{$sFieldName})
+            ) {
                 $aInsertedFields[] = $sFieldName;
                 $aInsertedValues[] = $this->{$sFieldName};
             }
@@ -525,6 +528,15 @@ abstract class Entity extends EntityAttributes
     public function getPrimaryKeyName()
     {
         return static::PRIMARY_KEY;
+    }
+
+    /**
+     * Get inherited instance class name
+     * @return string
+     */
+    public function getChildClass()
+    {
+        return $this->sChildClass;
     }
 
 }

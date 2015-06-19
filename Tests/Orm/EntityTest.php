@@ -15,16 +15,31 @@ class EntityTest extends Test
 {
     protected static $oEntityInstance;
 
+    protected static $aTestData = array(
+        'test_string' => 'Some test string',
+        'test_int'    => 199,
+        'test_float'  => 666.99235,
+        'test_null'   => null,
+        'lastupdate'   => 1434675542,
+        'created'   => 1434675542
+    );
+
+    /**
+     * Member to store test entity primary key value
+     * @var integer
+     */
+    protected static $iCreatedDummyId;
+
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
     }
 
-    public function setUp()
+    protected function setUp()
     {
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
     }
 
@@ -51,6 +66,57 @@ class EntityTest extends Test
     {
         $this->assertEquals(false, self::$oEntityInstance->isHistorized());
     }
+
+    public function testToString()
+    {
+        $this->assertEquals(self::$oEntityInstance->getChildClass(), self::$oEntityInstance->__toString());
+    }
+
+    public function testAdd()
+    {
+        self::$oEntityInstance->test_string  = self::$aTestData['test_string'];
+        self::$oEntityInstance->test_int     = self::$aTestData['test_int'];
+        self::$oEntityInstance->test_float   = self::$aTestData['test_float'];
+        self::$oEntityInstance->test_null    = self::$aTestData['test_null'];
+        self::$oEntityInstance->lastupdate   = self::$aTestData['lastupdate'];
+        self::$oEntityInstance->created      = self::$aTestData['created'];
+        $this->assertTrue(self::$oEntityInstance->add());
+        self::$iCreatedDummyId = self::$oEntityInstance->getId();
+        $this->assertTrue(self::$iCreatedDummyId > 0);
+    }
+
+    public function testGetId()
+    {
+        $this->assertTrue(self::$oEntityInstance->getId() > 0);
+    }
+
+    public function testConstructorWithString()
+    {
+        self::$oEntityInstance = new DummyEntity((string) self::$iCreatedDummyId);
+        $this->assertTrue(self::$oEntityInstance->isLoaded() === true);
+        $this->assertEquals(self::$iCreatedDummyId, self::$oEntityInstance->getId());
+    }
+
+    public function testConstructorWithInteger()
+    {
+        self::$oEntityInstance = new DummyEntity((int) self::$iCreatedDummyId);
+        $this->assertTrue(self::$oEntityInstance->isLoaded() === true);
+        $this->assertEquals(self::$iCreatedDummyId, self::$oEntityInstance->getId());
+    }
+
+    public function testConstructorWithArray()
+    {
+        self::$oEntityInstance = new DummyEntity(array(DummyEntity::PRIMARY_KEY => self::$iCreatedDummyId));
+        $this->assertTrue(self::$oEntityInstance->isLoaded() === true);
+        $this->assertEquals(self::$iCreatedDummyId, self::$oEntityInstance->getId());
+    }
+
+    public function testUpdate()
+    {
+        self::$oEntityInstance->test_string  = 'Other string value';
+        $this->assertTrue(self::$oEntityInstance->update());
+    }
+
 
     // @todo
 /**    public function testConstructorWithInteger()

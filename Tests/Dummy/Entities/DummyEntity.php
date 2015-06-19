@@ -5,7 +5,7 @@ namespace Library\Core\Tests\Dummy\Entities;
 use Library\Core\Orm\EntityMapper;
 
 /**
- * Dummy Entity
+ * Dummy Entity for unit tests
  *
  * @author infradmin
  */

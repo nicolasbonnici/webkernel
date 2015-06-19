@@ -103,16 +103,15 @@ class Validator
     static public function string(&$sString, $iMinLength = null, $iMaxLength = null)
     {
         assert('(is_null($iMinLength) || is_int($iMinLength)) && (is_null($iMaxLength) || is_int($iMaxLength))');
-
-        if (! is_string($sString)) {
+        if (is_string($sString) === false) {
             return self::STATUS_INVALID;
         }
 
-        if (! is_null($iMinLength) && strlen($sString) < $iMinLength) {
+        if (is_null($iMinLength) === false && strlen($sString) < $iMinLength) {
             return self::STATUS_OUT_OF_RANGE;
         }
 
-        if (! is_null($iMaxLength) && strlen($sString) > $iMaxLength) {
+        if (is_null($iMaxLength) === false && strlen($sString) > $iMaxLength) {
             return self::STATUS_OUT_OF_RANGE;
         }
 
