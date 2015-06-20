@@ -169,7 +169,6 @@ abstract class EntityAttributes {
         }
 
         $sDataType = $this->getDataType($sFieldName);
-        var_dump($sDataType);
         $oValidator = new Validator();
         if (is_null($sDataType) === true || method_exists($oValidator , $sDataType) === false) {
             throw new EntityException('Attribute data type not support: ' . $sDataType);
