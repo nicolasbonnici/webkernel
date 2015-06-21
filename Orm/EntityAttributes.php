@@ -117,6 +117,8 @@ abstract class EntityAttributes {
     {
         assert('$this->getAttributeType($sName) !== null');
 
+        // @todo dynamic regexp with implode('|', $aStringDatabaseTypes) ...
+
         $sDataType = '';
         if (! is_null($sName)) {
             $sDatabaseType = $this->getAttributeType($sName);

@@ -2,24 +2,39 @@
 namespace Library\Core;
 
 /**
- * Gestion des CoreExceptions
+ * Execptions management
  *
  * @author Nicolas BONNICI
  */
 class CoreException extends \Exception
 {
 
-    public function __construct($message, $code = 0, Exception $previous = null)
+    /**
+     * Two dimensional array to store iErrorCode => sErrorMessage
+     * @var array
+     */
+    public static $aErrors = array();
+
+    /**
+     * Errors codes and messages accessor
+     *
+     * @param integer $iErrorCode
+     * @return mixed array|string|null  If an error code was found return error message otherwise null
+     */
+    public static function getError($iErrorCode)
     {
-        
-        // traitement
-        parent::__construct($message, $code, $previous);
+        return ((isset(self::$aErrors[$iErrorCode])=== true) ? self::$aErrors[$iErrorCode] : null);
     }
 
-    public function __toString()
+    /**
+     * Get errors codes and messages
+     *
+     * @return array
+     */
+    public static function getErrors()
     {
-        return __CLASS__ . ": [{$this->code}]: {$this->message} \n";
+        return self::$aErrors;
     }
+
 }
 
-?>

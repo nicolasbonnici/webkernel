@@ -15,7 +15,7 @@ use bundles\user\Entities\User;
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class EntityScopeTest extends Test
+class EntitiesScopeTest extends Test
 {
     protected static $oScopeEntitiesInstance;
     
@@ -40,6 +40,8 @@ class EntityScopeTest extends Test
 
     public function testAdd()
     {
+        self::$oScopeEntitiesInstance = new EntitiesScope();
+
         $oPost = new Post();
         $oFeedItem = new FeedItem();
         $oUser = new User();
@@ -48,17 +50,20 @@ class EntityScopeTest extends Test
          * @todo also test constraints parameter
          */
 
-        $this->assertTrue(self::$oScopeEntitiesInstance->add($oPost) instanceof EntitiesScope);
-        $this->assertTrue(self::$oScopeEntitiesInstance->add($oFeedItem) instanceof EntitiesScope);
-        $this->assertTrue(self::$oScopeEntitiesInstance->add($oUser) instanceof EntitiesScope);
+        $this->assertTrue(self::$oScopeEntitiesInstance->add($oPost, $oPost->getEntityName()) instanceof EntitiesScope);
+        $this->assertTrue(self::$oScopeEntitiesInstance->add($oFeedItem, $oFeedItem->getEntityName()) instanceof EntitiesScope);
+        $this->assertTrue(self::$oScopeEntitiesInstance->add($oUser, $oUser->getEntityName()) instanceof EntitiesScope);
     }
 
     public function testGetScope()
     {
-        $this->assertTrue(is_array(self::$oScopeEntitiesInstance->getScope()));
-        $this->assertTrue(array_key_exists('Post', self::$oScopeEntitiesInstance->getScope()));
-        $this->assertTrue(array_key_exists('FeedItem', self::$oScopeEntitiesInstance->getScope()));
-        $this->assertTrue(array_key_exists('User', self::$oScopeEntitiesInstance->getScope()));
+        $this->testAdd();
+
+        $aScope = self::$oScopeEntitiesInstance->getScope();
+        $this->assertTrue(is_array($aScope));
+        $this->assertArrayHasKey('Post', $aScope);
+        $this->assertArrayHasKey('FeedItem', $aScope);
+        $this->assertArrayHasKey('User', $aScope);
     }
 
 }

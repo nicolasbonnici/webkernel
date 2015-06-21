@@ -1,5 +1,6 @@
 <?php
 namespace Library\Core\Scope;
+use Library\Core\Bundles;
 
 /**
  * Scope Bundles component
@@ -9,7 +10,11 @@ namespace Library\Core\Scope;
  */
 class BundlesScope extends Scope
 {
-
+    public function __construct()
+    {
+        $oBundles = new Bundles();
+        $this->addItems($oBundles->get());
+    }
 }
 
 class BundlesScopeException extends \Exception

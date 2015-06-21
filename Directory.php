@@ -78,6 +78,7 @@ class Directory extends Singleton
                 }
 
                 if(is_dir($sPathToScan . '/' . $f)) {
+                    // @todo Class object here
                     // Folder
                     $aItems[] = array(
                         "name" => $f,
@@ -86,6 +87,7 @@ class Directory extends Singleton
                         "items" => self::scan($sPathToScan . '/' . $f)
                     );
                 } else {
+                    // @todo Class object here
                     // File
                     $aItems[] = array(
                         "name" => $f,

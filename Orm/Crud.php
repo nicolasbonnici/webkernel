@@ -322,10 +322,10 @@ abstract class Crud
     /**
      * Set allowed entity attributes scope
      *
-     * @param unknown $aEntityRestrictedAttributes
+     * @param array $aEntityRestrictedAttributes
      * @return \Library\Core\Crud
      */
-    public function setRestrictedEntityAttributes($aEntityRestrictedAttributes)
+    public function setRestrictedEntityAttributes(array $aEntityRestrictedAttributes)
     {
         $this->aEntityRestrictedAttributes = $aEntityRestrictedAttributes;
         return $this;

@@ -1,6 +1,10 @@
 <?php
 namespace Library\Core\Orm;
 
+use Library\Core\CoreException;
+use Library\Core\Collection;
+use Library\Core\Scope\BundlesScope;
+
 use bundles\user\Entities\User;
 
 /**
@@ -11,24 +15,6 @@ use bundles\user\Entities\User;
  */
 class EntitySearch
 {
-
-    /**
-     * Errors codes
-     *
-     * @var integer
-     */
-    const ERROR_UNAUTHORIZED_REQUEST        = 2;
-    const ERROR_EMPTY_SEARCH_REQUEST        = 3;
-    const ERROR_EMPTY_SCOPE                 = 4;
-    const ERROR_ENTITY_NOT_ALLOWED          = 5;
-    const ERROR_ENTITY_COLLECTION_NOT_FOUND = 6;
-
-    protected static $aErrors = array(
-        self::ERROR_UNAUTHORIZED_REQUEST => 'Unauthorized search request',
-        self::ERROR_EMPTY_SEARCH_REQUEST => 'No or empty search term',
-        self::ERROR_EMPTY_SCOPE          => 'No scope provided for search',
-        self::ERROR_ENTITY_NOT_ALLOWED   => 'Search not allowed for this Entity: %s'
-    );
 
     /**
      * Search term
@@ -47,7 +33,7 @@ class EntitySearch
      * Bundles scope to perform search on
      * @var \Library\Core\Scope\Bundles
      */
-    protected $oScope;
+    protected $oBundleScope;
 
 
     /**
@@ -73,18 +59,15 @@ class EntitySearch
     public function process()
     {
         $oExceptions = new Collection();
-
-        foreach ($this->oScope as $sBundleName => $oBundleEntitiesScope) {
-            // @otodo passer directement les entités dans le scope
-            foreach ($oBundleEntitiesScope as $oEntity => $oConstraint) {
-
+        foreach ($this->oBundleScope->getScope() as $sBundleName => $aEntities) {
+            foreach ($aEntities as $sEntity) {
+                var_dump($sEntity);
                 try {
-                    $this->doSearch($oEntity, $oConstraint);
+                    $this->doSearch($sBundleName, $oEntity);
                 } catch (\Exception $oException) {
                     $oExceptions->add(($oExceptions->count() + 1), $oException);
                     continue;
                 }
-
             }
         }
 
@@ -102,7 +85,7 @@ class EntitySearch
     // @todo trier les resulats sur 3 dimensions bundle => entity => results
     // @todo Entity instance on parameter
 
-    protected function doSearch($oEntity, array $aConstraints = array())
+    protected function doSearch($sBundleName, $oEntity, array $aConstraints = array())
     {
         assert('empty($this->sSearch) === false');
 
@@ -112,13 +95,13 @@ class EntitySearch
         // Entities must be searchable and have a EntityCollection class too
         if ($oEntity->isSearchable() === false) {
             throw new EntitySearchException(
-                sprintf(self::$aErrors[self::ERROR_ENTITY_NOT_ALLOWED], $oEntity ),
+                sprintf(EntitySearchException::$aErrors[EntitySearchException::ERROR_ENTITY_NOT_ALLOWED], $oEntity ),
                 self::ERROR_ENTITY_NOT_ALLOWED
             );
         } elseif (class_exists($sEntityCollectionClassName) === false) {
             throw new EntitySearchException(
-                sprintf(self::$aErrors[self::ERROR_ENTITY_COLLECTION_NOT_FOUND], $oEntity ),
-                self::ERROR_ENTITY_COLLECTION_NOT_FOUND
+                sprintf(EntitySearchException::$aErrors[EntitySearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND], $oEntity ),
+                EntitySearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND
             );
         } else {
             $oEntityCollection = new $sEntityCollectionClassName();
@@ -128,7 +111,7 @@ class EntitySearch
             // Generic search
             $aAttributes = $oEntity->getAttributes();
             foreach ($aAttributes as $sKey) {
-                if ($oEntity->getDataType($sKey) === 'string') {
+                if ($oEntity->getDataType($sKey) === EntityAttributes::DATA_TYPE_STRING) {
                     $aParameters[$sKey] = $this->sSearch;
                 }
             }
@@ -141,26 +124,13 @@ class EntitySearch
                 false
             );
 
-            // Filter results with attribute constraints
-            if (count($aConstraints) > 0) {
-                foreach ($oEntityCollection as $oEntity) {
-                    foreach ($aConstraints as $sKey => $mValue) {
-                        if ($oEntity->{$sKey} !== $mValue) {
-                            die(var_dump($oEntity));
-                            unset($oEntity);
-                        }
-                    }
-                }
-            }
-
-
             // store Entity primary key value (id[entity] value)
             foreach ($oEntityCollection as $oEntity) {
                 $oEntity->pk = $oEntity->getId();
             }
 
-            $this->aResults[$oEntity::ENTITY] = $oEntityCollection;
-            $this->aResults[$oEntity::ENTITY]->count = $oEntityCollection->count();
+            $this->aResults[$sBundleName][$oEntity->getEntityName()] = $oEntityCollection;
+            $this->aResults[$sBundleName][$oEntity->getEntityName()]->count = $oEntityCollection->count();
 
         }
 
@@ -169,36 +139,13 @@ class EntitySearch
     /**
      * Set the bundles scope to restrict search
      *
-     * @param Scope $oScope
+     * @param BundlesScope $oBundleScope
      * @return EntitySearch
      */
-    public function setScope(Scope $oScope)
+    public function setScope(BundlesScope $oBundleScope)
     {
-        $this->oScope = $oScope;
+        $this->oBundleScope = $oBundleScope;
         return $this;
-    }
-
-    /**
-     * @todo delete set entities from scope
-     *
-     * Set the entities scope
-     * @param mixed array|string $mEntity   Entitie(s) scope for search
-     */
-    protected function setEntitiesScope()
-    {
-
-        // @todo iterer sur les bundles et recupérer les entités de chacun puis les placer dans ce scope
-
-        if (is_array($mEntity) && count($mEntity) > 0) {
-            $this->aEntitiesScope = $mEntity;
-        } elseif (is_string($mEntity) && empty($mEntity) === false && class_exists(App::ENTITIES_NAMESPACE . $mEntity)) {
-            $this->aEntitiesScope[] = $mEntity;
-        } elseif (is_null($mEntity) || empty($mEntity) === true) {
-            // By default behavior we take all available Entities
-            $this->aEntitiesScope = $this->aPublicEntitiesScope;
-        }
-
-        // @todo retourner l'instance
     }
 
     /**
@@ -242,23 +189,6 @@ class EntitySearch
     }
 
     /**
-     * Errors codes and messages accessor
-     *
-     * @todo degager un composant generic de ca... Enum
-     *
-     * @param integer $iErrorCode (optional)
-     * @return mixed array|string|null  If an error code was provided return error message or null otherwise array of errors
-     */
-    public static function getError($iErrorCode = null)
-    {
-        if (is_null($iErrorCode) === true) {
-            return self::$aErrors;
-        } else {
-            return ((isset(self::$aErrors[$iErrorCode])=== true) ? self::$aErrors[$iErrorCode] : null);
-        }
-    }
-
-    /**
      * Retrieve search results
      *
      * @return array
@@ -269,6 +199,24 @@ class EntitySearch
     }
 }
 
-class EntitySearchException extends \Exception
+class EntitySearchException extends CoreException
 {
+
+    /**
+     * Errors codes
+     *
+     * @var integer
+     */
+    const ERROR_UNAUTHORIZED_REQUEST        = 2;
+    const ERROR_EMPTY_SEARCH_REQUEST        = 3;
+    const ERROR_EMPTY_SCOPE                 = 4;
+    const ERROR_ENTITY_NOT_ALLOWED          = 5;
+    const ERROR_ENTITY_COLLECTION_NOT_FOUND = 6;
+
+    public static $aErrors = array(
+        self::ERROR_UNAUTHORIZED_REQUEST => 'Unauthorized search request',
+        self::ERROR_EMPTY_SEARCH_REQUEST => 'No or empty search term',
+        self::ERROR_EMPTY_SCOPE          => 'No scope provided for search',
+        self::ERROR_ENTITY_NOT_ALLOWED   => 'Search not allowed for this Entity: %s'
+    );
 }

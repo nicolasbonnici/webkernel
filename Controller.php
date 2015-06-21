@@ -138,7 +138,8 @@ class Controller extends Acl
             $this->aView["helpers"] = '../../../app/Views/helpers/';
 
             // Bootstrap
-            $this->aView["aAppBundles"] = Bootstrap::getBundles();
+            $oBundles = new Bundles();
+            $this->aView["aAppBundles"] = $oBundles->get();
             $this->aView["sAppName"] = $this->aConfig['app']['name'];
             $this->aView["sAppSupportName"] = $this->aConfig['support']['name'];
             $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
@@ -153,7 +154,7 @@ class Controller extends Acl
 
             // debug
             $this->aView["sEnv"] = ENV;
-            $this->aView["aLoadedClass"] = \Library\Core\Bootstrap::getLoadedClass();
+            $this->aView["aLoadedClass"] = Bootstrap::getAutoloaderInstance()->getLoadedClass();
             $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
             $this->aView["bIsXhr"] = $this->isXHR();
 
@@ -210,8 +211,6 @@ class Controller extends Acl
     {
         return (! empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
-    
-    
 
     /**
      * Tell if we have a valid logged in user instance

@@ -7,7 +7,7 @@ namespace Library\Core\Scope;
  * @author niko <nicolasbonnici@gmail.com>
  *
  */
-class Constraint
+class ScopeConstraint
 {
 
 }

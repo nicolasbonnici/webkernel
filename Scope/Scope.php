@@ -33,23 +33,28 @@ abstract class Scope
      */
     public function add($mValue, $mKey = null)
     {
-        if (in_null($mKey) === false) {
+
+
+        if (is_null($mKey) === false) {
             $this->aScope[$mKey] = $mValue;
         } else {
+            // By default use the Iterator index
             $this->aScope[] = $mValue;
         }
         return $this;
     }
 
     /**
-     * Add item to the scope
+     * Bulk add items to the scope
      *
      * @param array $mItem
      * @return Scope
      */
     public function addItems(array $aItems)
     {
-        $this->aScope = array_merge($this->aScope, $aItems);
+        foreach ($aItems as $mKey => $mValue) {
+            $this->add($mValue, $mKey);
+        }
         return $this;
     }
 

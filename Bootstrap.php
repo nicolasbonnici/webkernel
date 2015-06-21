@@ -18,31 +18,9 @@ class Bootstrap
     private static $oInstance;
 
     /**
-     * Global app Entities, Mapping and EntityCollection default namespaces
-     * @var string
+     * @var \Library\Core\Autoload
      */
-    const ENTITIES_NAMESPACE = '\app\Entities\\';
-    const ENTITIES_COLLECTION_NAMESPACE = '\app\Entities\Collection\\';
-    const MAPPING_ENTITIES_NAMESPACE = '\app\Entities\Mapping\\';
-
-    /**
-     * Exceptions error code
-     *
-     * @var integer
-     */
-    const ERROR_ENTITY_EXISTS = 400;
-    const ERROR_USER_INVALID = 401;
-    const ERROR_ENTITY_NOT_LOADED = 402;
-    const ERROR_ENTITY_NOT_OWNED_BY_USER = 403;
-    const ERROR_ENTITY_NOT_LOADABLE = 404;
-    const ERROR_ENTITY_NOT_MAPPED_TO_USERS = 405;
-    const ERROR_FORBIDDEN_BY_ACL = 406;
-
-    /**
-     * @todo delete??
-     * @var Bootstrap Instance
-     */
-    private static $oApp;
+    protected static $oAutoloaderInstance;
 
     /**
      * Router instance
@@ -51,8 +29,7 @@ class Bootstrap
     private static $oRouterInstance;
 
     /**
-     * Bootstrap global configuration parsed from the config.ini file
-     * @todo merger avec la conf du bundle
+     * Project global configuration
      * @var array
      */
     private static $aConfig;
@@ -74,32 +51,11 @@ class Bootstrap
     private static $aEnvironements = array();
 
     /**
-     * Http request
+     * MVC request
      *
      * @var array
      */
     private static $aRequest;
-
-    /**
-     * Available bundles, controllers and actions
-     *
-     * @var array
-     */
-    private static $aBundles;
-
-    /**
-     * Available Entities found on the registered Namespace (self::ENTITIES_NAMESPACE)
-     *
-     * @var array
-     */
-    private static $aEntities = array();
-
-    /**
-     * Loaded classes for debug
-     *
-     * @var array
-     */
-    private static $aLoadedClass = array();
 
     /**
      * PHP version
@@ -109,79 +65,36 @@ class Bootstrap
 
     /**
      * Instance constructor
-     * 
-     * @todo refactoriser tout ce code
-     * 
      */
     public function __construct()
     {
         // Grab microtime at load for benchmark purposes
         define('FRAMEWORK_STARTED', microtime(true));
 
-        // PHP
         // @todo SGBD infos
         self::$sPhpVersion = PHP_VERSION;
 
-        /**
-         * @todo en conf
-         */
+        // @todo from conf
         self::initPaths();
 
-        /**
-         *
-         * @see register class autoloader
-         */
-        //self::initAutoloader();
-        require ROOT_PATH . 'Library/Core/Autoload.php';
-        $oAutoload = new Autoload();
-        $oAutoload->register();
+        self::initAutoloader();
 
-        /**
-         * Init config
-         */
         self::initConfig();        
-        
-        /**
-         * Init environment staging
-         */
-        self::initEnv();
 
+        self::initEnv();
 
         // Init Router component
         self::$oRouterInstance = Router::getInstance();
-        
-        /**
-         *
-         * @see Errors and log reporting
-         */
-        self::initReporting();
-        self::initLogs();
-
-        /**
-         * Init cache
-         */
-        self::initCache();
-
-        /**
-         * Parse and load bundles, controllers and actions available
-         * Read from cache if exists
-         */
-        $oBundles = new Bundles();
-        self::$aBundles = $oBundles->get();
-
-        /**
-         * Parse request
-         */
         self::$aRequest = self::initRouter();
 
-        /**
-         * Load json encoded bundle configuration if found
-         */
+        self::initReporting();
+
+        self::initLogs();
+
+        self::initCache();
+
         self::loadBundleConfig();
 
-        /**
-         * Init requested controller
-         */
         self::initController();
     }
 
@@ -198,32 +111,9 @@ class Bootstrap
      */
     public static function initAutoloader()
     {
-        spl_autoload_register('\Library\Core\Bootstrap::classLoader');
-    }
-
-    /**
-     * Autoload any class that use namespaces (PSR-4)
-     *
-     * @param string $sClassName
-     */
-    public static function classLoader($sClassName)
-    {
-        $sComponentName = ltrim($sClassName, '\\');
-        $sFileName = '';
-        $sComponentNamespace = '';
-        if ($lastNsPos = strripos($sClassName, '\\')) {
-            $sComponentNamespace = substr($sClassName, 0, $lastNsPos);
-            $sClassName = substr($sClassName, $lastNsPos + 1);
-
-            $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sComponentNamespace) . DIRECTORY_SEPARATOR;
-        }
-        $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
-
-        if (is_file(ROOT_PATH . $sFileName)) {
-            self::registerLoadedClass($sClassName, $sComponentNamespace);
-            require_once ROOT_PATH . $sFileName;
-        }
-
+        require ROOT_PATH . '/Library/Core/Autoload.php';
+        self::$oAutoloaderInstance = new Autoload();
+        self::$oAutoloaderInstance->register();
     }
 
     /**
@@ -329,10 +219,6 @@ class Bootstrap
     {
         $sController = 'bundles\\' . self::$aRequest['bundle'] . '\Controllers\\' . ucfirst( self::$aRequest['controller'] ) . 'Controller';
 
-        if (ENV === 'dev') {
-            self::registerLoadedClass(Router::getController(), $sController);
-        }
-
         if (class_exists($sController)) {
             $oUser = null;
             $oBundleConfig = null;
@@ -344,55 +230,6 @@ class Bootstrap
         } else {
             // @todo handle 404 errors here (bundle error)
             throw new AppException('No controller found: ' . $sController);
-        }
-    }
-
-    /**
-     * Get available \app\Entities
-     *
-     * @return array An array on Entities classnames found
-     */
-    public static function buildEntities()
-    {
-        // Scan app level entities
-        self::parseEntities(APP_PATH . 'Entities/');
-
-        // Scan bundles entities
-        foreach (self::$aBundles as $sBundleName=>$aBundleStructure) {
-            self::parseEntities(BUNDLES_PATH . $sBundleName . '/Entities/');
-        }
-
-        return self::$aEntities;
-    }
-
-    /**
-     * Parse entites from a given path and subfolders then pass them to the self::$aEntities attribute
-     *
-     * @param string $sAbsolutePath
-     */
-    private static function parseEntities($sAbsolutePath)
-    {
-    	$aFolderContent = Directory::scan($sAbsolutePath);
-    	$aExcludedPath = array(
-    		'',
-    		'Deploy'
-    	);
-    	
-        foreach ($aFolderContent as $aFolderItem) {
-            if (
-            	$aFolderItem['type'] === 'file' && 
-            	is_null($aFolderItem['name']) === false
-    		) {
-                $sFilename = substr($aFolderItem['name'], 0, strlen($aFolderItem['name']) - strlen('.php'));
-            	if (in_array($sFilename, self::$aEntities) === false) {
-            		self::$aEntities[] = $sFilename;            		
-            	}
-            } elseif (
-            		$aFolderItem['type'] === 'folder' && 
-            		in_array($aFolderItem['name'], $aExcludedPath) === false
-    		) {
-            	self::parseEntities($sAbsolutePath . $aFolderItem['name']);
-            } 
         }
     }
 
@@ -439,32 +276,45 @@ class Bootstrap
     /**
      * Register all paths
      */
-    private static function initPaths()
+    public static function initPaths()
     {
-        // @see paths info
-        define('ROOT_PATH',             __DIR__ . '/../../');
-        define('APP_PATH',              __DIR__ . '/../../app/');
-        define('CONF_PATH',             __DIR__ . '/../../app/config/');
-        define('LIBRARY_PATH',          __DIR__ . '/../');
-        define('TMP_PATH',              __DIR__ . '/../../tmp/');
-        define('CACHE_PATH',            __DIR__ . '/../../tmp/cache/');
-        define('LOG_PATH',              __DIR__ . '/../../tmp/logs/');
-        define('BUNDLES_PATH',          __DIR__ . '/../../bundles/');
-        define('PUBLIC_PATH',           __DIR__ . '/../../public/');
-        define('PUBLIC_BUNDLES_PATH',   __DIR__ . '/../../public/lib/bundles/');
-        define('UX_PATH',               __DIR__ . '/../../public/lib/ux/');
-    }
-
-    /**
-     * Register called class for debug purposes
-     *
-     * @param string $sClassname            Class component name
-     * @param string $sComponentPath        Class component path
-     */
-    public static function registerLoadedClass($sClassname, $sComponentPath = '')
-    {
-        if (strlen($sClassname) > 0) {
-            self::$aLoadedClass[$sClassname . (($sComponentPath != '') ? ' (' . $sComponentPath . ')' : '')] = round(microtime(true) - FRAMEWORK_STARTED, 3);
+        $sRootPath = substr(
+                __DIR__,
+                0,
+                (strlen(__DIR__) - strlen('Library' . DIRECTORY_SEPARATOR . 'Core'))
+            );
+        if (defined('ROOT_PATH') === false) {
+            define('ROOT_PATH', $sRootPath);
+        }
+        if (defined('APP_PATH') === false) {
+            define('APP_PATH', $sRootPath . 'app/');
+        }
+        if (defined('CONF_PATH') === false) {
+            define('CONF_PATH', $sRootPath . 'app/config/');
+        }
+        if (defined('LIBRARY_PATH') === false) {
+            define('LIBRARY_PATH', $sRootPath . 'Library/');
+        }
+        if (defined('TMP_PATH') === false) {
+            define('TMP_PATH', $sRootPath . 'tmp/');
+        }
+        if (defined('CACHE_PATH') === false) {
+            define('CACHE_PATH', $sRootPath . 'tmp/cache/');
+        }
+        if (defined('LOG_PATH') === false) {
+            define('LOG_PATH', $sRootPath . 'tmp/logs/');
+        }
+        if (defined('BUNDLES_PATH') === false) {
+            define('BUNDLES_PATH', $sRootPath . 'bundles/');
+        }
+        if (defined('PUBLIC_PATH') === false) {
+            define('PUBLIC_PATH', $sRootPath . 'public/');
+        }
+        if (defined('PUBLIC_BUNDLES_PATH') === false) {
+            define('PUBLIC_BUNDLES_PATH', PUBLIC_PATH . 'lib/bundles/');
+        }
+        if (defined('UX_PATH') === false) {
+            define('UX_PATH', PUBLIC_PATH . 'lib/lib/ux/');
         }
     }
 
@@ -479,11 +329,6 @@ class Bootstrap
     public static function setConfig($config)
     {
         self::$aConfig = $config;
-    }
-
-    public static function getLoadedClass()
-    {
-        return self::$aLoadedClass;
     }
 
     public static function getRequest()
@@ -501,10 +346,11 @@ class Bootstrap
         return self::$sPhpVersion;
     }
 
-    public static function getBundles()
+    public static function getAutoloaderInstance()
     {
-        return self::$aBundles;
+        return self::$oAutoloaderInstance;
     }
+
 }
 
 class AppException extends \Exception

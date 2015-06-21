@@ -2,7 +2,7 @@
 namespace Library\Core;
 
 /**
- * Bundles managment
+ * Bundles management
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
@@ -11,16 +11,23 @@ class Bundles
 {
 
     /**
-     * Available bundles, controllers and actions
-     * @var array
-     */
-    protected $aAvailableBundles = array();
-
-    /**
-     * \Library\Core\Bundles::$aAvailableBundles \Library\Core\Cache duration in seconds
+     * \Library\Core\Bundles::$aBundles \Library\Core\Cache duration in seconds
      * @var integer
      */
     protected static $iBundlesCacheDuration = 1314000;
+
+    protected $aExcludedItems = array(
+        '..',
+        '.',
+        'composer',
+        'autoload.php'
+    );
+
+    /**
+     * Available bundles and MVC structure
+     * @var array
+     */
+    protected $aBundles = array();
 
     /**
      * Instance constructor
@@ -30,36 +37,7 @@ class Bundles
     public function __construct($bFlushBundlesCache = false)
     {
         // Load available bundles
-        self::build($bFlushBundlesCache);
-    }
-
-    /**
-     * Deploy bundle's javascript, css and images assets
-     *
-     * @deprecated use Asset component
-     * @throws AppException
-     * @return array                    Deployed bundles
-     */
-    public function deploy()
-    {
-        $aDeployedBundles = array();
-        // Clean bundle's assets
-        foreach ($this->aAvailableBundles as $sBundleName=>$aControllers) {
-            if (is_dir(PUBLIC_BUNDLES_PATH . $sBundleName)) {
-                if (! Directory::delete(PUBLIC_BUNDLES_PATH . $sBundleName)) {
-                    throw  new AppException('Unable to flush bundle\'s assets, check chmod on ' . PUBLIC_BUNDLES_PATH . ' for user ' . self::getServerUsername());
-                }
-            } elseif (! Directory::create(PUBLIC_BUNDLES_PATH . $sBundleName, 0777, true)) {
-                throw  new AppException('Unable to create bundle\'s assets directory, check chmod on ' . PUBLIC_BUNDLES_PATH . ' for user ' . self::getServerUsername());
-            } else {
-                $aDeployedBundles[] = $sBundleName;
-            }
-
-            // @todo soon deleted because of Assets::buildAssets() method
-            $sDeployBundlesAssetsCommandLine = 'ln -s ' . BUNDLES_PATH . $sBundleName . '/Assets/* ' . PUBLIC_BUNDLES_PATH . $sBundleName . '/';
-            echo exec($sDeployBundlesAssetsCommandLine);
-        }
-        return $aDeployedBundles;
+        $this->build($bFlushBundlesCache);
     }
 
     /**
@@ -68,12 +46,12 @@ class Bundles
      * @param bool $bFlushBundlesCache
      * @return array                        A three dimensional array that contain each module along with his own controllers and methods (actions only)
      */
-    public function build($bFlushBundlesCache)
+    protected function build($bFlushBundlesCache)
     {
         assert('is_dir(BUNDLES_PATH)');
-        $this->aAvailableBundles = array();
-        $this->aAvailableBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
-        if ($bFlushBundlesCache || $this->aAvailableBundles === false ) {
+        $this->aBundles = array();
+        $this->aBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
+        if ($bFlushBundlesCache || $this->aBundles === false ) {
             $this->parseBundles();
         }
     }
@@ -83,16 +61,11 @@ class Bundles
      */
     private function parseBundles()
     {
-        $aBundles = array_diff(scandir(BUNDLES_PATH), array(
-            '..',
-            '.',
-            'composer',
-            'autoload.php'
-        ));
+        $aBundles = array_diff(scandir(BUNDLES_PATH), $this->aExcludedItems);
         foreach ($aBundles as $iIndex=>$sBundle) {
-            $this->aAvailableBundles[$sBundle] = Controller::build($sBundle);
+            $this->aBundles[$sBundle] = Controller::build($sBundle);
         }
-        Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aAvailableBundles, false, self::$iBundlesCacheDuration);
+        Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aBundles, false, self::$iBundlesCacheDuration);
     }
 
     /**
@@ -101,6 +74,6 @@ class Bundles
      */
     public function get()
     {
-        return $this->aAvailableBundles;
+        return $this->aBundles;
     }
 }
