@@ -1,10 +1,5 @@
 <?php
-/**
- * Generic Query component abstract
- */
-
-namespace Library\Core\Query;
-
+namespace Library\Core\Database\Query;
 
 abstract class Query  extends  Join {
 

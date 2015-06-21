@@ -1,5 +1,10 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\App\Mvc\View;
+use Library\Core\App\Bundles;
+use Library\Core\App\Mvc\Controller;
+use Library\Core\App\Mvc\View\Assets\Assets;
+use Library\Core\Router;
+use Library\Core\Json;
 
 /**
  * View managment

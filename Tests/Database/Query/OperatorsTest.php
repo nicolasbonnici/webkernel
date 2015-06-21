@@ -1,7 +1,7 @@
 <?php
-namespace Library\Core\Tests\Select;
+namespace Library\Core\Tests\Database\Query;
 
-use Library\Core\Query\Operators;
+use Library\Core\Database\Query\Operators;
 use \Library\Core\Test as Test;
 
 

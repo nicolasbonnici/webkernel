@@ -1,13 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: niko
- * Date: 01/06/15
- * Time: 00:31
- */
-
-namespace Library\Core\Query;
-
+namespace Library\Core\Database\Query;
 
 class Where  {
 

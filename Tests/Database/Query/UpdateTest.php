@@ -1,9 +1,9 @@
 <?php
-namespace Library\Core\Tests\Update;
+namespace Library\Core\Tests\Database\Query;
 
-use Library\Core\Query\Operators;
-use Library\Core\Query\Query;
-use Library\Core\Query\Update;
+use Library\Core\Database\Query\Operators;
+use Library\Core\Database\Query\Query;
+use Library\Core\Database\Query\Update;
 use \Library\Core\Test as Test;
 
 

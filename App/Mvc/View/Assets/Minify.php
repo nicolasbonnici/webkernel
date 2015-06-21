@@ -1,12 +1,9 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\App\Mvc\View\Assets;
 
 /**
  * A simple class to build Js and CSS assets
  * Minify and concatenate Javascript and Cascading Stylesheet files to optimize render time
- *
- * @todo integrer au chargement des bundles via un systeme de package et du cache, pour le moment genere juste les assets depuis le bundle sample
- * @todo gestion des exceptions
  *
  * @author Nicolas Bonnici nicolasbonnici@gmail.com
  */

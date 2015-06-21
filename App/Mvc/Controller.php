@@ -1,7 +1,13 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\App\Mvc;
 
 use bundles\user\Entities\User;
+use Library\Core\Acl;
+use Library\Core\App\Bundles;
+use Library\Core\App\Mvc\View\View;
+use Library\Core\Bootstrap;
+use Library\Core\Router;
+use Library\Core\Tools;
 
 /**
  * Main app controller class

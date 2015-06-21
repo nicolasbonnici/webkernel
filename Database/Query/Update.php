@@ -1,14 +1,5 @@
 <?php
-/**
- * Update Query component
- *
- * User: niko
- * Date: 01/06/15
- * Time: 01:15
- */
-
-namespace Library\Core\Query;
-
+namespace Library\Core\Database\Query;
 
 class Update extends Query {
 

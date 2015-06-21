@@ -1,7 +1,7 @@
 <?php
-namespace Library\Core\Tests\Query;
+namespace Library\Core\Tests\Database\Query;
 
-use Library\Core\Query\Join;
+use Library\Core\Database\Query\Join;
 use \Library\Core\Test as Test;
 
 

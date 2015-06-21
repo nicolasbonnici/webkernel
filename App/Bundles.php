@@ -1,5 +1,7 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\App;
+use Library\Core\Controller;
+use Library\Core\Cache;
 
 /**
  * Bundles management

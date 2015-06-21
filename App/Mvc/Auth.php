@@ -1,7 +1,8 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\App\Mvc;
 
 use bundles\user\Entities\User;
+use Library\Core\Router;
 
 /**
  * Simple auth controller layer

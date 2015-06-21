@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests\Select;
+namespace Library\Core\Tests\Database\Query;
 
-use Library\Core\Query\Query;
-use Library\Core\Query\Select;
+use Library\Core\Database\Query\Query;
+use Library\Core\Database\Query\Select;
 use \Library\Core\Test as Test;
 
 
