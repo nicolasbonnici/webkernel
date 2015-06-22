@@ -4,6 +4,8 @@ namespace Library\Core;
 /**
  * Memcached
  *
+ * @ŧodo decoupler en un componsant Cache abstract étendue par des drivers pour utiliser d'autres moteur de cache plus tard
+ *
  * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
  */
@@ -53,7 +55,7 @@ class Cache
 
     public static function get($name)
     {
-        if (isset($_GET['noCache']) && ENV === 'dev') {
+        if (isset($_GET['noCache']) || ENV === 'dev') {
             return false;
         }
         

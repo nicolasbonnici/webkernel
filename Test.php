@@ -8,9 +8,9 @@ namespace Library\Core;
  */
 class Test extends \PHPUnit_Framework_TestCase
 {
-    public function __construct($sDomainName = 'domain.com', $sEnv = 'dev')
+    public function __construct()
     {
-        $_SERVER['SERVER_NAME'] = $sDomainName;
+        $_SERVER['SERVER_NAME'] = 'nbonnici.dev';
 
         // Register autoload and load config for given staging environment
         include_once __DIR__ . '/Bootstrap.php';

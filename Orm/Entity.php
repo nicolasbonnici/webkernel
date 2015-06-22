@@ -1,10 +1,10 @@
 <?php
 namespace Library\Core\Orm;
 
-use Library\Core\Database;
 use Library\Core\Cache;
-use Library\Core\Query\Select;
-use Library\Core\Query\Where;
+use Library\Core\Database\Database;
+use Library\Core\Database\Query\Select;
+use Library\Core\Database\Query\Where;
 
 /**
  * On the fly ORM CRUD managment abstract class
@@ -18,7 +18,7 @@ use Library\Core\Query\Where;
  *
  *       @dependancy \Library\Core\Validator
  *       @dependancy \Library\Core\Cache
- *       @dependancy \Library\Core\Database
+ *       @dependancy Database
  */
 abstract class Entity extends EntityAttributes
 {
@@ -205,7 +205,7 @@ abstract class Entity extends EntityAttributes
         if (! isset($aObject) || $aObject === false) {
             $bRefreshCache = true;
 
-            if (($oStatement = \Library\Core\Database::dbQuery($sQuery, $aBindedValues)) === false) {
+            if (($oStatement = Database::dbQuery($sQuery, $aBindedValues)) === false) {
                 throw new EntityException('Unable to construct object of class ' . get_called_class() . ' with query ' . $sQuery);
             }
 
@@ -272,8 +272,8 @@ abstract class Entity extends EntityAttributes
 
         try {
         	$sQuery = 'INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
-            $oStatement = \Library\Core\Database::dbQuery($sQuery, $aInsertedValues);
-            $this->{static::PRIMARY_KEY} = \Library\Core\Database::lastInsertId();
+            $oStatement = Database::dbQuery($sQuery, $aInsertedValues);
+            $this->{static::PRIMARY_KEY} = Database::lastInsertId();
             return $this->bIsLoaded = ($oStatement !== false && intval($this->{static::PRIMARY_KEY}) > 0);
             
         } catch (\Exception $oException) {
@@ -315,7 +315,7 @@ abstract class Entity extends EntityAttributes
             }
 
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
-            $oStatement = \Library\Core\Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
+            $oStatement = Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
             
             return ($oStatement !== false && $this->refresh());
         } catch (\Exception $oException) {
@@ -343,7 +343,7 @@ abstract class Entity extends EntityAttributes
         }
 
         try {
-            $oStatement = \Library\Core\Database::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
+            $oStatement = Database::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
                 $this->{static::PRIMARY_KEY}
             ));
             $this->reset();

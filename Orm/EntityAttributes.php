@@ -2,6 +2,7 @@
 namespace Library\Core\Orm;
 
 use Library\Core\Cache;
+use Library\Core\Database\Database;
 use Library\Core\Validator;
 
 /**
@@ -38,7 +39,7 @@ abstract class EntityAttributes {
     {
         $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
         if (($this->aFields = Cache::get($sCacheKey)) === false) {
-            if (($oStatement = \Library\Core\Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
+            if (($oStatement = Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
                 throw new EntityException('Unable to list fields for table ' . static::TABLE_NAME);
             }
 

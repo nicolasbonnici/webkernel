@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use Library\Core\Database\Database;
+
 /**
  * Dashboard common couch
  * Useful generic methods to build a dashboard
