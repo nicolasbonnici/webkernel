@@ -1,7 +1,8 @@
 <?php
 namespace Library\Core\Scope;
-use Library\Core\Bundles;
-use Library\Core\Directory;
+use Library\Core\App\Bundles
+    ;
+use Library\Core\FileSystem\Directory;
 use Library\Core\Orm\EntityParser;
 
 /**

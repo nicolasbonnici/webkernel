@@ -2,7 +2,7 @@
 namespace Library\Core\Orm;
 
 use Library\Core\CoreException;
-use Library\Core\Directory;
+use Library\Core\FileSystem\Directory;
 
 /**
  * EntityParser component

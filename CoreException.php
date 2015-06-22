@@ -2,7 +2,7 @@
 namespace Library\Core;
 
 /**
- * Execptions management
+ * Exception management
  *
  * @author Nicolas BONNICI
  */

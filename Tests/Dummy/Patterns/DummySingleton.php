@@ -1,5 +1,5 @@
 <?php
-namespace Core\Tests\Mocks\Pattern;
+namespace Core\Tests\Dummy\Patterns;
 
 use Library\Core\Pattern\Singleton;
 

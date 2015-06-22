@@ -1,11 +1,10 @@
 <?php
 namespace Library\Core\App\Mvc\View\Assets;
 
-use Library\Core\View\Assets\Minify;
 use Library\Core\CoreException;
 
-use Library\Core\File;
-use Library\Core\Json;
+use Library\Core\FileSystem\File;
+use Library\Core\Json\Json;
 
 /**
  * Javascript and css assets management

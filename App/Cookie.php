@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\App;
 
 use Library\Core\Pattern\Singleton;
 

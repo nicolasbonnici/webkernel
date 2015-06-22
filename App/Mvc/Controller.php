@@ -86,7 +86,7 @@ class Controller extends Acl
 
     /**
      * Current cookie
-     * @var \Library\Core\Cookie
+     * @var \Library\Core\App\Cookie
      */
     protected $oCookie;
 
@@ -408,7 +408,7 @@ class Controller extends Acl
         return $this->oCookie;
     }
 
-    public function setCookie(\Library\Core\Cookie $oCookie)
+    public function setCookie(\Library\Core\App\Cookie $oCookie)
     {
         $this->oCookie = $oCookie;
     }

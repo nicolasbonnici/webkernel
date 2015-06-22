@@ -12,6 +12,8 @@ class Tools
     /**
      * php chmod native function enhancement to add a recursive option
      *
+     * @todo migrer vers fileSystem dans une couche abstract commune a File et Directory
+     *
      * @param string $sAbsolutePath
      * @param array $aMode
      * @param boolean $bRecursive               The $sAbsolutePath point to a folder and you want to apply chmod recursively

@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Json;
 /**
  * Json managment class
  *
@@ -9,7 +9,7 @@ class Json
 {
     /**
      * A valid json encoded object
-     * @var \Library\Core\Json
+     * @var \Library\Core\Json\Json
      */
     protected $oJson;
 
