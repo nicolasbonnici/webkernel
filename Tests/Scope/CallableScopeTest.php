@@ -41,6 +41,7 @@ class CallableScopeTest extends Test
 
     public function testAddItems()
     {
+        self::$oCallableScopeInstance = new CallableScope();
         $callable1 = function() {
             echo 'Hello function!';
         };
@@ -50,6 +51,7 @@ class CallableScopeTest extends Test
 
     public function testGetScope()
     {
+        self::$oCallableScopeInstance = new CallableScope();
         $aScope = self::$oCallableScopeInstance->getScope();
         $this->assertTrue(is_array($aScope));
         foreach ($aScope as $callable) {

@@ -2,7 +2,7 @@
 namespace Library\Core\Orm;
 
 use Library\Core\Collection;
-use Library\Core\Database;
+use Library\Core\Database\Database;
 
 /**
  * On the fly ORM CRUD managment abstract class

@@ -53,4 +53,12 @@ abstract class Singleton
      */
     final private function __clone()
     {}
+
+    /**
+     * prevent from being unserialized
+     *
+     * @return void
+     */
+    private function __wakeup()
+    {}
 }

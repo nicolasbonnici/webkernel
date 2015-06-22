@@ -121,7 +121,7 @@ class Bootstrap
     /**
      * Init cache based on memcached
      */
-    private static function initCache()
+    public static function initCache()
     {
         define('CACHE_HOST', self::$aConfig['cache']['host']);
         define('CACHE_PORT', self::$aConfig['cache']['port']);
@@ -130,7 +130,7 @@ class Bootstrap
     /**
      * Init errors and notices reporting
      */
-    private static function initReporting()
+    public static function initReporting()
     {
         // init logs and errors reporting
         error_reporting((ENV === 'dev') ? -1 : 0);
@@ -141,7 +141,7 @@ class Bootstrap
     /**
      * Init log file
      */
-    private static function initLogs()
+    public static function initLogs()
     {
         $sLogFile = LOG_PATH . '/errors.log';
         if (! is_file($sLogFile)) {
@@ -200,7 +200,7 @@ class Bootstrap
      * @todo passer uniquement un objet abstrait d'une interface avec des accessors à ce niveau pour plus de flexibilité
      * @return array
      */
-    private static function initRouter()
+    public static function initRouter()
     {
         self::$oRouterInstance->init(self::$aConfig);
         return array(
@@ -258,13 +258,13 @@ class Bootstrap
      *
      * @see config.ini
      */
-    private static function initEnv()
+    public static function initEnv()
     {
         $sEnv = 'prod';
         
         // Init environments from application configuration
         self::$aEnvironements = self::$aConfig['env'];
-        
+
         if (
         	isset($_SERVER['SERVER_NAME']) && 
         	in_array($_SERVER['SERVER_NAME'], self::$aEnvironements) && 

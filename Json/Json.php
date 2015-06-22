@@ -14,6 +14,12 @@ class Json
     protected $oJson;
 
     /**
+     * Array to store Json decoded data
+     * @var array
+     */
+    protected $aJson;
+
+    /**
      * Flag to tell if Json object is currently loaded
      * @var boolean
      */
@@ -91,7 +97,7 @@ class Json
     {
         assert('$this->isLoaded() === true');
         if (is_null($sAttribute)) {
-            return $this->aJson;
+            return $this->getAsArray();
         } else {
             return isset($this->aJson[$sAttribute]) === true ? $this->aJson[$sAttribute] : null;
         }

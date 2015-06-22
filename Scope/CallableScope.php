@@ -11,19 +11,25 @@ class CallableScope extends Scope
 {
 
     /**
+     *
+     * @todo find a way to overload parent method signature and direclty cast callable values
+     *
      * @param callable $mValue
      * @param mixed string|int $mKey (optional)
      * @return CallableScope
      */
-    public function add(callable $mValue, $mKey = null)
+    public function add($mValue, $mKey = null)
     {
-        if (is_null($mKey) === false) {
-            $this->aScope[$mKey] = $mValue;
-        } else {
-            // By default use the Iterator index
-            $this->aScope[] = $mValue;
+        if (empty($mValue) === false || is_callable($mValue) === true) {
+            if (is_null($mKey) === false) {
+                $this->aScope[$mKey] = $mValue;
+            } else {
+                // By default use the Iterator index
+                $this->aScope[] = $mValue;
+            }
+            return $this;
         }
-        return $this;
+        return null;
     }
 
 }

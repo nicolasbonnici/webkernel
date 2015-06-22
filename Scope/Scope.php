@@ -2,12 +2,12 @@
 namespace Library\Core\Scope;
 
 /**
- * Generic Scope component abstract layer
+ * Generic Scope component
  * 
  * @author niko <nicolasbonnici@gmail.com>
  *
  */
-abstract class Scope
+class Scope
 {
     /**
      * Array to store entities scope
