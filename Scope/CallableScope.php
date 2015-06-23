@@ -34,6 +34,6 @@ class CallableScope extends Scope
 
 }
 
-class BundlesScopeException extends \Exception
+class CallableScopeException extends \Exception
 {
 }

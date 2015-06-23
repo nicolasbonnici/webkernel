@@ -3,7 +3,7 @@ namespace Library\Core\Orm;
 
 use Library\Core\CoreException;
 use Library\Core\Collection;
-use Library\Core\Scope\BundlesScope;
+use Library\Core\Scope\BundlesEntitiesScope;
 
 use bundles\user\Entities\User;
 
@@ -142,7 +142,7 @@ class EntitySearch
      * @param BundlesScope $oBundleScope
      * @return EntitySearch
      */
-    public function setScope(BundlesScope $oBundleScope)
+    public function setScope(BundlesEntitiesScope $oBundleScope)
     {
         $this->oBundleScope = $oBundleScope;
         return $this;

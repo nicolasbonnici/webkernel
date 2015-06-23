@@ -11,13 +11,17 @@ use Library\Core\Cache\CacheInterface;
 class Memcache extends CacheAbstract
 {
 
+    /**
+     * Memcache ressource
+     * @var \memcache
+     */
     private static $res_memcache;
 
     /**
      * Enable zlib data compression
      * @var int
      */
-    protected static $iZLibSupport = false;
+    protected static $iZLibSupport = 0;
 
     protected function connect()
     {
@@ -62,7 +66,18 @@ class Memcache extends CacheAbstract
         return $ret;
     }
 
-    public static function set($name, $value, $bZLibPacked = false, $expire = CacheInterface::CACHE_TIME_DEFAULT)
+    /**
+     *
+     * @todo modifier la signature pour apporter la gestion du parametre $bZLib par le membre du driver idem interface
+     *
+     * @param string $name
+     * @param mixed $value
+     * @param int $bZLibPacked
+     * @param int $expire
+     * @return bool
+     * @throws \Exception
+     */
+    public static function set($name, $value, $bZLibPacked = 0, $expire = CacheInterface::CACHE_TIME_DEFAULT)
     {
         if (self::isConnected()) {
             self::$res_memcache->set(self::CACHE_KEY_PREFIX . '-' . $name, $value, $bZLibPacked, $expire);
@@ -111,6 +126,6 @@ class Memcache extends CacheAbstract
      */
     public static function disableZLibSupport()
     {
-        self::$iZLibSupport = false;
+        self::$iZLibSupport = 0;
     }
 }

@@ -1,7 +1,6 @@
 <?php
 namespace Library\Core\Scope;
-use Library\Core\App\Bundles
-    ;
+
 use Library\Core\FileSystem\Directory;
 use Library\Core\Orm\EntityParser;
 
@@ -21,10 +20,8 @@ class BundlesEntitiesScope extends BundlesScope
         foreach($aBundles as $sBundlesName => $aMvc) {
             if (Directory::exists(BUNDLES_PATH . $sBundlesName . '/Entities/')) {
                 $oEntityParser = new EntityParser(BUNDLES_PATH . $sBundlesName . '/Entities/');
-                foreach ($oEntityParser->getEntities() as $sEntity) {
-                    $sEntityClass = '\bundles\\' . $sBundlesName . '\\Entities\\' . $sEntity;
-                    $this->aScope[$sBundlesName][] = new $sEntityClass;
-
+                foreach ($oEntityParser->getEntities() as $oEntity) {
+                    $this->aScope[$sBundlesName][] = $oEntity;
                 }
             }
         }

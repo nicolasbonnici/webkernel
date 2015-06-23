@@ -11,6 +11,11 @@ use Library\Core\Pattern\Singleton;
 class Directory extends Singleton
 {
 
+    const DIRECTORY_SCAN_KEY_NAME  = 'name';
+    const DIRECTORY_SCAN_KEY_TYPE  = 'type';
+    const DIRECTORY_SCAN_KEY_PATH  = 'path';
+    const DIRECTORY_SCAN_KEY_SIZE  = 'size';
+    const DIRECTORY_SCAN_KEY_ITEMS = 'items';
     /**
      * Delete a folder if it's not empty this method will recursively delete all sufolders and files
      * @param string $sPath
@@ -62,14 +67,11 @@ class Directory extends Singleton
     }
 
     /**
-     * Recursve scanning method for user's workspace
+     * Recursive scanning method on file system
      * @return array
      */
     public static function scan($sPathToScan = null, array $aItems = array())
     {
-        if (is_null($sPathToScan)) {
-            $sPathToScan = $sPathToScan;
-        }
         if(file_exists($sPathToScan)) {
             foreach(scandir($sPathToScan) as $f) {
 
@@ -77,23 +79,24 @@ class Directory extends Singleton
                     continue;
                 }
 
-                if(is_dir($sPathToScan . '/' . $f)) {
-                    // @todo Class object here
+                $sItemPath = $sPathToScan . DIRECTORY_SEPARATOR . $f;
+                if(is_dir($sItemPath)) {
+                    // @todo Abstract factory here Element et FolderElement
                     // Folder
                     $aItems[] = array(
                         "name" => $f,
                         "type" => "folder",
-                        "path" => $sPathToScan . $f,
-                        "items" => self::scan($sPathToScan . '/' . $f)
+                        "path" => $sItemPath . DIRECTORY_SEPARATOR,
+                        "size" => filesize($sItemPath),
+                        "items" => self::scan($sItemPath . DIRECTORY_SEPARATOR)
                     );
                 } else {
-                    // @todo Class object here
                     // File
                     $aItems[] = array(
                         "name" => $f,
                         "type" => "file",
-                        "path" => $sPathToScan . $f,
-                        "size" => filesize($sPathToScan . '/' . $f)
+                        "path" => $sPathToScan,
+                        "size" => filesize($sItemPath)
                     );
                 }
             }

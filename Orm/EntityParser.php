@@ -7,8 +7,6 @@ use Library\Core\FileSystem\Directory;
 /**
  * EntityParser component
  *
- *
- * @ŧodo directly return instance not only string values
  */
 class EntityParser
 {
@@ -59,20 +57,29 @@ class EntityParser
     protected function parseEntities($sAbsolutePath)
     {
         $aFolderContent = Directory::scan($sAbsolutePath);
-        // @todo protected property
+        // @todo protected property for reserved key name
         $aExcludedPath = array(
             '',
-            'Deploy'
+            'Deploy',
+            'Collection',
+            'Mapping',
+        );
+        $aExcludedFile = array(
+            'Foo.php'
         );
 
         foreach ($aFolderContent as $aFolderItem) {
             if (
                 $aFolderItem['type'] === 'file' &&
-                is_null($aFolderItem['name']) === false
+                is_null($aFolderItem['name']) === false &&
+                in_array($aFolderItem['name'], $aExcludedFile) === false
             ) {
                 $sFilename = substr($aFolderItem['name'], 0, strlen($aFolderItem['name']) - strlen('.php'));
                 if (in_array($sFilename, $this->aEntities) === false) {
-                    $this->aEntities[] = $sFilename;
+                    $sEntityClassName = $this->computeClassNameFromPath($aFolderItem['path'], $sFilename);
+                    if (class_exists($sEntityClassName)) {
+                        $this->aEntities[] = new $sEntityClassName;
+                    }
                 }
             } elseif (
                 $aFolderItem['type'] === 'folder' &&
@@ -81,6 +88,18 @@ class EntityParser
                 $this->parseEntities($sAbsolutePath . $aFolderItem['name']);
             }
         }
+    }
+
+    /**
+     * Return PSR4 namespace compliant from a class path
+     * @param $sFilePath
+     * @param $sFilename
+     * @return string
+     */
+    protected function computeClassNameFromPath($sFilePath, $sFilename)
+    {
+        $sNamespace = str_replace(ROOT_PATH, '', $sFilePath);
+        return '\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $sNamespace) . $sFilename;
     }
 
     public function getEntities()
