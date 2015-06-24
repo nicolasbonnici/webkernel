@@ -88,9 +88,29 @@ class ScopeTest extends DummyScope
         $this->assertTrue(array_key_exists('testValue', self::$oScopeInstance->getScope()));
     }
 
+    public function testAddWithoutItemWithKey()
+    {
+        $this->assertTrue(self::$oScopeInstance->addItem('XXXXXX') instanceof Entities);
+        $this->assertTrue(self::$oScopeInstance->addItem('YYYYYY') instanceof Entities);
+        $this->assertTrue(self::$oScopeInstance->addItem('ZZZZZZ') instanceof Entities);
+        $this->assertTrue(in_array('XXXXXX', array_values(self::$oScopeInstance->getScope())));
+        $this->assertTrue(in_array('YYYYYY', array_values(self::$oScopeInstance->getScope())));
+        $this->assertTrue(in_array('ZZZZZZ', array_values(self::$oScopeInstance->getScope())));
+        $this->assertTrue(in_array(0, array_keys(self::$oScopeInstance->getScope())));
+        $this->assertTrue(in_array(1, array_keys(self::$oScopeInstance->getScope())));
+        $this->assertTrue(in_array(2, array_keys(self::$oScopeInstance->getScope())));
+    }
+
     public function testGetWithParameter()
     {
         $this->assertEquals(self::$oScopeInstance->addItem('testKey'), 'testValue');
+    }
+
+    public function testDelete()
+    {
+        $this->assertTrue(self::$oScopeInstance->delete('testKey'));
+        $this->assertTrue(self::$oScopeInstance->get('testKey'));
+
     }
 
 }

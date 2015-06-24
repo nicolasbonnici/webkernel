@@ -15,13 +15,19 @@ class BundlesEntitiesScope extends BundlesScope
     public function __construct()
     {
         parent::__construct();
+        $this->build();
+    }
 
-        $aBundles = $this->getScope();
-        foreach($aBundles as $sBundlesName => $aMvc) {
+    protected function build()
+    {
+        foreach($this->getScope() as $sBundlesName => $mFreeDimension) {
             if (Directory::exists(BUNDLES_PATH . $sBundlesName . '/Entities/')) {
                 $oEntityParser = new EntityParser(BUNDLES_PATH . $sBundlesName . '/Entities/');
+                /** @var \Library\Core\Orm\Entity $oEntity */
                 foreach ($oEntityParser->getEntities() as $oEntity) {
-                    $this->aScope[$sBundlesName][] = $oEntity;
+                    if ($oEntity->isSearchable()) {
+                        $this->aScope[$sBundlesName][] = $oEntity;
+                    }
                 }
             }
         }

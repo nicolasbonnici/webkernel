@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Tests\Scope;
 
+use Library\Core\App\Bundles;
 use \Library\Core\Test as Test;
 
 use Library\Core\Scope\BundlesEntitiesScope;
@@ -38,32 +39,19 @@ class BundlesEntitiesScopeTest extends Test
         $this->assertTrue(self::$oScopeBundlesEntitiesInstance instanceof BundlesEntitiesScope);
     }
 
-    public function testAdd()
-    {
-        self::$oScopeBundlesEntitiesInstance = new BundlesEntitiesScope();
-
-        $oPost = new Post();
-        $oFeedItem = new FeedItem();
-        $oUser = new User();
-
-        /**
-         * @todo also test constraints parameter
-         */
-
-        $this->assertTrue(self::$oScopeBundlesEntitiesInstance->add($oPost, $oPost->getEntityName()) instanceof BundlesEntitiesScope);
-        $this->assertTrue(self::$oScopeBundlesEntitiesInstance->add($oFeedItem, $oFeedItem->getEntityName()) instanceof BundlesEntitiesScope);
-        $this->assertTrue(self::$oScopeBundlesEntitiesInstance->add($oUser, $oUser->getEntityName()) instanceof BundlesEntitiesScope);
-    }
-
     public function testGetScope()
     {
-        $this->testAdd();
-
         $aScope = self::$oScopeBundlesEntitiesInstance->getScope();
         $this->assertTrue(is_array($aScope));
-        $this->assertArrayHasKey('Post', $aScope);
-        $this->assertArrayHasKey('FeedItem', $aScope);
-        $this->assertArrayHasKey('User', $aScope);
+        foreach($aScope as $sBundle => $aEntities) {
+            $this->assertTrue(is_string($sBundle));
+            $this->assertTrue(is_array($aEntities) || is_null($aEntities));
+            if (is_array($aEntities) === true) {
+                foreach ($aEntities as $oEntity) {
+                    $this->assertInstanceOf('Library\Core\Orm\Entity', $oEntity);
+                }
+            }
+        }
     }
 
 }

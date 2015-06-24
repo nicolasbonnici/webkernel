@@ -238,6 +238,8 @@ class Bootstrap
     /**
      * Load locales
      *
+     * @todo dirty need refactor also handle country
+     *
      * @return string Current local on 2 caracters
      */
     private static function initLocales($sDefaultLocale = 'FR-fr')

@@ -74,6 +74,21 @@ class Scope
     }
 
     /**
+     * Delete from Scope
+     *
+     * @param mixed string|int $mKey
+     * @return bool
+     */
+    public function delete($mKey)
+    {
+        if (isset($this->aScope[$mKey]) === true) {
+            unset($this->aScope[$mKey]);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Scope accessor
      * @return array
      */

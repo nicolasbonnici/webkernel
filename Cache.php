@@ -55,7 +55,7 @@ class Cache
 
     public static function get($name)
     {
-        if (isset($_GET['noCache']) || ENV === 'dev') {
+        if (isset($_GET['noCache']) && ENV === 'dev') {
             return false;
         }
         

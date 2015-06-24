@@ -65,7 +65,7 @@ class Bundles
     {
         $aBundles = array_diff(scandir(BUNDLES_PATH), $this->aExcludedItems);
         foreach ($aBundles as $iIndex=>$sBundle) {
-            $this->aBundles[$sBundle] = Controller::build($sBundle);
+            $this->aBundles[$sBundle] = null;
         }
         Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aBundles, false, self::$iBundlesCacheDuration);
     }

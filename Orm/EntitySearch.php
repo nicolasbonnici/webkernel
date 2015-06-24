@@ -31,9 +31,9 @@ class EntitySearch
 
     /**
      * Bundles scope to perform search on
-     * @var \Library\Core\Scope\Bundles
+     * @var \Library\Core\Scope\BundlesEntitiesScope
      */
-    protected $oBundleScope;
+    protected $oScope;
 
 
     /**
@@ -59,14 +59,15 @@ class EntitySearch
     public function process()
     {
         $oExceptions = new Collection();
-        foreach ($this->oBundleScope->getScope() as $sBundleName => $aEntities) {
-            foreach ($aEntities as $sEntity) {
-                var_dump($sEntity);
-                try {
-                    $this->doSearch($sBundleName, $oEntity);
-                } catch (\Exception $oException) {
-                    $oExceptions->add(($oExceptions->count() + 1), $oException);
-                    continue;
+        foreach ($this->oScope->getScope() as $sBundleName => $aEntities) {
+            if (is_array($aEntities) === true) {
+                foreach ($aEntities as $oEntity) {
+                    try {
+                        $this->doSearch($sBundleName, $oEntity);
+                    } catch (\Exception $oException) {
+                        $oExceptions->add(($oExceptions->count() + 1), $oException);
+                        continue;
+                    }
                 }
             }
         }
@@ -85,7 +86,7 @@ class EntitySearch
     // @todo trier les resulats sur 3 dimensions bundle => entity => results
     // @todo Entity instance on parameter
 
-    protected function doSearch($sBundleName, $oEntity, array $aConstraints = array())
+    protected function doSearch($sBundleName, \Library\Core\Orm\Entity $oEntity, array $aConstraints = array())
     {
         assert('empty($this->sSearch) === false');
 
@@ -96,7 +97,7 @@ class EntitySearch
         if ($oEntity->isSearchable() === false) {
             throw new EntitySearchException(
                 sprintf(EntitySearchException::$aErrors[EntitySearchException::ERROR_ENTITY_NOT_ALLOWED], $oEntity ),
-                self::ERROR_ENTITY_NOT_ALLOWED
+                EntitySearchException::ERROR_ENTITY_NOT_ALLOWED
             );
         } elseif (class_exists($sEntityCollectionClassName) === false) {
             throw new EntitySearchException(
@@ -116,11 +117,12 @@ class EntitySearch
                 }
             }
 
+            // @todo use Query component
             // @todo handle last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
             $oEntityCollection->loadByParameters(
                 $aParameters,
-                $this->aOrderBy,
-                $this->aLimit,
+                array(),
+                array(0,99),
                 false
             );
 
@@ -129,6 +131,7 @@ class EntitySearch
                 $oEntity->pk = $oEntity->getId();
             }
 
+            /** @var EntityCollection $oEntityCollection */
             $this->aResults[$sBundleName][$oEntity->getEntityName()] = $oEntityCollection;
             $this->aResults[$sBundleName][$oEntity->getEntityName()]->count = $oEntityCollection->count();
 
@@ -139,12 +142,12 @@ class EntitySearch
     /**
      * Set the bundles scope to restrict search
      *
-     * @param BundlesScope $oBundleScope
+     * @param \Library\Core\Scope\BundlesEntitiesScope $oBundleScope
      * @return EntitySearch
      */
     public function setScope(BundlesEntitiesScope $oBundleScope)
     {
-        $this->oBundleScope = $oBundleScope;
+        $this->oScope = $oBundleScope;
         return $this;
     }
 
@@ -214,9 +217,10 @@ class EntitySearchException extends CoreException
     const ERROR_ENTITY_COLLECTION_NOT_FOUND = 6;
 
     public static $aErrors = array(
-        self::ERROR_UNAUTHORIZED_REQUEST => 'Unauthorized search request',
-        self::ERROR_EMPTY_SEARCH_REQUEST => 'No or empty search term',
-        self::ERROR_EMPTY_SCOPE          => 'No scope provided for search',
-        self::ERROR_ENTITY_NOT_ALLOWED   => 'Search not allowed for this Entity: %s'
+        self::ERROR_UNAUTHORIZED_REQUEST        => 'Unauthorized search request',
+        self::ERROR_EMPTY_SEARCH_REQUEST        => 'No or empty search term',
+        self::ERROR_EMPTY_SCOPE                 => 'No scope provided for search',
+        self::ERROR_ENTITY_NOT_ALLOWED          => 'Search not allowed for this Entity: %s',
+        self::ERROR_ENTITY_COLLECTION_NOT_FOUND => 'Collection for Entity %s not found'
     );
 }

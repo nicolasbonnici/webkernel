@@ -126,7 +126,9 @@ class Controller extends Acl
 
         // @see run action & pre|post dispatch callback (optionnal)
         if (method_exists($this, $this->sAction)) {
-            $this->loadLocales();
+
+            $this->loadTranslations();
+
             // Load session
             if (count($this->aSession) > 0) {
                 $this->aView['aSession'] = $this->aSession;
@@ -233,9 +235,8 @@ class Controller extends Acl
     protected function loadRequest()
     {
         $this->sBundle = Router::getBundle();
-        $this->sController = ucfirst(Router::getController()) . 'Controller';
+        $this->sController = Router::getController() . 'Controller';
         $this->sAction = Router::getAction() . 'Action';
-        ;
         $this->aParams = Router::getParams();
         $this->sLang = Router::getLang();
     }
@@ -308,14 +309,14 @@ class Controller extends Acl
      * Setup app locales and translations for a given template file
      * @param string $sTpl
      */
-    public function loadLocales()
+    public function loadTranslations()
     {
         require_once APP_PATH . '/Translations/' . $this->sLang . '/global.php'; // @see globale translation
         if (file_exists(BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '.php')) {
             require_once BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '.php';
         }
         $this->aView["lang"] = $this->sLang;
-        $this->aView["tr"] = $tr; // @see loading de la traduction pour la vue
+        $this->aView["tr"] = $tr; // @todo dirty... translation array from the require_once
     }
     
     /**
