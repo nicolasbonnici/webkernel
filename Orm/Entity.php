@@ -195,7 +195,7 @@ abstract class Entity extends EntityAttributes
     protected function loadByQuery($sQuery, array $aBindedValues = array(), $bUseCache = true, $sCacheKey = null)
     {
         $bRefreshCache = false;
-        if ($bUseCache && $this->bIsCacheable && ! empty($this->iCacheDuration)) {
+        if ($bUseCache && $this->isCacheable() && ! empty($this->iCacheDuration)) {
             if (is_null($sCacheKey)) {
                 $sCacheKey = Cache::getKey(get_called_class(), $sQuery, $aBindedValues);
             }
@@ -390,14 +390,20 @@ abstract class Entity extends EntityAttributes
      */
     public function reset()
     {
-        $aEntityAttributes = $this->getAttributes();
+        $aOriginProperties = array();
+        $oReflection = new \ReflectionClass($this);
+
+        foreach ($oReflection->getProperties() as $oRelectionProperty) {
+            $aOriginProperties[] = $oRelectionProperty->getName();
+        }
+
         foreach ($this as $sKey => $mValue) {
-            if (! in_array($sKey, $aEntityAttributes)) {
+            if (! in_array($sKey, $aOriginProperties)) {
                 unset($this->$sKey);
-            } else {
-                $this->$sKey = null;
             }
         }
+
+        $this->bIsLoaded = false;
 
         $this->bIsLoaded = false;
     }

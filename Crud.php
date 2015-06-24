@@ -33,7 +33,7 @@ abstract class Crud
     /**
      * Current \app\Entities\
      *
-     * @var \app\Entities\
+     * @var \Library\Core\Orm\Entity $oEntity
      */
     protected $oEntity;
 
