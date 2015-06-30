@@ -10,6 +10,9 @@ class Test extends \PHPUnit_Framework_TestCase
 {
     public function __construct()
     {
+        if (is_array($_SESSION) === false) {
+            $_SESSION = array();
+        }
         $_SERVER['SERVER_NAME'] = 'nbonnici.dev';
 
         // Register autoload and load config for given staging environment

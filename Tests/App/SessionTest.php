@@ -28,10 +28,25 @@ class SessionTest extends Test
 
     public function testConstructor()
     {
-        $_SESSION['testKey'] = 'testValue';
         self::$oSessionInstance = Session::getInstance();
-        $this->assertTrue(self::$oSessionInstance->setSession($_SESSION) instanceof Session);
-        $this->assertEquals($_SESSION, self::$oSessionInstance->getSession());
+        $this->assertEquals($_SESSION, self::$oSessionInstance->get());
+    }
+
+    public function testAddAndGet()
+    {
+        $this->assertTrue(self::$oSessionInstance->add('test1', 'value1'));
+        $this->assertEquals($_SESSION['test1'], self::$oSessionInstance->get('test1'));
+    }
+
+    public function testSet()
+    {
+        $this->assertTrue(self::$oSessionInstance->set($_SESSION));
+    }
+
+    public function testDelete()
+    {
+        $this->assertTrue(self::$oSessionInstance->delete('test1'));
+        $this->assertEquals($_SESSION, self::$oSessionInstance->get());
     }
 
 }

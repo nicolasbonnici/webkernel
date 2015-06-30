@@ -1,14 +1,10 @@
 <?php
 namespace Library\Core\Tests\Scope;
 
-use Library\Core\App\Bundles;
 use \Library\Core\Test as Test;
 
 use Library\Core\Scope\BundlesEntitiesScope;
 
-use bundles\blog\Entities\Post;
-use bundles\lifestream\Entities\FeedItem;
-use bundles\user\Entities\User;
 
 
 /**
@@ -52,6 +48,34 @@ class BundlesEntitiesScopeTest extends Test
                 }
             }
         }
+    }
+
+    public function testGetFilter()
+    {
+        $this->assertEquals(null, self::$oScopeBundlesEntitiesInstance->getFilter());
+    }
+
+    public function testSetLabel()
+    {
+        $this->assertInstanceOf(
+            'Library\Core\Scope\BundlesEntitiesScope',
+            self::$oScopeBundlesEntitiesInstance->setFilter(BundlesEntitiesScope::FILTER_ENTITY_SEARCH));
+        $this->assertEquals(
+            BundlesEntitiesScope::FILTER_ENTITY_SEARCH,
+            self::$oScopeBundlesEntitiesInstance->getFilter()
+        );
+    }
+
+    public function testLabelWithNotAllowedFilter()
+    {
+        // setFilter method must return null with an invalid filter
+        $this->assertEquals(null, self::$oScopeBundlesEntitiesInstance->setFilter('lbdfdjfdf4d5f4ds5f4d5'));
+
+        // Assert that setting a not allowed filter doesn't alter the previously setted filter
+        $this->assertEquals(
+            BundlesEntitiesScope::FILTER_ENTITY_SEARCH,
+            self::$oScopeBundlesEntitiesInstance->getFilter()
+        );
     }
 
 }

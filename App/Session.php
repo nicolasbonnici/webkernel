@@ -14,7 +14,20 @@ class Session extends Singleton {
      * Current PHP session
      * @var array
      */
-    protected $aSession = array();
+    protected static $aSession = array();
+
+    protected function __construct()
+    {
+        parent::__construct();
+
+        self::set($_SESSION);
+    }
+
+    public static function getInstance()
+    {
+        self::set($_SESSION);
+        return parent::getInstance();
+    }
 
     /**
      * Session accessor
@@ -22,12 +35,12 @@ class Session extends Singleton {
      * @param string $sSessionKey   string OR NULL to get whole session as array
      * @return array
      */
-    public function getSession($sSessionKey = null)
+    public static function get($sSessionKey = null)
     {
         return (
-        (isset($this->aSession[$sSessionKey]))
-            ? $this->aSession[$sSessionKey]
-            : $this->aSession
+        (isset(self::$aSession[$sSessionKey]))
+            ? self::$aSession[$sSessionKey]
+            : self::$aSession
         );
     }
 
@@ -36,37 +49,49 @@ class Session extends Singleton {
      *
      * @param string $sKey
      * @param mixed string|int|array|object $mValue
-     * @return $this
+     * @return bool
      */
-    public function addSession($sKey, $mValue)
+    public static function add($sKey, $mValue)
     {
         $_SESSION[$sKey] = $mValue;
-        $this->aSession[$sKey] = $mValue;
-        return $this;
+        self::$aSession[$sKey] = $mValue;
+        return isset($_SESSION[$sKey], self::$aSession[$sKey]);
+    }
+
+    /**
+     * Add session variables from an array
+     * @param array $aSession
+     * @return bool
+     */
+    public static function set(array $aSession)
+    {
+        $_SESSION = array_merge($_SESSION, $aSession);
+        self::$aSession = array_merge(self::$aSession, $aSession);
+        return true;
     }
 
     /**
      * Delete session key
      *
      * @param string $sSessionKey
-     * @return $this
+     * @return bool
      */
-    public function deleteSession($sSessionKey)
+    public static function delete($sSessionKey)
     {
-        unset($this->aSession[$sSessionKey]);
         unset($_SESSION[$sSessionKey]);
-        return $this;
+        unset(self::$aSession[$sSessionKey]);
+
+        return (isset($_SESSION[$sSessionKey], self::$aSession[$sSessionKey]) === false);
     }
 
     /**
-     * Add session variables from an array
-     * @param array $aSession
-     * @return Session
+     * Destroy the current session
      */
-    public function setSession(array $aSession)
+    public static function destroy()
     {
-        $this->aSession = array_merge($this->aSession, $aSession);
-        return $this;
+        self::$aSession = array();
+        $_SESSION = array();
+        session_destroy();
     }
 
 }

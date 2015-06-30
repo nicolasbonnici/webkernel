@@ -19,6 +19,9 @@ abstract class Singleton
      */
     protected function __construct()
     {
+        if (self::isInstanceRegistered()) {
+            trigger_error('Trying to re-instance singleton class ' . get_called_class(), E_USER_WARNING);
+        }
 
     }
 
@@ -30,8 +33,7 @@ abstract class Singleton
     public static function getInstance()
     {
         $sClass = get_called_class();
-        
-        if (! self::isInstanceRegistered()) {
+        if (self::isInstanceRegistered() === false) {
             self::$aInstances[$sClass] = new $sClass();
         }
         

@@ -3,8 +3,13 @@ namespace Library\Core\App;
 
 use Library\Core\Pattern\Singleton;
 
-class Cookie extends Singleton
+class Cookie
 {
+
+    /**
+     * Default PHP session key name
+     */
+    const DEFAULT_PHP_SESSION_KEY = 'PHPSESSID';
 
     /**
      * Tableau pour stocker les variable de cookie
@@ -18,8 +23,16 @@ class Cookie extends Singleton
      */
     public function __construct()
     {
-        parent::__construct();
         $this->aCookieVars = $_COOKIE;
+    }
+
+    /**
+     * Instance destructor
+     */
+    public function destroy()
+    {
+        $this->aCookieVars = array();
+        $this->delete(self::DEFAULT_PHP_SESSION_KEY);
     }
 
     /**
@@ -63,7 +76,6 @@ class Cookie extends Singleton
      */
     public function set($sName, $sValue, $iLifetime = 0, $sPath = '/', $sDomain = COOKIEDOMAINE)
     {
-        assert('\\core\\Validator::string($sName, 1) === \\core\\Validator::STATUS_OK && \\core\\Validator::string($sValue, 1) === \\core\\Validator::STATUS_OK');
         if (! empty($sName)) {
             return setcookie($sName, $sValue, $iLifetime, $sPath, $sDomain);
         }
@@ -81,7 +93,6 @@ class Cookie extends Singleton
      */
     public function delete($sName, $sPath = '/')
     {
-        assert('\\core\\Validator::string($sName, 1) === \\core\\Validator::STATUS_OK');
         return setcookie($sName, '', time() - 3600, $sPath, COOKIEDOMAINE);
     }
 }
