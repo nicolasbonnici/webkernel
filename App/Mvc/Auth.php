@@ -23,14 +23,12 @@ class Auth extends Controller
     public function __construct()
     {
         $this->loadRequest();
-        $this->setSession();
+        $this->startSession();
 
-        /**
-         * Check php session
-         */
+        // Try to retrieve session token
+        $aSession = $this->oSession->get();
         if (
-        	isset($_SESSION['token']) && 
-        	($this->_session = $_SESSION) &&
+        	isset($aSession['auth']) === true &&
         	$this->checkSessionintegrity()
 		) {
             parent::__construct($this->oUser, $this->oBundleConfig);
@@ -48,28 +46,32 @@ class Auth extends Controller
     {
         $this->oUser = new User();
         try {
+            $aSession = $this->oSession->get('auth');
             $this->oUser->loadByParameters(array(
-                'iduser' => $this->_session['iduser'],
-                'mail' => $this->_session['mail'],
-                'token' => $this->_session['token'],
-                'created' => $this->_session['created']
+                'iduser' => $aSession['iduser'],
+                'mail' => $aSession['mail'],
+                'token' => $aSession['token'],
+                'created' => $aSession['created']
             ));
 
             if ($this->oUser->isLoaded()) {
 
+                $aUserAuth = array();
                 foreach ($this->oUser as $key => $mValue) {
-                    $_SESSION[$key] = $mValue;
+                    $aUserAuth[$key] = $mValue;
                 }
-
                 // Regenerate session token
-                $_SESSION['token'] = $this->generateToken();
-                // Unset password
-                unset($_SESSION['pass']);
+                $aUserAuth['token'] = $this->generateToken();
 
-                $this->oUser->token = $_SESSION['token'];
+                // Unset password
+                unset($aUserAuth['pass']);
+
+                $this->oSession->add('auth', $aUserAuth);
+
+                $this->oUser->token = $aUserAuth['token'];
                 return $this->oUser->update();
             }
-        } catch (CoreEntityException $oException) {
+        } catch (\Exception $oException) {
             return false;
         }
     }

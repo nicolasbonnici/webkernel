@@ -14,6 +14,8 @@ class BundlesScope extends Scope
     {
         $oBundles = new Bundles();
         $this->addItems($oBundles->get());
+
+        parent::__construct();
     }
 }
 

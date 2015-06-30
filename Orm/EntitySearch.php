@@ -127,6 +127,7 @@ class EntitySearch
             );
 
             // store Entity primary key value (id[entity] value)
+            // @todo dirty and quick just for avoid calling methods from view
             foreach ($oEntityCollection as $oEntity) {
                 $oEntity->pk = $oEntity->getId();
             }

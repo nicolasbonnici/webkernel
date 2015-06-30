@@ -4,7 +4,9 @@ namespace Library\Core\App\Mvc;
 use bundles\user\Entities\User;
 use Library\Core\Acl;
 use Library\Core\App\Bundles;
+use Library\Core\App\Cookie;
 use Library\Core\App\Mvc\View\View;
+use Library\Core\App\Session;
 use Library\Core\Bootstrap;
 use Library\Core\Router;
 use Library\Core\Tools;
@@ -92,9 +94,9 @@ class Controller extends Acl
 
     /**
      * Current PHP session
-     * @var array
+     * @var \Library\Core\App\Session
      */
-    protected $aSession;
+    protected $oSession;
 
     /**
      * Controller instance constructor
@@ -124,21 +126,27 @@ class Controller extends Acl
             $this->oUser = null;
         }
 
+        // Init Cookie component instance
+        $this->oCookie = new Cookie();
+
         // @see run action & pre|post dispatch callback (optionnal)
         if (method_exists($this, $this->sAction)) {
 
             $this->loadTranslations();
 
-            // Load session
-            if (count($this->aSession) > 0) {
-                $this->aView['aSession'] = $this->aSession;
+            // Init session if the controller class doesn't extends Auth component
+            if (($this->oSession instanceof Session) === false) {
+                $this->oSession = Session::getInstance();
+            }
 
-                // @todo provisoire
-                $this->aView['sGravatarSrc16'] = Tools::getGravatar($this->aSession['mail'], 16);
-                $this->aView['sGravatarSrc32'] = Tools::getGravatar($this->aSession['mail'], 32);
-                $this->aView['sGravatarSrc64'] = Tools::getGravatar($this->aSession['mail'], 64);
-                $this->aView['sGravatarSrc128'] = Tools::getGravatar($this->aSession['mail'], 128);
-
+            $this->aView['aSession'] = $this->oSession->get();
+            // @todo provisoire
+            if (isset($this->aView['aSession']['auth'])) {
+                $aUserSession = $this->aView['aSession']['auth'];
+                $this->aView['sGravatarSrc16'] = Tools::getGravatar($aUserSession['mail'], 16);
+                $this->aView['sGravatarSrc32'] = Tools::getGravatar($aUserSession['mail'], 32);
+                $this->aView['sGravatarSrc64'] = Tools::getGravatar($aUserSession['mail'], 64);
+                $this->aView['sGravatarSrc128'] = Tools::getGravatar($aUserSession['mail'], 128);
             }
 
             // Views common couch
@@ -227,6 +235,16 @@ class Controller extends Acl
     protected function isValidUserLogged()
     {
         return (isset($this->oUser) && $this->oUser->isLoaded() && $this->oUser->getId() === intval($_SESSION['iduser']));
+    }
+
+    /**
+     * Start PHP sesison handler
+     * @return Controller
+     */
+    public function startSession()
+    {
+        $this->oSession = Session::getInstance();
+        return $this;
     }
 
     /**
@@ -325,7 +343,7 @@ class Controller extends Acl
      */
     public function getLoggedUser()
     {
-    	return (isset($this->aSession['iduser']) === true) ? new User(intval($this->aSession['iduser'])) : null;
+    	return (isset($this->oSession['iduser']) === true) ? new User(intval($this->oSession['iduser'])) : null;
     }
 
     /*
@@ -409,19 +427,9 @@ class Controller extends Acl
         return $this->oCookie;
     }
 
-    public function setCookie(\Library\Core\App\Cookie $oCookie)
-    {
-        $this->oCookie = $oCookie;
-    }
-
     public function getSession()
     {
-        return $this->aSession;
-    }
-
-    public function setSession()
-    {
-        $this->aSession = $_SESSION;
+        return $this->oSession;
     }
 
     public function getLang()

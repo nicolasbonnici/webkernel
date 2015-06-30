@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Tests\Scope;
+namespace Library\Core\Tests\Dummy\Scope;
 
 use Library\Core\Scope\Scope;
 

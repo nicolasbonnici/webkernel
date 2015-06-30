@@ -17,11 +17,34 @@ class Scope
     protected $aScope = array();
 
     /**
+     * Array of constraints to exclude from Scope
+     *
+     * @var array
+     */
+    protected $aConstraints = array();
+
+    /**
      * Instance constructor
      */
     public function __construct()
     {
 
+    }
+
+    /**
+     * Generic filter method on Scope keys
+     * @see ScopeConstraints parent
+     */
+    public function filter()
+    {
+        $aScope = $this->getScope();
+        if (count($this->aConstraints) > 0) {
+            foreach ($aScope as $mScopeKey => $mScopeItem) {
+                if (in_array($mScopeKey, $this->aConstraints) === true) {
+                    $this->delete($mScopeKey);
+                }
+            }
+        }
     }
 
     /**
@@ -86,6 +109,32 @@ class Scope
             return true;
         }
         return false;
+    }
+
+    /**
+     * Set constraints for scope
+     *
+     * @param array $aConstraints
+     * @return Scope
+     */
+    public function setConstraints(array $aConstraints)
+    {
+        $this->aConstraints = $aConstraints;
+
+        // Directly refresh scope
+        $this->filter();
+        
+        return $this;
+    }
+
+    /**
+     * Get scope constraint
+     *
+     * @return array
+     */
+    public function getConstraints()
+    {
+        return $this->aConstraints;
     }
 
     /**
