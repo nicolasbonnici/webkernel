@@ -16,7 +16,13 @@ class Cookie
      *
      * @var array
      */
-    private $aCookieVars = array();
+    protected $aCookieVars = array();
+
+    /**
+     * Cookie domain
+     * @var string
+     */
+    protected $sCookieDomain;
 
     /**
      * Constructor
@@ -24,6 +30,7 @@ class Cookie
     public function __construct()
     {
         $this->aCookieVars = $_COOKIE;
+        $this->setCookieDomain($_SERVER['SERVER_NAME']);
     }
 
     /**
@@ -74,10 +81,10 @@ class Cookie
      *            Registration path
      * @return boolean TRUE if cookie was successfully set, otherwise FALSE
      */
-    public function set($sName, $sValue, $iLifetime = 0, $sPath = '/', $sDomain = COOKIEDOMAINE)
+    public function set($sName, $sValue, $iLifetime = 0, $sPath = '/')
     {
         if (! empty($sName)) {
-            return setcookie($sName, $sValue, $iLifetime, $sPath, $sDomain);
+            return setcookie($sName, $sValue, $iLifetime, $sPath, $this->sCookieDomain);
         }
         return false;
     }
@@ -93,6 +100,27 @@ class Cookie
      */
     public function delete($sName, $sPath = '/')
     {
-        return setcookie($sName, '', time() - 3600, $sPath, COOKIEDOMAINE);
+        return setcookie($sName, '', time() - 3600, $sPath, $this->sCookieDomain);
+    }
+
+    /**
+     * Set the current domain for the Cookie instance
+     *
+     * @param string $sDomain
+     * @return Cookie
+     */
+    public function setCookieDomain($sDomain)
+    {
+        $this->sCookieDomain = $sDomain;
+        return $this;
+    }
+
+    /**
+     * Domain for cookie accessor
+     * @return string
+     */
+    public function getCookieDomain()
+    {
+        return $this->sCookieDomain;
     }
 }

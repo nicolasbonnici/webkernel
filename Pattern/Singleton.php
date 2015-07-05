@@ -57,10 +57,10 @@ abstract class Singleton
     {}
 
     /**
-     * prevent from being unserialized
+     * wakeup hook prevent from being unserialized
      *
      * @return void
      */
-    private function __wakeup()
+    public function __wakeup()
     {}
 }

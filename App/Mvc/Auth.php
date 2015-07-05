@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\App\Mvc;
 
+use bundles\auth\Models\AuthModel;
 use bundles\user\Entities\User;
 use Library\Core\Router;
 
@@ -12,6 +13,8 @@ use Library\Core\Router;
  */
 class Auth extends Controller
 {
+
+    const SESSION_AUTH_KEY = 'auth';
 
     /**
      * Currently logged user instance
@@ -51,6 +54,7 @@ class Auth extends Controller
                 'iduser' => $aSession['iduser'],
                 'mail' => $aSession['mail'],
                 'token' => $aSession['token'],
+                'confirmed' => AuthModel::USER_ACTIVATED_STATUS,
                 'created' => $aSession['created']
             ));
 

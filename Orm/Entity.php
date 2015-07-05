@@ -327,18 +327,16 @@ abstract class Entity extends EntityAttributes
     /**
      * Delete row corresponding to current instance in database and reset instance
      * 
-     * @todo Need review on return ...
-     * 
      * @throws EntityException
      * @return boolean TRUE if deletion was successful, otherwise FALSE
      */
     public function delete()
     {
-        if (! $this->bIsDeletable) {
+        if ($this->isDeletable() === false) {
             throw new EntityException('Cannot delete object of type "' . get_called_class() . '", this type of object is not deletable');
         }
 
-        if (! $this->bIsLoaded) {
+        if ($this->isLoaded() === false) {
             throw new EntityException('Cannot delete entry, object not loaded properly');
         }
 

@@ -219,6 +219,12 @@ class Bootstrap
      */
     private static function initController()
     {
+
+        // @todo ugly but for testing purposes find a better approach or handle a CLI mode
+        if (defined('TEST') === true && TEST === true) {
+            return;
+        }
+
         $sController = 'bundles\\' . self::$aRequest['bundle'] . '\Controllers\\' . ucfirst( self::$aRequest['controller'] ) . 'Controller';
 
         if (class_exists($sController)) {
