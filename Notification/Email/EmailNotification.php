@@ -15,6 +15,11 @@ class EmailNotification extends NotificationAbstract
 
     protected $oMessage;
 
+    public function __construct()
+    {
+        require_once ROOT_PATH . 'Library/Swift/swift_required.php';
+    }
+
     /**
      * Build the email for Swift Mailer
      *

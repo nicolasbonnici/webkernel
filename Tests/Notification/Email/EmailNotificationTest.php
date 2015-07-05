@@ -7,6 +7,9 @@ use Library\Core\Notification\Email\EmailNotification;
 
 class EmailNotificationTest extends Test {
 
+    /**
+     * @var EmailNotification
+     */
     protected $oEmailNotificationInstance;
 
     protected function setUp()
@@ -34,6 +37,16 @@ class EmailNotificationTest extends Test {
             );
         }
 
+    }
+
+    public function testBuild()
+    {
+        $this->oEmailNotificationInstance->setSubject('Test subject');
+        $this->oEmailNotificationInstance->setExpeditor('test@domain.tld');
+        $this->oEmailNotificationInstance->setRecipient('root@localhost');
+        $this->oEmailNotificationInstance->setMessage('Message de test.');
+
+        $this->assertInstanceOf('\Swift_Message', $this->oEmailNotificationInstance->build());
     }
 
 }

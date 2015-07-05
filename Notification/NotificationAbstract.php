@@ -50,7 +50,7 @@ abstract class NotificationAbstract {
      * Notification priority
      * @var int
      */
-    private $iPriority;
+    private $iPriority = self::PRIORITY_HIGHEST;
 
     public function __construct()
     {
