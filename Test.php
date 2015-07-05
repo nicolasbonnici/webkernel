@@ -48,6 +48,32 @@ class Test extends \PHPUnit_Framework_TestCase
         $oMethod->setAccessible(true);
         return $oMethod;
     }
+
+    /**
+     * Retrieve class accessors
+     *
+     * @param mixed string|object $mClass
+     * @return array
+     */
+    protected function getAccessors($mClass)
+    {
+        $oReflectedEmailNotification = new \ReflectionClass($mClass);
+
+        $aAccessors = array();
+        $aAccessors['setter'] = array();
+        $aAccessors['getter'] = array();
+        $aMethods = $oReflectedEmailNotification->getMethods();
+        foreach ($aMethods as $iIndex => $oMethod) {
+            if (substr($oMethod->name, 0, strlen('get')) === 'get') {
+                $aAccessors['getter'][] = $oMethod->name;
+            }
+
+            if (substr($oMethod->name, 0, strlen('set')) === 'set') {
+                $aAccessors['setter'][] = $oMethod->name;
+            }
+        }
+        return $aAccessors;
+    }
     
 }
 

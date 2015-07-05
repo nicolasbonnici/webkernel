@@ -1,26 +1,18 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Notification\Email;
+
+use Library\Core\Notification\NotificationAbstract;
+use Library\Core\Notification\SenderAbstract;
 
 /**
- * Email managment class that implement Swift mailer
- * Dois etre instancier avant le message
+ * Email managment class that use Swift mailer
  *
  * @dependancy \Library\Swift
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */
-class Mailer
+class EmailSender extends SenderAbstract
 {
-
-    /**
-     * Message priority
-     * @var integer
-     */
-    const PRIORITY_HIGHEST  = 1;
-    const PRIORITY_HIGH     = 2;
-    const PRIORITY_NORMAL   = 3;
-    const PRIORITY_LOW      = 4;
-    const PRIORITY_LOWEST   = 5;
 
     /**
      * Mailer
@@ -33,11 +25,6 @@ class Mailer
      * @var \Swift_Transport
      */
     protected $oTransporter;
-
-    /**
-     * @var \Swift_Message
-     */
-    protected $oMessage;
 
     /**
      * Mailer instance constructor
@@ -61,15 +48,15 @@ class Mailer
     /**
      * Send an email
      *
-     * @param \Swift_Message $oMessage
-     * @return integer                  Number of recipients
+     * @param NotificationAbstract $oMessage
+     * @return bool
      *
      * (non-PHPdoc)
      * @see Swift_Mailer::send()
      */
-    public function send(\Swift_Message $oMessage)
+    public function send(NotificationAbstract $oMessage)
     {
-        return  $this->oMailer->send($oMessage);
+        return  ($this->oMailer->send($oMessage->build()) > 0);
     }
 
 }
