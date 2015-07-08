@@ -26,14 +26,16 @@ class EmailNotificationTest extends Test {
         foreach ($aInstanceAccessors['setter'] as $sSetterMethod) {
             $this->assertInstanceOf(
                 '\Library\Core\Notification\Email\EmailNotification',
-                $this->oEmailNotificationInstance->{$sSetterMethod}(1)
+                $this->oEmailNotificationInstance->{$sSetterMethod}(1),
+                'Accessor ' . $sSetterMethod . ' of class ' . get_class($this->oEmailNotificationInstance) .' failed'
             );
         }
 
         foreach ($aInstanceAccessors['getter'] as $sGetterMethod) {
             $this->assertEquals(
                 1,
-                $this->oEmailNotificationInstance->{$sGetterMethod}()
+                $this->oEmailNotificationInstance->{$sGetterMethod}(),
+                'Accessor ' . $sGetterMethod . ' of class ' . get_class($this->oEmailNotificationInstance) .' failed'
             );
         }
 
@@ -46,7 +48,14 @@ class EmailNotificationTest extends Test {
         $this->oEmailNotificationInstance->setRecipient('root@localhost');
         $this->oEmailNotificationInstance->setMessage('Message de test.');
 
-        $this->assertInstanceOf('\Swift_Message', $this->oEmailNotificationInstance->build());
+        /** @var \Swift_Message $oSwiftMessage */
+        $oSwiftMessage = $this->oEmailNotificationInstance->build();
+
+        $this->assertInstanceOf('\Swift_Message', $oSwiftMessage);
+        $this->assertEquals('Test subject', $oSwiftMessage->getSubject());
+        $this->assertArrayHasKey('test@domain.tld', $oSwiftMessage->getFrom());
+        $this->assertArrayHasKey('root@localhost', $oSwiftMessage->getTo());
+        $this->assertEquals('Message de test.', $oSwiftMessage->getBody());
     }
 
 }

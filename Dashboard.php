@@ -2,6 +2,7 @@
 namespace Library\Core;
 
 use Library\Core\Database\Database;
+use Library\Core\Orm\Entity;
 
 /**
  * Dashboard common couch
@@ -54,5 +55,3 @@ class Dashboard extends Crud {
 	}	
 	
 }
-
-?>

@@ -1,5 +1,6 @@
 <?php
 namespace Library\Core\App\Mvc\View\Assets;
+use Library\Core\FileSystem\File;
 
 /**
  * A simple class to build Js and CSS assets
@@ -251,13 +252,7 @@ class Minify
         $contents = File::getContent($sFullAbsoluteFilePath);
 
         if ($fileType == 'css') {
-            $oldFileDir = $sPathContext;
-            $sPathContext = rtrim(dirname($sFullAbsoluteFilePath), '\/').'/';
-            $oldBaseUrl = $baseUrl;
-            $baseUrl = 'http'.(@$_SERVER['HTTPS']?'s':'').'://'.$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/').'/'.$sPathContext;
             $contents = minify_css($contents);
-            $sPathContext = $oldFileDir;
-            $baseUrl = $oldBaseUrl;
         }
 
         $base64   = base64_encode($contents);

@@ -13,14 +13,8 @@ abstract class NotificationAbstract {
     const PRIORITY_NORMAL   = 3;
     const PRIORITY_LOW      = 4;
     const PRIORITY_LOWEST   = 5;
-
-    protected $aAllowedPriority = array(
-        self::PRIORITY_HIGHEST,
-        self::PRIORITY_HIGH,
-        self::PRIORITY_NORMAL,
-        self::PRIORITY_LOW,
-        self::PRIORITY_LOWEST,
-    );
+    const MIN_PRIORITY      = self::PRIORITY_HIGHEST;
+    const MAX_PRIORITY      = self::PRIORITY_LOWEST;
 
     /**
      * Notification recipient
@@ -52,11 +46,6 @@ abstract class NotificationAbstract {
      */
     private $iPriority = self::PRIORITY_HIGHEST;
 
-    public function __construct()
-    {
-
-    }
-
     /**
      * Return the built notification for Sender instance
      * @return mixed
@@ -64,7 +53,7 @@ abstract class NotificationAbstract {
     abstract public function build();
 
     /**
-     * @return string
+     * @return mixed array|string
      */
     public function getRecipient()
     {
@@ -72,7 +61,7 @@ abstract class NotificationAbstract {
     }
 
     /**
-     * @param string $sRecipient
+     * @param mixed array|string $sRecipient
      */
     public function setRecipient($sRecipient)
     {
@@ -81,7 +70,7 @@ abstract class NotificationAbstract {
     }
 
     /**
-     * @return string
+     * @return mixed array|string
      */
     public function getExpeditor()
     {
@@ -89,7 +78,7 @@ abstract class NotificationAbstract {
     }
 
     /**
-     * @param string $sExpeditor
+     * @param mixed array|string $sExpeditor
      */
     public function setExpeditor($sExpeditor)
     {
@@ -144,7 +133,7 @@ abstract class NotificationAbstract {
      */
     public function setPriority($iPriority)
     {
-        if (in_array($iPriority, $this->aAllowedPriority)) {
+        if ($iPriority >= self::MIN_PRIORITY && $iPriority <= self::MAX_PRIORITY) {
             $this->iPriority = $iPriority;
             return $this;
         }

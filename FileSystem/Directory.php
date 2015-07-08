@@ -1,6 +1,5 @@
 <?php
 namespace Library\Core\FileSystem;
-use Library\Core\Pattern\Singleton;
 
 /**
  * Directory managment component
@@ -8,7 +7,7 @@ use Library\Core\Pattern\Singleton;
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 
-class Directory extends Singleton
+class Directory extends FileSystem
 {
 
     const DIRECTORY_SCAN_KEY_NAME  = 'name';

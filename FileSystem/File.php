@@ -1,8 +1,6 @@
 <?php
 namespace Library\Core\FileSystem;
 
-use Library\Core\Pattern\Singleton;
-
 /**
  * Files managment component
  *
@@ -10,7 +8,7 @@ use Library\Core\Pattern\Singleton;
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class File extends Singleton
+class File extends FileSystem
 {
     /**
      * Delete a file

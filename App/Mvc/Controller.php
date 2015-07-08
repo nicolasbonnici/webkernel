@@ -272,7 +272,7 @@ class Controller extends Acl
         if ($this->isXHR()) {
 			
             if ($sRedirectBundle === 'crud') {
-                $sRedirectBundle = Router::DEFAULT_BACKEND_BUNDLE;
+                $sRedirectBundle = 'auth';
             }
 
             $sRedirectController = 'home';
@@ -343,7 +343,8 @@ class Controller extends Acl
      */
     public function getLoggedUser()
     {
-    	return (isset($this->oSession['iduser']) === true) ? new User(intval($this->oSession['iduser'])) : null;
+        $aSession = $this->oSession->get();
+    	return (isset($aSession['auth']['iduser']) === true) ? new User(intval($aSession['auth']['iduser'])) : null;
     }
 
     /*
