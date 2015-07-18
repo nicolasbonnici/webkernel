@@ -1,5 +1,6 @@
 <?php
 namespace Library\Core\App\Mvc\View;
+
 use Library\Core\App\Bundles;
 use Library\Core\App\Mvc\Controller;
 use Library\Core\App\Mvc\View\Assets\Assets;
@@ -7,12 +8,11 @@ use Library\Core\Router;
 use Library\Core\Json\Json;
 
 /**
- * View managment
+ * View rendering engine
  *
- * @dependancy \Library\Haanga
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
+ * @see \Library\Haanga
  */
-
 class View
 {
 	/**
@@ -24,7 +24,7 @@ class View
 
     /**
      *  Assets managment
-     *  @var \Libraries\Core\Assets
+     *  @var \Library\Core\App\Mvc\View\Assets\Assets
      */
     private static $oAssetsInstance;
 
@@ -81,17 +81,15 @@ class View
      */
     public function render(array $aViewParams, $sTpl = self::BLANK_LAYOUT, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
     {
-        $this->loadViewParameters($aViewParams);
-
         // check if it's an XMLHTTPREQUEST
         if (isset($aViewParams['bIsXhr']) && $aViewParams['bIsXhr'] === true) {
         	$aCharsToStrip = array("\r", "\r\n", "\n", "\t");
             $oResponse = new Json(
                 array(
                     'status' => $iStatusXHR,
-                    'content' => str_replace($aCharsToStrip, '', $this->load($sTpl, $this->aView, true)),
-                    'debug' => isset($this->aView["sDeBugHelper"]) ? 
-                		str_replace($aCharsToStrip, '', $this->load($this->aView["sDeBugHelper"], $this->aView, true)) :
+                    'content' => str_replace($aCharsToStrip, '', $this->load($sTpl, $aViewParams, true)),
+                    'debug' => isset($aViewParams["sDeBugHelper"]) ?
+                		str_replace($aCharsToStrip, '', $this->load($aViewParams["sDeBugHelper"], $aViewParams, true)) :
                 	    null
                 )
             );
@@ -105,7 +103,19 @@ class View
         }
 
         // Render the view using Haanga
-        $this->load($sTpl, $this->aView, $bToString);
+        $this->load($sTpl, $aViewParams, $bToString);
+    }
+
+    /**
+     * Init template engine and render view
+     *
+     * @param string $sTpl
+     * @param array $aViewParams
+     * @param boolean $bToString
+     */
+    private function load($sTpl, $aViewParams, $bToString)
+    {
+        return \Haanga::load($sTpl, $aViewParams, $bToString);
     }
 
     /**
@@ -142,33 +152,6 @@ class View
             $this->aClientComponents[] = $sComponentName;
             return true;
         }
-    }
-
-
-    /**
-     * Build the parameters to send to the template view
-     *
-     * @param array $aViewParams
-     * @return boolean
-     */
-    private function loadViewParameters(array $aViewParams = array())
-    {
-        foreach ($aViewParams as $key => $val) {
-            $this->aView[$key] = $val;
-        }
-        return (count($this->aView) > 0);
-    }
-
-    /**
-     * Init template engine and render view
-     *
-     * @param string $sTpl
-     * @param array $aViewParams
-     * @param boolean $bToString
-     */
-    private function load($sTpl, $aViewParams, $bToString)
-    {
-        return \Haanga::load($sTpl, $aViewParams, $bToString);
     }
 
     /**
