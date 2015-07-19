@@ -10,6 +10,7 @@ use Library\Core\App\Session;
 use Library\Core\Bootstrap;
 use Library\Core\Router;
 use Library\Core\Tools;
+use Library\Core\Translation\Translation;
 
 /**
  * Main app controller class
@@ -189,7 +190,7 @@ class Controller extends Acl
                     // Load assets dependancies for client components (can be overide under the __preDispatch() method)
                     $this->aView['sComponentsDependancies'] = $this->oView->getClientComponents();
 
-                } catch (Library\Core\ControllerException $oException) {
+                } catch (\Exception $oException) {
                     throw new ControllerException('Pre dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();
                 }
@@ -205,7 +206,7 @@ class Controller extends Acl
                 try {
                     $this->__postDispatch();
 
-                } catch (Library\Core\ControllerException $oException) {
+                } catch (\Exception $oException) {
                     throw new ControllerException('Post dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();
                 }
@@ -313,11 +314,11 @@ class Controller extends Acl
             if (array_key_exists('request', $mUrl) && isset($mUrl['request']['bundle'], $mUrl['request']['controller'], $mUrl['request']['action'])) {
                 $sUrl = '/' . $mUrl['request']['bundle'] . '/' . $mUrl['request']['controller'] . '/' . $mUrl['request']['action'];
             } else {
-                throw new RouterException(__METHOD__ . ' malformed redirection request  ');
+                throw new ControllerException(__METHOD__ . ' malformed redirection request  ');
             }
             header('Location: ' . $sUrl);
         } else {
-            throw new RouterException(__METHOD__ . ' wrong request data type (mixed string|array)  ');
+            throw new ControllerException(__METHOD__ . ' wrong request data type (mixed string|array)  ');
         }
 
         return;
@@ -329,12 +330,9 @@ class Controller extends Acl
      */
     public function loadTranslations()
     {
-        require_once APP_PATH . '/Translations/' . $this->sLang . '/global.php'; // @see globale translation
-        if (file_exists(BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '.php')) {
-            require_once BUNDLES_PATH . $this->sBundle . '/Translations/' . $this->sLang . '.php';
-        }
+        $oTranslation = new Translation($this->sLang, $this->sBundle);
         $this->aView["lang"] = $this->sLang;
-        $this->aView["tr"] = $tr; // @todo dirty... translation array from the require_once
+        $this->aView["tr"] = $oTranslation->getTranslations();
     }
     
     /**

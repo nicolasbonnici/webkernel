@@ -3,15 +3,16 @@ namespace Library\Core\Notification\Email;
 
 use Library\Core\Notification\NotificationAbstract;
 use Library\Core\Notification\SenderAbstract;
+use Library\Core\Notification\SenderInterface;
 
 /**
- * Email managment class that use Swift mailer
+ * Email management email sender class that use Swift mailer
  *
  * @dependancy \Library\Swift
  * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
  *
  */
-class EmailSender extends SenderAbstract
+class EmailSender implements SenderInterface
 {
 
     /**
@@ -28,8 +29,7 @@ class EmailSender extends SenderAbstract
 
     /**
      * Mailer instance constructor
-     * @param type $iEmailId
-     * @param type $sEmail
+     * @param \Swift_Transport $oTransporter
      */
     public function __construct($oTransporter = null)
     {

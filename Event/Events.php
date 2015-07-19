@@ -2,12 +2,10 @@
 namespace Library\Core\Event;
 
 /**
- * Events managment abstract component
- *
- * Class Event
+ * Class Events
+ * Events management abstract component
  * @package Library\Core\Event
  */
-
 abstract class Events {
 
     /**
