@@ -2,67 +2,169 @@
 
 namespace Library\Core\App;
 
+use app\Entities\Config;
 use Library\Core\FileSystem\File;
+use Library\Core\Json\Json;
 
 /**
  * Configuration component
  * Class Config
  * @package Core\App
  *
- * @todo loadFromFile() => loadFromIni()|loadFromJson()
- *
  */
-
 class Configuration {
 
+    /**
+     * Default relative path to store bundles configuration (for each bundle)
+     */
+    const DEFAULT_BUNDLE_CONFIGURATION_RELATIVE_PATH = '/Config/bundle.json';
 
     /**
      * App global configuration parsed from the config.ini file
      *
      * @var array
      */
-    protected $aConfig = array();
+    protected $aConfiguration = array();
 
-    public function __construct(array $aConfigFilePath = array())
+    /**
+     * Configuration constructor with optional bundle name
+     * @param string $sBundleName   Bundle name (optional)
+     */
+    public function __construct($sBundleName)
     {
-        $this->load();
+        $this->build($sBundleName);
     }
 
     /**
-     * Parse global config from a ini file
-     * @see app/config/
-     *
-     * @todo mettre en cache et merger les deux methodes Projet et bundle
-     *
-     * @throws AppException
+     * Build all available configurations from project or bundle scope and database
+     * @param string $sBundleName
      */
-    private function load()
+    private function build($sBundleName)
     {
-        // Project global configuration
-        if (File::exists(PROJECT_CONF_PATH) === false) {
-            throw new ConfigException('Unable to load core configuration: ' . PROJECT_CONF_PATH);
-        } else {
-            $this->aConfig = parse_ini_file(PROJECT_CONF_PATH, true);
-        }
+        // Load global project configuration then load bundle's json configuration if available
+        $this->loadFromIniFile(CONF_PATH)
+            ->loadFromJsonFile(BUNDLES_PATH . $sBundleName . self::DEFAULT_BUNDLE_CONFIGURATION_RELATIVE_PATH);
+    }
 
-        // Bundle configuration
-        if (File::exists(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json')) {
-            $sBundleConfig = File::getContent(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json');
-            if (! empty($sBundleConfig)) {
-                $this->aConfig = array_merge($this->aConfig, new Json($sBundleConfig));
+    /**
+     * @todo load from config table (no need to build entities with them just request an array and pass it to instance setter)
+     */
+    protected function loadFromDatabase()
+    {
+
+    }
+
+    /**
+     * Load configuration vars from a ini file
+     *
+     * @param string $sAbsoluteFilePath
+     * @return Configuration
+     */
+    protected function loadFromIniFile($sAbsoluteFilePath)
+    {
+        if (File::exists($sAbsoluteFilePath) === true) {
+            return $this->setConfiguration(parse_ini_file(PROJECT_CONF_PATH, true));
+        }
+        return $this;
+    }
+
+    /**
+     * Load configuration from a json file
+     *
+     * @param string $sAbsoluteFilePath
+     * @return Configuration
+     */
+    protected function loadFromJsonFile($sAbsoluteFilePath)
+    {
+        if (File::exists($sAbsoluteFilePath) === true) {
+            $sJsonConfiguration = File::getContent($sAbsoluteFilePath);
+            if (empty($sJsonConfiguration) === false) {
+                $oJson = new Json($sJsonConfiguration);
+                return $this->setConfiguration($oJson->getAsArray());
             }
         }
-
+        return $this;
     }
 
     /**
-     * Accessors
+     * Get configuration from his key
+     *
+     * @param string $sConfigurationKey
+     * @return mixed
      */
-    public function getConfig()
+    public function get($sConfigurationKey)
     {
-        return $this->aConfig;
+        return (isset($this->aConfiguration[$sConfigurationKey])) ? $this->aConfiguration[$sConfigurationKey] : null;
+    }
+
+    /**
+     * Store or update database configuration
+     *
+     * @param string $sKey
+     * @param mixed $mValue
+     * @param string $sBundle
+     *
+     * @return bool
+     */
+    public function store($sKey, $mValue, $sBundle = null)
+    {
+        if (empty($sKey) === false && empty($mValue) === false) {
+            $oConfiguration = new Config();
+            $oConfiguration->name       = $sKey;
+            $oConfiguration->value      = $mValue;
+            $oConfiguration->bundle     = $sBundle;
+            $oConfiguration->created    = time();
+            $oConfiguration->lastupdate = time();
+
+            // Store on instance
+            $this->aConfiguration[$sKey] = $mValue;
+
+            return $oConfiguration->add();
+        }
+        return false;
+    }
+
+    /**
+     * Delete configuration from database with his key
+     * @param $sConfigurationKey
+     * @return bool
+     */
+    public function delete($sConfigurationKey)
+    {
+        $oConfiguration = new Config();
+        $oConfiguration->loadByParameters(
+            array(
+                'name' => $sConfigurationKey
+            )
+        );
+
+        if ($oConfiguration->isLoaded() === true) {
+            return $oConfiguration->delete();
+        }
+        return false;
+    }
+
+    /**
+     * Get configurations
+     * @return array
+     */
+    public function getConfiguration()
+    {
+        return $this->aConfiguration;
+    }
+
+    /**
+     * Set one or more configurations vars
+     *
+     * @param array $aConfigurations
+     * @return Configuration
+     */
+    public function setConfiguration(array $aConfigurations)
+    {
+        $this->aConfiguration = array_merge($this->aConfiguration, $aConfigurations);
+        return $this;
     }
 
 }
 
-class ConfigException extends \Exception {}
+class ConfigurationException extends \Exception {}
