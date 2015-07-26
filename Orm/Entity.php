@@ -134,7 +134,7 @@ abstract class Entity extends EntityAttributes
      *            Whether cache must be updated or not
      * @return boolean TRUE if object was successfully loaded, otherwise FALSE
      */
-    public function loadByData($aData, $bRefreshCache = true, $sCacheKey = null)
+    public function loadByData(array $aData, $bRefreshCache = true, $sCacheKey = null)
     {
         $this->loadAttributes();
         foreach ($aData as $sName => $mValue) {
@@ -496,15 +496,6 @@ abstract class Entity extends EntityAttributes
     }
 
     /**
-     * Mapped entities configuration accessor
-     * @return array
-     */
-    public function getMappedEntities()
-    {
-        return $this->aMappedEntities;
-    }
-
-    /**
      * Return Entity instance name
      *
      * @return string
@@ -512,6 +503,15 @@ abstract class Entity extends EntityAttributes
     public function getEntityName()
     {
         return static::ENTITY;
+    }
+
+    /**
+     * Mapped entities configuration accessor
+     * @return array
+     */
+    public function getMappedEntities()
+    {
+        return $this->aMappedEntities;
     }
 
     /**

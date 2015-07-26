@@ -1,9 +1,15 @@
 <?php
 namespace Library\Core\FileSystem;
 
-
 use Library\Core\Pattern\Singleton;
 
+/**
+ * Class FileSystem
+ *
+ * File system common couch
+ *
+ * @package Library\Core\FileSystem
+ */
 class FileSystem extends Singleton {
 
     /**

@@ -39,9 +39,9 @@ class Test extends \PHPUnit_Framework_TestCase
      * 
      * @param string $sClassName
      * @param string $sMethodName
-     * @return ReflectionMethod
+     * @return \ReflectionMethod
      */
-    protected function setMethodAccesible($sClassName, $sMethodName)
+    protected function setMethodAccessible($sClassName, $sMethodName)
     {
         $oReflectionClass = new \ReflectionClass($sClassName);
         $oMethod = $oReflectionClass->getMethod($sMethodName);

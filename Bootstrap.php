@@ -70,7 +70,7 @@ class Bootstrap
      */
     public function __construct()
     {
-        // Grab microtime at load for benchmark purposes
+        // Grab microtime for benchmark purposes
         define('FRAMEWORK_STARTED', microtime(true));
 
         // @todo SGBD infos

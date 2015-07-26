@@ -36,11 +36,11 @@ class DummyEntity extends \Library\Core\Orm\Entity {
      */
     protected $aMappedEntities = array(
         '\bundles\tag\Entities\Collection\TagCollection' => array(
-            'loadByDefault' => false,
-            'relationship' 	=> EntityMapper::MAPPING_ONE_TO_MANY,
-            'mappingEntity' => 'bundles\blog\Entities\Mapping\Collection\PostTagCollection',
-            'mappedByField' => 'post_idpost',
-            'foreignField' 	=> 'tag_idtag'
+            EntityMapper::KEY_LOAD_BY_DEFAULT   => false,
+            EntityMapper::KEY_MAPPING_TYPE 	    => EntityMapper::MAPPING_ONE_TO_MANY,
+            EntityMapper::KEY_MAPPED_BY_ENTITY  => 'bundles\blog\Entities\Mapping\Collection\PostTagCollection',
+            EntityMapper::KEY_MAPPED_BY_FIELD   => 'post_idpost',
+            EntityMapper::KEY_FOREIGN_FIELD 	=> 'tag_idtag'
         )
     );
 }
