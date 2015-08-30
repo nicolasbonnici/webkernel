@@ -95,7 +95,7 @@ class EntityMapperTest extends Test
         $oOneToManyEntity->created = time();
 
         $oOneToManyCollection = new OnetomanyEntityCollection();
-        $oOneToManyCollection->add(1, $oOneToManyEntity);
+        $oOneToManyCollection->add($oOneToManyEntity);
 
         $this->assertTrue(
             $this->oEntityMapperInstance->store($oOneToManyCollection),

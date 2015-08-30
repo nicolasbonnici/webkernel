@@ -65,7 +65,7 @@ class EntitySearch
                     try {
                         $this->doSearch($sBundleName, $oEntity);
                     } catch (\Exception $oException) {
-                        $oExceptions->add(($oExceptions->count() + 1), $oException);
+                        $oExceptions->add($oException);
                         continue;
                     }
                 }

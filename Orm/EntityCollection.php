@@ -88,7 +88,7 @@ abstract class EntityCollection extends Collection
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
                 $oObject = new $this->sChildClass();
                 $oObject->loadByData($aObjectData);
-                $this->add($oObject->getId(), $oObject);
+                $this->add($oObject, $oObject->getId());
             }
         }
     }
@@ -121,7 +121,7 @@ abstract class EntityCollection extends Collection
         	foreach ($aCachedObjects as $iObjectId => $aCachedObject) {
         		$oObject = new $this->sChildClass();
         		$oObject->loadByData($aCachedObject);
-        		$this->add($oObject->getId(), $oObject);
+        		$this->add($oObject, $oObject->getId());
         	}
         }
         if (empty($aUncachedObjects) === false) {
@@ -227,7 +227,7 @@ abstract class EntityCollection extends Collection
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
                 $oObject = new $this->sChildClass();
                 $oObject->loadByData($aObjectData);
-                $this->add($oObject->getId(), $oObject);
+                $this->add($oObject, $oObject->getId());
             }
         }
     }
