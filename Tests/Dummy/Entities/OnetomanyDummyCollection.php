@@ -1,11 +1,12 @@
 <?php
 
 namespace Library\Core\Tests\Dummy\Entities;
+use Library\Core\Orm\EntityCollection;
 
 /**
  * Dummy Entity for unit tests
  *
  * @author infradmin
  */
-class OnetomanyDummyCollection extends \Library\Core\Orm\EntityCollection {}
+class OnetomanyDummyCollection extends EntityCollection {}
 

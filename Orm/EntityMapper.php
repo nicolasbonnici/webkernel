@@ -95,12 +95,11 @@ class EntityMapper
     public function store($oMappedEntity)
     {
         if (
-            ($oMappedEntity instanceof Entity) === false ||
+            ($oMappedEntity instanceof Entity) === false &&
             ($oMappedEntity instanceof EntityCollection) === false
         ) {
             return false;
         }
-
         $aMap = $this->oSourceEntity->getMappedEntities();
         $aMappingSetup = $aMap[get_class($oMappedEntity)];
 
@@ -111,7 +110,6 @@ class EntityMapper
                 EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED
             );
         }
-
         switch ($sMappingType) {
             case self::MAPPING_ONE_TO_ONE:
                 return $this->storeOneToOneMappedEntity($oMappedEntity, $aMappingSetup);
@@ -340,28 +338,30 @@ class EntityMapper
      */
     private function storeOneToManyMappedEntity(EntityCollection $oMappedEntities, array $aMappingSetup)
     {
-        try {
+//        try {
             $aErrors = array();
             /** @var Entity $oMappedEntity */
             foreach ($oMappedEntities as $oMappedEntity) {
 
                 // First store mapped entity itself to retrieve primary key value then store mapping entity
                 if ($oMappedEntity->add() === true) {
-                    /** @var Entity $oMappingEntity */
-                    $oMappingEntity = new $aMappingSetup[self::KEY_MAPPED_BY_ENTITY]();
+                    /** @var EntityCollection $oMappingEntityCollection */
+                    $oMappingEntityCollection = new $aMappingSetup[self::KEY_MAPPED_BY_ENTITY]();
+                    $sMappingEntityClassname = $oMappingEntityCollection->computeEntityClassName();
+                    $oMappingEntity = new $sMappingEntityClassname();
                     $oMappingEntity->{$this->computeSourceKeyFieldNameOnMappingEntity()} = $this->oSourceEntity->getId();
                     $oMappingEntity->{$this->computeMappedKeyFieldNameOnMappingEntity($oMappedEntity)} = $oMappedEntity->getId();
+
                     $oMappingEntity->add();
                 } else {
                     $aErrors[] = $oMappedEntity;
                 }
-
             }
             return (count($aErrors) === 0);
 
-        } catch (\Exception $oException) {
-            return false;
-        }
+//        } catch (\Exception $oException) {
+//            return false;
+//        }
     }
 
     private function computeSourceKeyFieldNameOnMappingEntity()

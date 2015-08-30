@@ -5,10 +5,9 @@ use \Library\Core\Test as Test;
 
 use Library\Core\Orm\EntityMapper;
 use Library\Core\Tests\Dummy\Entities\DummyEntity;
-use Library\Core\Tests\Dummy\Entities\OnetomanyDummy;
+use Library\Core\Tests\Dummy\Entities\OnetomanyEntity;
 use Library\Core\Tests\Dummy\Entities\OnetomanyEntityCollection;
 use Library\Core\Tests\Dummy\Entities\OnetooneEntity;
-
 
 /**
  * ORM EntityMapper component unit tests
@@ -89,7 +88,7 @@ class EntityMapperTest extends Test
 
     public function testStoreOneToManyMappedEntity()
     {
-        $oOneToManyEntity = new OnetomanyDummy();
+        $oOneToManyEntity = new OnetomanyEntity();
         $oOneToManyEntity->int = 7;
         $oOneToManyEntity->lastupdate = time();
         $oOneToManyEntity->created = time();

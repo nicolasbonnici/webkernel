@@ -10,7 +10,7 @@ namespace Library\Core\Tests\Dummy\Entities;
 class OnetomanyDummy extends \Library\Core\Orm\Entity {
 
     const ENTITY = 'OnetomanyDummy';
-    const TABLE_NAME = 'onetomany';
+    const TABLE_NAME = 'onetomanyDummy';
     const PRIMARY_KEY = 'idonetomanydummy';
 
     /**

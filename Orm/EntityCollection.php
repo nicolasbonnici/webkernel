@@ -307,7 +307,7 @@ abstract class EntityCollection extends Collection
      * Compute the child Entity instance class name
      * @return string
      */
-    private function computeEntityClassName()
+    public function computeEntityClassName()
     {
         return str_replace(array(
             '\Collection',
