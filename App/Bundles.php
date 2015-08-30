@@ -1,6 +1,6 @@
 <?php
 namespace Library\Core\App;
-use Library\Core\App\Mvc\Controller;
+
 use Library\Core\Cache;
 
 /**

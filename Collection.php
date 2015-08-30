@@ -112,23 +112,6 @@ class Collection implements \Iterator
     }
 
     /**
-     * Add element to collection
-     *
-     * @todo modifier la signature rendre $mKey optionnel et utiliser l'index Iterator a defaut
-     *
-     * @param integer|string $mKey
-     *            Element's key
-     * @param mixed $mValue
-     *            Element's value
-     */
-    public function add($mKey, $mValue)
-    {
-        if (is_int($mKey) || ! empty($mKey)) {
-            $this->aElements[$mKey] = $mValue;
-        }
-    }
-
-    /**
      * Retrieve an element of the collection by its key
      *
      * @param integer|string $mKey
@@ -140,6 +123,24 @@ class Collection implements \Iterator
         assert('is_int($mKey) || !empty($mKey)');
 
         return isset($this->aElements[$mKey]) ? $this->aElements[$mKey] : null;
+    }
+
+    /**
+     * Add element to collection
+     *
+     * @param mixed $mValue Item value
+     * @param integer|string $mKey Item's key (omit it to use Iterator index)
+     */
+    public function add($mValue, $mKey = null)
+    {
+        if (is_int($mKey) === true || is_string($mKey) === true) {
+            $this->aElements[$mKey] = $mValue;
+        } elseif(is_null($mKey) === true) {
+            $this->aElements[] = $mValue;
+        } else {
+            return false;
+        }
+        return true;
     }
 
     /**

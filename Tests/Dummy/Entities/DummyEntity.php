@@ -35,12 +35,18 @@ class DummyEntity extends \Library\Core\Orm\Entity {
      * @var array
      */
     protected $aMappedEntities = array(
-        '\bundles\tag\Entities\Collection\TagCollection' => array(
+        'Library\Core\Tests\Dummy\Entities\OnetomanyEntityCollection' => array(
             EntityMapper::KEY_LOAD_BY_DEFAULT   => false,
             EntityMapper::KEY_MAPPING_TYPE 	    => EntityMapper::MAPPING_ONE_TO_MANY,
-            EntityMapper::KEY_MAPPED_BY_ENTITY  => 'bundles\blog\Entities\Mapping\Collection\PostTagCollection',
+            EntityMapper::KEY_MAPPED_BY_ENTITY  => '\Library\Core\Tests\Dummy\Entities\OnetomanyDummyCollection',
             EntityMapper::KEY_MAPPED_BY_FIELD   => 'post_idpost',
             EntityMapper::KEY_FOREIGN_FIELD 	=> 'tag_idtag'
+        ),
+        'Library\Core\Tests\Dummy\Entities\OnetooneEntity' => array(
+            EntityMapper::KEY_LOAD_BY_DEFAULT  => false,
+            EntityMapper::KEY_MAPPING_TYPE     => EntityMapper::MAPPING_ONE_TO_ONE,
+            EntityMapper::KEY_FOREIGN_FIELD_ON => EntityMapper::MAPPED_ENTITY,
+            EntityMapper::KEY_MAPPED_BY_FIELD  => 'dummy_iddummy'
         )
     );
 }
