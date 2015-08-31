@@ -15,6 +15,13 @@ use Library\Core\Json\Json;
 class Assets
 {
     /**
+     * Supported asset type
+     * @var string
+     */
+    const TYPE_JAVASCRIPT = 'js';
+    const TYPE_STYLESHEET = 'css';
+
+    /**
      * The full path that contain the generated javascript code
      * Must be relative to PUBLIC_PATH (project/public/) constant and don't start with a "/"
      * @see instance instance constructor
@@ -26,7 +33,10 @@ class Assets
      * Supported asset types
      * @var array
      */
-    protected $aAssetTypes = array('js', 'css');
+    protected $aAssetTypes = array(
+        self::TYPE_JAVASCRIPT,
+        self::TYPE_STYLESHEET
+    );
 
     /**
      * Registered assets to load and build
@@ -76,27 +86,25 @@ class Assets
     public function build()
     {
         $aBuiltLog = array();
-
         // Collect registered components
         foreach ($this->aAssets as $sPackageName=>$aLibFilesPaths) {
-
             $sMinifiedJsCode = '';
             $sMinifiedCssCode = '';
 
             // Minify component assets
             foreach ($aLibFilesPaths as $sAssetType=>$aLibFilesPaths) {
-                if ($sAssetType === 'js') {
+                if ($sAssetType === self::TYPE_JAVASCRIPT) {
                     foreach ($aLibFilesPaths as $sJsAsset) {
-                    	if (mb_substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
-                    		$sJsAsset = mb_substr($sJsAsset, 1);
-                    	}                    	
+                    	if (substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
+                    		$sJsAsset = substr($sJsAsset, 1);
+                    	}
                         $sMinifiedJsCode .= Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
                     }
-                } elseif ($sAssetType === 'css') {
+                } elseif ($sAssetType === self::TYPE_STYLESHEET) {
                     foreach ($aLibFilesPaths as $sCssAsset) {
                         // Correct the absolute path path if needed
-                        if (mb_substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
-                            $sCssAsset = mb_substr($sCssAsset, 1);
+                        if (substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
+                            $sCssAsset = substr($sCssAsset, 1);
                         }
                         $sMinifiedCssCode .= Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
                     }
@@ -121,22 +129,22 @@ class Assets
      *
      * @ see app/config/layout.json
      * @param array $aComponents one dimensional array of string that represent component name
-     * @return Ambigous <multitype:multitype: , unknown>
+     * @return array
      */
     public function buildClientComponents($aComponents)
     {
         $aClientComponentAssets = array(
-        	'css' => array(),
-        	'js' => array()
+        	self::TYPE_STYLESHEET => array(),
+        	self::TYPE_JAVASCRIPT => array()
         );
         foreach ($aComponents as $iIndex=>$sComponentName) {
             // If the component declaration is found under assets configuration
             if (array_key_exists($sComponentName, $this->aAssets)) {
-                foreach ($this->aAssets[$sComponentName]['css'] as $iCssAssetIndex=>$sCssAssetPath) {
-                    $aClientComponentAssets['css'][] =  $sCssAssetPath;
+                foreach ($this->aAssets[$sComponentName][self::TYPE_STYLESHEET] as $iCssAssetIndex=>$sCssAssetPath) {
+                    $aClientComponentAssets[self::TYPE_STYLESHEET][] =  $sCssAssetPath;
                 }
-                foreach ($this->aAssets[$sComponentName]['js'] as $iJsAssetIndex=>$sJsAssetPath) {
-                    $aClientComponentAssets['js'][] = $sJsAssetPath;
+                foreach ($this->aAssets[$sComponentName][self::TYPE_JAVASCRIPT] as $iJsAssetIndex=>$sJsAssetPath) {
+                    $aClientComponentAssets[self::TYPE_JAVASCRIPT][] = $sJsAssetPath;
                 }
             }
         }

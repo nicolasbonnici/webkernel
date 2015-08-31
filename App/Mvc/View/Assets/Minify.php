@@ -3,8 +3,10 @@ namespace Library\Core\App\Mvc\View\Assets;
 use Library\Core\FileSystem\File;
 
 /**
- * A simple class to build Js and CSS assets
- * Minify and concatenate Javascript and Cascading Stylesheet files to optimize render time
+ *
+ * @todo delete this ugly cost sucker mothafucka script ASAP but real soon...
+ *
+ * Minify and concatenate assets files to optimize render time
  *
  * @author Nicolas Bonnici nicolasbonnici@gmail.com
  */

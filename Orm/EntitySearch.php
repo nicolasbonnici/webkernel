@@ -133,8 +133,10 @@ class EntitySearch
             }
 
             /** @var EntityCollection $oEntityCollection */
-            $this->aResults[$sBundleName][$oEntity->getEntityName()] = $oEntityCollection;
-            $this->aResults[$sBundleName][$oEntity->getEntityName()]->count = $oEntityCollection->count();
+            if (($iEntitiesCount = $oEntityCollection->count()) > 0) {
+                $this->aResults[$sBundleName][$oEntity->getEntityName()] = $oEntityCollection;
+                $this->aResults[$sBundleName][$oEntity->getEntityName()]->count = $iEntitiesCount;
+            }
 
         }
 
