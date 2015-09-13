@@ -7,7 +7,7 @@ namespace Library\Core\Html\Elements\FormElements;
 use Library\Core\Html\FormElement;
 
 /**
- * Tag FormElement
+ * TagModel FormElement
  * User: niko
  * Date: 27/05/15
  * Time: 16:24

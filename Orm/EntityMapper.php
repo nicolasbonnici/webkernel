@@ -183,7 +183,6 @@ class EntityMapper
      */
     private function loadMapping($sEntityClassName, array $aParameters = array(), $bForceLoad = false)
     {
-// 		try {
         if (empty($sEntityClassName) === true) {
             throw new EntityMapperException(
                 EntityMapperException::$aErrors[EntityMapperException::ERROR_EMPTY_MAPPED_ENTITY_CLASSNAME],
@@ -219,9 +218,6 @@ class EntityMapper
                     break;
             }
         }
-// 		} catch (\Exception $oException) {
-// 			return null;
-// 		}
     }
 
     /**
@@ -235,60 +231,70 @@ class EntityMapper
     private function loadMappedEntity($sEntityClassName, array $aMappingConfiguration, $bForceLoad = false)
     {
 
-//        try {
-        /** @var Entity $oMappedEntity */
-        $oMappedEntity = new $sEntityClassName;
-        if ($aMappingConfiguration[self::KEY_LOAD_BY_DEFAULT] === true || $bForceLoad === true) {
-            switch ($this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]) {
-                case self::SOURCE_ENTITY :
-                    $oMappedEntity->loadByParameters(array(
-                        $oMappedEntity->getPrimaryKeyName() => $this->oSourceEntity->{$this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD]}
-                    ));
-                    break;
-                case self::MAPPED_ENTITY :
-                    $oMappedEntity->loadByParameters(array(
-                        $this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD] => $this->oSourceEntity->getId()
-                    ));
-                    break;
+        try {
+            /** @var Entity $oMappedEntity */
+            $oMappedEntity = new $sEntityClassName;
+            if ($aMappingConfiguration[self::KEY_LOAD_BY_DEFAULT] === true || $bForceLoad === true) {
+                switch ($this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]) {
+                    case self::SOURCE_ENTITY :
+                        $oMappedEntity->loadByParameters(array(
+                            $oMappedEntity->getPrimaryKeyName() => $this->oSourceEntity->{$this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD]}
+                        ));
+                        break;
+                    case self::MAPPED_ENTITY :
+                        $oMappedEntity->loadByParameters(array(
+                            $this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD] => $this->oSourceEntity->getId()
+                        ));
+                        break;
+                }
+
+                if ($oMappedEntity->isLoaded() === true) {
+
+                    // Store in instance loaded mapped object for a cache at call
+                    $this->aMapping[$sEntityClassName] = $oMappedEntity;
+
+                    return $oMappedEntity;
+                }
+
             }
-
-            if ($oMappedEntity->isLoaded() === true) {
-
-                // Store in instance loaded mapped object for a cache at call
-                $this->aMapping[$sEntityClassName] = $oMappedEntity;
-
-                return $oMappedEntity;
-            }
-
+            return null;
+        } catch (\Exception $oException) {
+            return null;
         }
-        return null;
-//        } catch (\Exception $oException) {
-//            return null;
-//        }
     }
 
+    /**
+     * @param string $sEntityClassName
+     * @param array $aMappingSetup
+     * @param bool $bForceLoad
+     * @return EntityCollection|null
+     */
     private function loadMappedEntities($sEntityClassName, array $aMappingSetup, $bForceLoad = false)
     {
-        $oLinkedEntityCollection = new $sEntityClassName;
-        $oMappingEntities = new $aMappingSetup['mappingEntity'];
-        $oMappingEntities->loadByParameters(array(
-            $aMappingSetup['mappedByField'] => $this->oSourceEntity->getId()
-        ));
-        if ($oMappingEntities->count() > 0) {
-            $aMappedEntityIds = array();
-            foreach ($oMappingEntities as $oMappingEntity) {
-                $aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
+        try {
+            $oLinkedEntityCollection = new $sEntityClassName;
+            $oMappingEntities = new $aMappingSetup['mappingEntity'];
+            $oMappingEntities->loadByParameters(array(
+                $aMappingSetup['mappedByField'] => $this->oSourceEntity->getId()
+            ));
+            if ($oMappingEntities->count() > 0) {
+                $aMappedEntityIds = array();
+                foreach ($oMappingEntities as $oMappingEntity) {
+                    $aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
+                }
+
+                // Restrict scope to mapped entities
+                $aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
+                $oLinkedEntityCollection->loadByParameters(
+                    $aParameters
+                );
+
+                // Store mapped entities
+                $this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
+                return $oLinkedEntityCollection;
             }
-
-            // Restrict scope to mapped entities
-            $aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
-            $oLinkedEntityCollection->loadByParameters(
-                $aParameters
-            );
-
-            // Store mapped entities
-            $this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
-            return $oLinkedEntityCollection;
+        } catch (\Exception $oException) {
+            return null;
         }
         return null;
     }
@@ -303,28 +309,28 @@ class EntityMapper
      */
     private function storeOneToOneMappedEntity(Entity $oMappedEntity, array $aEntityMappingSetup)
     {
-//        try {
+        try {
 
-        if ($aEntityMappingSetup[self::KEY_FOREIGN_FIELD_ON] === self::MAPPED_ENTITY) {
-            // Store foreign key on mapped Entity
-            $sField = $aEntityMappingSetup[self::KEY_MAPPED_BY_FIELD];
-            $oMappedEntity->{$sField} = $this->oSourceEntity->getId();
-        }
-
-
-        if ($oMappedEntity->add() === true) {
-            if ($aEntityMappingSetup[self::KEY_FOREIGN_FIELD_ON] === self::SOURCE_ENTITY) {
-                // Store foreign Entity reference directly on source entity
-                $sFieldName = $aEntityMappingSetup[self::KEY_MAPPED_BY_FIELD];
-                $this->oSourceEntity->{$sFieldName} = $oMappedEntity->getId();
-                return $this->oSourceEntity->update();
+            if ($aEntityMappingSetup[self::KEY_FOREIGN_FIELD_ON] === self::MAPPED_ENTITY) {
+                // Store foreign key on mapped Entity
+                $sField = $aEntityMappingSetup[self::KEY_MAPPED_BY_FIELD];
+                $oMappedEntity->{$sField} = $this->oSourceEntity->getId();
             }
-            return true;
+
+
+            if ($oMappedEntity->add() === true) {
+                if ($aEntityMappingSetup[self::KEY_FOREIGN_FIELD_ON] === self::SOURCE_ENTITY) {
+                    // Store foreign Entity reference directly on source entity
+                    $sFieldName = $aEntityMappingSetup[self::KEY_MAPPED_BY_FIELD];
+                    $this->oSourceEntity->{$sFieldName} = $oMappedEntity->getId();
+                    return $this->oSourceEntity->update();
+                }
+                return true;
+            }
+            return false;
+        } catch(\Exception $oException) {
+            return false;
         }
-        return false;
-//        } catch(\Exception $oException) {
-//            return false;
-//        }
     }
 
     /**
@@ -338,7 +344,7 @@ class EntityMapper
      */
     private function storeOneToManyMappedEntity(EntityCollection $oMappedEntities, array $aMappingSetup)
     {
-//        try {
+        try {
             $aErrors = array();
             /** @var Entity $oMappedEntity */
             foreach ($oMappedEntities as $oMappedEntity) {
@@ -359,9 +365,9 @@ class EntityMapper
             }
             return (count($aErrors) === 0);
 
-//        } catch (\Exception $oException) {
-//            return false;
-//        }
+        } catch (\Exception $oException) {
+            return false;
+        }
     }
 
     private function computeSourceKeyFieldNameOnMappingEntity()

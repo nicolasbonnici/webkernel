@@ -98,7 +98,7 @@ class Assets
                     	if (substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
                     		$sJsAsset = substr($sJsAsset, 1);
                     	}
-                        $sMinifiedJsCode .= Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset), substr(PUBLIC_PATH . $sJsAsset, 0));
+                        $sMinifiedJsCode .= Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset));
                     }
                 } elseif ($sAssetType === self::TYPE_STYLESHEET) {
                     foreach ($aLibFilesPaths as $sCssAsset) {
@@ -106,7 +106,7 @@ class Assets
                         if (substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
                             $sCssAsset = substr($sCssAsset, 1);
                         }
-                        $sMinifiedCssCode .= Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset), substr(PUBLIC_PATH . $sCssAsset, 0, strripos(PUBLIC_PATH . $sCssAsset, DIRECTORY_SEPARATOR)));
+                        $sMinifiedCssCode .= Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset));
                     }
                 }
             }

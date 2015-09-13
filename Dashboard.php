@@ -27,7 +27,9 @@ class Dashboard extends Crud {
 	
 	/**
 	 * Count any entity with or without parameters
-	 * 
+	 *
+     * @todo implement query component
+     *
 	 * @param Entity $oEntity
 	 * @param array $aWhereClause
 	 * @return number
@@ -43,10 +45,10 @@ class Dashboard extends Crud {
 				}
 			}
 			
-			$sQuery = 'SELECT COUNT(1) FROM `' . $oEntity::TABLE_NAME . '`' . $sWhereCondition;
+			$sQuery = 'SELECT COUNT(1) FROM `' . $oEntity->getTableName() . '`' . $sWhereCondition;
 			$oStatement = Database::dbQuery($sQuery, $aWhereClause);
 			if ($oStatement !== false) {
-				return $oStatement->fetchColumn();
+				return (int) $oStatement->fetchColumn();
 			}
 			return 0;
 		} catch (\Exception $oException) {

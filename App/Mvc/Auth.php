@@ -19,7 +19,7 @@ class Auth extends Controller
     /**
      * Currently logged user instance
      *
-     * @type bundles\user\Entities\User
+     * @type \bundles\user\Entities\User
      */
     protected $oUser;
 
