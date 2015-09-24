@@ -22,6 +22,7 @@ class EntityMapper
     const KEY_MAPPED_BY_FIELD = 'mappedByField';
     const KEY_FOREIGN_FIELD = 'foreignField';
     const KEY_FOREIGN_FIELD_ON = 'foreignFieldOn';
+    const KEY_CONSTRAINTS = 'constraints';
 
     /**
      * Value allowed for the self::KEY_FOREIGN_FIELD_ON
@@ -63,6 +64,12 @@ class EntityMapper
     protected $aMapping = array();
 
     /**
+     * Bypass Entity configuration to load all mapped entities
+     * @var bool
+     */
+    protected $bForceLoad = false;
+
+    /**
      * Instance constructor
      *
      * @param Entity $oSourceEntity
@@ -80,8 +87,13 @@ class EntityMapper
                 EntityMapperException::ERROR_MISSING_MAPPING_SETUP
             );
         } else {
+
             $this->oSourceEntity = $oSourceEntity;
-            $this->load();
+            $this->bForceLoad = $bForceLoad;
+
+            // Load source entity mapping configuration
+            $this->aMapping = $this->oSourceEntity->getMappedEntities();
+
         }
     }
 
@@ -165,10 +177,10 @@ class EntityMapper
     /**
      * Load all mapped entities (useless and potentialy dangerous)
      */
-    private function load($bForceLoad = false)
+    public function load()
     {
-        foreach ($this->oSourceEntity->getMappedEntities() as $sLinkedEntity => $aMappingSetup) {
-            $this->loadMapping($sLinkedEntity, $aMappingSetup, $bForceLoad);
+        foreach ($this->aMapping as $sLinkedEntity => $aMappingSetup) {
+            $this->loadMapping($sLinkedEntity, $aMappingSetup);
         }
     }
 
@@ -176,12 +188,11 @@ class EntityMapper
      * Load mapping for a given mapped Entity with given parameters
      *
      * @param string $sEntityClassName
-     * @param array $aParameters
-     * @param boolean $bForceLoad
+     * @param array $aRequestParameters         An array with parameters, orderByFields, order and limit keys
      * @throws EntityMapperException
      * @return void
      */
-    private function loadMapping($sEntityClassName, array $aParameters = array(), $bForceLoad = false)
+    public function loadMapping($sEntityClassName, array $aRequestParameters = array())
     {
         if (empty($sEntityClassName) === true) {
             throw new EntityMapperException(
@@ -208,10 +219,10 @@ class EntityMapper
 
             switch ($sMappingType) {
                 case self::MAPPING_ONE_TO_ONE:
-                    return $this->loadMappedEntity($sEntityClassName, $aMappingSetup, $bForceLoad);
+                    return $this->loadMappedEntity($sEntityClassName, $aMappingSetup);
                     break;
                 case self::MAPPING_ONE_TO_MANY:
-                    return $this->loadMappedEntities($sEntityClassName, $aMappingSetup, $bForceLoad);
+                    return $this->loadMappedEntities($sEntityClassName, $aMappingSetup, $aRequestParameters);
                     break;
                 case self::MAPPING_MANY_TO_MANY:
                     // @todo instancier et mapper deux collections
@@ -225,17 +236,18 @@ class EntityMapper
      *
      * @param $sEntityClassName
      * @param array $aMappingConfiguration
-     * @param bool|false $bForceLoad
      * @return null
      */
-    private function loadMappedEntity($sEntityClassName, array $aMappingConfiguration, $bForceLoad = false)
+    private function loadMappedEntity($sEntityClassName, array $aMappingConfiguration)
     {
-
         try {
             /** @var Entity $oMappedEntity */
             $oMappedEntity = new $sEntityClassName;
-            if ($aMappingConfiguration[self::KEY_LOAD_BY_DEFAULT] === true || $bForceLoad === true) {
-                switch ($this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]) {
+            if ($aMappingConfiguration[self::KEY_LOAD_BY_DEFAULT] === true || $this->bForceLoad === true) {
+                $sforeignFieldStoreOn = (isset($this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]) === true)
+                    ? $this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]
+                    : false;
+                switch ($sforeignFieldStoreOn) {
                     case self::SOURCE_ENTITY :
                         $oMappedEntity->loadByParameters(array(
                             $oMappedEntity->getPrimaryKeyName() => $this->oSourceEntity->{$this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD]}
@@ -246,7 +258,12 @@ class EntityMapper
                             $this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD] => $this->oSourceEntity->getId()
                         ));
                         break;
+                    default:
+                        $oMappedEntity->loadByParameters(array(
+                            $this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD] => $this->oSourceEntity->getId()
+                        ));
                 }
+
 
                 if ($oMappedEntity->isLoaded() === true) {
 
@@ -266,12 +283,13 @@ class EntityMapper
     /**
      * @param string $sEntityClassName
      * @param array $aMappingSetup
-     * @param bool $bForceLoad
+     * @param array $aRequestParameters
      * @return EntityCollection|null
      */
-    private function loadMappedEntities($sEntityClassName, array $aMappingSetup, $bForceLoad = false)
+    private function loadMappedEntities($sEntityClassName, array $aMappingSetup, array $aRequestParameters)
     {
-        try {
+//        try {
+            /** @var EntityCollection $oLinkedEntityCollection */
             $oLinkedEntityCollection = new $sEntityClassName;
             $oMappingEntities = new $aMappingSetup['mappingEntity'];
             $oMappingEntities->loadByParameters(array(
@@ -285,17 +303,43 @@ class EntityMapper
 
                 // Restrict scope to mapped entities
                 $aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
+
+                // Handle constraints if available
+                if (isset($aParameters[self::KEY_CONSTRAINTS]) && empty($aParameters[self::KEY_CONSTRAINTS]) === false) {
+                    $aParameters[$aParameters[self::KEY_CONSTRAINTS]['field']] = $aParameters[self::KEY_CONSTRAINTS]['values'];
+                }
+
+                $aOrderFields = array();
+                $aLimit = array(0, 10);
+
+                // If available merge with request parameters
+                if (isset($aRequestParameters['parameters']) && empty($aRequestParameters['parameters']) === false ) {
+                    $aParameters = array_merge($aParameters, $aRequestParameters['parameters']);
+                }
+
+                // If available order with request parameters
+                if (isset($aRequestParameters['orderFields']) && empty($aRequestParameters['orderFields']) === false ) {
+                    $aOrderFields = $aRequestParameters['orderFields'];
+                }
+
+                // If available limit and order with request parameters
+                if (isset($aRequestParameters['limit']) && empty($aRequestParameters['limit']) === false ) {
+                    $aLimit = $aRequestParameters['limit'];
+                }
+
                 $oLinkedEntityCollection->loadByParameters(
-                    $aParameters
+                    $aParameters,
+                    $aOrderFields,
+                    $aLimit
                 );
 
                 // Store mapped entities
                 $this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
                 return $oLinkedEntityCollection;
             }
-        } catch (\Exception $oException) {
-            return null;
-        }
+//        } catch (\Exception $oException) {
+//            return null;
+//        }
         return null;
     }
 

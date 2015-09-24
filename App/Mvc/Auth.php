@@ -3,6 +3,8 @@ namespace Library\Core\App\Mvc;
 
 use bundles\auth\Models\AuthModel;
 use bundles\user\Entities\User;
+use Library\Core\App\Configuration;
+use Library\Core\App\Mvc\View\View;
 use Library\Core\Router;
 
 /**
@@ -89,6 +91,29 @@ class Auth extends Controller
     {
         return hash('SHA256', uniqid((double) microtime() * 1000000, true));
     }
+
+    /**
+     * Generic action to each bundle for storing or updating a configuration variable
+     */
+    public function configureAction($iXhrStatus = Controller::XHR_STATUS_ERROR)
+    {
+        $sMessage = 'Error occur...';
+        if (isset($this->aParams['name'], $this->aParams['value']) === true) {
+            $oConfiguration = new Configuration($this->getBundle());
+            $bConfAdded = $oConfiguration->set(
+                $this->aParams['name'],
+                $this->aParams['value']
+            );
+            if ($bConfAdded === true) {
+                $iXhrStatus = Controller::XHR_STATUS_OK;
+                $sMessage = 'Success';
+            }
+        }
+
+        $this->aView['sMessage'] = $sMessage;
+        $this->oView->render($this->aView, View::BLANK_LAYOUT, $iXhrStatus);
+    }
+
 }
 
 class CoreAuthControllerException extends \Exception

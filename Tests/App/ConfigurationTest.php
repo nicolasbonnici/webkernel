@@ -62,7 +62,7 @@ class ConfigurationTest extends Test
     public function testStoreThenReadFromDatabase()
     {
         $this->assertTrue(
-            $this->oConfigurationInstance->store('foo', 'bar'),
+            $this->oConfigurationInstance->set('foo', 'bar'),
             'Unable to store configuration on database'
         );
 

@@ -140,6 +140,9 @@ abstract class EntityCollection extends Collection
     /**
      * Load collection regarding values and ordering parameters
      *
+     * @todo handle Order parameter DESC|ASC
+     * @todo Use Query component
+     *
      * @param array $aParameters
      *            List of parameters name/value
      * @param array $aOrderFields

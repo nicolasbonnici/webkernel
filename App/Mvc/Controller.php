@@ -401,6 +401,11 @@ class Controller extends Acl
      *
      * @todo grep et supprimer
      */
+    public function getBundle()
+    {
+        return $this->sBundle;
+    }
+
     public function getController()
     {
         return $this->sController;

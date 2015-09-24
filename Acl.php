@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use app\Entities\Collection\PermissionCollection;
+use app\Entities\Collection\RessourceCollection;
 use bundles\user\Entities\User;
 /**
  * ACL couch layer to manage CRUD access to entities using permissions setted to user's groups
@@ -226,7 +228,7 @@ abstract class Acl
     private function getPermissions()
     {
         try {
-        	$this->oPermissions = new \bundles\adm\Entities\Collection\PermissionCollection();
+        	$this->oPermissions = new PermissionCollection();
 	        if ($this->oGroups->hasItem()) {
 		        
 	            $aGroups = array();
@@ -252,7 +254,7 @@ abstract class Acl
     {
         assert('$this->oGroups->hasItem() && $this->oPermissions->count() > 0');
 
-        $this->oRessources = new \bundles\adm\Entities\Collection\RessourceCollection();
+        $this->oRessources = new RessourceCollection();
         $aAvailableRessources = array();
         foreach ($this->oPermissions as $oPermission) {
             $aAvailableRessources[] = (int) $oPermission->ressource_idressource;
