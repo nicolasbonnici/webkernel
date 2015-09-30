@@ -22,6 +22,13 @@ use Library\Core\Database\Query\Where;
  */
 abstract class Entity extends EntityAttributes
 {
+
+    /**
+     * Generic fields to handle or not on all Entities
+     */
+    const FIELD_LASTUPDATE = 'lastupdate';
+    const FIELD_CREATED    = 'created';
+
     /**
      * Whether row in database may be deleted or not
      * @var boolean
@@ -88,7 +95,7 @@ abstract class Entity extends EntityAttributes
      * @see EntityMapper 
      * @var array
      */
-    protected $aMappedEntities = array();
+    protected $aMappingConfiguration = array();
 
     /**
      * Constructor
@@ -107,6 +114,11 @@ abstract class Entity extends EntityAttributes
             $this->loadByPrimaryKey();
         } elseif (is_array($mPrimaryKey)) {
             // Array case
+
+            /**
+             * @todo Bug that way primary key value was not set in some case... need more investigation
+             */
+
             $this->loadByParameters($mPrimaryKey);
         }
 
@@ -266,6 +278,17 @@ abstract class Entity extends EntityAttributes
             }
         }
 
+        # If Entity has the created attribute handle it (Unix timestamp format)
+        if (
+            in_array(self::FIELD_CREATED, $aInsertedFields) === false &&
+            $this->hasAttribute(self::FIELD_CREATED) === true
+        ) {
+            $sCreatedFieldName = self::FIELD_CREATED;
+            $this->$sCreatedFieldName = time();
+            $aInsertedFields[] = $sCreatedFieldName;
+            $aInsertedValues[] = $this->$sCreatedFieldName;
+        }
+
         if (count($aInsertedFields) === 0) {
             throw new EntityException('Cannot create empty object of class ' . get_called_class());
         }
@@ -315,7 +338,22 @@ abstract class Entity extends EntityAttributes
             }
 
             $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
-            $oStatement = Database::dbQuery('UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ? WHERE `' . static::PRIMARY_KEY . '` = ?', $aUpdatedValues);
+
+            if (
+                in_array(self::FIELD_LASTUPDATE, $aUpdatedFields) === false &&
+                $this->hasAttribute(self::FIELD_LASTUPDATE) === true
+            ) {
+                $sLastUpdateFieldName = self::FIELD_LASTUPDATE;
+                $this->$sLastUpdateFieldName = time();
+                $aUpdatedFields[] = $sLastUpdateFieldName;
+                $aUpdatedValues[] = $this->{$sLastUpdateFieldName};
+            }
+
+            $oStatement = Database::dbQuery(
+                'UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ?
+                WHERE `' . static::PRIMARY_KEY . '` = ?',
+                $aUpdatedValues
+            );
             
             return ($oStatement !== false && $this->refresh());
         } catch (\Exception $oException) {
@@ -509,9 +547,9 @@ abstract class Entity extends EntityAttributes
      * Mapped entities configuration accessor
      * @return array
      */
-    public function getMappedEntities()
+    public function getMappingConfiguration()
     {
-        return $this->aMappedEntities;
+        return $this->aMappingConfiguration;
     }
 
     /**

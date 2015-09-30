@@ -35,46 +35,46 @@ class OperatorsTest extends Test
 
     public function testEqual()
     {
-        $this->assertEquals(self::$oOperatorsInstance->equal('prop'), '`prop` = :?');
+        $this->assertEquals(self::$oOperatorsInstance->equal('prop'), '`prop` = :prop' );
     }
 
     public function testDifferent()
     {
-        $this->assertEquals(self::$oOperatorsInstance->different('prop'), '`prop` != :?');
+        $this->assertEquals(self::$oOperatorsInstance->different('prop'), '`prop` != :prop' );
     }
 
     public function testBigger()
     {
-        $this->assertEquals(self::$oOperatorsInstance->bigger('prop'), '`prop` > :?');
+        $this->assertEquals(self::$oOperatorsInstance->bigger('prop'), '`prop` > :prop' );
     }
 
 
     public function testBiggerOrEqual()
     {
-        $this->assertEquals(self::$oOperatorsInstance->biggerOrEqual('prop'), '`prop` >= :?');
+        $this->assertEquals(self::$oOperatorsInstance->biggerOrEqual('prop'), '`prop` >= :prop' );
     }
 
     public function testSmaller()
     {
-        $this->assertEquals(self::$oOperatorsInstance->smaller('prop'), '`prop` < :?');
+        $this->assertEquals(self::$oOperatorsInstance->smaller('prop'), '`prop` < :prop' );
     }
 
 
     public function testSmallerOrEqual()
     {
-        $this->assertEquals(self::$oOperatorsInstance->smallerOrEqual('prop'), '`prop` <= :?');
+        $this->assertEquals(self::$oOperatorsInstance->smallerOrEqual('prop'), '`prop` <= :prop' );
     }
 
     public function testLike()
     {
-        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop');
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' %prop%');
-        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', true, false);
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' %prop');
-        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', false, true);
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' prop%');
-        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', false, false);
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' prop');
+        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value');
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' %value%');
+        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value', true, false);
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' %value');
+        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value', false, true);
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' value%');
+        $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value', false, false);
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' value');
     }
 
 }

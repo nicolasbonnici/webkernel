@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\App\Mvc;
 
-use bundles\user\Entities\User;
+use app\Entities\User;
 use Library\Core\Acl;
 use Library\Core\App\Bundles;
 use Library\Core\App\Cookie;
@@ -102,7 +102,7 @@ class Controller extends Acl
     /**
      * Controller instance constructor
      *
-     * @param \bundles\user\Entities\User|NULL $oUser
+     * @param \app\Entities\User|NULL $oUser
      * @param string $oBundleConfig     JSON encoded bundle's configuration
      * @throws ControllerException
      */
@@ -119,7 +119,7 @@ class Controller extends Acl
         $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
         $this->oView = new View($bLoadAllViewPaths);
 
-        if (! is_null($oUser) && $oUser instanceof \bundles\user\Entities\User && $oUser->isLoaded()) {
+        if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
             $this->oUser = $oUser;
             // Check ACL parent component if we have a logged user
             parent::__construct($oUser);

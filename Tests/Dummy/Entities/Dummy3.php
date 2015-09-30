@@ -3,15 +3,15 @@
 namespace Library\Core\Tests\Dummy\Entities;
 
 /**
- * Dummy Entity for unit tests
+ * Dummy Entity mapped on many to many to Dummy
  *
  * @author infradmin
  */
-class OnetomanyEntity extends \Library\Core\Orm\Entity {
+class Dummy3 extends \Library\Core\Orm\Entity {
 
-    const ENTITY = 'OnetomanyEntity';
-    const TABLE_NAME = 'onetomany';
-    const PRIMARY_KEY = 'idOnetomany';
+    const ENTITY = 'Dummy3';
+    const TABLE_NAME = 'dummy3';
+    const PRIMARY_KEY = 'iddummy3';
 
     /**
      * Object caching duration in seconds

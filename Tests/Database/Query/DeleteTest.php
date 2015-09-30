@@ -56,8 +56,8 @@ class DeleteTest extends Test
     public function testBuild()
     {
         $this->assertEquals(
-            self::$oDeleteInstance->build(),
-            'DELETE FROM table_name'
+            'DELETE FROM table_name',
+            self::$oDeleteInstance->build()
         );
     }
 
@@ -65,8 +65,8 @@ class DeleteTest extends Test
     {
         $this->assertTrue(self::$oDeleteInstance->addWhereCondition(Operators::equal('otherField1')) instanceof Delete);
         $this->assertEquals(
-            self::$oDeleteInstance->build(),
-            'DELETE FROM table_name WHERE `otherField1` = :?'
+            'DELETE FROM table_name WHERE `otherField1` = :otherField1',
+            self::$oDeleteInstance->build()
         );
     }
     

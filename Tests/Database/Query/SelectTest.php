@@ -118,8 +118,8 @@ class SelectTest extends Test
     public function testBuild()
     {
         $this->assertEquals(
-            self::$oSelectInstance->build(),
-            'SELECT prop1, prop2, prop3, prop4 FROM table_name AS t GROUP BY prop1, prop2, prop3 ORDER BY prop1, prop2, prop3 DESC LIMIT 1099, 25'
+            'SELECT prop1, prop2, prop3, prop4 FROM table_name AS t GROUP BY prop1, prop2, prop3 ORDER BY prop1, prop2, prop3 DESC LIMIT 1099, 25',
+            self::$oSelectInstance->build()
         );
     }
 }

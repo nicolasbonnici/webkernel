@@ -2,7 +2,7 @@
 namespace Library\Core\App\Mvc;
 
 use bundles\auth\Models\AuthModel;
-use bundles\user\Entities\User;
+use app\Entities\User;
 use Library\Core\App\Configuration;
 use Library\Core\App\Mvc\View\View;
 use Library\Core\Router;
@@ -21,7 +21,7 @@ class Auth extends Controller
     /**
      * Currently logged user instance
      *
-     * @type \bundles\user\Entities\User
+     * @type \app\Entities\User
      */
     protected $oUser;
 

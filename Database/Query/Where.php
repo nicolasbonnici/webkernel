@@ -8,7 +8,7 @@ class Where  {
     const QUERY_WHERE_CONNECTOR_OR       = 'OR';
     const QUERY_WHERE_CONNECTOR_DEFAULT  = self::QUERY_WHERE_CONNECTOR_AND;
 
-    const QUERY_WHERE_BOUNDED_VALUE     = ':';
+    const QUERY_WHERE_BOUNDED_ASSIGN    = ':';
     const QUERY_WHERE_BOUNDED_PARAMETER = '?';
 
     protected $aWhereConnectors = array(

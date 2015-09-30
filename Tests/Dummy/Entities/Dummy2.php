@@ -3,15 +3,16 @@
 namespace Library\Core\Tests\Dummy\Entities;
 
 /**
- * Dummy Entity for unit tests
+ * Dummy Entity mapped on many to one to Dummy
  *
  * @author infradmin
  */
-class OnetomanyDummy extends \Library\Core\Orm\Entity {
+class Dummy2 extends \Library\Core\Orm\Entity
+{
 
-    const ENTITY = 'OnetomanyDummy';
-    const TABLE_NAME = 'onetomanyDummy';
-    const PRIMARY_KEY = 'idonetomanydummy';
+    const ENTITY = 'Dummy2';
+    const TABLE_NAME = 'dummy2';
+    const PRIMARY_KEY = 'iddummy2';
 
     /**
      * Object caching duration in seconds
@@ -24,9 +25,8 @@ class OnetomanyDummy extends \Library\Core\Orm\Entity {
      * @var bool
      */
     protected $bIsSearchable = true;
-    protected $bIsDeletable  = true;
-    protected $bIsCacheable  = true;
+    protected $bIsDeletable = true;
+    protected $bIsCacheable = true;
     protected $bIsHistorized = false;
 
 }
-

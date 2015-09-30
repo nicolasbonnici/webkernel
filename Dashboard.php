@@ -37,6 +37,12 @@ class Dashboard extends Crud {
 	public function count(Entity $oEntity, array $aWhereClause = array())
 	{
 		try {
+
+
+            /**
+             * @todo Implement Query Select
+             */
+
 			$sWhereCondition = '';
 			if (count($aWhereClause) > 0) {
 				$sWhereCondition = ' WHERE ';
@@ -44,7 +50,7 @@ class Dashboard extends Crud {
 					$sWhereCondition .= ' `' . $sField . '` = :' . $sField;
 				}
 			}
-			
+
 			$sQuery = 'SELECT COUNT(1) FROM `' . $oEntity->getTableName() . '`' . $sWhereCondition;
 			$oStatement = Database::dbQuery($sQuery, $aWhereClause);
 			if ($oStatement !== false) {

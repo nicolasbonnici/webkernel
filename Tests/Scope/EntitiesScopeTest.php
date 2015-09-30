@@ -7,7 +7,7 @@ use Library\Core\Scope\EntitiesScope;
 
 use bundles\blog\Entities\Post;
 use bundles\lifestream\Entities\FeedItem;
-use bundles\user\Entities\User;
+use app\Entities\User;
 
 
 /**

@@ -4,6 +4,7 @@ namespace Library\Core\Database\Query;
 abstract class Query  extends  Join {
 
     const QUERY_TYPE_SELECT = 'SELECT';
+    const QUERY_TYPE_INSERT = 'INSERT';
     const QUERY_TYPE_UPDATE = 'UPDATE';
     const QUERY_TYPE_DELETE = 'DELETE';
 
@@ -22,6 +23,7 @@ abstract class Query  extends  Join {
      */
     protected $aQueryTypes = array(
         self::QUERY_TYPE_SELECT,
+        self::QUERY_TYPE_INSERT,
         self::QUERY_TYPE_UPDATE,
         self::QUERY_TYPE_DELETE,
     );
@@ -112,7 +114,7 @@ abstract class Query  extends  Join {
      */
     protected function buildFrom()
     {
-        return self::QUERY_FROM .  ' ' . $this->sFrom;
+        return self::QUERY_FROM .  ' ' . $this->sFrom . '';
     }
 
     /**

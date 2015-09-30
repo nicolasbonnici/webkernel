@@ -153,7 +153,12 @@ abstract class EntityCollection extends Collection
      *            AND|OR operator switch and =|LIKE %%
      * @throws EntityException
      */
-    public function loadByParameters(array $aParameters, array $aOrderFields = array(), array $aLimit = array(0,10), $bStrictMode = true)
+    public function loadByParameters(
+        array $aParameters,
+        array $aOrderFields = array(),
+        array $aLimit = array(0,10),
+        $bStrictMode = true
+    )
     {
         assert('is_int($aLimit[0]) && is_int($aLimit[1])');
 
@@ -175,12 +180,19 @@ abstract class EntityCollection extends Collection
                 $sWhere .= $sParameterName;
             }
 
-            if (is_array($mParameterValue)) {
+            if (is_array($mParameterValue) && count($mParameterValue) > 0) {
                 $sWhere .= ' IN(?' . str_repeat(', ?', count($mParameterValue) - 1) . ')';
                 $aBindedValues = array_merge($aBindedValues, $mParameterValue);
-            } else {
+            } elseif(
+                is_string($mParameterValue) === true ||
+                is_int($mParameterValue) === true ||
+                is_bool($mParameterValue) === true ||
+                is_null($mParameterValue) === true
+            ) {
                 $sWhere .= ' ' . (($bStrictMode === true) ? '= ?' : 'LIKE ?');
                 $aBindedValues[] = (($bStrictMode === true) ? $mParameterValue : '%' . $mParameterValue . '%');
+            } else {
+                throw new EntityCollectionException('Bad bounded parameter value for : ' . $sParameterName);
             }
         }
 

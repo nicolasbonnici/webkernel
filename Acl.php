@@ -3,7 +3,9 @@ namespace Library\Core;
 
 use app\Entities\Collection\PermissionCollection;
 use app\Entities\Collection\RessourceCollection;
-use bundles\user\Entities\User;
+use app\Entities\Mapping\Collection\UserGroupCollection;
+use app\Entities\User;
+
 /**
  * ACL couch layer to manage CRUD access to entities using permissions setted to user's groups
  *
@@ -17,14 +19,14 @@ abstract class Acl
     /**
      * User instance
      *
-     * @var \bundles\user\Entities\User
+     * @var \app\Entities\User
      */
     protected $oUser;
 
     /**
      * Entity
      *
-     * @var \bundles\user\Entities\Entity
+     * @var \app\Entities\User
      */
     protected $oEntity;
 
@@ -34,7 +36,7 @@ abstract class Acl
      * Permission's permission attribute structure:
      * { "create": 1, "read": 1,  "update": 1, "delete": 1, "list":1 }
      *
-     * @var \bundles\user\Entities\Collection\PermissionCollection
+     * @var PermissionCollection
      */
     protected $oPermissions;
 
@@ -57,14 +59,14 @@ abstract class Acl
     /**
      * Availables ressources
      *
-     * @param \bundles\user\Entities\User $oUser
+     * @param \app\Entities\User $oUser
      * @throws AclException
      */
     protected $aAvailableRessources;
 
     /**
      * Instance constructor
-     * @param \bundles\user\Entities\User $oUser
+     * @param \app\Entities\User $oUser
      * @throws AclException
      */
     public function __construct(User $oUser)
@@ -209,7 +211,7 @@ abstract class Acl
     private function getUserGroups()
     {
         assert('$this->oUser->isLoaded()');
-        $this->oGroups = new \bundles\user\Entities\Mapping\Collection\UserGroupCollection();
+        $this->oGroups = new UserGroupCollection();
         try {
             $this->oGroups->loadByParameters(array(
                 'user_iduser' => $this->oUser->getId()

@@ -1,466 +1,174 @@
 <?php
 namespace Library\Core\Orm;
 
-use Library\Core\CoreException;
+use Library\Core\Orm\Mapping\EntityMappingException;
+use Library\Core\Orm\Mapping\ManyToMany;
+use Library\Core\Orm\Mapping\MappingAbstract;
+use Library\Core\Orm\Mapping\OneToMany;
+use Library\Core\Orm\Mapping\OneToOne;
 
 /**
+ * Handle all relationship types between Entities, and provide generic usefull methods to load and store mapped Entities
+ *
  * Class EntityMapper
- *
- * Manage all relations between Entities
- *
  * @package Library\Core\Orm
  */
 class EntityMapper
 {
 
     /**
-     * Mapping configuration keys for Entities
-     */
-    const KEY_LOAD_BY_DEFAULT = 'loadByDefault';
-    const KEY_MAPPING_TYPE = 'relationship';
-    const KEY_MAPPED_BY_ENTITY = 'mappingEntity';
-    const KEY_MAPPED_BY_FIELD = 'mappedByField';
-    const KEY_FOREIGN_FIELD = 'foreignField';
-    const KEY_FOREIGN_FIELD_ON = 'foreignFieldOn';
-    const KEY_CONSTRAINTS = 'constraints';
-
-    /**
-     * Value allowed for the self::KEY_FOREIGN_FIELD_ON
-     */
-    const SOURCE_ENTITY = 'source';
-    const MAPPED_ENTITY = 'mapped';
-
-    /**
-     * Mapping types for the self::KEY_MAPPING_TYPE key
-     * @var string
-     */
-    const MAPPING_ONE_TO_ONE = 'oneToOne';
-    const MAPPING_ONE_TO_MANY = 'oneToMany';
-    const MAPPING_MANY_TO_MANY = 'manyToMany';
-
-    /**
-     * Supported mapping types
-     * @var array
-     */
-    protected $aSuppportedMappingTypes = array(
-        self::MAPPING_ONE_TO_ONE,
-        self::MAPPING_ONE_TO_MANY,
-        self::MAPPING_MANY_TO_MANY
-    );
-
-    /**
-     * Source entity
+     * Source Entity instance
      *
      * @var Entity
      */
     protected $oSourceEntity;
 
     /**
-     * Array to store mapped entities
-     * '\EntityNamespace\Entity' => Entity || EntityCollection
+     * Flag to bypass Entity configuration for the MappingAbstract::KEY_LOAD_BY_DEFAULT value
      *
-     * @var array
-     */
-    protected $aMapping = array();
-
-    /**
-     * Bypass Entity configuration to load all mapped entities
      * @var bool
      */
     protected $bForceLoad = false;
 
     /**
+     * Source entity mapping configuration
+     * @var array
+     */
+    protected $aMappingConfiguration;
+
+    /**
      * Instance constructor
-     *
-     * @param Entity $oSourceEntity
      */
-    public function __construct(Entity $oSourceEntity, $bForceLoad = false)
+    public function __construct($bForceLoad = false)
     {
-        if ($oSourceEntity->isLoaded() === false) {
-            throw new EntityMapperException(
-                EntityMapperException::$aErrors[EntityMapperException::ERROR_SOURCE_ENTITY_NOT_LOADED],
-                EntityMapperException::ERROR_SOURCE_ENTITY_NOT_LOADED
-            );
-        } elseif (count($oSourceEntity->getMappedEntities()) < 1) {
-            throw new EntityMapperException(
-                sprintf(EntityMapperException::$aErrors[EntityMapperException::ERROR_MISSING_MAPPING_SETUP], get_class($oSourceEntity)),
-                EntityMapperException::ERROR_MISSING_MAPPING_SETUP
-            );
-        } else {
-
-            $this->oSourceEntity = $oSourceEntity;
-            $this->bForceLoad = $bForceLoad;
-
-            // Load source entity mapping configuration
-            $this->aMapping = $this->oSourceEntity->getMappedEntities();
-
-        }
+        $this->bForceLoad = $bForceLoad;
     }
 
     /**
-     * Store mapped entity
-     *
-     * @param mixed Entity|EntityCollection $oMappedEntity
-     * @return bool
-     * @throws EntityMapperException
-     */
-    public function store($oMappedEntity)
-    {
-        if (
-            ($oMappedEntity instanceof Entity) === false &&
-            ($oMappedEntity instanceof EntityCollection) === false
-        ) {
-            return false;
-        }
-        $aMap = $this->oSourceEntity->getMappedEntities();
-        $aMappingSetup = $aMap[get_class($oMappedEntity)];
-
-        $sMappingType = $aMappingSetup['relationship'];
-        if (in_array($sMappingType, $this->aSuppportedMappingTypes) === false) {
-            throw new EntityMapperException(
-                sprintf(EntityMapperException::$aErrors[EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED], $sMappingType),
-                EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED
-            );
-        }
-        switch ($sMappingType) {
-            case self::MAPPING_ONE_TO_ONE:
-                return $this->storeOneToOneMappedEntity($oMappedEntity, $aMappingSetup);
-                break;
-            case self::MAPPING_ONE_TO_MANY:
-                return $this->storeOneToManyMappedEntity($oMappedEntity, $aMappingSetup);
-                break;
-            case self::MAPPING_MANY_TO_MANY:
-                break;
-        }
-
-        throw new EntityMapperException(
-            sprintf(
-                EntityMapperException::getError(EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED),
-                $sMappingType
-            ),
-            EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED
-        );
-    }
-
-    /**
-     * @todo refacto delete mapped entity
-     *
-     * @return bool
-     */
-    public function delete(Entity $oMappedEntity)
-    {
-        try {
-            $aMap = $this->oSourceEntity->getMappedEntities();
-            $aMappingSetup = $aMap[$oMappedEntity->getEntityName()];
-            $sMappingType = $aMappingSetup['relationship'];
-
-            switch ($sMappingType) {
-                case self::MAPPING_ONE_TO_ONE:
-                    // Just delete mapped entity
-                    return $oMappedEntity->delete();
-                    break;
-                case self::MAPPING_ONE_TO_MANY:
-                    // First delete mapping entity
-
-                    // Then delete mapped entity itself
-                    break;
-                case self::MAPPING_MANY_TO_MANY:
-                    break;
-            }
-
-        } catch (\Exception $oException) {
-            return false;
-        }
-    }
-
-
-    /**
-     * Load all mapped entities (useless and potentialy dangerous)
+     * Load all mapped entities
+     * @return array
      */
     public function load()
     {
-        foreach ($this->aMapping as $sLinkedEntity => $aMappingSetup) {
-            $this->loadMapping($sLinkedEntity, $aMappingSetup);
+        $aMappedEntities = array();
+        foreach ($this->aMappingConfiguration as $sLinkedEntity => $aMappingSetup) {
+            $oMapper = $this->getMapper($aMappingSetup[MappingAbstract::KEY_MAPPING_TYPE]);
+            if (is_null($oMapper) === false && $oMapper instanceof MappingAbstract) {
+                $oMapper->load();
+                $aMappedEntities[$sLinkedEntity] = $oMapper->getMapping();
+            }
         }
+        return $aMappedEntities;
     }
 
     /**
-     * Load mapping for a given mapped Entity with given parameters
+     * Find specific mapped Entity or EntityCollection with parameters
      *
-     * @param string $sEntityClassName
-     * @param array $aRequestParameters         An array with parameters, orderByFields, order and limit keys
-     * @throws EntityMapperException
-     * @return void
+     * @param Entity $oMappedEntity
+     * @param array $aParameters
+     * @param array $aOrderFields
+     * @param array $aLimit
+     * @return Entity|null
+     * @throws \Library\Core\Orm\EntityException
      */
-    public function loadMapping($sEntityClassName, array $aRequestParameters = array())
+    public function loadMapped(
+        Entity $oMappedEntity,
+        array $aParameters = array(),
+        array $aOrderFields = array(),
+        array $aLimit = array(0, 100)
+    )
     {
-        if (empty($sEntityClassName) === true) {
-            throw new EntityMapperException(
-                EntityMapperException::$aErrors[EntityMapperException::ERROR_EMPTY_MAPPED_ENTITY_CLASSNAME],
-                EntityMapperException::ERROR_EMPTY_MAPPED_ENTITY_CLASSNAME
-            );
-        } elseif (array_key_exists($sEntityClassName, $this->oSourceEntity->getMappedEntities()) === false) {
-            throw new EntityMapperException(
-                sprintf(EntityMapperException::$aErrors[EntityMapperException::ERROR_MISSING_MAPPING_SETUP], $sEntityClassName),
-                EntityMapperException::ERROR_MISSING_MAPPING_SETUP
-            );
-        } else {
-
-            $aMap = $this->oSourceEntity->getMappedEntities();
-            $aMappingSetup = $aMap[$sEntityClassName];
-
-            $sMappingType = $aMappingSetup['relationship'];
-            if (in_array($sMappingType, $this->aSuppportedMappingTypes) === false) {
-                throw new EntityMapperException(
-                    sprintf(EntityMapperException::$aErrors[EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED], $sMappingType),
-                    EntityMapperException::ERROR_MAPPING_TYPE_NOT_SUPPORTED
-                );
-            }
-
-            switch ($sMappingType) {
-                case self::MAPPING_ONE_TO_ONE:
-                    return $this->loadMappedEntity($sEntityClassName, $aMappingSetup);
-                    break;
-                case self::MAPPING_ONE_TO_MANY:
-                    return $this->loadMappedEntities($sEntityClassName, $aMappingSetup, $aRequestParameters);
-                    break;
-                case self::MAPPING_MANY_TO_MANY:
-                    // @todo instancier et mapper deux collections
-                    break;
-            }
+        $aMappingSetup = $this->getMappingConfiguration(get_class($oMappedEntity));
+        $oMapper = $this->getMapper($aMappingSetup[MappingAbstract::KEY_MAPPING_TYPE]);
+        if (is_null($oMapper) === false && $oMapper instanceof MappingAbstract) {
+            return $oMapper->loadMapped($oMappedEntity, $aParameters, $aOrderFields, $aLimit);
         }
-    }
-
-    /**
-     * Load a mapped entity using Entity foreign key (only oneToOne relationship)
-     *
-     * @param $sEntityClassName
-     * @param array $aMappingConfiguration
-     * @return null
-     */
-    private function loadMappedEntity($sEntityClassName, array $aMappingConfiguration)
-    {
-        try {
-            /** @var Entity $oMappedEntity */
-            $oMappedEntity = new $sEntityClassName;
-            if ($aMappingConfiguration[self::KEY_LOAD_BY_DEFAULT] === true || $this->bForceLoad === true) {
-                $sforeignFieldStoreOn = (isset($this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]) === true)
-                    ? $this->aMapping[$sEntityClassName][self::KEY_FOREIGN_FIELD_ON]
-                    : false;
-                switch ($sforeignFieldStoreOn) {
-                    case self::SOURCE_ENTITY :
-                        $oMappedEntity->loadByParameters(array(
-                            $oMappedEntity->getPrimaryKeyName() => $this->oSourceEntity->{$this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD]}
-                        ));
-                        break;
-                    case self::MAPPED_ENTITY :
-                        $oMappedEntity->loadByParameters(array(
-                            $this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD] => $this->oSourceEntity->getId()
-                        ));
-                        break;
-                    default:
-                        $oMappedEntity->loadByParameters(array(
-                            $this->aMapping[$sEntityClassName][self::KEY_MAPPED_BY_FIELD] => $this->oSourceEntity->getId()
-                        ));
-                }
-
-
-                if ($oMappedEntity->isLoaded() === true) {
-
-                    // Store in instance loaded mapped object for a cache at call
-                    $this->aMapping[$sEntityClassName] = $oMappedEntity;
-
-                    return $oMappedEntity;
-                }
-
-            }
-            return null;
-        } catch (\Exception $oException) {
-            return null;
-        }
-    }
-
-    /**
-     * @param string $sEntityClassName
-     * @param array $aMappingSetup
-     * @param array $aRequestParameters
-     * @return EntityCollection|null
-     */
-    private function loadMappedEntities($sEntityClassName, array $aMappingSetup, array $aRequestParameters)
-    {
-//        try {
-            /** @var EntityCollection $oLinkedEntityCollection */
-            $oLinkedEntityCollection = new $sEntityClassName;
-            $oMappingEntities = new $aMappingSetup['mappingEntity'];
-            $oMappingEntities->loadByParameters(array(
-                $aMappingSetup['mappedByField'] => $this->oSourceEntity->getId()
-            ));
-            if ($oMappingEntities->count() > 0) {
-                $aMappedEntityIds = array();
-                foreach ($oMappingEntities as $oMappingEntity) {
-                    $aMappedEntityIds[] = intval($oMappingEntity->{$aMappingSetup['foreignField']});
-                }
-
-                // Restrict scope to mapped entities
-                $aParameters[constant($oLinkedEntityCollection->getChildClass() . '::PRIMARY_KEY')] = $aMappedEntityIds;
-
-                // Handle constraints if available
-                if (isset($aParameters[self::KEY_CONSTRAINTS]) && empty($aParameters[self::KEY_CONSTRAINTS]) === false) {
-                    $aParameters[$aParameters[self::KEY_CONSTRAINTS]['field']] = $aParameters[self::KEY_CONSTRAINTS]['values'];
-                }
-
-                $aOrderFields = array();
-                $aLimit = array(0, 10);
-
-                // If available merge with request parameters
-                if (isset($aRequestParameters['parameters']) && empty($aRequestParameters['parameters']) === false ) {
-                    $aParameters = array_merge($aParameters, $aRequestParameters['parameters']);
-                }
-
-                // If available order with request parameters
-                if (isset($aRequestParameters['orderFields']) && empty($aRequestParameters['orderFields']) === false ) {
-                    $aOrderFields = $aRequestParameters['orderFields'];
-                }
-
-                // If available limit and order with request parameters
-                if (isset($aRequestParameters['limit']) && empty($aRequestParameters['limit']) === false ) {
-                    $aLimit = $aRequestParameters['limit'];
-                }
-
-                $oLinkedEntityCollection->loadByParameters(
-                    $aParameters,
-                    $aOrderFields,
-                    $aLimit
-                );
-
-                // Store mapped entities
-                $this->aMapping[$sEntityClassName] = $oLinkedEntityCollection;
-                return $oLinkedEntityCollection;
-            }
-//        } catch (\Exception $oException) {
-//            return null;
-//        }
         return null;
     }
 
     /**
-     * Store One to One mapped Entity
+     * Store a mapped entity
      *
-     * @param Entity $oMappedEntity
-     * @param array $aEntityMappingSetup
+     * @param $oMappedEntity
      * @return bool
-     * @throws EntityException
      */
-    private function storeOneToOneMappedEntity(Entity $oMappedEntity, array $aEntityMappingSetup)
+    public function store($oMappedEntity)
     {
-        try {
-
-            if ($aEntityMappingSetup[self::KEY_FOREIGN_FIELD_ON] === self::MAPPED_ENTITY) {
-                // Store foreign key on mapped Entity
-                $sField = $aEntityMappingSetup[self::KEY_MAPPED_BY_FIELD];
-                $oMappedEntity->{$sField} = $this->oSourceEntity->getId();
-            }
-
-
-            if ($oMappedEntity->add() === true) {
-                if ($aEntityMappingSetup[self::KEY_FOREIGN_FIELD_ON] === self::SOURCE_ENTITY) {
-                    // Store foreign Entity reference directly on source entity
-                    $sFieldName = $aEntityMappingSetup[self::KEY_MAPPED_BY_FIELD];
-                    $this->oSourceEntity->{$sFieldName} = $oMappedEntity->getId();
-                    return $this->oSourceEntity->update();
-                }
-                return true;
-            }
-            return false;
-        } catch(\Exception $oException) {
-            return false;
+        $aMappingSetup = $this->getMappingConfiguration(get_class($oMappedEntity));
+        $oMapper = $this->getMapper($aMappingSetup[MappingAbstract::KEY_MAPPING_TYPE]);
+        if (is_null($oMapper) === false && $oMapper instanceof MappingAbstract) {
+            return $oMapper->store($oMappedEntity);
         }
+        return false;
     }
 
     /**
-     * Store a collection of mapped entities (one to many case)
+     * Retrieve an Entity mapping configuration
      *
-     * @todo MYSQL transactional mode when we have to store a mapping entity plus the entity itself
-     *
-     * @param EntityCollection $oMappedEntities
-     * @param array $aMappingSetup
-     * @throws EntityException
+     * @param $sEntityClassName
+     * @return mixed Entity|EntityCollection
      */
-    private function storeOneToManyMappedEntity(EntityCollection $oMappedEntities, array $aMappingSetup)
+    private function getMappingConfiguration($sEntityClassName = null)
     {
-        try {
-            $aErrors = array();
-            /** @var Entity $oMappedEntity */
-            foreach ($oMappedEntities as $oMappedEntity) {
+        return (isset($this->aMappingConfiguration[$sEntityClassName]) === true )
+            ? $this->aMappingConfiguration[$sEntityClassName]
+            : null;
+    }
 
-                // First store mapped entity itself to retrieve primary key value then store mapping entity
-                if ($oMappedEntity->add() === true) {
-                    /** @var EntityCollection $oMappingEntityCollection */
-                    $oMappingEntityCollection = new $aMappingSetup[self::KEY_MAPPED_BY_ENTITY]();
-                    $sMappingEntityClassname = $oMappingEntityCollection->computeEntityClassName();
-                    $oMappingEntity = new $sMappingEntityClassname();
-                    $oMappingEntity->{$this->computeSourceKeyFieldNameOnMappingEntity()} = $this->oSourceEntity->getId();
-                    $oMappingEntity->{$this->computeMappedKeyFieldNameOnMappingEntity($oMappedEntity)} = $oMappedEntity->getId();
-
-                    $oMappingEntity->add();
-                } else {
-                    $aErrors[] = $oMappedEntity;
-                }
-            }
-            return (count($aErrors) === 0);
-
-        } catch (\Exception $oException) {
-            return false;
+    /**
+     * Factory to instantiated the correct mapper for a given relationship type
+     *
+     * @param string $sMappingType
+     * @return MappingAbstract|null
+     */
+    private function getMapper($sMappingType)
+    {
+        $oMapper = null;
+        switch ($sMappingType) {
+            case (MappingAbstract::MAPPING_ONE_TO_ONE) :
+                $oMapper = new OneToOne($this->oSourceEntity);
+                break;
+            case (MappingAbstract::MAPPING_ONE_TO_MANY) :
+                $oMapper = new OneToMany($this->oSourceEntity);
+                break;
+            case (MappingAbstract::MAPPING_MANY_TO_MANY) :
+                $oMapper = new ManyToMany($this->oSourceEntity);
+                break;
         }
-    }
-
-    private function computeSourceKeyFieldNameOnMappingEntity()
-    {
-        return $this->oSourceEntity->getTableName() . '_' . $this->oSourceEntity->getPrimaryKeyName();
-    }
-
-    private function computeMappedKeyFieldNameOnMappingEntity($oMappedEntity)
-    {
-        return $oMappedEntity->getTableName() . '_' . $oMappedEntity->getPrimaryKeyName();
+        return $oMapper;
     }
 
     /**
-     * Generic mapped entities generic accessor
-     *
-     * @param string $sEntityClassName
-     * @return array
+     * @return Entity
      */
-    public function getMapping()
+    public function getSourceEntity()
     {
-        return $this->aMapping;
+        return $this->oSourceEntity;
     }
 
-}
-
-class EntityMapperException extends CoreException
-{
+    /**
+     * @param Entity $oSourceEntity
+     */
+    public function setSourceEntity(Entity $oSourceEntity)
+    {
+        $this->oSourceEntity = $oSourceEntity;
+        $this->aMappingConfiguration = $this->oSourceEntity->getMappingConfiguration();
+    }
 
     /**
-     * Error codes
-     * @var integer
+     * @return boolean
      */
-    const ERROR_SOURCE_ENTITY_NOT_LOADED = 2;
-    const ERROR_MISSING_MAPPING_SETUP = 3;
-    const ERROR_MAPPING_TYPE_NOT_SUPPORTED = 4;
-    const ERROR_EMPTY_MAPPED_ENTITY_CLASSNAME = 5;
-    const ERROR_NOT_LOADED_MAPPED_ENTITY_TO_STORE = 6;
-    const ERROR_ENTITY_NOT_MAPPED = 7;
+    public function setForceLoad()
+    {
+        return $this->bForceLoad;
+    }
 
     /**
-     * Error message
-     * @var array
+     * @param boolean $bForceLoad
      */
-    public static $aErrors = array(
-        self::ERROR_MAPPING_TYPE_NOT_SUPPORTED => 'Mapping type %s not supported.',
-        self::ERROR_SOURCE_ENTITY_NOT_LOADED => 'The provided source Entity instance was not load loaded.',
-        self::ERROR_MISSING_MAPPING_SETUP => 'Mapping setup not found for Entity %s.',
-        self::ERROR_EMPTY_MAPPED_ENTITY_CLASSNAME => 'No mapped Entity class name provided.',
-        self::ERROR_NOT_LOADED_MAPPED_ENTITY_TO_STORE => 'Not loaded mapped entity to store',
-        self::ERROR_ENTITY_NOT_MAPPED => 'The provided Entity isn\'t mapped to the source Entity.',
-    );
+    public function getForceLoad($bForceLoad)
+    {
+        $this->bForceLoad = (bool) $bForceLoad;
+    }
+
 }

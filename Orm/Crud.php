@@ -24,9 +24,9 @@ abstract class Crud
     const ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE   = 406;
 
     /**
-     * Current user instance (optional if $oEntity has no foreign key attribute to \bundles\user\Entities\User)
+     * Current user instance (optional if $oEntity has no foreign key attribute to \app\Entities\User)
      *
-     * @var \bundles\user\Entities\User
+     * @var \app\Entities\User
      */
     protected $oUser;
 
@@ -59,7 +59,7 @@ abstract class Crud
      */
     public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)
     {
-        assert('is_null($mUser) || $mUser instanceof \bundles\user\Entities\User && $mUser->isLoaded() || (is_int($mUser) && intval($mUser) > 0)');
+        assert('is_null($mUser) || $mUser instanceof \app\Entities\User && $mUser->isLoaded() || (is_int($mUser) && intval($mUser) > 0)');
         assert('is_null($iPrimaryKey) || $iPrimaryKey === 0 || (is_int($iPrimaryKey) && intval($iPrimaryKey) > 0)');
 
         if (empty($sEntityClassName) || ! class_exists($sEntityClassName)) {
@@ -69,12 +69,12 @@ abstract class Crud
             );
         } else {
             try {
-                // Instanciate \bundles\user\Entities\User provided at instance constructor
-                if ($mUser instanceof \bundles\user\Entities\User && $mUser->isLoaded()) {
+                // Instanciate \app\Entities\User provided at instance constructor
+                if ($mUser instanceof \app\Entities\User && $mUser->isLoaded()) {
                     $this->oUser = $mUser;
                 } elseif (is_int($mUser) && intval($mUser) > 0) {
                     try {
-                        $this->oUser = new \bundles\user\Entities\User($mUser);
+                        $this->oUser = new \app\Entities\User($mUser);
                     } catch (\Library\Core\Orm\EntityException $oException) {
                         $this->oUser = null;
                     }
@@ -178,7 +178,7 @@ abstract class Crud
     }
 
     /**
-     * Update an entity restricted to instanciate user scope if entity is mapped with \bundles\user\Entities\User
+     * Update an entity restricted to instanciate user scope if entity is mapped with \app\Entities\User
      *
      * @param array $aParameters
      * @throws CrudException
@@ -295,7 +295,7 @@ abstract class Crud
     public function loadUserEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10))
     {
         if (is_null($this->oUser)) {
-            throw new CrudException('No \bundles\user\Entities\User entity instance found!', App::ERROR_ENTITY_NOT_MAPPED_TO_USERS);
+            throw new CrudException('No \app\Entities\User entity instance found!', App::ERROR_ENTITY_NOT_MAPPED_TO_USERS);
         }
 
         if (isset($aParameters['user_iduser']) === false) {

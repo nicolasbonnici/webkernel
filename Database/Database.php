@@ -132,8 +132,12 @@ class Database
             self::$_user = $aConfig['database']['user'];
             self::$_pass = $aConfig['database']['pass'];
 
-            self::$_link = new \PDO(self::$_driver . ':dbname=' . self::$_name . ';host=' . self::$_host, self::$_user, self::$_pass);
-        } catch (Exception $log) {
+            self::$_link = new \PDO(
+                self::$_driver . ':dbname=' . self::$_name . ';host=' . self::$_host,
+                self::$_user,
+                self::$_pass
+            );
+        } catch (\Exception $log) {
             throw new DatabaseException($log);
         }
 
@@ -149,7 +153,7 @@ class Database
      *            Binded values
      * @param string $sLink
      *            Database link (master or slave)
-     * @return PDOStatement boolean result PDO statement
+     * @return \PDOStatement boolean result PDO statement
      */
     public static function dbQuery($sQuery, array $aValues = array(), $sLink = 'slave')
     {
@@ -177,7 +181,7 @@ class Database
             self::$_aBenchmark[$sLink]['queries_list'][] = $sQuery;
 
             return $oStatement;
-        } catch (Exception $oException) {
+        } catch (\Exception $oException) {
             self::$_errors[] = array(
                 'query' => $sQuery,
                 'server' => $sLink,

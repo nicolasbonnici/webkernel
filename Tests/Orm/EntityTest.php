@@ -3,7 +3,7 @@ namespace Library\Core\Tests\Select;
 
 use \Library\Core\Test as Test;
 use Library\Core\Orm\Entity;
-use Library\Core\Tests\Dummy\Entities\DummyEntity;
+use Library\Core\Tests\Dummy\Entities\Dummy;
 
 
 /**
@@ -45,7 +45,7 @@ class EntityTest extends Test
 
     public function testConstructor()
     {
-        self::$oEntityInstance = new DummyEntity();
+        self::$oEntityInstance = new Dummy();
         $this->assertTrue(self::$oEntityInstance instanceof Entity);
     }
 
@@ -92,27 +92,28 @@ class EntityTest extends Test
 
     public function testConstructorWithString()
     {
-        self::$oEntityInstance = new DummyEntity((string) self::$iCreatedDummyId);
+        self::$oEntityInstance = new Dummy((string) self::$iCreatedDummyId);
         $this->assertTrue(self::$oEntityInstance->isLoaded() === true);
         $this->assertEquals(self::$iCreatedDummyId, self::$oEntityInstance->getId());
     }
 
     public function testConstructorWithInteger()
     {
-        self::$oEntityInstance = new DummyEntity((int) self::$iCreatedDummyId);
+        self::$oEntityInstance = new Dummy((int) self::$iCreatedDummyId);
         $this->assertTrue(self::$oEntityInstance->isLoaded() === true);
         $this->assertEquals(self::$iCreatedDummyId, self::$oEntityInstance->getId());
     }
 
     public function testConstructorWithArray()
     {
-        self::$oEntityInstance = new DummyEntity(array(DummyEntity::PRIMARY_KEY => self::$iCreatedDummyId));
+        self::$oEntityInstance = new Dummy(array(Dummy::PRIMARY_KEY => self::$iCreatedDummyId));
         $this->assertTrue(self::$oEntityInstance->isLoaded() === true);
         $this->assertEquals(self::$iCreatedDummyId, self::$oEntityInstance->getId());
     }
 
     public function testUpdate()
     {
+        self::$oEntityInstance = new Dummy(self::$iCreatedDummyId);
         self::$oEntityInstance->test_string  = 'Other string value';
         $this->assertTrue(self::$oEntityInstance->update());
     }

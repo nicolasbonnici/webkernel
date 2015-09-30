@@ -5,7 +5,7 @@ use Library\Core\CoreException;
 use Library\Core\Collection;
 use Library\Core\Scope\BundlesEntitiesScope;
 
-use bundles\user\Entities\User;
+use app\Entities\User;
 
 /**
  * Search component for Entities
@@ -25,7 +25,7 @@ class EntitySearch
     /**
      * Current User instance (optional)
      *
-     * @var \bundles\user\Entities\User
+     * @var \app\Entities\User
      */
     protected $oUser;
 
