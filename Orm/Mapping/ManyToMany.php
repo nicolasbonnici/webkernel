@@ -1,6 +1,6 @@
 <?php
 namespace Library\Core\Orm\Mapping;
-use Library\Core\Database\Database;
+use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Insert;
 use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;
@@ -51,12 +51,18 @@ class ManyToMany extends MappingAbstract
             $oSelect->addColumn($aMappingConf[self::KEY_MAPPED_ENTITY_REFERENCE])
                 ->setFrom($aMappingConf[self::KEY_MAPPING_TABLE])
                 ->addWhereCondition(Operators::equal($aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE]));
-            $oStatement = Database::dbQuery(
+            $oStatement = Pdo::dbQuery(
                 $oSelect->build(),
                 array($aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] => $this->oSourceEntity->getId())
             );
 
             if ($oStatement !== false) {
+
+                $aIds = $oStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+                if (count($aIds) === 0) {
+                    return null;
+                }
+
                 /** @var Entity $oMappedEntity */
                 $oMappedEntity = new $oMappedEntity;
                 $sMappedEntityCollectionClassName = $oMappedEntity->computeCollectionClassName();
@@ -64,7 +70,7 @@ class ManyToMany extends MappingAbstract
                 $oMappedCollection = new $sMappedEntityCollectionClassName;
 
                 # Build parameters
-                $aParameters[$oMappedEntity->getPrimaryKeyName()] = $oStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+                $aParameters[$oMappedEntity->getPrimaryKeyName()] = $aIds;
 
                 $oMappedCollection->loadByParameters(
                     $aParameters,
@@ -102,7 +108,7 @@ class ManyToMany extends MappingAbstract
                         $oMappedEntity->getId()
                     );
 
-                $oStatement = Database::dbQuery(
+                $oStatement = Pdo::dbQuery(
                     $oInsert->build(),
                     array(
                         $aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] => $this->oSourceEntity->getId(),

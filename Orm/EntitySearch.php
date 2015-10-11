@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Orm;
 
-use Library\Core\CoreException;
+use Library\Core\Exception\CoreException;
 use Library\Core\Collection;
 use Library\Core\Scope\BundlesEntitiesScope;
 

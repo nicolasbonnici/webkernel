@@ -39,7 +39,7 @@ class Configuration {
      * Configuration constructor with optional bundle name
      * @param string $sBundleName   Bundle name (optional)
      */
-    public function __construct($sBundleName)
+    public function __construct($sBundleName = 'sample')
     {
         $this->sBundleName = $sBundleName;
         $this->build();
@@ -221,6 +221,7 @@ class Configuration {
             if ($oConfiguration->isLoaded() === true) {
                 return $oConfiguration;
             }
+            return null;
         } catch (\Exception $oException) {
             return null;
         }

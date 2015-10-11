@@ -2,7 +2,7 @@
 namespace Library\Core\Orm;
 
 use Library\Core\Collection;
-use Library\Core\Database\Database;
+use Library\Core\Database\Pdo;
 
 /**
  * On the fly ORM CRUD managment abstract class
@@ -80,7 +80,7 @@ abstract class EntityCollection extends Collection
         FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
         ORDER BY ' . $sOrderBy . ' ' . $sOrder . ' LIMIT ' . $aLimit[0] . ',' . $aLimit[1];
         try {
-            $oStatement = Database::dbQuery($sQuery);
+            $oStatement = Pdo::dbQuery($sQuery);
         } catch (\PDOException $oException) {
             throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" ');
         }
@@ -233,7 +233,7 @@ abstract class EntityCollection extends Collection
     public function loadByQuery($sQuery, array $aValues = array())
     {
         try {
-            $oStatement = Database::dbQuery($sQuery, $aValues);
+            $oStatement = Pdo::dbQuery($sQuery, $aValues);
         } catch (\PDOException $oException) {
             throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" and values ' . print_r($aValues, true));
         }

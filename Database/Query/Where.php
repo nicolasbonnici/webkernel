@@ -1,17 +1,26 @@
 <?php
 namespace Library\Core\Database\Query;
 
+/**
+ * This class handle where conditions
+ *
+ * Class Where
+ * @package Library\Core\Database\Query
+ */
 class Where  {
 
     const QUERY_WHERE                    = 'WHERE';
+
     const QUERY_WHERE_CONNECTOR_AND      = 'AND';
     const QUERY_WHERE_CONNECTOR_OR       = 'OR';
+    const QUERY_WHERE_CONNECTOR_COMMA    = ',';
     const QUERY_WHERE_CONNECTOR_DEFAULT  = self::QUERY_WHERE_CONNECTOR_AND;
 
     const QUERY_WHERE_BOUNDED_ASSIGN    = ':';
     const QUERY_WHERE_BOUNDED_PARAMETER = '?';
 
     protected $aWhereConnectors = array(
+        self::QUERY_WHERE_CONNECTOR_COMMA,
         self::QUERY_WHERE_CONNECTOR_AND,
         self::QUERY_WHERE_CONNECTOR_OR
     );
@@ -26,16 +35,21 @@ class Where  {
     public function buildWhere()
     {
         if (empty($this->aWhere) === false) {
-            $sWhere = self::QUERY_WHERE . ' ';
-            foreach ($this->aWhere as $aWhereCondition) {
-                $sWhere .= ((is_null($aWhereCondition['connector']) === false)
+            return self::QUERY_WHERE . ' ' . $this->buildWhereParameters();
+        }
+        return null;
+    }
+
+    public function buildWhereParameters()
+    {
+        $sWhere = '';
+        foreach ($this->aWhere as $aWhereCondition) {
+            $sWhere .= ((is_null($aWhereCondition['connector']) === false)
                     ? ' ' . $aWhereCondition['connector'] . ' '
                     : ''
                 ) . $aWhereCondition['condition'];
-            }
-            return $sWhere;
         }
-        return null;
+        return $sWhere;
     }
 
     /**
@@ -48,7 +62,7 @@ class Where  {
     public function addWhereCondition($sWhereCondition, $sConnector = null)
     {
         $this->aWhere[] = array(
-            'connector' => ((in_array($sConnector, $this->aWhereConnectors) === true)
+            'connector' => ((in_array($sConnector, $this->aWhereConnectors) === true && empty($this->aWhere) === false)
                 ? $sConnector
                 : null
             ),

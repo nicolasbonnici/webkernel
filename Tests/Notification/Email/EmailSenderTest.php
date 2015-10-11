@@ -31,7 +31,7 @@ class EmailSenderTest extends Test {
         $this->oEmailNotificationInstance = new EmailNotification();
 
         $this->oEmailNotificationInstance->setSubject('Test subject');
-        $this->oEmailNotificationInstance->setExpeditor('test@domain.tld');
+        $this->oEmailNotificationInstance->setExpeditor('test@nbonnici.info');
         $this->oEmailNotificationInstance->setRecipient('nicolasbonnici@gmail.com');
         $this->oEmailNotificationInstance->setMessage('Message de test.');
         $this->assertTrue(

@@ -16,7 +16,7 @@ class OneToOne extends MappingAbstract
     protected $aRequiredMappingConfigurationFields = array(
         MappingAbstract::KEY_MAPPING_TYPE,
         MappingAbstract::KEY_LOAD_BY_DEFAULT,
-        MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE
+        MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE
     );
 
     /**
@@ -43,7 +43,7 @@ class OneToOne extends MappingAbstract
             $oMappedEntity->loadByParameters(
                 array(
                     $oMappedEntity->getPrimaryKeyName() =>
-                        $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]
+                        $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
                 )
             );
 
@@ -64,7 +64,7 @@ class OneToOne extends MappingAbstract
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
             if ($oMappedEntity->add() === true) {
                 # Persist reference to create Entity on source Entity
-                $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE] = $oMappedEntity->getId();
+                $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE] = $oMappedEntity->getId();
                 return $this->oSourceEntity->update();
             }
         }

@@ -3,14 +3,21 @@ namespace Library\Core\Database\Query;
 
 class Insert extends Query {
 
-    const QUERY_INSERT_VALUE = 'VALUES';
-    const QUERY_INSERT_TABLE_PREFIX = 'INTO';
+    const QUERY_INSERT_VALUE               = 'VALUES';
+    const QUERY_INSERT_TABLE_PREFIX        = 'INTO';
+    const QUERY_INSERT_ON_DUPLICATE_UPDATE = 'ON DUPLICATE KEY UPDATE';
 
     /**
      * insert query fields names and values
      * @var array
      */
     protected $aParameters = array();
+
+    /**
+     * Flag for the ON DUPLICATE KEY UPDATE mode
+     * @var bool
+     */
+    protected $bUpdateOnDuplicate = false;
 
     /**
      * Select constructor
@@ -28,18 +35,35 @@ class Insert extends Query {
     {
         $aFactory =  array(
             $this->getQueryType(),
-            $this->prefixFrom(),
+            $this->prefixTable(),
             $this->getFrom(),
             $this->buildParameters(),
-            $this->buildWhere()
+            $this->buildUpdateOnDuplicate()
         );
         return array_diff($aFactory, array(null));
     }
 
+    /**
+     * Build insert query parameters
+     * @return string
+     */
     protected function buildParameters()
     {
         return '(' . implode(', ', array_keys($this->getParameters())) . ') ' .
             self::QUERY_INSERT_VALUE . '(' . implode(', ', array_values($this->getParameters())) . ')';
+    }
+
+    /**
+     * Handle and build the UPDATE ON DUPLICATE mode
+     * @return string
+     */
+    protected function buildUpdateOnDuplicate()
+    {
+        $aWhereConditions = $this->getWhere();
+        if ($this->bUpdateOnDuplicate === true && empty($aWhereConditions) === false) {
+            return ' ' . self::QUERY_INSERT_ON_DUPLICATE_UPDATE . ' ' . $this->buildWhereParameters();
+        }
+        return '';
     }
 
     /**
@@ -80,9 +104,19 @@ class Insert extends Query {
     }
 
     /**
+     * Activate the UPDATE ON DUPLICATE mode
+     *
+     * @param boolean $bUpdateOnDuplicate
+     */
+    public function setUpdateOnDuplicate($bUpdateOnDuplicate)
+    {
+        $this->bUpdateOnDuplicate = (bool) $bUpdateOnDuplicate;
+    }
+
+    /**
      * @return string
      */
-    private function prefixFrom()
+    private function prefixTable()
     {
         return ' ' . self::QUERY_INSERT_TABLE_PREFIX . ' ';
     }

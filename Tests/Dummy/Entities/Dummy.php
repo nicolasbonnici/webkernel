@@ -38,7 +38,7 @@ class Dummy extends \Library\Core\Orm\Entity {
         'Library\Core\Tests\Dummy\Entities\Dummy4' => array(
             MappingAbstract::KEY_MAPPING_TYPE    => MappingAbstract::MAPPING_ONE_TO_ONE,
             MappingAbstract::KEY_LOAD_BY_DEFAULT => false,
-            MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE => 'dummy4_iddummy4'
+            MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE => 'dummy4_iddummy4'
         ),
         'Library\Core\Tests\Dummy\Entities\Dummy2' => array(
             MappingAbstract::KEY_MAPPING_TYPE            => MappingAbstract::MAPPING_ONE_TO_MANY,

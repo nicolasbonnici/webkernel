@@ -15,19 +15,9 @@ class Minify
      * Supported type that can be base64 encoded
      * @var array
      */
-    protected $aMimeTypes = array(
+    protected $aSupportedMimeTypes = array(
         "js"	=> "text/javascript",
         "css"	=> "text/css",
-        "htm"	=> "text/html",
-        "html"	=> "text/html",
-        "xml"	=> "text/xml",
-        "txt"	=> "text/plain",
-        "jpg"	=> "image/jpeg",
-        "jpeg"	=> "image/jpeg",
-        "png"	=> "image/png",
-        "gif"	=> "image/gif",
-        "swf"	=> "application/x-shockwave-flash",
-        "ico"	=> "image/x-icon"
     );
 
     /**

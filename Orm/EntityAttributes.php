@@ -2,11 +2,13 @@
 namespace Library\Core\Orm;
 
 use Library\Core\Cache;
-use Library\Core\Database\Database;
+use Library\Core\Database\Pdo;
 use Library\Core\Validator;
 
 /**
  * Entities attributes generic abstract
+ *
+ * @todo implement Query
  *
  * Class EntityAttributes
  * @package Library\Core\Orm
@@ -22,14 +24,6 @@ abstract class EntityAttributes {
     const DATA_TYPE_FLOAT   = 'float';
     const DATA_TYPE_ARRAY   = 'array';
 
-
-    /**
-     * List of associated table's fields
-     *
-     * @var array
-     */
-    protected $aFields = array();
-
     /**
      * Load the list of fields of the associated database table
      *
@@ -39,10 +33,9 @@ abstract class EntityAttributes {
     {
         $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
         if (($this->aFields = Cache::get($sCacheKey)) === false) {
-            if (($oStatement = Database::dbQuery('SHOW COLUMNS FROM ' . static::TABLE_NAME)) === false) {
+            if (($oStatement = Pdo::dbQuery('SHOW COLUMNS FROM `' . static::TABLE_NAME . '`')) === false) {
                 throw new EntityException('Unable to list fields for table ' . static::TABLE_NAME);
             }
-
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aColumn) {
                 $this->aFields[$aColumn['Field']] = $aColumn;
             }
@@ -51,7 +44,7 @@ abstract class EntityAttributes {
         }
 
         if (empty($this->aFields) === true) {
-            throw new EntityException('No field found for table ' . static::TABLE_NAME . ' please check Entity.');
+            throw new EntityException('No fields found for table ' . static::TABLE_NAME . ' please check Entity.');
         }
 
     }
@@ -141,7 +134,7 @@ abstract class EntityAttributes {
                     break;
                 default:
                     throw new EntityException(
-                        __CLASS__ . ' Unsuported database field type: ' . $sDatabaseType);
+                        __CLASS__ . ' Unsupported database field type: ' . $sDatabaseType);
                     break;
             }
 
@@ -162,12 +155,11 @@ abstract class EntityAttributes {
     protected function validate($sFieldName, $mValue)
     {
         assert('isset($this->aFields[$sFieldName]["Type"])');
-
         $iValidatorStatus = 0;
         $sDataType = '';
 
         // If nullable
-        if (is_null($mValue) === true && $this->isNullable($sFieldName)) {
+        if (is_null($mValue) === true && $this->isNullable($sFieldName) === true) {
             return true;
         }
 

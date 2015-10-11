@@ -4,6 +4,8 @@ namespace Library\Core\App\Mvc\View;
 use Library\Core\App\Bundles;
 use Library\Core\App\Mvc\Controller;
 use Library\Core\App\Mvc\View\Assets\Assets;
+use Library\Core\Bootstrap;
+use Library\Core\FileSystem\Directory;
 use Library\Core\Router;
 use Library\Core\Json\Json;
 
@@ -15,16 +17,16 @@ use Library\Core\Json\Json;
  */
 class View
 {
-	/**
-	 * Blank layout template file path
-	 * @see instance constructor
-	 * @var string
-	 */
-	const BLANK_LAYOUT = 'layout_blank.tpl';
+    /**
+     * Blank layout template file path
+     * @see instance constructor
+     * @var string
+     */
+    const BLANK_LAYOUT = 'layout_blank.tpl';
 
     /**
      *  Assets managment
-     *  @var \Library\Core\App\Mvc\View\Assets\Assets
+     * @var \Library\Core\App\Mvc\View\Assets\Assets
      */
     private static $oAssetsInstance;
 
@@ -34,16 +36,16 @@ class View
      * @var array
      */
     protected $aClientComponents = array(
-        'dependancies',
+        'dependencies',
         'ux'
     );
 
     /**
      * View instance constructor
      *
-     * @param boolean $bLoadAllBundleViews      A flag to load all bundles views path (For the CrudController)
+     * @param boolean $bLoadAllBundleViews A flag to load all bundles views path (For the CrudController)
      */
-    public function __construct($bLoadAllBundleViews = false)
+    public function __construct($bLoadAllBundleViews = false, array $aCustomPaths = array())
     {
         $sHaangaPath = LIBRARY_PATH . 'Haanga/';
         require_once $sHaangaPath . 'Haanga.php';
@@ -59,6 +61,12 @@ class View
                 if ($sBundle !== Router::getBundle()) {
                     $aViewsPaths[] = BUNDLES_PATH . $sBundle . '/Views/';
                 }
+            }
+        }
+
+        if (empty($aCustomPaths) === false) {
+            foreach($aCustomPaths as $sRelativePath) {
+                $aViewsPaths[] = ROOT_PATH . $sRelativePath;
             }
         }
 
@@ -81,16 +89,26 @@ class View
      */
     public function render(array $aViewParams, $sTpl = self::BLANK_LAYOUT, $iStatusXHR = Controller::XHR_STATUS_OK, $bToString = false)
     {
+
+        // Debug
+        $aViewParams["aLoadedClass"] = Bootstrap::getAutoloaderInstance()->getLoadedClass();
+
+        // Benchmark
+        $aViewParams['processing_time'] = round(microtime(true) - FRAMEWORK_STARTED, 3);
+
+        // Client components
+        $aViewParams['aClientComponents'] = $this->buildViewComponents();
+
         // check if it's an XMLHTTPREQUEST
         if (isset($aViewParams['bIsXhr']) && $aViewParams['bIsXhr'] === true) {
-        	$aCharsToStrip = array("\r", "\r\n", "\n", "\t");
+            $aCharsToStrip = array("\r", "\r\n", "\n", "\t");
             $oResponse = new Json(
                 array(
                     'status' => $iStatusXHR,
                     'content' => str_replace($aCharsToStrip, '', $this->load($sTpl, $aViewParams, true)),
                     'debug' => isset($aViewParams["sDeBugHelper"]) ?
-                		str_replace($aCharsToStrip, '', $this->load($aViewParams["sDeBugHelper"], $aViewParams, true)) :
-                	    null
+                        str_replace($aCharsToStrip, '', $this->load($aViewParams["sDeBugHelper"], $aViewParams, true)) :
+                        null
                 )
             );
             if ($bToString === true) {
@@ -119,20 +137,20 @@ class View
     }
 
     /**
-     * Clear rendering engine cache files for each bundle's views
+     * Clear rendering engine cache files
      *
      * @param string $bRetry
-     * @throws AppException
+     * @throws ViewException
      * @return boolean
      */
     public function clearCache($bRetry = false)
     {
         try {
-            if (! Directory::deleteDirectory(CACHE_PATH)) {
-                throw  new AppException('Unable to clear cache folder (' . CACHE_PATH . ')');
+            if (!Directory::deleteDirectory(CACHE_PATH)) {
+                throw  new ViewException('Unable to clear cache folder (' . CACHE_PATH . ')');
             }
             return Directory::exists(CACHE_PATH);
-        } catch (\AppException $oAppException) {
+        } catch (\Exception $oException) {
             return false;
         }
     }
@@ -146,7 +164,11 @@ class View
      */
     public function registerClientComponent($sComponentName)
     {
-        if (array_key_exists($sComponentName, $this->aClientComponents)) {
+        if (
+            is_string($sComponentName) === false ||
+            empty($sComponentName) === true ||
+            array_key_exists($sComponentName, $this->aClientComponents) === true
+        ) {
             return false;
         } else {
             $this->aClientComponents[] = $sComponentName;
@@ -159,8 +181,25 @@ class View
      *
      * @return array
      */
-    public function getClientComponents()
+    public function buildViewComponents()
     {
-        return $this->aClientComponents;
+        $oAsset = new Assets();
+        $aComponents = array();
+
+        $aAllowedTypes = $oAsset->getAllowedAssetTypes();
+        foreach ($this->aClientComponents as $sPackage) {
+            foreach ($aAllowedTypes as $sAllowedType) {
+                $sComponentPath = $oAsset->getMinifiedPublicPath($sPackage, $sAllowedType);
+                if (is_null($sComponentPath) === false) {
+                    $aComponents[$sAllowedType][] = $sComponentPath;
+                }
+            }
+        }
+        return $aComponents;
     }
+
+}
+
+class ViewException extends \Exception
+{
 }

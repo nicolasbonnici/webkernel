@@ -23,17 +23,24 @@ class EmailNotification extends NotificationAbstract
     /**
      * Build the email for Swift Mailer
      *
+     * @param string $sContentType
      * @return \Swift_Message
      */
-    public function build()
+    public function build($sContentType = 'text/html')
     {
         $oMessage = new \Swift_Message();
 
-        $oMessage->setSubject($this->getSubject());
-        $oMessage->setTo($this->getRecipient());
-        $oMessage->setFrom($this->getExpeditor());
-        $oMessage->setBody($this->getMessage());
-        $oMessage->setPriority($this->getPriority());
+        $oMessage->setSubject($this->getSubject())
+            ->setTo($this->getRecipient())
+            ->setFrom($this->getExpeditor())
+            ->setPriority($this->getPriority())
+            ->setBody($this->getMessage(), $sContentType);
+
+        # Cc field
+        $aCc = $this->getCopyRecipients();
+        if (is_array($aCc) === true && count($aCc) > 0) {
+            $oMessage->setCc($aCc);
+        }
 
         return $oMessage;
     }

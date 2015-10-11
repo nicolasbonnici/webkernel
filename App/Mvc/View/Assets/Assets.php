@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\App\Mvc\View\Assets;
 
-use Library\Core\CoreException;
+use Library\Core\Exception\CoreException;
 
 use Library\Core\FileSystem\File;
 use Library\Core\Json\Json;
@@ -27,13 +27,13 @@ class Assets
      * @see instance instance constructor
      * @var string
      */
-    protected $sBuildePath = 'min/';
+    protected $sBuildPath = 'min/';
 
     /**
      * Supported asset types
      * @var array
      */
-    protected $aAssetTypes = array(
+    protected $aAllowedAssetTypes = array(
         self::TYPE_JAVASCRIPT,
         self::TYPE_STYLESHEET
     );
@@ -47,7 +47,7 @@ class Assets
     public function __construct()
     {
         // Build paths
-        $this->sBuildPath =   PUBLIC_PATH . $this->sBuildePath;
+        $this->sBuildPath =   PUBLIC_PATH . $this->sBuildPath;
 
         // Load client component package's assets
         $this->load();
@@ -81,7 +81,7 @@ class Assets
      * Minify and concatenate all client components
      *
      * @throws AssetsException
-     * @return boolean|array                  TRUE if all went smooth otherwhise the log as an array
+     * @return boolean|array                  TRUE if all went smooth otherwise the log as array
      */
     public function build()
     {
@@ -93,35 +93,85 @@ class Assets
 
             // Minify component assets
             foreach ($aLibFilesPaths as $sAssetType=>$aLibFilesPaths) {
-                if ($sAssetType === self::TYPE_JAVASCRIPT) {
-                    foreach ($aLibFilesPaths as $sJsAsset) {
-                    	if (substr($sJsAsset, 0, 1) === DIRECTORY_SEPARATOR) {
-                    		$sJsAsset = substr($sJsAsset, 1);
-                    	}
-                        $sMinifiedJsCode .= Minify::js(File::getContent(PUBLIC_PATH . $sJsAsset));
+
+                foreach ($aLibFilesPaths as $sAsset) {
+
+                    # Check and clean for DIRECTORY_SEPARATOR at start
+                    if (substr($sAsset, 0, 1) === DIRECTORY_SEPARATOR) {
+                        $sAsset = substr($sAsset, 1);
                     }
-                } elseif ($sAssetType === self::TYPE_STYLESHEET) {
-                    foreach ($aLibFilesPaths as $sCssAsset) {
-                        // Correct the absolute path path if needed
-                        if (substr($sCssAsset, 0, 1) === DIRECTORY_SEPARATOR) {
-                            $sCssAsset = substr($sCssAsset, 1);
+
+                    $sCode = File::getContent(PUBLIC_PATH . $sAsset);
+                    if ($sCode !== false && empty($sCode) === false) {
+                        switch($sAssetType) {
+                            case self::TYPE_JAVASCRIPT :
+                                $sMinifiedJsCode .= Minify::js($sCode);
+                                break;
+                            case self::TYPE_STYLESHEET :
+                                $sMinifiedCssCode .= Minify::css($sCode);
+                                break;
                         }
-                        $sMinifiedCssCode .= Minify::css(File::getContent(PUBLIC_PATH . $sCssAsset));
+
                     }
                 }
+
             }
 
-            if (! empty($sMinifiedJsCode)) {
-                $aBuiltLog[$sPackageName . '_js']  = File::write($this->sBuildPath . $sPackageName . '.min.js', $sMinifiedJsCode);
+            if (empty($sMinifiedJsCode) === false) {
+                $aBuiltLog[$sPackageName . '_js'] = $this->writeMinifiedComponent(
+                    $sMinifiedJsCode,
+                    $sPackageName,
+                    self::TYPE_JAVASCRIPT
+                );
             }
 
-            if (! empty($sMinifiedCssCode)) {
-                $aBuiltLog[$sPackageName . '_css'] = File::write($this->sBuildPath . $sPackageName . '.min.css', $sMinifiedCssCode);
+            if (empty($sMinifiedCssCode) === false) {
+                $aBuiltLog[$sPackageName . '_css'] = $this->writeMinifiedComponent(
+                    $sMinifiedCssCode,
+                    $sPackageName,
+                    self::TYPE_STYLESHEET
+                );
             }
+
 
         }
 
         return (in_array(false, $aBuiltLog) === false) ? true : $aBuiltLog;
+    }
+
+    /**
+     * Persist minified code on files
+     *
+     * @param string $sMinifiedCssCode
+     * @param string $sPackageName
+     * @param string $sAssetType
+     */
+    private function writeMinifiedComponent($sMinifiedCssCode, $sPackageName, $sAssetType)
+    {
+        $sMinifiedFileName = $this->computeMinifiedFilePath($sPackageName, $sAssetType);
+        if (empty($sMinifiedCssCode) === false) {
+            return File::write(
+                $sMinifiedFileName,
+                $sMinifiedCssCode
+            );
+        }
+
+        # Clean minified component not needed anymore
+        if (File::exists($sMinifiedFileName) === true) {
+            File::delete($sMinifiedFileName);
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $sPackageName
+     * @param string $sAssetType
+     * @return string
+     */
+    private function computeMinifiedFilePath($sPackageName, $sAssetType)
+    {
+        return $this->sBuildPath . $sPackageName . '.min.' . $sAssetType;
     }
 
     /**
@@ -155,7 +205,7 @@ class Assets
      * Register assets
      *
      * @param string $sFilePath             Absolute asset file path
-     * @param string $sType                 Asset type (must be declared on $this->aAssetTypes)
+     * @param string $sType                 Asset type (must be declared on $this->aAllowedAssetTypes)
      * @param string $sPackageName          Assets package name
      * @throws AssetsException
      * @return boolean                      TRUE if all went smooth otherwhise FALSE
@@ -164,7 +214,7 @@ class Assets
     {
         if (empty($sFilePath) && ! File::exists($sFilePath)) {
             throw  new AssetsException('Asset doesn\'t exists or no parameter provided.');
-        } elseif(!in_array($sType, $this->aAssetTypes)) {
+        } elseif(!in_array($sType, $this->aAllowedAssetTypes)) {
             throw  new AssetsException('Asset type (' . $sType . ') not supported.');
         } else {
             $this->aAssets[$sPackageName][$sType][] = $sFilePath;
@@ -179,6 +229,29 @@ class Assets
     public function get()
     {
         return $this->aAssets;
+    }
+
+    /**
+     * Resolve available assets by type for a given client component
+     *
+     * @param string $sPackageName
+     * @param string $sAssetType
+     * @return null|string
+     */
+    public function getMinifiedPublicPath($sPackageName, $sAssetType)
+    {
+        $sMinifiedPath = $this->computeMinifiedFilePath($sPackageName, $sAssetType);
+        return (File::exists($sMinifiedPath))
+            ? str_replace(PUBLIC_PATH, '/', $sMinifiedPath)
+            : null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedAssetTypes()
+    {
+        return $this->aAllowedAssetTypes;
     }
 }
 

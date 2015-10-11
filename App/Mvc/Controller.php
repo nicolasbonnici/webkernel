@@ -2,6 +2,7 @@
 namespace Library\Core\App\Mvc;
 
 use app\Entities\User;
+use bundles\auth\Models\AuthModel;
 use Library\Core\Acl;
 use Library\Core\App\Bundles;
 use Library\Core\App\Cookie;
@@ -100,6 +101,13 @@ class Controller extends Acl
     protected $oSession;
 
     /**
+     * Currently logged user instance
+     *
+     * @type \app\Entities\User
+     */
+    protected $oUser;
+
+    /**
      * Controller instance constructor
      *
      * @param \app\Entities\User|NULL $oUser
@@ -108,24 +116,26 @@ class Controller extends Acl
      */
     public function __construct($oUser = null, $oBundleConfig = null)
     {
+        $this->startSession();
+
+        $this->loadRequest();
+
         $this->aConfig = \Library\Core\Bootstrap::getConfig();
         if (! is_null($oBundleConfig)) {
             $this->oBundleConfig = $oBundleConfig;
         }
 
-        $this->loadRequest();
+        if (is_null($oUser) === false && $oUser instanceof User && $oUser->isLoaded()) {
+            $this->oUser = $oUser;
+        } else {
+            # Try to find a user even if the Controller doesn't extend Auth
+            $this->getLoggedUser();
+        }
+        $this->loadAcl($this->oUser);
 
         // Load a view instance
         $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
         $this->oView = new View($bLoadAllViewPaths);
-
-        if (! is_null($oUser) && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
-            $this->oUser = $oUser;
-            // Check ACL parent component if we have a logged user
-            parent::__construct($oUser);
-        } else {
-            $this->oUser = null;
-        }
 
         // Init Cookie component instance
         $this->oCookie = new Cookie();
@@ -135,67 +145,21 @@ class Controller extends Acl
 
             $this->loadTranslations();
 
-            // Init session if the controller class doesn't extends Auth component
-            if (($this->oSession instanceof Session) === false) {
-                $this->oSession = Session::getInstance();
-            }
-
-            $this->aView['aSession'] = $this->oSession->get();
-            // @todo provisoire
-            if (isset($this->aView['aSession']['auth'])) {
-                $aUserSession = $this->aView['aSession']['auth'];
-                $this->aView['sGravatarSrc16'] = Tools::getGravatar($aUserSession['mail'], 16);
-                $this->aView['sGravatarSrc32'] = Tools::getGravatar($aUserSession['mail'], 32);
-                $this->aView['sGravatarSrc64'] = Tools::getGravatar($aUserSession['mail'], 64);
-                $this->aView['sGravatarSrc128'] = Tools::getGravatar($aUserSession['mail'], 128);
-            }
-
-            // Views common couch
-            $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
-            $this->aView["helpers"] = '../../../app/Views/helpers/';
-
-            // Bootstrap
-            $oBundles = new Bundles();
-            $this->aView["aAppBundles"] = $oBundles->get();
-            $this->aView["sAppName"] = $this->aConfig['app']['name'];
-            $this->aView["sAppSupportName"] = $this->aConfig['support']['name'];
-            $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
-            $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
-
-            // MVC infos
-            $this->aView['sBundle'] = $this->sBundle;
-            $this->aView["sController"] = $this->sController;
-            $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
-            $this->aView["sAction"] = $this->sAction;
-            $this->aView["sActionName"] = substr($this->sAction, 0, strlen($this->sAction) - strlen('action'));
-
-            // debug
-            $this->aView["sEnv"] = ENV;
-            $this->aView["aLoadedClass"] = Bootstrap::getAutoloaderInstance()->getLoadedClass();
-            $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
-            $this->aView["bIsXhr"] = $this->isXHR();
-
-            // Benchmark
-            $this->aView["render_time"] = microtime(true);
-            $this->aView['framework_started'] = FRAMEWORK_STARTED;
-            $this->aView['current_timestamp'] = time();
-            $this->aView['rendered_time'] = round($this->aView["render_time"] - FRAMEWORK_STARTED, 3);
+            $this->loadViewParameters();
 
             // @see pre dispatch action hook
             if (method_exists($this, '__preDispatch')) {
 
                 try {
                     $this->__preDispatch();
-
-                    // Load assets dependancies for client components (can be overide under the __preDispatch() method)
-                    $this->aView['sComponentsDependancies'] = $this->oView->getClientComponents();
-
                 } catch (\Exception $oException) {
-                    throw new ControllerException('Pre dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
+                    throw new ControllerException(
+                        'Pre dispatch action throw an exception: ' . $oException->getMessage(),
+                        $oException->getCode()
+                    );
                     exit();
                 }
             }
-
 
             // Run mothafucka run!
             $this->{$this->sAction}();
@@ -205,14 +169,12 @@ class Controller extends Acl
 
                 try {
                     $this->__postDispatch();
-
                 } catch (\Exception $oException) {
                     throw new ControllerException('Post dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
                     exit();
                 }
             }
         } else {
-
             throw new ControllerException(__CLASS__ . ' Error cannot find action ' . $this->sAction);
         }
 
@@ -334,16 +296,6 @@ class Controller extends Acl
         $this->aView["lang"] = $this->sLang;
         $this->aView["tr"] = $oTranslation->getTranslations();
     }
-    
-    /**
-     * Dynamicaly build the logged user if needed for a public Controller 
-     * @return mixed NULL, \Library\Core\User
-     */
-    public function getLoggedUser()
-    {
-        $aSession = $this->oSession->get();
-    	return (isset($aSession['auth']['iduser']) === true) ? new User(intval($aSession['auth']['iduser'])) : null;
-    }
 
     /*
      * Get an array of all Controllers and methods for a given module
@@ -396,11 +348,57 @@ class Controller extends Acl
         return $aActions;
     }
 
-    /**
-     * ********************************
-     *
-     * @todo grep et supprimer
-     */
+    protected function loadAcl($oUser)
+    {
+        if (is_null($oUser) === false && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
+            // Check ACL parent component if we have a logged user
+            parent::__construct($oUser);
+        } else {
+            $this->oUser = null;
+        }
+    }
+
+    protected function loadViewParameters()
+    {
+        $this->aView['aSession'] = $this->oSession->get();
+        // @todo provisoire
+        if (isset($this->aView['aSession']['auth'])) {
+            $aUserSession = $this->aView['aSession']['auth'];
+            $this->aView['sGravatarSrc16'] = Tools::getGravatar($aUserSession['mail'], 16);
+            $this->aView['sGravatarSrc32'] = Tools::getGravatar($aUserSession['mail'], 32);
+            $this->aView['sGravatarSrc64'] = Tools::getGravatar($aUserSession['mail'], 64);
+            $this->aView['sGravatarSrc128'] = Tools::getGravatar($aUserSession['mail'], 128);
+        }
+
+        // Views common couch
+        $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
+        $this->aView["helpers"] = '../../../app/Views/helpers/';
+
+        // Bootstrap
+        $oBundles = new Bundles();
+        $this->aView["aAppBundles"] = $oBundles->get();
+        $this->aView["sAppName"] = $this->aConfig['app']['name'];
+        $this->aView["sAppSupportName"] = $this->aConfig['support']['name'];
+        $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
+        $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
+
+        // MVC infos
+        $this->aView['sBundle'] = $this->sBundle;
+        $this->aView["sController"] = $this->sController;
+        $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
+        $this->aView["sAction"] = $this->sAction;
+        $this->aView["sActionName"] = substr($this->sAction, 0, strlen($this->sAction) - strlen('action'));
+
+        // debug
+        $this->aView["sEnv"] = ENV;
+        $this->aView["sDeBugHelper"] = '../../../app/Views/helpers/debug.tpl';
+        $this->aView["bIsXhr"] = $this->isXHR();
+
+        // Benchmark
+        $this->aView['framework_started'] = FRAMEWORK_STARTED;
+        $this->aView['current_timestamp'] = time();
+    }
+
     public function getBundle()
     {
         return $this->sBundle;
@@ -444,6 +442,72 @@ class Controller extends Acl
     public function setLang($slang)
     {
         $this->sLang = $slang;
+    }
+
+    /**
+     * Retrieve loggued User instance
+     * @return User|null
+     */
+    protected function getLoggedUser()
+    {
+        if ($this->oUser instanceof User && $this->oUser->isLoaded() === true) {
+            return $this->oUser;
+        } elseif ($this->loadBySession() === true) {
+            return $this->oUser;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Method to retrieve User on a non Auth Controller
+     */
+    protected function loadBySession()
+    {
+        $this->oUser = new User();
+        try {
+            $aSession = $this->oSession->get();
+            if (isset($aSession[Auth::SESSION_AUTH_KEY]) === true) {
+                $this->oUser->loadByParameters(array(
+                    'iduser' => $aSession[Auth::SESSION_AUTH_KEY]['iduser'],
+                    'mail' => $aSession[Auth::SESSION_AUTH_KEY]['mail'],
+                    'token' => $aSession[Auth::SESSION_AUTH_KEY]['token'],
+                    'confirmed' => AuthModel::USER_ACTIVATED_STATUS,
+                    'created' => $aSession[Auth::SESSION_AUTH_KEY]['created']
+                ));
+
+                if ($this->oUser->isLoaded()) {
+
+                    $aUserAuth = array();
+                    foreach ($this->oUser as $key => $mValue) {
+                        $aUserAuth[$key] = $mValue;
+                    }
+                    // Regenerate session token
+                    $aUserAuth['token'] = $this->generateToken();
+
+                    // Unset password
+                    unset($aUserAuth['pass']);
+
+                    $this->oSession->add('auth', $aUserAuth);
+
+                    $this->oUser->token = $aUserAuth['token'];
+                    return $this->oUser->update();
+                }
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
+        }
+    }
+
+    /**
+     * Generate session token for User
+     *
+     * @return string
+     */
+    private function generateToken()
+    {
+        return hash('SHA256', uniqid((double) microtime() * 1000000, true));
     }
 }
 

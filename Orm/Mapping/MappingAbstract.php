@@ -1,9 +1,8 @@
 <?php
 namespace Library\Core\Orm\Mapping;
 
-use Library\Core\CoreException;
+use Library\Core\Exception\CoreException;
 use Library\Core\Orm\Entity;
-use Library\Core\Orm\EntityCollection;
 
 
 /**

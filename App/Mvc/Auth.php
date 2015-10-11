@@ -18,78 +18,22 @@ class Auth extends Controller
 
     const SESSION_AUTH_KEY = 'auth';
 
-    /**
-     * Currently logged user instance
-     *
-     * @type \app\Entities\User
-     */
-    protected $oUser;
-
     public function __construct()
     {
         $this->loadRequest();
         $this->startSession();
 
-        // Try to retrieve session token
+        // If a session was found we check the integrity
         $aSession = $this->oSession->get();
         if (
-        	isset($aSession['auth']) === true &&
-        	$this->checkSessionintegrity()
+        	isset($aSession[Auth::SESSION_AUTH_KEY]) === true &&
+        	$this->loadBySession() === true &&
+            $this->oUser->isLoaded() === true
 		) {
-            parent::__construct($this->oUser, $this->oBundleConfig);
+            parent::__construct($this->oUser);
         } else {
             $this->redirect($this->buildRedirectUrl(Router::getBundle(), Router::getController(), Router::getAction()));
         }
-    }
-
-    /**
-     * Validate session integrity
-     *
-     * @return bool
-     */
-    protected function checkSessionintegrity()
-    {
-        $this->oUser = new User();
-        try {
-            $aSession = $this->oSession->get('auth');
-            $this->oUser->loadByParameters(array(
-                'iduser' => $aSession['iduser'],
-                'mail' => $aSession['mail'],
-                'token' => $aSession['token'],
-                'confirmed' => AuthModel::USER_ACTIVATED_STATUS,
-                'created' => $aSession['created']
-            ));
-
-            if ($this->oUser->isLoaded()) {
-
-                $aUserAuth = array();
-                foreach ($this->oUser as $key => $mValue) {
-                    $aUserAuth[$key] = $mValue;
-                }
-                // Regenerate session token
-                $aUserAuth['token'] = $this->generateToken();
-
-                // Unset password
-                unset($aUserAuth['pass']);
-
-                $this->oSession->add('auth', $aUserAuth);
-
-                $this->oUser->token = $aUserAuth['token'];
-                return $this->oUser->update();
-            }
-        } catch (\Exception $oException) {
-            return false;
-        }
-    }
-
-    /**
-     * Generate session token
-     *
-     * @return string
-     */
-    private function generateToken()
-    {
-        return hash('SHA256', uniqid((double) microtime() * 1000000, true));
     }
 
     /**

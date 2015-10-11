@@ -73,7 +73,6 @@ class Bootstrap
         // Grab microtime for benchmark purposes
         define('FRAMEWORK_STARTED', microtime(true));
 
-        // @todo SGBD infos
         self::$sPhpVersion = PHP_VERSION;
 
         // @todo from conf
@@ -285,6 +284,8 @@ class Bootstrap
 
     /**
      * Register all paths
+     *
+     * @todo delete and use class constant
      */
     public static function initPaths()
     {

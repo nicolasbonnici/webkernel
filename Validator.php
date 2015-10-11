@@ -25,6 +25,7 @@ class Validator
      * PHP validators *
      * ****************
      */
+
     /**
      * Check that given argument is an integer
      *
@@ -279,6 +280,7 @@ class Validator
      * Member validators *
      * *******************
      */
+
     /**
      * Check civility value
      *

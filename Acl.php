@@ -43,7 +43,7 @@ abstract class Acl
     /**
      * User instance current group
      *
-     * @var \bundles\user\Entities\Mapping\Collection\UserGroupCollection
+     * @var UserGroupCollection
      */
     protected $oGroups;
 
@@ -95,7 +95,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->create)
         ) {
-            return ($oRights->create === 1);
+            return (bool) ($oRights->create === 1);
         }
 
         return false;
@@ -113,7 +113,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->read)
         ) {
-            return ($oRights->read === 1);
+            return (bool) ($oRights->read === 1);
         }
 
         return false;
@@ -131,7 +131,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->update)
         ) {
-            return ($oRights->update === 1);
+            return (bool) ($oRights->update === 1);
         }
 
         return false;
@@ -149,7 +149,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->delete)
         ) {
-            return ($oRights->delete === 1);
+            return (bool) ($oRights->delete === 1);
         }
 
         return false;
@@ -167,7 +167,7 @@ abstract class Acl
             (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
             isset($oRights->list)
         ) {
-            return ($oRights->list === 1);
+            return (bool) ($oRights->list === 1);
         }
 
         return false;
@@ -216,8 +216,8 @@ abstract class Acl
             $this->oGroups->loadByParameters(array(
                 'user_iduser' => $this->oUser->getId()
             ));
-        } catch (CoreEntityException $oException) {
-            throw new AclException('Error: No group found for user');
+        } catch (\Exception $oException) {
+            throw new AclException('Error: Unable to load group for given user');
         }
         return $this->oGroups->hasItem();
     }
@@ -242,7 +242,7 @@ abstract class Acl
 	            ));
 	        }
 	        return ($this->oPermissions->count() > 0) ? true : false;
-        } catch (CoreEntityException $oException) {
+        } catch (AclException $oException) {
         	return false;
         }
     }
@@ -266,7 +266,7 @@ abstract class Acl
                 $this->oRessources->loadByParameters(array(
                     'idressource' => $aAvailableRessources
                 ));
-            } catch (CoreEntityException $oException) {}
+            } catch (AclException $oException) {}
         }
 
         return $this->oRessources->count() > 0;

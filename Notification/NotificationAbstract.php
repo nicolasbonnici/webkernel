@@ -23,6 +23,13 @@ abstract class NotificationAbstract {
     private $sRecipient;
 
     /**
+     * Notification CC recipients
+     * @var array
+     */
+    private $aCopyRecipients = array();
+
+
+    /**
      * From expeditor
      * @var string
      */
@@ -67,6 +74,22 @@ abstract class NotificationAbstract {
     {
         $this->sRecipient = $sRecipient;
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCopyRecipients()
+    {
+        return $this->aCopyRecipients;
+    }
+
+    /**
+     * @param array $aCopyRecipients
+     */
+    public function setCopyRecipients(array $aCopyRecipients)
+    {
+        $this->aCopyRecipients = $aCopyRecipients;
     }
 
     /**

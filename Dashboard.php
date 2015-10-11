@@ -1,7 +1,9 @@
 <?php
 namespace Library\Core;
 
-use Library\Core\Database\Database;
+use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Select;
+use Library\Core\Orm\Crud;
 use Library\Core\Orm\Entity;
 
 /**
@@ -28,8 +30,6 @@ class Dashboard extends Crud {
 	/**
 	 * Count any entity with or without parameters
 	 *
-     * @todo implement query component
-     *
 	 * @param Entity $oEntity
 	 * @param array $aWhereClause
 	 * @return number
@@ -38,21 +38,11 @@ class Dashboard extends Crud {
 	{
 		try {
 
-
-            /**
-             * @todo Implement Query Select
-             */
-
-			$sWhereCondition = '';
-			if (count($aWhereClause) > 0) {
-				$sWhereCondition = ' WHERE ';
-				foreach ($aWhereClause as $sField => $mValue) {
-					$sWhereCondition .= ' `' . $sField . '` = :' . $sField;
-				}
-			}
-
-			$sQuery = 'SELECT COUNT(1) FROM `' . $oEntity->getTableName() . '`' . $sWhereCondition;
-			$oStatement = Database::dbQuery($sQuery, $aWhereClause);
+            $oSelectQuery = new Select();
+            $oSelectQuery->addColumn('COUNT(1)')
+                ->setFrom($oEntity->getTableName())
+                ->addWhereConditions($aWhereClause);
+			$oStatement = Pdo::dbQuery($oSelectQuery->build(), $aWhereClause);
 			if ($oStatement !== false) {
 				return (int) $oStatement->fetchColumn();
 			}

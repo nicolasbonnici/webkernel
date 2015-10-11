@@ -13,6 +13,25 @@ use Library\Core\Pattern\Singleton;
 class FileSystem extends Singleton {
 
     /**
+     * File types that can be base64 encoded
+     * @var array
+     */
+    protected $aFileTypes = array(
+        "js"	=> "text/javascript",
+        "css"	=> "text/css",
+        "htm"	=> "text/html",
+        "html"	=> "text/html",
+        "xml"	=> "text/xml",
+        "txt"	=> "text/plain",
+        "jpg"	=> "image/jpeg",
+        "jpeg"	=> "image/jpeg",
+        "png"	=> "image/png",
+        "gif"	=> "image/gif",
+        "swf"	=> "application/x-shockwave-flash",
+        "ico"	=> "image/x-icon"
+    );
+
+    /**
      * php chmod native function enhancement to add a recursive option
      *
      * @param string $sAbsolutePath             Absolute path

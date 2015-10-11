@@ -1,23 +1,18 @@
 <?php
 namespace Library\Core\Database;
+use Library\Core\Pattern\Singleton;
 
 /**
- * Manage SGBD with PDO
+ * PDO abstract layer
  *
  * @todo extends Singleton component
  */
-class Database
+class Pdo extends Singleton
 {
 
     /**
-     *
-     * @var object Library\Core\Database instance
-     */
-    private static $_instance;
-
-    /**
-     *
-     * @var object PDO instance
+     * PDO instance
+     * @var \Pdo
      */
     protected static $_link;
 
@@ -59,60 +54,16 @@ class Database
 
     /**
      * SGBD last link ressource
-     * @var ressource
      */
     protected static $_sLastLink = array();
 
     /**
-     * Benchmark SGBD queries
-     * @var array
+     * Instance constructor, connect to database
+     * @throws DatabaseException
      */
-    protected static $_aBenchmark = array(
-        'master' => array(
-            'time' => 0.0,
-            'queries_count' => 0,
-            'queries_list' => array()
-        ),
-        'slave' => array(
-            'time' => 0.0,
-            'queries_count' => 0,
-            'queries_list' => array()
-        )
-    );
-
-    /**
-     * Constructeur
-     *
-     * @param
-     *            void
-     * @return void
-     * @see PDO::__construct()
-     * @access private
-     */
-    public function __construct()
+    protected function __construct()
     {
         $this->setLink();
-
-        return;
-    }
-
-    /**
-     * Get Database instance
-     */
-    public function getInstance()
-    {
-        if (! self::$_instance instanceof self) {
-            self::$_instance = new self();
-        }
-
-        return self::$_instance;
-    }
-
-    /**
-     * Instance is a singleton so block cloning it
-     */
-    final public function __clone()
-    {
         return;
     }
 
@@ -145,51 +96,67 @@ class Database
     }
 
     /**
+     * Begin transactional mode
+     * @return bool
+     */
+    public static function beginTransaction()
+    {
+        return self::$_link->beginTransaction();
+    }
+
+    /**
+     * Close transactional mode to autocommit mode
+     * @return mixed
+     */
+    public function closeTransaction()
+    {
+        return self::closeTransaction();
+    }
+
+    /**
+     * Commit a PDO transaction
+     * @return bool
+     */
+    public static function commit()
+    {
+        return self::$_link->commit();
+    }
+
+    /**
+     * Rollback current transaction
+     * @return bool
+     */
+    public function rollback()
+    {
+        return self::$_link->rollBack();
+    }
+
+    /**
      * Execute an SQL query
      *
-     * @param string $sQuery
-     *            SQL query to execute
-     * @param array $aValues
-     *            Binded values
-     * @param string $sLink
-     *            Database link (master or slave)
-     * @return \PDOStatement boolean result PDO statement
+     * @param string $sQuery SQL query to execute
+     * @param array $aValues Binded values
+     * @return \PDOStatement
      */
-    public static function dbQuery($sQuery, array $aValues = array(), $sLink = 'slave')
+    public static function dbQuery($sQuery, array $aValues = array())
     {
         assert('is_string($sQuery)');
-
-        // if ($sLink === 'slave' && self::isMasterQuery($sQuery)) {
-        // $sLink = 'master';
-        // }
 
         try {
             if (! isset(self::$_link)) {
                 self::setLink();
             }
 
-            $fStart = microtime(true);
             $oStatement = self::$_link->prepare($sQuery, array(
                 \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
             ));
             $oStatement->execute($aValues);
 
-            // Must be after query successful execution
-            self::$_sLastLink = $sLink;
-            self::$_aBenchmark[$sLink]['time'] += microtime(true) - $fStart;
-            self::$_aBenchmark[$sLink]['queries_count'] ++;
-            self::$_aBenchmark[$sLink]['queries_list'][] = $sQuery;
-
             return $oStatement;
         } catch (\Exception $oException) {
-            self::$_errors[] = array(
-                'query' => $sQuery,
-                'server' => $sLink,
-                'error' => $oException->getMessage()
-            );
 
             if (defined('ENV') && ENV === 'dev') {
-                echo $oException->getMessage();
+                throw $oException;
             }
 
             return false;
@@ -198,8 +165,7 @@ class Database
 
     /**
      * Retrieve last inserted ID
-     *
-     * @see PDO::lastInsertId
+     * @return int
      */
     public static function lastInsertId()
     {

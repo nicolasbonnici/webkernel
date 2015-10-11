@@ -106,7 +106,7 @@ class EntityMapperTest extends Test
     {
         for ($i = 0; $i < 100; $i++) {
             $oDummy3 = new Dummy3();
-            $oDummy3->string = 'Test entity mapper';
+            $oDummy3->int = 33;
             $this->assertTrue(
                 $this->oEntityMapperInstance->store($oDummy3),
                 'Unable to store a one to many Entities mapping'

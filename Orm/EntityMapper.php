@@ -92,9 +92,9 @@ class EntityMapper
      * @param $oMappedEntity
      * @return bool
      */
-    public function store($oMappedEntity)
+    public function store(Entity $oMappedEntity)
     {
-        $aMappingSetup = $this->getMappingConfiguration(get_class($oMappedEntity));
+        $aMappingSetup = $this->getMappingConfiguration($oMappedEntity->getChildClass());
         $oMapper = $this->getMapper($aMappingSetup[MappingAbstract::KEY_MAPPING_TYPE]);
         if (is_null($oMapper) === false && $oMapper instanceof MappingAbstract) {
             return $oMapper->store($oMappedEntity);

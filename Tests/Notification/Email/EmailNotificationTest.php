@@ -24,6 +24,12 @@ class EmailNotificationTest extends Test {
     {
         $aInstanceAccessors = $this->getAccessors($this->oEmailNotificationInstance);
         foreach ($aInstanceAccessors['setter'] as $sSetterMethod) {
+
+            if ($sSetterMethod === 'setCopyRecipients') {
+                $this->oEmailNotificationInstance->{$sSetterMethod}(array('toto@tata.fr', 'titi@tata.com'));
+                continue;
+            }
+
             $this->assertInstanceOf(
                 '\Library\Core\Notification\Email\EmailNotification',
                 $this->oEmailNotificationInstance->{$sSetterMethod}(1),
@@ -32,6 +38,16 @@ class EmailNotificationTest extends Test {
         }
 
         foreach ($aInstanceAccessors['getter'] as $sGetterMethod) {
+
+            if ($sGetterMethod === 'getCopyRecipients') {
+                $this->assertEquals(
+                    array('toto@tata.fr', 'titi@tata.com'),
+                    $this->oEmailNotificationInstance->{$sGetterMethod}(),
+                    'Accessor ' . $sGetterMethod . ' of class ' . get_class($this->oEmailNotificationInstance) .' failed'
+                );
+                continue;
+            }
+
             $this->assertEquals(
                 1,
                 $this->oEmailNotificationInstance->{$sGetterMethod}(),
@@ -46,6 +62,7 @@ class EmailNotificationTest extends Test {
         $this->oEmailNotificationInstance->setSubject('Test subject');
         $this->oEmailNotificationInstance->setExpeditor('test@domain.tld');
         $this->oEmailNotificationInstance->setRecipient('root@localhost');
+        $this->oEmailNotificationInstance->setCopyRecipients(array('root@localhost'));
         $this->oEmailNotificationInstance->setMessage('Message de test.');
 
         /** @var \Swift_Message $oSwiftMessage */
@@ -56,6 +73,7 @@ class EmailNotificationTest extends Test {
         $this->assertArrayHasKey('test@domain.tld', $oSwiftMessage->getFrom());
         $this->assertArrayHasKey('root@localhost', $oSwiftMessage->getTo());
         $this->assertEquals('Message de test.', $oSwiftMessage->getBody());
+        $this->assertEquals(array('root@localhost' => null), $oSwiftMessage->getCc());
     }
 
 }

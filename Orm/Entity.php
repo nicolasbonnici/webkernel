@@ -2,13 +2,16 @@
 namespace Library\Core\Orm;
 
 use Library\Core\Cache;
-use Library\Core\Database\Database;
+use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Operators;
+use Library\Core\Database\Query\Query;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Where;
 
 /**
  * On the fly ORM CRUD managment abstract class
  *
+ * @todo implement Query compoent
  * @todo decouper en composants unit testés
  *
  * @author Antoine <antoine.preveaux@bazarchic.com>
@@ -98,6 +101,13 @@ abstract class Entity extends EntityAttributes
     protected $aMappingConfiguration = array();
 
     /**
+     * List of entity fields (parsed from database)
+     *
+     * @var array
+     */
+    protected $aFields = array();
+
+    /**
      * Constructor
      *
      * @param mixed $mPrimaryKey
@@ -181,9 +191,17 @@ abstract class Entity extends EntityAttributes
             throw new EntityException('No parameter provided for loading object of type ' . get_called_class());
         }
 
+        $oSelectQuery = new Select();
+        # Build where condition
+        foreach ($aParameters as $mKey => $mValue) {
+            $oSelectQuery->addWhereCondition(Operators::equal($mKey), Query::QUERY_WHERE_CONNECTOR_AND);
+        }
+        $oSelectQuery->addColumn('*')
+            ->setFrom($this->getTableName());
+
         return $this->loadByQuery(
-            'SELECT * FROM ' . static::TABLE_NAME .
-                ' WHERE `' . implode('` = ? AND `', array_keys($aParameters)) . '` = ? ', array_values($aParameters),
+            $oSelectQuery->build(),
+            $aParameters,
             true,
             Cache::getKey(__METHOD__, $aParameters)
         );
@@ -196,9 +214,6 @@ abstract class Entity extends EntityAttributes
      * @param string $sQuery
      *            SQL query to use for loading object
      * @param array $aBindedValues
-     *            Binded values for query
-     * @param boolean $bUseCache
-     *            Whether object caching must be used to retrieve data or not
      * @param string $sCacheKey
      *            Cache key for given query
      * @return boolean TRUE if object was successfully loaded, otherwise FALSE
@@ -217,7 +232,7 @@ abstract class Entity extends EntityAttributes
         if (! isset($aObject) || $aObject === false) {
             $bRefreshCache = true;
 
-            if (($oStatement = Database::dbQuery($sQuery, $aBindedValues)) === false) {
+            if (($oStatement = Pdo::dbQuery($sQuery, $aBindedValues)) === false) {
                 throw new EntityException('Unable to construct object of class ' . get_called_class() . ' with query ' . $sQuery);
             }
 
@@ -259,7 +274,7 @@ abstract class Entity extends EntityAttributes
     }
 
     /**
-     * Add record corresponding to object to database
+     * Add record corresponding to object on database
      *
      * @return boolean TRUE if record was successfully inserted, otherwise FALSE
      * @throws EntityException
@@ -294,9 +309,9 @@ abstract class Entity extends EntityAttributes
         }
 
         try {
-        	$sQuery = 'INSERT INTO ' . static::TABLE_NAME . '(`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
-            $oStatement = Database::dbQuery($sQuery, $aInsertedValues);
-            $this->{static::PRIMARY_KEY} = Database::lastInsertId();
+        	$sQuery = 'INSERT INTO `' . static::TABLE_NAME . '` (`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
+            $oStatement = Pdo::dbQuery($sQuery, $aInsertedValues);
+            $this->{static::PRIMARY_KEY} = Pdo::lastInsertId();
             return $this->bIsLoaded = ($oStatement !== false && intval($this->{static::PRIMARY_KEY}) > 0);
             
         } catch (\Exception $oException) {
@@ -349,7 +364,7 @@ abstract class Entity extends EntityAttributes
                 $aUpdatedValues[] = $this->{$sLastUpdateFieldName};
             }
 
-            $oStatement = Database::dbQuery(
+            $oStatement = Pdo::dbQuery(
                 'UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ?
                 WHERE `' . static::PRIMARY_KEY . '` = ?',
                 $aUpdatedValues
@@ -379,7 +394,7 @@ abstract class Entity extends EntityAttributes
         }
 
         try {
-            $oStatement = Database::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
+            $oStatement = Pdo::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
                 $this->{static::PRIMARY_KEY}
             ));
             $this->reset();
