@@ -4,11 +4,11 @@ namespace Library\Core\App\Mvc;
 use app\Entities\User;
 use bundles\auth\Models\AuthModel;
 use Library\Core\Acl;
-use Library\Core\App\Bundles;
+use Library\Core\App\Bundles\Bundle;
+use Library\Core\App\Bundles\Bundles;
 use Library\Core\App\Cookie;
 use Library\Core\App\Mvc\View\View;
 use Library\Core\App\Session;
-use Library\Core\Bootstrap;
 use Library\Core\Router;
 use Library\Core\Tools;
 use Library\Core\Translation\Translation;
@@ -21,14 +21,18 @@ use Library\Core\Translation\Translation;
 class Controller extends Acl
 {
 
+    const CONTROLLER_PRE_DISPATCH_METHOD_NAME   = '__preDispatch';
+    const CONTROLLER_POST_DISPATCH_METHOD_NAME  = '__postDispatch';
+
     /**
-     * XHR Errors codes
+     * HTTP status codes
      *
      * @var integer
      */
     const XHR_STATUS_OK = 200;
     const XHR_STATUS_SESSION_EXPIRED = 401;
     const XHR_STATUS_ACCESS_DENIED = 403;
+    const XHR_STATUS_NOT_FOUND = 404;
     const XHR_STATUS_ERROR = 500;
 
     /**
@@ -41,7 +45,7 @@ class Controller extends Acl
      * Requested bundle
      * @var string
      */
-    protected $sBundle;
+    protected $sBundleName;
 
     /**
      * Requested controller
@@ -69,15 +73,9 @@ class Controller extends Acl
     protected $aConfig;
 
     /**
-     * JSON bundle's parsed config
-     * @var object
-     */
-    protected $oBundleConfig;
-
-    /**
      * View instance
      *
-     * @var \Library\Core\View
+     * @var Library\Core\App\Mvc\View\View
      */
     protected $oView;
 
@@ -108,77 +106,111 @@ class Controller extends Acl
     protected $oUser;
 
     /**
+     * Requested bundle instance
+     * @var Bundle
+     */
+    protected $oBundle;
+
+    /**
      * Controller instance constructor
      *
      * @param \app\Entities\User|NULL $oUser
-     * @param string $oBundleConfig     JSON encoded bundle's configuration
      * @throws ControllerException
      */
-    public function __construct($oUser = null, $oBundleConfig = null)
+    public function __construct($oUser = null)
     {
+        # Get current Session instance or create a new one
         $this->startSession();
 
+        # Init Cookie component
+        $this->oCookie = new Cookie();
+
+        # Load and parse HTTP request
         $this->loadRequest();
 
-        $this->aConfig = \Library\Core\Bootstrap::getConfig();
-        if (! is_null($oBundleConfig)) {
-            $this->oBundleConfig = $oBundleConfig;
-        }
-
+        # Try to find a user even if the Controller doesn't extend Auth
         if (is_null($oUser) === false && $oUser instanceof User && $oUser->isLoaded()) {
             $this->oUser = $oUser;
         } else {
-            # Try to find a user even if the Controller doesn't extend Auth
             $this->getLoggedUser();
         }
+
+        # Construct Acl layer parent
         $this->loadAcl($this->oUser);
 
-        // Load a view instance
-        $bLoadAllViewPaths = (($this->sBundle === 'crud') ? true : false);
-        $this->oView = new View($bLoadAllViewPaths);
+        # Load translations
+        $this->loadTranslations();
 
-        // Init Cookie component instance
-        $this->oCookie = new Cookie();
+        # Load generic parameters to pass to the View component
+        $this->loadViewParameters();
+
+        # Load bundle
+        $this->loadBundle();
+
+        # Create a new View instance
+        // @todo ugly, high cost and weak
+        $bLoadAllViewPaths = (($this->sBundleName === 'crud') ? true : false);
+
+        # Build View component to render action
+        $aTemplatePaths = array();
+        if (is_null($this->oBundle) == false && $this->oBundle->hasTemplate() === true) {
+            $aTemplatePaths = array($this->oBundle->getTemplatePath());
+        }
+        $this->oView = new View($bLoadAllViewPaths, $aTemplatePaths);
 
         // @see run action & pre|post dispatch callback (optionnal)
         if (method_exists($this, $this->sAction)) {
 
-            $this->loadTranslations();
 
-            $this->loadViewParameters();
-
+            $sPreDispatchMethodName = self::CONTROLLER_PRE_DISPATCH_METHOD_NAME;
+            $sPostDispatchMethodName = self::CONTROLLER_POST_DISPATCH_METHOD_NAME;
             // @see pre dispatch action hook
-            if (method_exists($this, '__preDispatch')) {
+            if (method_exists($this, $sPreDispatchMethodName) === true) {
 
                 try {
-                    $this->__preDispatch();
+                    $this->$sPreDispatchMethodName();
                 } catch (\Exception $oException) {
                     throw new ControllerException(
                         'Pre dispatch action throw an exception: ' . $oException->getMessage(),
                         $oException->getCode()
                     );
-                    exit();
                 }
+
             }
 
             // Run mothafucka run!
             $this->{$this->sAction}();
 
             // @see post dispatch action hook
-            if (method_exists($this, '__postDispatch')) {
+            if (method_exists($this, $sPostDispatchMethodName)) {
 
                 try {
-                    $this->__postDispatch();
+                    $this->$sPostDispatchMethodName();
                 } catch (\Exception $oException) {
-                    throw new ControllerException('Post dispatch action throw an exception: ' . $oException->getMessage(), $oException->getCode());
-                    exit();
+                    throw new ControllerException(
+                        'Post dispatch method throw an exception: ' . $oException->getMessage(),
+                        $oException->getCode()
+                    );
                 }
+
             }
         } else {
             throw new ControllerException(__CLASS__ . ' Error cannot find action ' . $this->sAction);
         }
 
         return;
+    }
+
+    public function renderView($sView = null)
+    {
+        if (is_null($sView) === true) {
+
+            $sController = strtolower(str_replace('Controller', '', $this->getController()));
+            $sAction = strtolower(str_replace('Action', '', $this->getAction()));
+
+            $sView = $sController . DIRECTORY_SEPARATOR . $sAction . '.tpl';
+        }
+        $this->oView->render($this->aView, $sView);
     }
 
     /**
@@ -215,7 +247,7 @@ class Controller extends Acl
      */
     protected function loadRequest()
     {
-        $this->sBundle = Router::getBundle();
+        $this->sBundleName = Router::getBundle();
         $this->sController = Router::getController() . 'Controller';
         $this->sAction = Router::getAction() . 'Action';
         $this->aParams = Router::getParams();
@@ -292,7 +324,7 @@ class Controller extends Acl
      */
     public function loadTranslations()
     {
-        $oTranslation = new Translation($this->sLang, $this->sBundle);
+        $oTranslation = new Translation($this->sLang, $this->sBundleName);
         $this->aView["lang"] = $this->sLang;
         $this->aView["tr"] = $oTranslation->getTranslations();
     }
@@ -358,6 +390,27 @@ class Controller extends Acl
         }
     }
 
+    /**
+     * Load requested bundle
+     *
+     * @return bool
+     */
+    protected function loadBundle()
+    {
+        try {
+            $sBundleName = $this->getBundleName();
+            if (is_null($sBundleName) === false && empty($sBundleName) === false) {
+                $this->oBundle = new Bundle($sBundleName);
+            } else {
+                $this->oBundle = null;
+            }
+        } catch (\Exception $oException) {
+            $this->oBundle = null;
+        }
+
+        return (bool) (is_null($this->oBundle) !== false);
+    }
+
     protected function loadViewParameters()
     {
         $this->aView['aSession'] = $this->oSession->get();
@@ -380,10 +433,10 @@ class Controller extends Acl
         $this->aView["sAppName"] = $this->aConfig['app']['name'];
         $this->aView["sAppSupportName"] = $this->aConfig['support']['name'];
         $this->aView["sAppSupportMail"] = $this->aConfig['support']['email'];
-        $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundle . '/img/icon.png';
+        $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundleName . '/img/icon.png';
 
         // MVC infos
-        $this->aView['sBundle'] = $this->sBundle;
+        $this->aView['sBundle'] = $this->sBundleName;
         $this->aView["sController"] = $this->sController;
         $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
         $this->aView["sAction"] = $this->sAction;
@@ -399,9 +452,9 @@ class Controller extends Acl
         $this->aView['current_timestamp'] = time();
     }
 
-    public function getBundle()
+    public function getBundleName()
     {
-        return $this->sBundle;
+        return $this->sBundleName;
     }
 
     public function getController()

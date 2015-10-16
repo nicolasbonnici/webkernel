@@ -12,7 +12,7 @@ class Cli
 	 * CLI current username
 	 * @var string
 	 */
-	private $sUsername;
+	private $sUser;
 	
 	public function __construct()
 	{
@@ -21,11 +21,13 @@ class Cli
 	
 	/**
 	 * Run a command on the CLI interface and return result as a string
-	 * 
+	 *
+     * @todo seems like a big wet hole :p
+     *
 	 * @param string $sCommand
 	 * @return string
 	 */
-	protected function run($sCommand)
+	private function run($sCommand)
 	{
 		return passthru($sCommand);
 	}
@@ -36,9 +38,13 @@ class Cli
 	 */
 	private function detectUser()
 	{
-		return $this->sUsername = passthru('whoami');
+		return $this->sUser = $this->run('whoami');
 	}
-	
+
+    public function getUser()
+    {
+        return $this->sUser;
+    }
 }
 
 class CliException extends \Exception

@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\App;
+namespace Library\Core\App\Bundles;
 
 use Library\Core\Cache;
 

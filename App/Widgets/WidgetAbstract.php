@@ -20,14 +20,14 @@ abstract class WidgetAbstract
      */
     const PATH_ASSETS      = 'Assets';
     const PATH_TRANSLATION = 'Translations';
-    const PATH_MODEL       = 'Models';
+    const PATH_MODELS      = 'Models';
     const PATH_VIEWS       = 'Views';
 
     /**
      * Generic plugins translation key
      */
-    const TRANSLATION_KEY_PLUGIN_NAME = 'plugin_name';
-    const TRANSLATION_KEY_PLUGIN_DESC = 'plugin_description';
+    const TRANSLATION_KEY_WIDGET_NAME = 'widget_name';
+    const TRANSLATION_KEY_WIDGET_DESC = 'widget_description';
 
     /**
      * Supported render modes
@@ -73,13 +73,13 @@ abstract class WidgetAbstract
      * Translation key for plugin name
      * @var string
      */
-    protected $sDisplayName = self::TRANSLATION_KEY_PLUGIN_NAME;
+    protected $sDisplayName = self::TRANSLATION_KEY_WIDGET_NAME;
 
     /**
      * Translation key for plugin description
      * @var string
      */
-    protected $sDescription = self::TRANSLATION_KEY_PLUGIN_NAME;
+    protected $sDescription = self::TRANSLATION_KEY_WIDGET_NAME;
 
     /**
      * Widget rendering mode (default: normal render mode)
@@ -94,11 +94,28 @@ abstract class WidgetAbstract
     protected $oViewInstance;
 
     /**
-     * Parameters to build the widget
+     * Widgets parameters
      * @var array
      */
-    private $aParameters = array();
+    protected $aParameters = array();
 
+    /**
+     * Required parameters to build the Widget
+     * @var array
+     */
+    protected $aRequiredParameters = array();
+
+    /**
+     * Widget Core and bundles version dependencies
+     * @var array
+     */
+    protected $aDependencies = array();
+
+    /**
+     * Flag to tell if the Widget was already built
+     * @var bool
+     */
+    protected $bIsLoaded = false;
 
     /**
      * Widget constructor
@@ -111,7 +128,12 @@ abstract class WidgetAbstract
     {
         if ($this->checkRenderMode() === false) {
             throw new WidgetException(
-                WidgetException::getError(WidgetException::ERROR_RENDER_MODE_NOT_SUPPORTED),
+                sprintf(
+                    WidgetException::getError(
+                        WidgetException::ERROR_RENDER_MODE_NOT_SUPPORTED
+                    ),
+                    $this->getRenderMode()
+                ),
                 WidgetException::ERROR_RENDER_MODE_NOT_SUPPORTED
             );
         } else {
@@ -131,6 +153,13 @@ abstract class WidgetAbstract
         }
 
     }
+
+    /**
+     * Load and build widget data
+     *
+     * @return bool                 The $this->bIsloaded value
+     */
+    abstract protected function build();
 
     /**
      * Resolve widget vendor name from namespace
@@ -177,21 +206,15 @@ abstract class WidgetAbstract
     }
 
     /**
-     * Load and build widget data
-     *
-     * @return bool
-     */
-    abstract protected function build();
-
-    /**
      * Render the widget
      *
      * @return string
      */
     public function render()
     {
-        # Build widget data
-        $this->build();
+        if ($this->isLoaded() === false) {
+            $this->build();
+        }
 
         # Simulate a XHR request for the view component
         $this->aParameters['bIsXhr'] = true;
@@ -344,6 +367,39 @@ abstract class WidgetAbstract
         return $this->sDescription;
     }
 
+
+    /**
+     * @return array
+     */
+    public function getDependencies()
+    {
+        return $this->aDependencies;
+    }
+
+    /**
+     * @param array $aDependencies
+     */
+    public function setDependencies(array $aDependencies)
+    {
+        $this->aDependencies = $aDependencies;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRequiredParameters()
+    {
+        return $this->aRequiredParameters;
+    }
+
+    /**
+     * Tell if the widget was already loaded
+     * @return bool
+     */
+    public function isLoaded()
+    {
+        return $this->bIsLoaded;
+    }
 }
 
 class WidgetException extends CoreException
@@ -355,6 +411,7 @@ class WidgetException extends CoreException
      * @var integer
      */
     const ERROR_RENDER_MODE_NOT_SUPPORTED = 2;
+    const ERROR_MISSING_DEPENDENCIES      = 3;
 
     /**
      * Error message
@@ -363,6 +420,7 @@ class WidgetException extends CoreException
      */
     public static $aErrors = array(
         self::ERROR_RENDER_MODE_NOT_SUPPORTED => 'Render mode %s is not supported.',
+        self::ERROR_MISSING_DEPENDENCIES      => 'Missing dependency: %s.',
     );
 
 }

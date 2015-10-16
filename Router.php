@@ -218,7 +218,7 @@ class Router extends Singleton
     {
         if (count($aArray) > 0) {
             foreach ($aArray as $key => $sValue) {
-                if (! strlen($sValue)) {
+                if (empty($sValue) === true) {
                     unset($aArray[$key]);
                 }
             }
@@ -234,7 +234,7 @@ class Router extends Singleton
      */
     private static function setParams(array $items)
     {
-        if (! empty($items)) {
+        if (empty($items) === false) {
             for ($i = 0; $i < count($items); $i ++) {
                 if ($i % 2 === 0) {
                     self::$aParams[$items[$i]] = $items[$i + 1];
@@ -253,29 +253,15 @@ class Router extends Singleton
         return self::$sDefaultBundle;
     }
 
-    public static function getDefaultBackendBundle()
-    {
-        return self::$sDefaultBackendBundle;
-    }
-
     public static function getDefaultController()
     {
         return self::$sDefaultController;
     }
 
-    public static function getDefaultBackendController()
-    {
-        return self::$sDefaultBackendController;
-    }
 
     public static function getDefaultAction()
     {
         return self::$sDefaultAction;
-    }
-
-    public static function getDefaultBackendAction()
-    {
-        return self::$sDefaultBackendAction;
     }
 
     public static function getBundle()

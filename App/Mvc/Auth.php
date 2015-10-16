@@ -43,7 +43,7 @@ class Auth extends Controller
     {
         $sMessage = 'Error occur...';
         if (isset($this->aParams['name'], $this->aParams['value']) === true) {
-            $oConfiguration = new Configuration($this->getBundle());
+            $oConfiguration = new Configuration($this->getBundleName());
             $bConfAdded = $oConfiguration->set(
                 $this->aParams['name'],
                 $this->aParams['value']

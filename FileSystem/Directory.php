@@ -1,5 +1,7 @@
 <?php
 namespace Library\Core\FileSystem;
+use Library\Core\Bootstrap;
+use Library\Core\Cli;
 
 /**
  * Directory managment component
@@ -15,12 +17,11 @@ class Directory extends FileSystem
     const DIRECTORY_SCAN_KEY_PATH  = 'path';
     const DIRECTORY_SCAN_KEY_SIZE  = 'size';
     const DIRECTORY_SCAN_KEY_ITEMS = 'items';
+
     /**
      * Delete a folder if it's not empty this method will recursively delete all sufolders and files
-     * @param string $sPath
-     *                          Absolute path
-     * @param string $bRetry
-     *                          Flag to retry once after chmod to 0777 folder
+     * @param string $sPath     Absolute path
+     * @param string $bRetry    Flag to retry once after chmod to 0777 folder
      * @throws ToolsException
      * @return boolean
      */
@@ -37,10 +38,19 @@ class Directory extends FileSystem
             }
             if (! rmdir($sPath)) {
                 if ($bRetry === false) {
-                    self::Tools($sPath, array(0,7,7,7), true);
+                    self::chmod($sPath, 755, true);
                     return self::delete($sPath, true);
                 } else {
-                    throw new ToolsException('Unable to delete ' . $sPath . ' check the ' . Bootstrap::getServerUsername() . ' user rights on your server.');
+                    $oCli = new Cli();
+                    throw new FileSystemException(
+                        sprintf(
+                            FileSystemException::getError(
+                                FileSystemException::ERROR_UNABLE_TO_DELETE
+                            ),
+                            array($sPath, $oCli->getUser())
+                        ),
+                        FileSystemException::ERROR_UNABLE_TO_DELETE
+                    );
                 }
             } else {
                 return true;

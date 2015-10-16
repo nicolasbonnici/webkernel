@@ -4,7 +4,6 @@ namespace Library\Core\FileSystem;
 /**
  * Files managment component
  *
- * @todo renamed to File
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
@@ -35,8 +34,9 @@ class File extends FileSystem
      */
     public static function create($sFilePath, $sMode = 'wb')
     {
-        fopen($sFilePath, $sMode);
-        return self::exists($sPath);
+        $handle = fopen($sFilePath, $sMode);
+        fclose($handle);
+        return self::exists($sFilePath);
     }
 
     /**

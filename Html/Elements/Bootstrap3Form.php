@@ -1,15 +1,12 @@
 <?php
 namespace Library\Core\Html\Elements;
 
-use Library\Core\Html\Element;
-use Library\Core\Html\FormElement;
-
 /**
- * HTML5 form for Twitter Bootstrap 3+
+ * HTML5 Twitter Bootstrap 3+ Form layer
  *
  * @author niko <nicolasbonnici@gmail.com>
  */
-class BootstrapForm extends Form
+class Bootstrap3Form extends Form
 {
 
     public function __construct()

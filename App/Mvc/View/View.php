@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\App\Mvc\View;
 
-use Library\Core\App\Bundles;
+use Library\Core\App\Bundles\Bundles;
 use Library\Core\App\Mvc\Controller;
 use Library\Core\App\Mvc\View\Assets\Assets;
 use Library\Core\Bootstrap;
@@ -43,7 +43,8 @@ class View
     /**
      * View instance constructor
      *
-     * @param boolean $bLoadAllBundleViews A flag to load all bundles views path (For the CrudController)
+     * @param bool $bLoadAllBundleViews     Flag to load all bundles views path
+     * @param array $aCustomPaths           Custom view templates paths
      */
     public function __construct($bLoadAllBundleViews = false, array $aCustomPaths = array())
     {
@@ -66,7 +67,7 @@ class View
 
         if (empty($aCustomPaths) === false) {
             foreach($aCustomPaths as $sRelativePath) {
-                $aViewsPaths[] = ROOT_PATH . $sRelativePath;
+                $aViewsPaths[] = $sRelativePath;
             }
         }
 

@@ -8,6 +8,10 @@ namespace Library\Core;
  */
 class Test extends \PHPUnit_Framework_TestCase
 {
+
+    const ACCESSORS_GETTER = 'getter';
+    const ACCESSORS_SETTER = 'setter';
+
     public function __construct()
     {
         $_SERVER['SERVER_NAME'] = 'nbonnici.dev';
@@ -60,16 +64,16 @@ class Test extends \PHPUnit_Framework_TestCase
         $oReflectedEmailNotification = new \ReflectionClass($mClass);
 
         $aAccessors = array();
-        $aAccessors['setter'] = array();
-        $aAccessors['getter'] = array();
+        $aAccessors[self::ACCESSORS_GETTER] = array();
+        $aAccessors[self::ACCESSORS_SETTER] = array();
         $aMethods = $oReflectedEmailNotification->getMethods();
         foreach ($aMethods as $iIndex => $oMethod) {
             if (substr($oMethod->name, 0, strlen('get')) === 'get') {
-                $aAccessors['getter'][] = $oMethod->name;
+                $aAccessors[self::ACCESSORS_GETTER][] = $oMethod->name;
             }
 
             if (substr($oMethod->name, 0, strlen('set')) === 'set') {
-                $aAccessors['setter'][] = $oMethod->name;
+                $aAccessors[self::ACCESSORS_SETTER][] = $oMethod->name;
             }
         }
         return $aAccessors;

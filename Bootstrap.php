@@ -2,9 +2,8 @@
 namespace Library\Core;
 
 use Library\Core\FileSystem\File;
-use Library\Core\Json\Json;
 use Library\Core\Router;
-use bundles\user\Entities\User;
+use app\Entities\User;
 
 /**
  * Bootstrap Model class
@@ -94,8 +93,6 @@ class Bootstrap
 
         self::initCache();
 
-        self::loadBundleConfig();
-
         self::initController();
     }
 
@@ -179,29 +176,15 @@ class Bootstrap
         }
     }
 
-
-    /**
-     * Load bundle config if found
-     */
-    public static function loadBundleConfig()
-    {
-        if (File::exists(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json')) {
-            $sBundleConfig = File::getContent(BUNDLES_PATH . self::$oRouterInstance->getBundle() . '/Config/bundle.json');
-            if (! empty($sBundleConfig)) {
-                self::$oBundleConfig = new Json($sBundleConfig);
-            }
-        }
-    }
-
     /**
      * Init router to parse current request
      *
-     * @todo passer uniquement un objet abstrait d'une interface avec des accessors à ce niveau pour plus de flexibilité
      * @return array
      */
     public static function initRouter()
     {
         self::$oRouterInstance->init(self::$aConfig);
+        // @todo passer uniquement un objet abstrait d'une interface à ce niveau pour plus de flexibilité
         return array(
             'bundle' => self::$oRouterInstance->getBundle(),
             'controller' => self::$oRouterInstance->getController(),
@@ -214,7 +197,6 @@ class Bootstrap
     /**
      * Boostrap app controller
      *
-     * @todo /!\ ucfirst risque de bug élévé car ne prend pas en charge le camel case
      */
     private static function initController()
     {
@@ -227,12 +209,9 @@ class Bootstrap
         $sController = 'bundles\\' . self::$aRequest['bundle'] . '\Controllers\\' . ucfirst( self::$aRequest['controller'] ) . 'Controller';
 
         if (class_exists($sController)) {
+            # No User instance at this level only for Auth component
             $oUser = null;
-            $oBundleConfig = null;
-            if (! is_null(self::$oBundleConfig)) {
-                $oBundleConfig = self::$oBundleConfig;
-            }
-            new $sController($oUser, $oBundleConfig);
+            new $sController($oUser);
 
         } else {
             // @todo handle 404 errors here (bundle error)
@@ -285,7 +264,7 @@ class Bootstrap
     /**
      * Register all paths
      *
-     * @todo delete and use class constant
+     * @todo refactor delete and use class constant...
      */
     public static function initPaths()
     {

@@ -1,6 +1,6 @@
 <?php
 namespace Library\Core\Scope;
-use Library\Core\App\Bundles;
+use Library\Core\App\Bundles\Bundles;
 
 /**
  * Scope Bundles component

@@ -1,8 +1,12 @@
 <?php
 namespace Library\Core\App;
 
-use Library\Core\Pattern\Singleton;
-
+/**
+ * This class handle cookie manipulation
+ *
+ * Class Cookie
+ * @package Library\Core\App
+ */
 class Cookie
 {
 

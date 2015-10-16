@@ -10,7 +10,7 @@ use Library\Core\App\Widgets\WidgetAbstract;
  * @package Widgets\GoogleAnalytics
  * @author Nicolas Bonnici nicolasbonnici@gmail.com
  */
-class Widget extends WidgetAbstract
+class WidgetNameWidget extends WidgetAbstract
 {
     protected $sVersion    = '0.1';
 
@@ -21,6 +21,7 @@ class Widget extends WidgetAbstract
     protected function build()
     {
         $this->addParameter('sMessage', 'Hello world!');
+        $this->bIsLoaded = true;
     }
 
 }

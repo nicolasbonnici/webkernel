@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\FileSystem;
 
+use Library\Core\Exception\CoreException;
 use Library\Core\Pattern\Singleton;
 
 /**
@@ -13,7 +14,7 @@ use Library\Core\Pattern\Singleton;
 class FileSystem extends Singleton {
 
     /**
-     * File types that can be base64 encoded
+     * @todo list all handled mime file types
      * @var array
      */
     protected $aFileTypes = array(
@@ -52,4 +53,15 @@ class FileSystem extends Singleton {
             return (in_array(true, $aChmods) === true && in_array(false, $aChmods) === false);
         }
     }
+}
+
+class FileSystemException extends CoreException
+{
+
+    const ERROR_UNABLE_TO_DELETE = 2;
+
+    public static $aErrors = array(
+        self::ERROR_UNABLE_TO_DELETE => 'Unable to delete %s, check the "%s" user rights on your server.'
+    );
+
 }
