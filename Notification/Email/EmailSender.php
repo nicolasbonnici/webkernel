@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Notification\Email;
 
+use Library\Core\Bootstrap;
 use Library\Core\Notification\NotificationAbstract;
 use Library\Core\Notification\SenderAbstract;
 use Library\Core\Notification\SenderInterface;
@@ -33,7 +34,7 @@ class EmailSender implements SenderInterface
      */
     public function __construct($oTransporter = null)
     {
-        require_once ROOT_PATH . 'Library/Swift/swift_required.php';
+        require_once Bootstrap::getRootPath() . 'Library/Swift/swift_required.php';
 
         if (is_null($oTransporter) === false && $oTransporter instanceof \Swift_Transport) {
             $this->oTransporter = $oTransporter;

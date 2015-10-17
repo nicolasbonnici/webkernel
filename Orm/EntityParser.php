@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Orm;
 
+use Library\Core\Bootstrap;
 use Library\Core\Exception\CoreException;
 use Library\Core\FileSystem\Directory;
 
@@ -98,7 +99,7 @@ class EntityParser
      */
     protected function computeClassNameFromPath($sFilePath, $sFilename)
     {
-        $sNamespace = str_replace(ROOT_PATH, '', $sFilePath);
+        $sNamespace = str_replace(Bootstrap::getRootPath(), '', $sFilePath);
         return '\\' . str_replace(DIRECTORY_SEPARATOR, '\\', $sNamespace) . $sFilename;
     }
 

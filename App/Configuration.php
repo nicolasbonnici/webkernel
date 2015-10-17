@@ -4,11 +4,13 @@ namespace Library\Core\App;
 
 use app\Entities\Config;
 use app\Entities\Collection\ConfigCollection;
+use Library\Core\Bootstrap;
 use Library\Core\FileSystem\File;
 use Library\Core\Json\Json;
 
 /**
  * Configuration component
+ *
  * Class Config
  * @package Core\App
  *
@@ -51,8 +53,7 @@ class Configuration {
     private function build()
     {
         // Load global project configuration then load bundle's json configuration if available
-        $this->loadFromIniFile(CONF_PATH)
-            ->loadFromJsonFile(BUNDLES_PATH . $this->sBundleName . self::DEFAULT_BUNDLE_CONFIGURATION_RELATIVE_PATH)
+        $this->loadFromIniFile(Bootstrap::getPath(Bootstrap::PATH_CONFIG))
             ->loadFromDatabase();
     }
 
@@ -178,7 +179,7 @@ class Configuration {
     protected function loadFromIniFile($sAbsoluteFilePath)
     {
         if (File::exists($sAbsoluteFilePath) === true) {
-            return $this->setConfiguration(parse_ini_file(PROJECT_CONF_PATH, true));
+            return $this->setConfiguration(parse_ini_file(Bootstrap::getPath(Bootstrap::PATH_CONFIG), true));
         }
         return $this;
     }

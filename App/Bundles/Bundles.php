@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\App\Bundles;
 
+use Library\Core\Bootstrap;
 use Library\Core\Cache;
 
 /**
@@ -49,7 +50,6 @@ class Bundles
      */
     protected function build($bFlushBundlesCache)
     {
-        assert('is_dir(BUNDLES_PATH)');
         $this->aBundles = array();
         $this->aBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
         if ($bFlushBundlesCache || $this->aBundles === false ) {
@@ -62,7 +62,7 @@ class Bundles
      */
     private function parseBundles()
     {
-        $aBundles = array_diff(scandir(BUNDLES_PATH), $this->aExcludedItems);
+        $aBundles = array_diff(scandir(Bootstrap::getPath(Bootstrap::PATH_BUNDLES)), $this->aExcludedItems);
         foreach ($aBundles as $iIndex=>$sBundle) {
             $this->aBundles[$sBundle] = null;
         }

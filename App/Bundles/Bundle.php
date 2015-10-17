@@ -3,9 +3,10 @@ namespace Library\Core\App\Bundles;
 
 
 use Library\Core\App\Configuration;
+use Library\Core\Bootstrap;
 use Library\Core\Exception\CoreException;
 use Library\Core\FileSystem\Directory;
-use Library\Core\App\Bundles;
+use Library\Core\App\Bundles\Bundles;
 
 /**
  * Bundles common layer
@@ -261,7 +262,7 @@ class Bundle
      */
     protected function computeBundlePath()
     {
-        return BUNDLES_PATH . $this->sName . DIRECTORY_SEPARATOR;
+        return Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $this->sName . DIRECTORY_SEPARATOR;
     }
 
     /**

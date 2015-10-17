@@ -48,19 +48,19 @@ class View
      */
     public function __construct($bLoadAllBundleViews = false, array $aCustomPaths = array())
     {
-        $sHaangaPath = LIBRARY_PATH . 'Haanga/';
+        $sHaangaPath = Bootstrap::getPath(Bootstrap::PATH_LIBRARY) . 'Haanga/';
         require_once $sHaangaPath . 'Haanga.php';
 
         $aViewsPaths = array(
-            BUNDLES_PATH . Router::getBundle() . '/Views/',
-            APP_PATH . 'Views/'
+            Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . Router::getBundle() . '/Views/',
+            Bootstrap::getPath(Bootstrap::PATH_APP) . 'Views/'
         );
 
         if ($bLoadAllBundleViews) {
             $oBundles = new Bundles();
             foreach ($oBundles->get() as $sBundle => $aController) {
                 if ($sBundle !== Router::getBundle()) {
-                    $aViewsPaths[] = BUNDLES_PATH . $sBundle . '/Views/';
+                    $aViewsPaths[] = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundle . '/Views/';
                 }
             }
         }
@@ -77,7 +77,7 @@ class View
         // Setup Haanga render engine
         \Haanga::configure(array(
             'template_dir' => $aViewsPaths,
-            'cache_dir' => CACHE_PATH . Router::getBundle() . '/Views'
+            'cache_dir' => Bootstrap::getPath(Bootstrap::PATH_TMP_CACHE) . Router::getBundle() . '/Views'
         ));
     }
 
@@ -147,10 +147,12 @@ class View
     public function clearCache($bRetry = false)
     {
         try {
-            if (!Directory::deleteDirectory(CACHE_PATH)) {
-                throw  new ViewException('Unable to clear cache folder (' . CACHE_PATH . ')');
+            if (!Directory::deleteDirectory(Bootstrap::getPath(Bootstrap::PATH_TMP_CACHE))) {
+                throw  new ViewException(
+                    'Unable to clear cache folder (' . Bootstrap::getPath(Bootstrap::PATH_TMP_CACHE) . ')'
+                );
             }
-            return Directory::exists(CACHE_PATH);
+            return Directory::exists(Bootstrap::getPath(Bootstrap::PATH_TMP_CACHE));
         } catch (\Exception $oException) {
             return false;
         }

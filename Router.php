@@ -111,12 +111,13 @@ class Router extends Singleton
         self::$sAction      = self::$sDefaultAction;
 
         // Load custom routes from configuration
-        $oRoutesConf = new Json(File::getContent(CONF_PATH . 'routes.json'));
+        // @todo constant on 'config' and 'route.json' and DIRECTORY_SEPARATOR usage
+        $oRoutesConf = new Json(File::getContent(Bootstrap::getPath(Bootstrap::PATH_APP) . 'config/routes.json'));
         self::$aRules = $oRoutesConf->getAsArray();
 
         self::$sUrl = $_SERVER['REQUEST_URI'];
 
-        self::$aRequest = self::cleanArray(explode('/', self::$sUrl));
+        self::$aRequest = self::cleanArray(explode(DIRECTORY_SEPARATOR, self::$sUrl));
 
         self::$sLang = self::DEFAULT_LOCALE;
 

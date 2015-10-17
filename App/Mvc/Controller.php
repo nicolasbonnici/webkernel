@@ -9,6 +9,7 @@ use Library\Core\App\Bundles\Bundles;
 use Library\Core\App\Cookie;
 use Library\Core\App\Mvc\View\View;
 use Library\Core\App\Session;
+use Library\Core\Bootstrap;
 use Library\Core\Router;
 use Library\Core\Tools;
 use Library\Core\Translation\Translation;
@@ -337,9 +338,8 @@ class Controller extends Acl
     */
     public static function build($sBundle)
     {
-        assert('!empty($sBundle) && is_string($sBundle) && is_dir(BUNDLES_PATH . "/" . $sBundle . "/Controllers/")');
         $aControllers = array();
-        $sControllerPath = BUNDLES_PATH . '/' . $sBundle . '/Controllers/';
+        $sControllerPath = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . '/' . $sBundle . '/Controllers/';
         $aFiles = array_diff(scandir($sControllerPath), array(
             '..',
             '.'

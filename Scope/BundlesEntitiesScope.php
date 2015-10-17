@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Scope;
 
+use Library\Core\Bootstrap;
 use Library\Core\FileSystem\Directory;
 use Library\Core\Orm\EntityParser;
 
@@ -42,8 +43,8 @@ class BundlesEntitiesScope extends BundlesScope
     protected function build()
     {
         foreach($this->getScope() as $sBundlesName => $mFreeDimension) {
-            if (Directory::exists(BUNDLES_PATH . $sBundlesName . '/Entities/')) {
-                $oEntityParser = new EntityParser(BUNDLES_PATH . $sBundlesName . '/Entities/');
+            if (Directory::exists(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundlesName . '/Entities/')) {
+                $oEntityParser = new EntityParser(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundlesName . '/Entities/');
                 $aBundleEntities = $oEntityParser->getEntities();
                 if (count($aBundleEntities) > 0) {
                     /** @var \Library\Core\Orm\Entity $oEntity */

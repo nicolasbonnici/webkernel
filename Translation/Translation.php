@@ -1,5 +1,6 @@
 <?php
 namespace Library\Core\Translation;
+use Library\Core\Bootstrap;
 
 
 /**
@@ -28,9 +29,13 @@ class Translation
     {
         $tr = array();
 
-        require_once APP_PATH . '/Translations/' . $sLang . '/' . self::GLOBAL_TRANSLATION_FILENAME; // @see globale translation
-        if (file_exists(BUNDLES_PATH . $sBundleName . '/Translations/' . $sLang . '.php')) {
-            require_once BUNDLES_PATH . $sBundleName . '/Translations/' . $sLang . '.php';
+        /**
+         * @todo constant on "Translations"
+         */
+
+        require_once Bootstrap::getPath(Bootstrap::PATH_APP) . '/Translations/' . $sLang . '/' . self::GLOBAL_TRANSLATION_FILENAME; // @see globale translation
+        if (file_exists(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . '/Translations/' . $sLang . '.php')) {
+            require_once Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . '/Translations/' . $sLang . '.php';
         }
 
         /**

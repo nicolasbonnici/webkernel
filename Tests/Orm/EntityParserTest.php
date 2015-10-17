@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Tests\Select;
 
+use Library\Core\Bootstrap;
 use \Library\Core\Test as Test;
 use Library\Core\Orm\EntityParser;
 
@@ -35,13 +36,16 @@ class EntityParserTest extends Test
 
     public function testConstructor()
     {
-        self::$oEntityParserInstance = new EntityParser(APP_PATH . 'Entities/');
+        self::$oEntityParserInstance = new EntityParser(Bootstrap::getPath(Bootstrap::PATH_APP) . 'Entities/');
         $this->assertTrue(self::$oEntityParserInstance instanceof EntityParser);
     }
 
     public function testGetPath()
     {
-        $this->assertEquals(APP_PATH . 'Entities/', self::$oEntityParserInstance->getPath());
+        $this->assertEquals(
+            Bootstrap::getPath(Bootstrap::PATH_APP) . 'Entities/',
+            self::$oEntityParserInstance->getPath()
+        );
     }
 
     public function testGetEntities()

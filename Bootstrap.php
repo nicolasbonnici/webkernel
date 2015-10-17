@@ -1,30 +1,76 @@
 <?php
 namespace Library\Core;
 
-use Library\Core\FileSystem\File;
-use Library\Core\Router;
-use app\Entities\User;
-
 /**
- * Bootstrap Model class
- * A simple class to build and manage usefull setup informations
+ * That class bootstrap project
  *
- * @dependancy \Library\Core\Cache
- *
- * @author Nicolas Bonnci <nicolasbonnici@gmail.com>
- *
+ * Class Bootstrap
+ * @package Library\Core
  */
 class Bootstrap
 {
+
+    /**
+     * Project global configuration path (relative from the detected project root path)
+     */
+    const PROJECT_GLOBAL_CONFIGURATION = 'app/config/config.ini';
+
+    /**
+     * Project configuration keys
+     * @var string
+     */
+    const CONFIG_APP        = 'app';
+    const CONFIG_ROUTER     = 'routing';
+    const CONFIG_ENV        = 'env';
+    const CONFIG_DATABASE   = 'database';
+    const CONFIG_PATH       = 'path';
+    // @todo Move this one under the lifestream bundle
+    const CONFIG_SOCIAL     = 'social';
+    const CONFIG_CACHE      = 'cache';
+    const CONFIG_SUPPORT    = 'support';
+
+    /**
+     * Project configuration key for path
+     * @var string
+     */
+    const PATH_BUNDLES              = 'bundles';
+    const PATH_APP                  = 'app';
+    const PATH_CONFIG               = 'app_config';
+    const PATH_LIBRARY              = 'library';
+    const PATH_WIDGETS              = 'widgets';
+    const PATH_PUBLIC               = 'public';
+    const PATH_PUBLIC_ASSETS        = 'public_assets';
+    const PATH_PUBLIC_BUNDLE_ASSETS = 'public_assets_bundles';
+    const PATH_TMP                  = 'tmp';
+    const PATH_TMP_CACHE            = 'tmp_cache';
+    const PATH_TMP_LOGS             = 'tmp_logs';
+
+    /**
+     * Project default localization settings
+     * @todo move under the Locales component
+     */
+    const DEFAULT_COUNTRY        = 'FR';
+    const DEFAULT_LANG           = 'fr';
+    const COUNTRY_LANG_SEPARATOR = '_';
+    const DEFAULT_COUNTRY_LANG   = self::DEFAULT_COUNTRY . self::COUNTRY_LANG_SEPARATOR . self::DEFAULT_LANG;
+
+    /**
+     * Bootstrap instance
+     *
+     * @var Bootstrap
+     */
     private static $oInstance;
 
     /**
+     * Class Autoloader instance
+     *
      * @var \Library\Core\Autoload
      */
     protected static $oAutoloaderInstance;
 
     /**
      * Router instance
+     *
      * @var \Library\Core\Router
      */
     private static $oRouterInstance;
@@ -36,17 +82,8 @@ class Bootstrap
     private static $aConfig;
 
     /**
-     * Bundle config
-     * Currently loaded bundle json configuration
-     *
-     * @var object
-     */
-    private static $oBundleConfig;
-
-    /**
      * An array of dns
      *
-     * @todo passer en config
      * @var array
      */
     private static $aEnvironements = array();
@@ -59,10 +96,37 @@ class Bootstrap
     private static $aRequest;
 
     /**
+     * Parsed paths from configuration
+     *
+     * @var array
+     */
+    protected static $aProjectPaths = array(
+        self::PATH_APP => '',
+        self::PATH_CONFIG => '',
+        self::PATH_LIBRARY => '',
+        self::PATH_BUNDLES => '',
+        self::PATH_BUNDLES => '',
+        self::PATH_WIDGETS => '',
+        self::PATH_PUBLIC => '',
+        self::PATH_PUBLIC_ASSETS => '',
+        self::PATH_PUBLIC_BUNDLE_ASSETS  => '',
+        self::PATH_TMP => '',
+        self::PATH_TMP_CACHE => '',
+        self::PATH_TMP_LOGS => ''
+    );
+
+    /**
      * PHP version
      * @var string
      */
     protected static $sPhpVersion;
+
+    /**
+     * Project absolute path
+     *
+     * @var string
+     */
+    protected static $sRootPath = '';
 
     /**
      * Instance constructor
@@ -72,27 +136,37 @@ class Bootstrap
         // Grab microtime for benchmark purposes
         define('FRAMEWORK_STARTED', microtime(true));
 
+        # PHP version
         self::$sPhpVersion = PHP_VERSION;
 
-        // @todo from conf
-        self::initPaths();
+        # Detect project absolute root path
+        self::initRootPath();
 
-        self::initAutoloader();
+        # Init Autoload component
+        if (self::initAutoloader() === false) {
+            throw new BootstrapException('Unable to initialize Autoload component');
+        }
 
+        # Parse project configuration
         self::initConfig();        
 
+        # Init project staging
         self::initEnv();
 
-        // Init Router component
-        self::$oRouterInstance = Router::getInstance();
+        # Init Router component
+        self::$oRouterInstance = \Library\Core\Router::getInstance();
         self::$aRequest = self::initRouter();
 
+        # Init error reporting according to project staging environment
         self::initReporting();
 
+        # Init project logs
         self::initLogs();
 
+        # Init project cache engine
         self::initCache();
 
+        # Bootstrap the requested Controller
         self::initController();
     }
 
@@ -109,9 +183,10 @@ class Bootstrap
      */
     public static function initAutoloader()
     {
-        require ROOT_PATH . '/Library/Core/Autoload.php';
+        require self::$sRootPath . 'Library/Core/Autoload.php';
         self::$oAutoloaderInstance = new Autoload();
-        self::$oAutoloaderInstance->register();
+
+        return self::$oAutoloaderInstance->register();
     }
 
     /**
@@ -136,14 +211,16 @@ class Bootstrap
 
     /**
      * Init log file
+     *
+     * @todo constant on 'error.log'
      */
     public static function initLogs()
     {
-        $sLogFile = LOG_PATH . '/errors.log';
+        $sLogFile = Bootstrap::getPath(Bootstrap::PATH_TMP_LOGS) . '/errors.log';
         if (! is_file($sLogFile)) {
 
-            if (! is_dir(LOG_PATH)) {
-                mkdir(LOG_PATH);
+            if (! is_dir(Bootstrap::getPath(Bootstrap::PATH_TMP_LOGS))) {
+                mkdir(Bootstrap::getPath(Bootstrap::PATH_TMP_LOGS));
             }
 
             // Reconstruire le chemin aussi
@@ -160,19 +237,26 @@ class Bootstrap
 
     /**
      * Parse global config from a ini file
-     * @see app/config/
      *
-     * @todo mettre en cache
-     *
-     * @throws AppException
+     * @throws BootstrapException
      */
     public static function initConfig()
     {
-        if (! File::exists(CONF_PATH . 'config.ini')) {
-            throw new AppException('Unable to load core configuration: ' . CONF_PATH . 'config.ini');
+        if (\Library\Core\FileSystem\File::exists(self::$sRootPath . self::PROJECT_GLOBAL_CONFIGURATION) === false) {
+            throw new BootstrapException('Unable to load core configuration: ' . self::$sRootPath . self::PROJECT_GLOBAL_CONFIGURATION);
         } else {
-            // load global app conf
-            self::$aConfig = parse_ini_file(CONF_PATH . 'config.ini', true);
+            # Load global app conf
+            self::$aConfig = parse_ini_file(self::$sRootPath . self::PROJECT_GLOBAL_CONFIGURATION, true);
+
+            # Compute all projects path from parsed configuration
+            if (isset(self::$aConfig[self::CONFIG_PATH]) === true) {
+                foreach (self::$aProjectPaths as $sConfKey => $sEmptyValue) {
+                    if (isset(self::$aConfig[self::CONFIG_PATH][$sConfKey]) === true) {
+                        self::$aProjectPaths[$sConfKey] = self::$aConfig[self::CONFIG_PATH][$sConfKey];
+                    }
+                }
+
+            }
         }
     }
 
@@ -184,7 +268,6 @@ class Bootstrap
     public static function initRouter()
     {
         self::$oRouterInstance->init(self::$aConfig);
-        // @todo passer uniquement un objet abstrait d'une interface à ce niveau pour plus de flexibilité
         return array(
             'bundle' => self::$oRouterInstance->getBundle(),
             'controller' => self::$oRouterInstance->getController(),
@@ -195,8 +278,9 @@ class Bootstrap
     }
 
     /**
-     * Boostrap app controller
+     * Bootstrap the requested Controller
      *
+     * @throws BootstrapException
      */
     private static function initController()
     {
@@ -206,6 +290,7 @@ class Bootstrap
             return;
         }
 
+        // @todo How to handle a BlogDashBoardController name with ucfirst?? buggy and ugly
         $sController = 'bundles\\' . self::$aRequest['bundle'] . '\Controllers\\' . ucfirst( self::$aRequest['controller'] ) . 'Controller';
 
         if (class_exists($sController)) {
@@ -215,32 +300,33 @@ class Bootstrap
 
         } else {
             // @todo handle 404 errors here (bundle error)
-            throw new AppException('No controller found: ' . $sController);
+            throw new BootstrapException('No controller found: ' . $sController);
         }
     }
 
     /**
      * Load locales
      *
-     * @todo dirty need refactor also handle country
-     *
-     * @return string Current local on 2 caracters
+     * @return string Current local on 2 characters
      */
-    private static function initLocales($sDefaultLocale = 'FR-fr')
+    private static function initLocales(
+        $sDefaultLocale = self::DEFAULT_COUNTRY_LANG,
+        $sCountryLangSeparator = self::COUNTRY_LANG_SEPARATOR
+    )
     {
 
-        if (strlen(\Locale::getPrimaryLanguage($sDefaultLocale) . '-' . \Locale::getRegion($sDefaultLocale)) > 1) {
-            $sDefaultLocale = \Locale::getPrimaryLanguage($sDefaultLocale) . '-' . \Locale::getRegion($sDefaultLocale);
+        if (strlen(\Locale::getPrimaryLanguage($sDefaultLocale) . $sCountryLangSeparator . \Locale::getRegion($sDefaultLocale)) > 1) {
+            $sDefaultLocale = \Locale::getPrimaryLanguage($sDefaultLocale) . $sCountryLangSeparator . \Locale::getRegion($sDefaultLocale);
         }
 
-        putenv('LC_ALL=' . $sDefaultLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
-        setlocale(LC_ALL, $sDefaultLocale . '.' . strtolower(str_replace('-', '', Router::DEFAULT_ENCODING)));
+        putenv('LC_ALL=' . $sDefaultLocale . '.' . strtolower(str_replace('-', '', \Library\Core\Router::DEFAULT_ENCODING)));
+        setlocale(LC_ALL, $sDefaultLocale . '.' . strtolower(str_replace('-', '', \Library\Core\Router::DEFAULT_ENCODING)));
 
         return $sDefaultLocale;
     }
 
     /**
-     * Init current environement under a ENV constant [dev|test|preprod|prod]
+     * Init current environment under a ENV constant [dev|test|preprod|prod]
      *
      * @see config.ini
      */
@@ -262,55 +348,41 @@ class Bootstrap
     }
 
     /**
-     * Register all paths
-     *
-     * @todo refactor delete and use class constant...
+     * Detect and store the project absolute path under instance
      */
-    public static function initPaths()
+    public static function initRootPath()
     {
-        $sRootPath = substr(
-                __DIR__,
-                0,
-                (strlen(__DIR__) - strlen('Library' . DIRECTORY_SEPARATOR . 'Core'))
-            );
-        if (defined('ROOT_PATH') === false) {
-            define('ROOT_PATH', $sRootPath);
-        }
-        if (defined('APP_PATH') === false) {
-            define('APP_PATH', $sRootPath . 'app/');
-        }
-        if (defined('CONF_PATH') === false) {
-            define('CONF_PATH', $sRootPath . 'app/config/');
-        }
-        if (defined('LIBRARY_PATH') === false) {
-            define('LIBRARY_PATH', $sRootPath . 'Library/');
-        }
-        if (defined('TMP_PATH') === false) {
-            define('TMP_PATH', $sRootPath . 'tmp/');
-        }
-        if (defined('CACHE_PATH') === false) {
-            define('CACHE_PATH', $sRootPath . 'tmp/cache/');
-        }
-        if (defined('LOG_PATH') === false) {
-            define('LOG_PATH', $sRootPath . 'tmp/logs/');
-        }
-        if (defined('BUNDLES_PATH') === false) {
-            define('BUNDLES_PATH', $sRootPath . 'bundles/');
-        }
-        if (defined('PUBLIC_PATH') === false) {
-            define('PUBLIC_PATH', $sRootPath . 'public/');
-        }
-        if (defined('PUBLIC_BUNDLES_PATH') === false) {
-            define('PUBLIC_BUNDLES_PATH', PUBLIC_PATH . 'lib/bundles/');
-        }
-        if (defined('UX_PATH') === false) {
-            define('UX_PATH', PUBLIC_PATH . 'lib/lib/ux/');
-        }
+        self::$sRootPath = substr(
+            __DIR__,
+            0,
+            (strlen(__DIR__) - strlen('Library' . DIRECTORY_SEPARATOR . 'Core'))
+        );
+
     }
 
     /**
-     * Accessors
+     * Get the project absolute root path
+     *
+     * @return string
      */
+    public static function getRootPath()
+    {
+        return self::$sRootPath;
+    }
+
+    /**
+     * Generic project paths accessor
+     *
+     * @param string $sFolder
+     * @return string               The full absolute computed path or null
+     */
+    public static function getPath($sFolder = null)
+    {
+        return (is_null($sFolder) === false && array_key_exists($sFolder, self::$aProjectPaths) === true)
+            ? self::$sRootPath . self::$aProjectPaths[$sFolder] . DIRECTORY_SEPARATOR
+            : null;
+    }
+
     public static function getConfig()
     {
         return self::$aConfig;
@@ -343,6 +415,5 @@ class Bootstrap
 
 }
 
-class AppException extends \Exception
-{
-}
+class BootstrapException extends \Exception
+{}

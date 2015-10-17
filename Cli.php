@@ -22,7 +22,7 @@ class Cli
 	/**
 	 * Run a command on the CLI interface and return result as a string
 	 *
-     * @todo seems like a big wet hole :p
+     * @todo seems like a big security hole :p
      *
 	 * @param string $sCommand
 	 * @return string

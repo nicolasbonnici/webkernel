@@ -28,10 +28,11 @@ class Autoload {
      */
     protected function findClass($sClassName)
     {
+        $sAbsoluteProjectRootPath = Bootstrap::getRootPath();
         $sComponentName = ltrim($sClassName, '\\');
         $sFileName = '';
         $sComponentNamespace = '';
-        // PSR4 compliant class call
+        // PSR4 compliant class
         if ($lastNsPos = strripos($sClassName, '\\')) {
             $sComponentNamespace = substr($sClassName, 0, $lastNsPos);
             $sClassName = substr($sClassName, $lastNsPos + 1);
@@ -39,9 +40,10 @@ class Autoload {
             $sFileName = str_replace('\\', DIRECTORY_SEPARATOR, $sComponentNamespace) . DIRECTORY_SEPARATOR;
         }
         $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
-        if (file_exists(ROOT_PATH . $sFileName) === true) {
+
+        if (file_exists($sAbsoluteProjectRootPath . $sFileName) === true) {
             $this->registerLoadedClass($sClassName, $sComponentNamespace);
-            return ROOT_PATH . $sFileName;
+            return $sAbsoluteProjectRootPath . $sFileName;
         }
         return null;
     }

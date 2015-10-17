@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\App\Mvc\View\Assets;
 
+use Library\Core\Bootstrap;
 use Library\Core\Exception\CoreException;
 
 use Library\Core\FileSystem\File;
@@ -22,8 +23,8 @@ class Assets
     const TYPE_STYLESHEET = 'css';
 
     /**
-     * The full path that contain the generated javascript code
-     * Must be relative to PUBLIC_PATH (project/public/) constant and don't start with a "/"
+     * The full path that contain the generated javascript code relative to the public root
+     *
      * @see instance instance constructor
      * @var string
      */
@@ -47,7 +48,7 @@ class Assets
     public function __construct()
     {
         // Build paths
-        $this->sBuildPath =   PUBLIC_PATH . $this->sBuildPath;
+        $this->sBuildPath =   Bootstrap::getPath(Bootstrap::PATH_PUBLIC) . $this->sBuildPath;
 
         // Load client component package's assets
         $this->load();
@@ -59,11 +60,11 @@ class Assets
      */
     public function load()
     {
-        if (! File::exists(CONF_PATH . 'assets.json')) {
+        if (! File::exists(Bootstrap::getPath(Bootstrap::PATH_CONFIG) . 'assets.json')) {
             throw new AssetsException('Unable to assets configuration...');
         } else {
             // Register javascript and stylesheet assets from configuration
-            $oAssetsPackages = new Json(File::getContent(CONF_PATH . 'assets.json'));
+            $oAssetsPackages = new Json(File::getContent(Bootstrap::getPath(Bootstrap::PATH_CONFIG) . 'assets.json'));
 
             foreach ($oAssetsPackages->get() as $sPackageName=>$oPackages) {
                 foreach ($oPackages as $sPackageType=>$aPackage) {
@@ -101,7 +102,7 @@ class Assets
                         $sAsset = substr($sAsset, 1);
                     }
 
-                    $sCode = File::getContent(PUBLIC_PATH . $sAsset);
+                    $sCode = File::getContent(Bootstrap::getPath(Bootstrap::PATH_PUBLIC) . $sAsset);
                     if ($sCode !== false && empty($sCode) === false) {
                         switch($sAssetType) {
                             case self::TYPE_JAVASCRIPT :
@@ -242,7 +243,7 @@ class Assets
     {
         $sMinifiedPath = $this->computeMinifiedFilePath($sPackageName, $sAssetType);
         return (File::exists($sMinifiedPath))
-            ? str_replace(PUBLIC_PATH, '/', $sMinifiedPath)
+            ? str_replace(Bootstrap::getPath(Bootstrap::PATH_PUBLIC), '/', $sMinifiedPath)
             : null;
     }
 

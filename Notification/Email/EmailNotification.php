@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Notification\Email;
 
+use Library\Core\Bootstrap;
 use Library\Core\Notification\NotificationAbstract;
 
 /**
@@ -17,7 +18,7 @@ class EmailNotification extends NotificationAbstract
 
     public function __construct()
     {
-        require_once ROOT_PATH . 'Library/Swift/swift_required.php';
+        require_once Bootstrap::getRootPath() . 'Library/Swift/swift_required.php';
     }
 
     /**
