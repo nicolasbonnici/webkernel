@@ -7,9 +7,12 @@ use Library\Core\Acl;
 use Library\Core\App\Bundles\Bundle;
 use Library\Core\App\Bundles\Bundles;
 use Library\Core\App\Cookie;
+use Library\Core\App\Hooks\Hook;
 use Library\Core\App\Mvc\View\View;
 use Library\Core\App\Session;
+use Library\Core\App\Widgets\WidgetAbstract;
 use Library\Core\Bootstrap;
+use Library\Core\Http;
 use Library\Core\Router;
 use Library\Core\Tools;
 use Library\Core\Translation\Translation;
@@ -19,9 +22,30 @@ use Library\Core\Translation\Translation;
  *
  * @author infradmin
  */
-class Controller extends Acl
+class Controller
 {
 
+    /**
+     * Default folder name where the Controllers are stored under the project or the bundles
+     */
+    const CONTROLLER_FOLDER_NAME = 'Controllers';
+
+    /**
+     * Controller file name pattern (ex: FooController)
+     *
+     * @var string
+     */
+    const CONTROLLER_FILE_PATTERN = 'Controller';
+
+    /**
+     * Action method name pattern to declare a controller action
+     * @var string
+     */
+    const CONTROLLER_ACTION_PATTERN = 'Action';
+
+    /**
+     * Controllers pre and post dispatch routines methods names
+     */
     const CONTROLLER_PRE_DISPATCH_METHOD_NAME   = '__preDispatch';
     const CONTROLLER_POST_DISPATCH_METHOD_NAME  = '__postDispatch';
 
@@ -67,6 +91,12 @@ class Controller extends Acl
     protected $aParams = array();
 
     /**
+     * Hook instance
+     * @var Hook
+     */
+    protected $oHook;
+
+    /**
      * Configuration parsed from .ini|.yaml|json
      *
      * @var array
@@ -76,7 +106,7 @@ class Controller extends Acl
     /**
      * View instance
      *
-     * @var Library\Core\App\Mvc\View\View
+     * @var View
      */
     protected $oView;
 
@@ -88,16 +118,25 @@ class Controller extends Acl
     protected $aView;
 
     /**
-     * Current cookie
-     * @var \Library\Core\App\Cookie
+     * Cookie instance
+     *
+     * @var Cookie
      */
     protected $oCookie;
 
     /**
      * Current PHP session
-     * @var \Library\Core\App\Session
+     *
+     * @var Session
      */
     protected $oSession;
+
+    /**
+     * Access Control Layer instance
+     *
+     * @var Acl
+     */
+    protected $oAcl;
 
     /**
      * Currently logged user instance
@@ -108,6 +147,7 @@ class Controller extends Acl
 
     /**
      * Requested bundle instance
+     *
      * @var Bundle
      */
     protected $oBundle;
@@ -115,10 +155,9 @@ class Controller extends Acl
     /**
      * Controller instance constructor
      *
-     * @param \app\Entities\User|NULL $oUser
      * @throws ControllerException
      */
-    public function __construct($oUser = null)
+    public function __construct()
     {
         # Get current Session instance or create a new one
         $this->startSession();
@@ -129,21 +168,17 @@ class Controller extends Acl
         # Load and parse HTTP request
         $this->loadRequest();
 
-        # Try to find a user even if the Controller doesn't extend Auth
-        if (is_null($oUser) === false && $oUser instanceof User && $oUser->isLoaded()) {
-            $this->oUser = $oUser;
-        } else {
-            $this->getLoggedUser();
-        }
+        # Detect if a user is logged
+        $this->getLoggedUser();
 
         # Construct Acl layer parent
-        $this->loadAcl($this->oUser);
+        $this->loadAcl();
 
         # Load translations
         $this->loadTranslations();
 
         # Load generic parameters to pass to the View component
-        $this->loadViewParameters();
+        $this->loadDefaultViewParameters();
 
         # Load bundle
         $this->loadBundle();
@@ -196,18 +231,29 @@ class Controller extends Acl
 
             }
         } else {
-            throw new ControllerException(__CLASS__ . ' Error cannot find action ' . $this->sAction);
+            /**
+             * @todo handle properly the 404 error and root if available to the error bundle
+             */
+            $oHttpHeader = new Http();
+            $oHttpHeader->setStatus(404);
+            $oHttpHeader->sendHeaders();
+            exit;
         }
 
         return;
     }
 
+    /**
+     * Render a View from a Controller action method
+     *
+     * @param string $sView         The relative path to the template file
+     */
     public function renderView($sView = null)
     {
         if (is_null($sView) === true) {
 
-            $sController = strtolower(str_replace('Controller', '', $this->getController()));
-            $sAction = strtolower(str_replace('Action', '', $this->getAction()));
+            $sController = strtolower(str_replace(self::CONTROLLER_FILE_PATTERN, '', $this->getController()));
+            $sAction = strtolower(str_replace(self::CONTROLLER_ACTION_PATTERN, '', $this->getAction()));
 
             $sView = $sController . DIRECTORY_SEPARATOR . $sAction . '.tpl';
         }
@@ -225,16 +271,8 @@ class Controller extends Acl
     }
 
     /**
-     * Tell if we have a valid logged in user instance
-     * @return boolean
-     */
-    protected function isValidUserLogged()
-    {
-        return (isset($this->oUser) && $this->oUser->isLoaded() && $this->oUser->getId() === intval($_SESSION['iduser']));
-    }
-
-    /**
      * Start PHP sesison handler
+     *
      * @return Controller
      */
     public function startSession()
@@ -249,8 +287,8 @@ class Controller extends Acl
     protected function loadRequest()
     {
         $this->sBundleName = Router::getBundle();
-        $this->sController = Router::getController() . 'Controller';
-        $this->sAction = Router::getAction() . 'Action';
+        $this->sController = Router::getController() . self::CONTROLLER_FILE_PATTERN;
+        $this->sAction = Router::getAction() . self::CONTROLLER_ACTION_PATTERN;
         $this->aParams = Router::getParams();
         $this->sLang = Router::getLang();
     }
@@ -258,8 +296,7 @@ class Controller extends Acl
     /**
      * Build and encode the redirect url if the auth failed
      *
-     * @param string $sRedirectUrl
-     *            A relative url that start with the '/' root path
+     * @param string $sRedirectUrl  A relative url that start with the '/' root path
      * @return string
      */
     public function buildRedirectUrl($sRedirectBundle = '', $sRedirectController = 'home', $sRedirectAction = 'index')
@@ -283,9 +320,8 @@ class Controller extends Acl
     /**
      * Decode the redirection url
      *
-     * @param string $sEncodedRedirectUrl
-     *            A relative url that start with the '/' root path
-     * @return mixed
+     * @param string $sEncodedRedirectUrl   A relative url that start with the '/' root path
+     * @return string
      */
     public function decodeRedirectUrl($sEncodedRedirectUrl)
     {
@@ -293,10 +329,9 @@ class Controller extends Acl
     }
 
     /**
-     * Simple redirection
+     * Simple HTTP redirection handler
      *
-     * @param
-     *            mixed array|string $mUrl
+     * @param mixed array|string $mUrl
      * @todo handle router request object totaly abstracted in type and format and move to the HTTP component
      */
     public function redirect($mUrl)
@@ -339,15 +374,15 @@ class Controller extends Acl
     public static function build($sBundle)
     {
         $aControllers = array();
-        $sControllerPath = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . '/' . $sBundle . '/Controllers/';
+        $sControllerPath = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . '/' . $sBundle . '/'. self::CONTROLLER_FOLDER_NAME .'/';
         $aFiles = array_diff(scandir($sControllerPath), array(
             '..',
             '.'
         ));
 
         foreach ($aFiles as $sController) {
-            if (preg_match('#Controller.php$#', $sController)) {
-                $aControllers[substr($sController, 0, strlen($sController) - strlen('Controller.php'))] = self::buildActions($sBundle, $sController);
+            if (preg_match('#' . self::CONTROLLER_FILE_PATTERN . '.php$#', $sController)) {
+                $aControllers[substr($sController, 0, strlen($sController) - strlen(self::CONTROLLER_FILE_PATTERN . '.php'))] = self::buildActions($sBundle, $sController);
             }
         }
 
@@ -358,10 +393,8 @@ class Controller extends Acl
     /**
      * Get all actions from a given module and controller (this method only return [foo]Action() methods)
      *
-     * @param string $sBundle
-     *            The module name
-     * @param string $sController
-     *            The controller name to parse
+     * @param string $sBundle The module name
+     * @param string $sController The controller name to parse
      * @return array A two dimensional array with the controllers and their methods (actions only)
      */
     public static function buildActions($sBundle, $sController)
@@ -380,13 +413,13 @@ class Controller extends Acl
         return $aActions;
     }
 
-    protected function loadAcl($oUser)
+    /**
+     * Init access control layer (only if we got a logged user)
+     */
+    protected function loadAcl()
     {
-        if (is_null($oUser) === false && $oUser instanceof \app\Entities\User && $oUser->isLoaded()) {
-            // Check ACL parent component if we have a logged user
-            parent::__construct($oUser);
-        } else {
-            $this->oUser = null;
+        if ($this->oUser->isLoaded() === true) {
+            $this->oAcl = new Acl($this->oUser);
         }
     }
 
@@ -411,8 +444,17 @@ class Controller extends Acl
         return (bool) (is_null($this->oBundle) !== false);
     }
 
-    protected function loadViewParameters()
+    /**
+     * Load common parameters to each rendered controller actions
+     *
+     * @todo ligthweight a little
+     */
+    protected function loadDefaultViewParameters()
     {
+        # Load Hook component
+        $this->oHook = new Hook();
+        $this->aView['aHooks'] = array();
+
         $this->aView['aSession'] = $this->oSession->get();
         // @todo provisoire
         if (isset($this->aView['aSession']['auth'])) {
@@ -452,73 +494,13 @@ class Controller extends Acl
         $this->aView['current_timestamp'] = time();
     }
 
-    public function getBundleName()
-    {
-        return $this->sBundleName;
-    }
-
-    public function getController()
-    {
-        return $this->sController;
-    }
-
-    public function setController($sController)
-    {
-        $this->sController = $sController;
-    }
-
-    public function getAction()
-    {
-        return $this->sAction;
-    }
-
-    public function setAction($sAction)
-    {
-        $this->sAction = $sAction;
-    }
-
-    public function getCookie()
-    {
-        return $this->oCookie;
-    }
-
-    public function getSession()
-    {
-        return $this->oSession;
-    }
-
-    public function getLang()
-    {
-        return $this->sLang;
-    }
-
-    public function setLang($slang)
-    {
-        $this->sLang = $slang;
-    }
-
-    /**
-     * Retrieve loggued User instance
-     * @return User|null
-     */
-    protected function getLoggedUser()
-    {
-        if ($this->oUser instanceof User && $this->oUser->isLoaded() === true) {
-            return $this->oUser;
-        } elseif ($this->loadBySession() === true) {
-            return $this->oUser;
-        } else {
-            return null;
-        }
-    }
-
     /**
      * Method to retrieve User on a non Auth Controller
      */
-    protected function loadBySession()
+    protected function loadUserBySession()
     {
-        $this->oUser = new User();
         try {
+            $this->oUser = new User();
             $aSession = $this->oSession->get();
             if (isset($aSession[Auth::SESSION_AUTH_KEY]) === true) {
                 $this->oUser->loadByParameters(array(
@@ -562,6 +544,87 @@ class Controller extends Acl
     {
         return hash('SHA256', uniqid((double) microtime() * 1000000, true));
     }
+
+    /**
+     * Register a Widget to render in the View
+     *
+     * @param string $sHookName
+     * @param WidgetAbstract $oWidget
+     */
+    public function registerViewWidget($sHookName, WidgetAbstract $oWidget)
+    {
+        # Store in Hook instance
+        $this->oHook->registerWidget($sHookName, $oWidget);
+        # Refresh view parameters
+        $this->aView['aHooks'] = $this->oHook->get();
+    }
+
+    /**
+     * Get requested bundle name
+     *
+     * @return string
+     */
+    public function getBundleName()
+    {
+        return $this->sBundleName;
+    }
+
+    /**
+     * Get requested Controller name
+     *
+     * @return string
+     */
+    public function getController()
+    {
+        return $this->sController;
+    }
+
+    /**
+     * Get requested action name
+     *
+     * @return string
+     */
+    public function getAction()
+    {
+        return $this->sAction;
+    }
+
+    /**
+     * Get Cookie instance
+     *
+     * @return Cookie
+     */
+    public function getCookie()
+    {
+        return $this->oCookie;
+    }
+
+    /**
+     * Get Session instance
+     *
+     * @return Session
+     */
+    public function getSession()
+    {
+        return $this->oSession;
+    }
+
+    /**
+     * Retrieve logged User instance
+     *
+     * @return User
+     */
+    protected function getLoggedUser()
+    {
+        if (isset($this->oUser) === true && $this->oUser->isLoaded() === true) {
+            return $this->oUser;
+        } elseif ($this->loadUserBySession() === true) {
+            return $this->oUser;
+        } else {
+            return null;
+        }
+    }
+
 }
 
 class ControllerException extends \Exception

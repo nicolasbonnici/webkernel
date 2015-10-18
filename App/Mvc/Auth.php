@@ -27,7 +27,7 @@ class Auth extends Controller
         $aSession = $this->oSession->get();
         if (
         	isset($aSession[Auth::SESSION_AUTH_KEY]) === true &&
-        	$this->loadBySession() === true &&
+        	$this->loadUserBySession() === true &&
             $this->oUser->isLoaded() === true
 		) {
             parent::__construct($this->oUser);

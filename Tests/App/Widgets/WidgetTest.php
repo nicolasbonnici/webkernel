@@ -48,7 +48,7 @@ class WidgetTest extends Test
     public function testRender()
     {
         $this->assertEquals(
-            "<script>    alert(Hello world!);</script>",
+            "<div>Hello world!</div>",
             $this->oDummyWidgetInstance->render()
         );
     }

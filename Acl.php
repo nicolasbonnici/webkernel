@@ -13,7 +13,7 @@ use app\Entities\User;
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  *
  */
-abstract class Acl
+class Acl
 {
 
     /**
@@ -72,7 +72,7 @@ abstract class Acl
     public function __construct(User $oUser)
     {
         if (! $oUser->isLoaded()) {
-            throw new AclException(__CLASS__ . ' Empty user instance provided.');
+            throw new AclException(get_called_class() . ' Empty user instance provided.');
         } else {
             $this->oUser = $oUser;
             $this->getUserGroups();
@@ -88,7 +88,7 @@ abstract class Acl
      * @param unknown $sRessource
      * @return boolean
      */
-    protected function hasCreateAccess($sRessource)
+    public function hasCreateAccess($sRessource)
     {
         if (
             ! empty($sRessource) &&
@@ -106,7 +106,7 @@ abstract class Acl
      * @param unknown $sRessource
      * @return boolean
      */
-    protected function hasReadAccess($sRessource)
+    public function hasReadAccess($sRessource)
     {
         if (
             ! empty($sRessource) &&
@@ -121,10 +121,10 @@ abstract class Acl
 
     /**
      * Tell if current user has update access on a given ressource name
-     * @param unknown $sRessource
+     * @param string $sRessource        Ressource label name
      * @return boolean
      */
-    protected function hasUpdateAccess($sRessource)
+    public function hasUpdateAccess($sRessource)
     {
         if (
             ! empty($sRessource) &&
@@ -142,7 +142,7 @@ abstract class Acl
      * @param unknown $sRessource
      * @return boolean
      */
-    protected function hasDeleteAccess($sRessource)
+    public function hasDeleteAccess($sRessource)
     {
         if (
             ! empty($sRessource) &&
@@ -160,7 +160,7 @@ abstract class Acl
      * @param unknown $sRessource
      * @return boolean
      */
-    protected function hasListAccess($sRessource)
+    public function hasListAccess($sRessource)
     {
         if (
             ! empty($sRessource) &&
@@ -178,7 +178,7 @@ abstract class Acl
      * @param unknown $sRessource
      * @return boolean
      */
-    protected function hasListByUserAccess($sRessource)
+    public function hasListByUserAccess($sRessource)
     {
         return $this->hasListAccess($sRessource);
     }
@@ -188,7 +188,7 @@ abstract class Acl
      * @param unknown $sRessource
      * @return mixed|NULL
      */
-    protected function getCRUD($sRessource)
+    private function getCRUD($sRessource)
     {
         $sRessource = strtolower($sRessource);
         if (! empty($sRessource) && $this->oGroups->hasItem() && $this->oPermissions->count() > 0) {

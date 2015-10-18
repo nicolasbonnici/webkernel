@@ -29,7 +29,6 @@ class Http
      */
     public static function setStatus($iStatus)
     {
-        assert('\\core\\Validator::integer($iStatus, 100) === \\core\\Validator::STATUS_OK');
         self::$iStatus = $iStatus;
     }
 

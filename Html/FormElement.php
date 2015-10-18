@@ -47,11 +47,12 @@ abstract class FormElement extends Element
      */
     public function __construct(array $aValidators = array())
     {
+        parent::__construct();
+
         $this->aValidators = $aValidators;
 
         $this->setAttribute('class', array('form-control'));
 
-        parent::__construct();
     }
 
     /**

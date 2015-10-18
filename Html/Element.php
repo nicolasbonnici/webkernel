@@ -27,28 +27,15 @@ abstract class Element extends Attributes
     protected $sContent = '';
 
     /**
-     * HtmlAttributes instance
-     * @var HtmlAttributes
+     * Node to store sub elements
+     *
+     * @var Node
      */
-    private $oHtmlAttributes;
+    protected $oNode;
 
     public function __construct()
     {
-
-    }
-
-    /**
-     * Render the HTML markup
-     * @return string
-     */
-    public function render()
-    {
-        return '<' . $this->sMarkupTag . $this->renderAttributes() .
-                (
-                    ($this->bAutoCloseMarkup === true)
-                        ? ' />'
-                        :'>' . $this->getContent() . '</' . $this->sMarkupTag . '>'
-                );
+        $this->oNode = new Node();
     }
 
     /**
@@ -57,6 +44,46 @@ abstract class Element extends Attributes
     public function __toString()
     {
         return $this->render();
+    }
+
+    /**
+     * Render the HTML markup
+     *
+     * @return string
+     */
+    public function render()
+    {
+        return '<' . $this->sMarkupTag . $this->renderAttributes() .
+                (
+                    ($this->bAutoCloseMarkup === true)
+                        ? ' />'
+                        :'>' . $this->getContent() . $this->renderSubElements() . '</' . $this->sMarkupTag . '>'
+                );
+    }
+
+    /**
+     * Render all sub elements
+     *
+     * @return string
+     */
+    private function renderSubElements()
+    {
+        $sBuffer = '';
+        /** @var Element $oElement */
+        foreach ($this->oNode->getElements() as $oElement) {
+            $sBuffer .= $oElement->render();
+        }
+        return $sBuffer;
+    }
+
+    /**
+     * Get all Element sub Elements
+     *
+     * @return array
+     */
+    public function getSubElements()
+    {
+       $this->oNode->getElements();
     }
 
     /**
@@ -77,6 +104,18 @@ abstract class Element extends Attributes
     public function getContent()
     {
         return $this->sContent;
+    }
+
+    /**
+     * Add a sub element to item
+     *
+     * @param Element $oElement
+     * @return Element
+     */
+    public function addSubElement(Element $oElement)
+    {
+        $this->oNode->addElement($oElement);
+        return $this;
     }
 
 }

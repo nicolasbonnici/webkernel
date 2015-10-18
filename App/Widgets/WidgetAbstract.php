@@ -1,8 +1,11 @@
 <?php
 namespace Library\Core\App\Widgets;
 
+use Library\Core\Bootstrap;
 use Library\Core\Exception\CoreException;
 use Library\Core\App\Mvc\View\View;
+use Library\Core\Html\Element;
+use Library\Core\Html\Node;
 use Library\Core\Json\Json;
 
 
@@ -88,10 +91,10 @@ abstract class WidgetAbstract
     protected $sRenderMode = self::DEFAULT_RENDER_MODE;
 
     /*
-     * View component instance to render widgets
-     * @var Library\Core\View
+     * Html Dom Node instance to store markup
+     * @var Node
      */
-    protected $oViewInstance;
+    protected $oNode;
 
     /**
      * Widgets parameters
@@ -144,12 +147,7 @@ abstract class WidgetAbstract
             $this->sPath = $this->resoleWidgetPath($aNamespace);
 
             # View component instance
-            $this->oViewInstance = new View(
-                false,
-                array(
-                    $this->getPath() . self::PATH_VIEWS
-                )
-            );
+            $this->oNode = new Node();
         }
 
     }
@@ -212,24 +210,18 @@ abstract class WidgetAbstract
      */
     public function render()
     {
+        # Build Widget if not already done
         if ($this->isLoaded() === false) {
-            $this->build();
+            if ($this->build() === false) {
+                throw new WidgetException(
+                    WidgetException::getError(WidgetException::ERROR_UNABLE_TO_BUILD_WIDGET),
+                    WidgetException::ERROR_UNABLE_TO_BUILD_WIDGET
+                );
+            }
         }
 
-        # Simulate a XHR request for the view component
-        $this->aParameters['bIsXhr'] = true;
-        # Set render mode for view
-        $this->aParameters['sRenderMode'] = $this->getRenderMode();
+        return $this->oNode->render();
 
-        $sRendered = $this->oViewInstance->render(
-            $this->getParameters(),
-            'widget.tpl',
-            200,
-            true
-        );
-
-        $oRendered = new Json($sRendered);
-        return $oRendered->get('content');
     }
 
     /**
@@ -313,6 +305,12 @@ abstract class WidgetAbstract
     public function addParameters(array $aParameters)
     {
         $this->aParameters = array_merge($this->aParameters, $aParameters);
+        return $this;
+    }
+
+    public function addHtmlElement(Element $oElement)
+    {
+        $this->oNode->addElement($oElement);
         return $this;
     }
 
@@ -412,6 +410,7 @@ class WidgetException extends CoreException
      */
     const ERROR_RENDER_MODE_NOT_SUPPORTED = 2;
     const ERROR_MISSING_DEPENDENCIES      = 3;
+    const ERROR_UNABLE_TO_BUILD_WIDGET    = 4;
 
     /**
      * Error message
@@ -421,6 +420,7 @@ class WidgetException extends CoreException
     public static $aErrors = array(
         self::ERROR_RENDER_MODE_NOT_SUPPORTED => 'Render mode %s is not supported.',
         self::ERROR_MISSING_DEPENDENCIES      => 'Missing dependency: %s.',
+        self::ERROR_UNABLE_TO_BUILD_WIDGET    => 'Unable to build Widget, please check logs.',
     );
 
 }

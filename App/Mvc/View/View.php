@@ -107,9 +107,9 @@ class View
                 array(
                     'status' => $iStatusXHR,
                     'content' => str_replace($aCharsToStrip, '', $this->load($sTpl, $aViewParams, true)),
-                    'debug' => isset($aViewParams["sDeBugHelper"]) ?
-                        str_replace($aCharsToStrip, '', $this->load($aViewParams["sDeBugHelper"], $aViewParams, true)) :
-                        null
+                    'debug' => isset($aViewParams["sDeBugHelper"])
+                        ? str_replace($aCharsToStrip, '', $this->load($aViewParams["sDeBugHelper"], $aViewParams, true))
+                        :null
                 )
             );
             if ($bToString === true) {

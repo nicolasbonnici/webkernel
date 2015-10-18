@@ -35,14 +35,11 @@ class Form extends Element
      */
     protected $aSubForms = array();
 
-    /**
-     * Form's elements container
-     * @var array
-     */
-    protected $aElements = array();
-
     public function __construct()
     {
+        # Important t
+        parent::__construct();
+
         // Set default method attribute
         $this->setAttribute('method', self::HTTP_METHOD_POST);
     }
@@ -65,7 +62,7 @@ class Form extends Element
      */
     public function addElement(FormElement $oFormElement)
     {
-        $this->aElements[] = $oFormElement;
+        $this->addSubElement($oFormElement);
         return $this;
     }
 
@@ -95,7 +92,7 @@ class Form extends Element
      */
     public function getElements()
     {
-        return $this->aElements;
+        return $this->oNode->getElements();
     }
 
     /**

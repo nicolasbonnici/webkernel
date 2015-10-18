@@ -6,10 +6,13 @@ namespace Library\Core;
 class Autoload {
 
     /**
-     * PSR 4 prefixes
+     * Autoload prefixes
      * @var array
      */
-    protected $aPrefixes = array();
+    protected $aPrefixes = array(
+        'Library' . DIRECTORY_SEPARATOR,
+        'Library' . DIRECTORY_SEPARATOR . 'Haanga' . DIRECTORY_SEPARATOR
+    );
 
     /**
      * Loaded classes for debug
@@ -41,9 +44,21 @@ class Autoload {
         }
         $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
 
+        /**
+         * @todo DRY this crappy code
+         */
+
         if (file_exists($sAbsoluteProjectRootPath . $sFileName) === true) {
             $this->registerLoadedClass($sClassName, $sComponentNamespace);
             return $sAbsoluteProjectRootPath . $sFileName;
+        } else {
+            foreach ($this->aPrefixes as $sPrefix) {
+                if (file_exists($sAbsoluteProjectRootPath . $sPrefix . $sFileName) === true) {
+                    $this->registerLoadedClass($sClassName, $sComponentNamespace);
+                    return $sAbsoluteProjectRootPath . $sPrefix . $sFileName;
+                }
+            }
+
         }
         return null;
     }

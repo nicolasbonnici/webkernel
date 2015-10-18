@@ -2,6 +2,7 @@
 namespace Library\Core\Tests\Dummy\Widgets\vendorname\WidgetName;
 
 use Library\Core\App\Widgets\WidgetAbstract;
+use Library\Core\Html\Elements\Div;
 
 /**
  * A simple plugin to easily integrate Google Analytics on your project
@@ -20,8 +21,15 @@ class WidgetNameWidget extends WidgetAbstract
      */
     protected function build()
     {
-        $this->addParameter('sMessage', 'Hello world!');
+
+        $oDivElement = new Div();
+        $oDivElement->setContent('Hello world!');
+
+        $this->addHtmlElement($oDivElement);
+
         $this->bIsLoaded = true;
+
+        return $this->isLoaded();
     }
 
 }

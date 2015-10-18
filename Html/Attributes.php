@@ -70,7 +70,7 @@ class Attributes
      * Render HTML attribute
      *
      * @param string $sAttrName
-     * @param mixed int|string|qrray $mAttrValue
+     * @param mixed int|string|array $mAttrValue
      * @return string
      */
     protected function renderAttribute($sAttrName, $mAttrValue = '')
@@ -113,8 +113,8 @@ class Attributes
      * Set an attribute
      *
      * @param string $sAttrName
-     * @param string $mAttrValue
-     * @return Form
+     * @param mixed string|array $mAttrValue
+     * @return Attributes
      */
     public function setAttribute($sAttrName, $mAttrValue)
     {
@@ -135,7 +135,7 @@ class Attributes
      * Set all element attributes
      *
      * @param array $aAttributes
-     * @return Form
+     * @return Attributes
      */
     public function setAttributes(array $aAttributes)
     {

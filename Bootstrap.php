@@ -299,8 +299,15 @@ class Bootstrap
             new $sController($oUser);
 
         } else {
-            // @todo handle 404 errors here (bundle error)
-            throw new BootstrapException('No controller found: ' . $sController);
+
+            /**
+             * @todo handle properly the 404 error and root if available to the error bundle
+             */
+            $oHttpHeader = new Http();
+            $oHttpHeader->setStatus(404);
+            $oHttpHeader->sendHeaders();
+            exit;
+
         }
     }
 

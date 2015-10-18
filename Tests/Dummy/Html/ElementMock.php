@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Tests\Mocks\Html;
+namespace Library\Core\Tests\Dummy\Html;
 
 use Library\Core\Html\Element;
 
