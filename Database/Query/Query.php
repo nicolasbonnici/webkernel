@@ -74,9 +74,9 @@ abstract class Query  extends  Join {
 
     /**
      * Query limit
-     * @var array
+     * @var mixed int|array
      */
-    protected $aLimit = array();
+    protected $mLimit = array();
 
     /**
      * instance constructor for child class
@@ -141,12 +141,21 @@ abstract class Query  extends  Join {
         return null;
     }
 
+    /**
+     * Build query limit
+     *
+     * @return mixed|null|string
+     */
     protected function buildLimit()
     {
-        if (empty($this->aLimit) === false) {
-            return self::QUERY_LIMIT . ' ' . implode(', ', $this->aLimit);
+        $sLimit = '';
+        if (empty($this->mLimit) === false) {
+            $sLimit .= self::QUERY_LIMIT . ' ';
+            $sLimit .= (is_array($this->mLimit) === true)
+                ? implode(', ', $this->mLimit)
+                : (string) $this->mLimit;
         }
-        return null;
+        return $sLimit;
     }
 
     /**
@@ -280,12 +289,12 @@ abstract class Query  extends  Join {
     /**
      * Query limit setter
      *
-     * @param array $aLimit     array([int step], [int offset]);
+     * @param mixed int|array $mLimit     array([int step], [int offset]);
      * @return $this
      */
-    public function setLimit(array $aLimit)
+    public function setLimit($mLimit)
     {
-        $this->aLimit = $aLimit;
+        $this->mLimit = $mLimit;
         return $this;
     }
 
@@ -296,7 +305,7 @@ abstract class Query  extends  Join {
      */
     public function getLimit()
     {
-        return $this->aLimit;
+        return $this->mLimit;
     }
 
     /**

@@ -1,10 +1,9 @@
 <?php
-namespace Library\Core\Tests\Select;
+namespace Library\Core\Tests\Orm;
 
-use \Library\Core\Test as Test;
 use Library\Core\Orm\Entity;
+use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
-
 
 /**
  * ORM Entity component unit tests

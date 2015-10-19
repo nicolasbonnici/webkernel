@@ -76,6 +76,10 @@ abstract class EntityAttributes {
     }
 
     /**
+     * @todo get attribute size information too
+     */
+
+    /**
      * Determine if an Entity attribute can be nullable
      *
      * @param string $sAttributeName

@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Tests\Select;
+namespace Library\Core\Tests\Orm;
 
 use \Library\Core\Test as Test;
 
