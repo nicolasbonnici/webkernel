@@ -76,7 +76,7 @@ abstract class Query  extends  Join {
      * Query limit
      * @var mixed int|array
      */
-    protected $mLimit = array();
+    protected $mLimit;
 
     /**
      * instance constructor for child class
