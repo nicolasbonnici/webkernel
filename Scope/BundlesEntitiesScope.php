@@ -3,7 +3,7 @@ namespace Library\Core\Scope;
 
 use Library\Core\Bootstrap;
 use Library\Core\FileSystem\Directory;
-use Library\Core\Orm\EntityParser;
+use Library\Core\Entity\Parser;
 
 /**
  * Scope Bundles component
@@ -44,10 +44,10 @@ class BundlesEntitiesScope extends BundlesScope
     {
         foreach($this->getScope() as $sBundlesName => $mFreeDimension) {
             if (Directory::exists(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundlesName . '/Entities/')) {
-                $oEntityParser = new EntityParser(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundlesName . '/Entities/');
+                $oEntityParser = new Parser(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundlesName . '/Entities/');
                 $aBundleEntities = $oEntityParser->getEntities();
                 if (count($aBundleEntities) > 0) {
-                    /** @var \Library\Core\Orm\Entity $oEntity */
+                    /** @var \Library\Core\Entity\Entity $oEntity */
                     foreach ($aBundleEntities as $oEntity) {
                         if (is_null($this->sFilter) === true) {
                             $this->aScope[$sBundlesName][] = $oEntity;

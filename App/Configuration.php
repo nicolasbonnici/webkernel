@@ -74,7 +74,7 @@ class Configuration {
      * @param $sKey
      * @param $mValue
      * @return bool
-     * @throws \Library\Core\Orm\EntityException
+     * @throws \Library\Core\Entity\EntityException
      */
     public function set($sKey, $mValue)
     {
@@ -207,7 +207,7 @@ class Configuration {
      *
      * @param string $sKey
      * @return Config|null
-     * @throws \Library\Core\Orm\EntityException
+     * @throws \Library\Core\Entity\EntityException
      */
     private function loadConfigByKeyName($sKey)
     {

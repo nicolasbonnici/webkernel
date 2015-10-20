@@ -1,15 +1,15 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use Library\Core\Bootstrap;
 use Library\Core\Exception\CoreException;
 use Library\Core\FileSystem\Directory;
 
 /**
- * EntityParser component
+ * Parser component
  *
  */
-class EntityParser
+class Parser
 {
 
     /**

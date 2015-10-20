@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use app\Entities\User;
 
@@ -35,7 +35,7 @@ abstract class Crud
     /**
      * Current \app\Entities\
      *
-     * @var \Library\Core\Orm\Entity $oEntity
+     * @var \Library\Core\Entity\Entity $oEntity
      */
     protected $oEntity;
 

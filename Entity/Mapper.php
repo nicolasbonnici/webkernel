@@ -1,19 +1,19 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
-use Library\Core\Orm\Mapping\EntityMappingException;
-use Library\Core\Orm\Mapping\ManyToMany;
-use Library\Core\Orm\Mapping\MappingAbstract;
-use Library\Core\Orm\Mapping\OneToMany;
-use Library\Core\Orm\Mapping\OneToOne;
+use Library\Core\Entity\Mapping\EntityMappingException;
+use Library\Core\Entity\Mapping\ManyToMany;
+use Library\Core\Entity\Mapping\MappingAbstract;
+use Library\Core\Entity\Mapping\OneToMany;
+use Library\Core\Entity\Mapping\OneToOne;
 
 /**
  * Handle all relationship types between Entities, and provide generic usefull methods to load and store mapped Entities
  *
- * Class EntityMapper
+ * Class Mapper
  * @package Library\Core\Orm
  */
-class EntityMapper
+class Mapper
 {
 
     /**
@@ -69,7 +69,7 @@ class EntityMapper
      * @param array $aOrderFields
      * @param array $aLimit
      * @return Entity|null
-     * @throws \Library\Core\Orm\EntityException
+     * @throws \Library\Core\Entity\EntityException
      */
     public function loadMapped(
         Entity $oMappedEntity,

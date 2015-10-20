@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use Library\Core\Collection;
 use Library\Core\Database\Pdo;

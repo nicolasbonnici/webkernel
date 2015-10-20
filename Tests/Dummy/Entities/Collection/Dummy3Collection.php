@@ -2,7 +2,7 @@
 
 namespace Library\Core\Tests\Dummy\Entities\Collection;
 
-use Library\Core\Orm\EntityCollection;
+use Library\Core\Entity\EntityCollection;
 
 /**
  * Class Dummy3

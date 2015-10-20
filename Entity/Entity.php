@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use Library\Core\Cache;
 use Library\Core\Database\Pdo;
@@ -18,7 +18,7 @@ use Library\Core\Database\Query\Update;
  *
  * @author niko <nicolasbonnici@gmail.com>
  */
-abstract class Entity extends EntityAttributes
+abstract class Entity extends Attributes
 {
 
     /**
@@ -317,7 +317,7 @@ abstract class Entity extends EntityAttributes
             # Handle Entity history if needed
             if ($this->bIsHistorized === true) {
                 $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
-                $oEntityHistory = new EntityHistory($oOriginalObject);
+                $oEntityHistory = new History($oOriginalObject);
             }
 
             # Retrieve instance setted values

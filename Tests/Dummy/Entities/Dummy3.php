@@ -7,7 +7,7 @@ namespace Library\Core\Tests\Dummy\Entities;
  *
  * @author infradmin
  */
-class Dummy3 extends \Library\Core\Orm\Entity {
+class Dummy3 extends \Library\Core\Entity\Entity {
 
     const ENTITY = 'Dummy3';
     const TABLE_NAME = 'dummy3';

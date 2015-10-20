@@ -1,13 +1,13 @@
 <?php
-namespace Library\Core\Tests\Orm;
+namespace Library\Core\Tests\Entity;
 
 use Library\Core\Bootstrap;
 use \Library\Core\Test as Test;
-use Library\Core\Orm\EntityParser;
+use Library\Core\Entity\Parser;
 
 
 /**
- * ORM EntityParser component unit tests
+ * ORM Parser component unit tests
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
@@ -36,8 +36,8 @@ class EntityParserTest extends Test
 
     public function testConstructor()
     {
-        self::$oEntityParserInstance = new EntityParser(Bootstrap::getPath(Bootstrap::PATH_APP) . 'Entities/');
-        $this->assertTrue(self::$oEntityParserInstance instanceof EntityParser);
+        self::$oEntityParserInstance = new Parser(Bootstrap::getPath(Bootstrap::PATH_APP) . 'Entities/');
+        $this->assertTrue(self::$oEntityParserInstance instanceof Parser);
     }
 
     public function testGetPath()

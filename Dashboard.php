@@ -3,8 +3,8 @@ namespace Library\Core;
 
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Select;
-use Library\Core\Orm\Crud;
-use Library\Core\Orm\Entity;
+use Library\Core\Entity\Crud;
+use Library\Core\Entity\Entity;
 
 /**
  * Dashboard common couch

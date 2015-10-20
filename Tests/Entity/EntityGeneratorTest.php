@@ -1,32 +1,32 @@
 <?php
-namespace Library\Core\Tests\Orm;
+namespace Library\Core\Tests\Entity;
 
 use \Library\Core\Test;
-use Library\Core\Orm\EntityGenerator;
+use Library\Core\Entity\Generator;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 
 
 /**
- * EntityGenerator component unit tests
+ * Generator component unit tests
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 class EntityGeneratorTest extends Test
 {
     /**
-     * @var EntityGenerator
+     * @var Generator
      */
     private $oEntityGeneratorInstance;
 
     protected function setUp()
     {
-        $this->oEntityGeneratorInstance = new EntityGenerator();
+        $this->oEntityGeneratorInstance = new Generator();
     }
 
     public function testConstructor()
     {
         $this->assertTrue(
-            $this->oEntityGeneratorInstance instanceof EntityGenerator
+            $this->oEntityGeneratorInstance instanceof Generator
         );
     }
 

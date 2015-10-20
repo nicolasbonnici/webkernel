@@ -1,7 +1,7 @@
 <?php
-namespace Library\Core\Tests\Orm;
+namespace Library\Core\Tests\Entity;
 
-use Library\Core\Orm\Entity;
+use Library\Core\Entity\Entity;
 use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 

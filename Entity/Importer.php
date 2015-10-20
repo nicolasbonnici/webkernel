@@ -1,11 +1,11 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 /**
  * Entity importer
 
  */
-class EntityImporter
+class Importer
 {
 	/**
 	 * Latest found schema version for Entity import file

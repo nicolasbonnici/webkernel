@@ -1,11 +1,11 @@
 <?php
-namespace Library\Core\Orm\Mapping;
+namespace Library\Core\Entity\Mapping;
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Insert;
 use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;
-use Library\Core\Orm\Entity;
-use Library\Core\Orm\EntityCollection;
+use Library\Core\Entity\Entity;
+use Library\Core\Entity\EntityCollection;
 
 
 /**
@@ -34,7 +34,7 @@ class ManyToMany extends MappingAbstract
      * @param array $aOrderFields
      * @param array $aLimit
      * @return Entity|null
-     * @throws \Library\Core\Orm\EntityException
+     * @throws \Library\Core\Entity\EntityException
      */
     public function loadMapped(
         Entity $oMappedEntity,

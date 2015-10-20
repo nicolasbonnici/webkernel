@@ -1,9 +1,9 @@
 <?php
-namespace Library\Core\Tests\Orm;
+namespace Library\Core\Tests\Entity;
 
 use \Library\Core\Test as Test;
 
-use Library\Core\Orm\EntityMapper;
+use Library\Core\Entity\Mapper;
 use Library\Core\Tests\Dummy\Entities\Collection\Dummy2Collection;
 use Library\Core\Tests\Dummy\Entities\Collection\Dummy3Collection;
 use Library\Core\Tests\Dummy\Entities\Dummy;
@@ -12,14 +12,14 @@ use Library\Core\Tests\Dummy\Entities\Dummy3;
 use Library\Core\Tests\Dummy\Entities\Dummy4;
 
 /**
- * ORM EntityMapper component unit tests
+ * ORM Mapper component unit tests
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 class EntityMapperTest extends Test
 {
     /**
-     * @var EntityMapper
+     * @var Mapper
      */
     private $oEntityMapperInstance;
 
@@ -130,10 +130,10 @@ class EntityMapperTest extends Test
 
 
     /**
-     * Create a EntityMapper instance
+     * Create a Mapper instance
      *
-     * @return EntityMapper|null
-     * @throws \Library\Core\Orm\EntityException
+     * @return Mapper|null
+     * @throws \Library\Core\Entity\EntityException
      */
     private function getEntityMapper()
     {
@@ -164,7 +164,7 @@ class EntityMapperTest extends Test
 
         }
 
-        $oEntityMapper = new EntityMapper();
+        $oEntityMapper = new Mapper();
         $oEntityMapper->setSourceEntity($oDummy);
         return $oEntityMapper;
     }

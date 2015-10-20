@@ -2,14 +2,14 @@
 
 namespace Library\Core\Tests\Dummy\Entities;
 
-use Library\Core\Orm\Mapping\MappingAbstract;
+use Library\Core\Entity\Mapping\MappingAbstract;
 
 /**
  * Dummy Entity for unit tests
  *
  * @author infradmin
  */
-class Dummy extends \Library\Core\Orm\Entity {
+class Dummy extends \Library\Core\Entity\Entity {
 
     const ENTITY = 'Dummy';
     const TABLE_NAME = 'dummy';

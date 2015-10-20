@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use Library\Core\Exception\CoreException;
 use Library\Core\Collection;
@@ -13,7 +13,7 @@ use app\Entities\User;
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  *
  */
-class EntitySearch
+class Search
 {
 
     /**
@@ -86,7 +86,7 @@ class EntitySearch
     // @todo trier les resulats sur 3 dimensions bundle => entity => results
     // @todo Entity instance on parameter
 
-    protected function doSearch($sBundleName, \Library\Core\Orm\Entity $oEntity, array $aConstraints = array())
+    protected function doSearch($sBundleName, \Library\Core\Entity\Entity $oEntity, array $aConstraints = array())
     {
         assert('empty($this->sSearch) === false');
 
@@ -95,14 +95,14 @@ class EntitySearch
 
         // Entities must be searchable and have a EntityCollection class too
         if ($oEntity->isSearchable() === false) {
-            throw new EntitySearchException(
-                sprintf(EntitySearchException::$aErrors[EntitySearchException::ERROR_ENTITY_NOT_ALLOWED], $oEntity ),
-                EntitySearchException::ERROR_ENTITY_NOT_ALLOWED
+            throw new SearchException(
+                sprintf(SearchException::$aErrors[SearchException::ERROR_ENTITY_NOT_ALLOWED], $oEntity ),
+                SearchException::ERROR_ENTITY_NOT_ALLOWED
             );
         } elseif (class_exists($sEntityCollectionClassName) === false) {
-            throw new EntitySearchException(
-                sprintf(EntitySearchException::$aErrors[EntitySearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND], $oEntity ),
-                EntitySearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND
+            throw new SearchException(
+                sprintf(SearchException::$aErrors[SearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND], $oEntity ),
+                SearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND
             );
         } else {
             $oEntityCollection = new $sEntityCollectionClassName();
@@ -112,7 +112,7 @@ class EntitySearch
             // Generic search
             $aAttributes = $oEntity->getAttributes();
             foreach ($aAttributes as $sKey) {
-                if ($oEntity->getDataType($sKey) === EntityAttributes::DATA_TYPE_STRING) {
+                if ($oEntity->getDataType($sKey) === Attributes::DATA_TYPE_STRING) {
                     $aParameters[$sKey] = $this->sSearch;
                 }
             }
@@ -146,7 +146,7 @@ class EntitySearch
      * Set the bundles scope to restrict search
      *
      * @param \Library\Core\Scope\BundlesEntitiesScope $oBundleScope
-     * @return EntitySearch
+     * @return Search
      */
     public function setScope(BundlesEntitiesScope $oBundleScope)
     {
@@ -165,7 +165,7 @@ class EntitySearch
         } elseif (is_int($mUser) && intval($mUser) > 0) {
             try {
                 $this->oUser = new User($mUser);
-            } catch (\Library\Core\Orm\EntityException $oException) {
+            } catch (\Library\Core\Entity\EntityException $oException) {
                 $this->oUser = null;
             }
         } else {
@@ -177,7 +177,7 @@ class EntitySearch
      * Set search term
      *
      * @param $sSearch
-     * @return EntitySearch
+     * @return Search
      */
     public function setSearch($sSearch)
     {
@@ -205,7 +205,7 @@ class EntitySearch
     }
 }
 
-class EntitySearchException extends CoreException
+class SearchException extends CoreException
 {
 
     /**

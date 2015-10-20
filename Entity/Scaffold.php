@@ -1,12 +1,12 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 /**
  * Scaffolding class
  *
  * @todo generer entités et collections, les vues controlleur qui implemente directement les methodes du CrudController et les traductions etc...
  */
-class EntityScaffold
+class Scaffold
 {
 
     public function generateEntity($sTableName, $iCacheDuration = 120)

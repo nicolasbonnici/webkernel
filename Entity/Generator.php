@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Operators;
@@ -10,10 +10,10 @@ use Library\Core\Exception\CoreException;
 /**
  * This class can generate large amount of Entities for testing and benchmark purposes
  *
- * Class EntityGenerator
+ * Class Generator
  * @package Library\Core\Orm
  */
-class EntityGenerator
+class Generator
 {
 
     /**
@@ -79,7 +79,7 @@ class EntityGenerator
                         $this->iForeignEntityId = $oStatement->fetchColumn();
 
                         if ($this->iForeignEntityId === false) {
-                            # No foreign Entity Record found we need to store one manually with EntityMapper in this case
+                            # No foreign Entity Record found we need to store one manually with Mapper in this case
                             die('No mapped entities found on table: ' . $sTableName);
                         }
                     }
@@ -112,23 +112,23 @@ class EntityGenerator
 
         # Handle 'created' and 'lastupdate' fields to directly return current Unix timestamp
         if (
-            $sDataType === EntityAttributes::DATA_TYPE_INTEGER &&
+            $sDataType === Attributes::DATA_TYPE_INTEGER &&
             in_array($sFieldName, array('created', 'lastupdate')) === true
         ) {
             return time();
         }
 
         switch ($sDataType) {
-            case EntityAttributes::DATA_TYPE_STRING :
+            case Attributes::DATA_TYPE_STRING :
                 return $this->getRandomString();
                 break;
-            case EntityAttributes::DATA_TYPE_INTEGER :
+            case Attributes::DATA_TYPE_INTEGER :
                 return $this->getRandomInteger();
                 break;
-            case EntityAttributes::DATA_TYPE_FLOAT:
+            case Attributes::DATA_TYPE_FLOAT:
                 return $this->getRandomFloat();
                 break;
-            case EntityAttributes::DATA_TYPE_ARRAY:
+            case Attributes::DATA_TYPE_ARRAY:
                 return $this->getRandomArray();
                 break;
             default :
@@ -208,6 +208,6 @@ class EntityGenerator
     }
 
 }
-class EntityGeneratorException extends CoreException
+class GeneratorException extends CoreException
 {
 }

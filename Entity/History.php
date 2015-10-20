@@ -1,14 +1,14 @@
 <?php
-namespace Library\Core\Orm;
-use app\Entities\History;
+namespace Library\Core\Entity;
+
 use Library\Core\Exception\CoreException;
 use Library\Core\Json\Json;
 
 /**
- * EntityHistory
+ * History
  */
 
-class EntityHistory {
+class History {
 
 
     /**
@@ -44,7 +44,7 @@ class EntityHistory {
             $oAfter = new Json($aDiffAfter);
 
             /** @var Entity $oHistory */
-            $oHistory = new History();
+            $oHistory = new \app\Entities\History();
             $oHistory->entity = $this->oOriginalEntity->getEntityName();
             $oHistory->entityId = $this->oOriginalEntity->getId();
             $oHistory->pre_modification = $oBefore->__toString();

@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Orm;
+namespace Library\Core\Entity;
 
 use Library\Core\Cache;
 use Library\Core\Database\Pdo;
@@ -10,10 +10,10 @@ use Library\Core\Validator;
  *
  * @todo implement QueryAbstract
  *
- * Class EntityAttributes
+ * Class Attributes
  * @package Library\Core\Orm
  */
-abstract class EntityAttributes {
+abstract class Attributes {
 
     /**
      * Entity attribute's types

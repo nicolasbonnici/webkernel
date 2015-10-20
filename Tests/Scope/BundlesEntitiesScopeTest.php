@@ -44,7 +44,7 @@ class BundlesEntitiesScopeTest extends Test
             $this->assertTrue(is_array($aEntities) || is_null($aEntities));
             if (is_array($aEntities) === true) {
                 foreach ($aEntities as $oEntity) {
-                    $this->assertInstanceOf('Library\Core\Orm\Entity', $oEntity);
+                    $this->assertInstanceOf('Library\Core\Entity\Entity', $oEntity);
                 }
             }
         }
