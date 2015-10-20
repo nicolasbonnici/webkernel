@@ -1,7 +1,13 @@
 <?php
 namespace Library\Core\Database\Query;
 
-abstract class Query  extends  Join {
+/**
+ * Abstract layer to any Query component
+ *
+ * Class QueryAbstract
+ * @package Library\Core\Database\Query
+ */
+abstract class QueryAbstract  extends  Join {
 
     const QUERY_TYPE_SELECT = 'SELECT';
     const QUERY_TYPE_INSERT = 'INSERT';
@@ -18,7 +24,7 @@ abstract class Query  extends  Join {
     const QUERY_DEFAULT_ORDER = self::QUERY_ORDER_DESC;
 
     /**
-     * Query types scope
+     * QueryAbstract types scope
      * @var array
      */
     protected $aQueryTypes = array(
@@ -29,7 +35,7 @@ abstract class Query  extends  Join {
     );
 
     /**
-     * Query order types scope
+     * QueryAbstract order types scope
      * @var array
      */
     protected $aQueryOrders = array(
@@ -38,30 +44,30 @@ abstract class Query  extends  Join {
     );
 
     /**
-     * Query type
+     * QueryAbstract type
      * @var string
      */
     protected $sQueryType;
 
     /**
-     * Query requested columns fields
+     * QueryAbstract requested columns fields
      * @var array
      */
     protected $aColumns = array();
 
     /**
-     * Query targeted table
+     * QueryAbstract targeted table
      * @var string
      */
     protected $sFrom = '';
 
     /**
-     * Query order
+     * QueryAbstract order
      * @var string
      */
     protected $sOrder = self::QUERY_DEFAULT_ORDER;
     /**
-     * Query order by fields
+     * QueryAbstract order by fields
      * @var array
      */
     protected $aOrderBy = array();
@@ -73,7 +79,7 @@ abstract class Query  extends  Join {
     protected $aGroupBy = array();
 
     /**
-     * Query limit
+     * QueryAbstract limit
      * @var mixed int|array
      */
     protected $mLimit;
@@ -85,7 +91,7 @@ abstract class Query  extends  Join {
     {}
 
     /**
-     * __toString overload to directly render the Query
+     * __toString overload to directly render the QueryAbstract
      * @return string
      */
     public function __toString()
@@ -94,7 +100,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query builder
+     * QueryAbstract builder
      * @return string
      */
     public function build()
@@ -103,13 +109,13 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query build strategy factory
-     * @return array            Array of callable methods from instance
+     * QueryAbstract build strategy factory
+     * @return string
      */
     abstract protected function buildQuery();
 
     /**
-     * Query from clause builder
+     * QueryAbstract from clause builder
      * @return string
      */
     protected function buildFrom()
@@ -118,7 +124,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query group by condition builder
+     * QueryAbstract group by condition builder
      * @return string
      */
     protected function buildGroupBy()
@@ -130,7 +136,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query order by condition builder
+     * QueryAbstract order by condition builder
      * @return string
      */
     protected function buildOrderBy()
@@ -144,7 +150,7 @@ abstract class Query  extends  Join {
     /**
      * Build query limit
      *
-     * @return mixed|null|string
+     * @return string
      */
     protected function buildLimit()
     {
@@ -159,7 +165,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Build Query columns
+     * Build QueryAbstract columns
      * @return string
      */
     protected function buildColumns()
@@ -171,7 +177,7 @@ abstract class Query  extends  Join {
      * Add column
      *
      * @param string $sGroupBy
-     * @return Query
+     * @return QueryAbstract
      */
     public function addColumn($sColumn)
     {
@@ -183,7 +189,7 @@ abstract class Query  extends  Join {
      * Add columns
      *
      * @param array $aColumns
-     * @return Query
+     * @return QueryAbstract
      */
     public function addColumns(array $aColumns)
     {
@@ -206,14 +212,18 @@ abstract class Query  extends  Join {
      * @param $sFromTable
      * @return $this
      */
-    public function setFrom($sFromTable)
+    public function setFrom($sFromTable, $bEscape = false)
     {
-        $this->sFrom = $sFromTable;
+        if ($bEscape === true) {
+            $this->sFrom = '`' . $sFromTable . '`';
+        } else {
+            $this->sFrom = $sFromTable;
+        }
         return $this;
     }
 
     /**
-     * Query from clause getter
+     * QueryAbstract from clause getter
      * @return string
      */
     public function getFrom()
@@ -222,10 +232,10 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query order by setter
+     * QueryAbstract order by setter
      *
      * @param string $sOrderBy
-     * @return Query
+     * @return QueryAbstract
      */
     public function setOrderBy(array $aOrderBy)
     {
@@ -257,7 +267,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query oder type accessor
+     * QueryAbstract oder type accessor
      * @return string
      */
     public function getOrder()
@@ -269,7 +279,7 @@ abstract class Query  extends  Join {
      * Add columns
      *
      * @param array $aGroupBy
-     * @return Query
+     * @return QueryAbstract
      */
     public function setGroupBy(array $aGroupBy)
     {
@@ -287,7 +297,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query limit setter
+     * QueryAbstract limit setter
      *
      * @param mixed int|array $mLimit     array([int step], [int offset]);
      * @return $this
@@ -299,7 +309,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query limit accessor
+     * QueryAbstract limit accessor
      *
      * @return array
      */
@@ -309,10 +319,10 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Set the Query type
+     * Set the QueryAbstract type
      *
      * @param string $sQueryType        Restricted by $aQueryType array scope
-     * @return mixed Query|boolean      The Query instance if saved otherwise FALSE
+     * @return mixed QueryAbstract|boolean      The QueryAbstract instance if saved otherwise FALSE
      */
     public function setQueryType($sQueryType)
     {
@@ -325,7 +335,7 @@ abstract class Query  extends  Join {
     }
 
     /**
-     * Query type accessor
+     * QueryAbstract type accessor
      * @return string
      */
     public function getQueryType()

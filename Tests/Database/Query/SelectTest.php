@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Tests\Database\Query;
 
-use Library\Core\Database\Query\Query;
+use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
 use \Library\Core\Test as Test;
 
@@ -38,7 +38,7 @@ class SelectTest extends Test
     {
         self::$oSelectInstance = new Select();
         $this->assertTrue(self::$oSelectInstance instanceof Select);
-        $this->assertEquals(self::$oSelectInstance->getQueryType(), Query::QUERY_TYPE_SELECT);
+        $this->assertEquals(self::$oSelectInstance->getQueryType(), QueryAbstract::QUERY_TYPE_SELECT);
 
     }
 
@@ -58,6 +58,12 @@ class SelectTest extends Test
         $this->aColumns = array_merge($this->aColumns, array('prop4'));
         $this->assertEquals(self::$oSelectInstance->getColumns(), $this->aColumns);
 
+    }
+
+    public function testSetFromEscaped()
+    {
+        $this->assertTrue(self::$oSelectInstance->setFrom('table_name', true) instanceof Select);
+        $this->assertEquals(self::$oSelectInstance->getFrom() , '`table_name`');
     }
 
     public function testSetFrom()

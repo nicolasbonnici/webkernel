@@ -33,7 +33,7 @@ class EntityGeneratorTest extends Test
     public function testGenerateThousandDummyEntities()
     {
         $this->assertTrue(
-            $this->oEntityGeneratorInstance->process(new Dummy(), 1000),
+            $this->oEntityGeneratorInstance->process(new Dummy(), 100),
             'Unable to generate a thousand Dummy entities.'
         );
 
@@ -44,7 +44,7 @@ class EntityGeneratorTest extends Test
         );
 
         $this->assertEquals(
-            1000,
+            100,
             count($aDummyEntities)
         );
     }

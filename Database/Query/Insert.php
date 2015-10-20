@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Database\Query;
 
-class Insert extends Query {
+class Insert extends QueryAbstract {
 
     const QUERY_INSERT_VALUE               = 'VALUES';
     const QUERY_INSERT_TABLE_PREFIX        = 'INTO';
@@ -24,11 +24,11 @@ class Insert extends Query {
      */
     public function __construct()
     {
-        $this->setQueryType(Query::QUERY_TYPE_INSERT);
+        $this->setQueryType(QueryAbstract::QUERY_TYPE_INSERT);
     }
 
     /**
-     * Query build strategy factory
+     * QueryAbstract build strategy factory
      * @return array
      */
     protected function buildQuery()
@@ -82,7 +82,7 @@ class Insert extends Query {
     }
 
     /**
-     * Query insert parameters setter
+     * QueryAbstract insert parameters setter
      * @param $aParameters
      * @return Insert
      */
@@ -95,7 +95,7 @@ class Insert extends Query {
     }
 
     /**
-     * Query insert parameters getter
+     * QueryAbstract insert parameters getter
      * @return array
      */
     public function getParameters()

@@ -31,6 +31,13 @@ class EntityGenerator
     protected $aGeneratedEntities = array();
 
     /**
+     * If generated entity is mapped on other Entity we store the detected mapped Entity id for cache at call purposes
+     *
+     * @var int
+     */
+    protected $iForeignEntityId = 0;
+
+    /**
      * Process Entities generation
      *
      * @param Entity $oEntity
@@ -54,27 +61,30 @@ class EntityGenerator
                     $oGeneratedEntity->$sAttributeName = null;
                     continue;
                 } elseif (strstr($sAttributeName, '_id') !== false) {
+
                     # Foreign key case
-                    $aForeignKey = explode('_', $sAttributeName);
-                    $sTableName = $aForeignKey[0];
-                    $sPrimaryKeyName = $aForeignKey[1];
+                    if ($this->iForeignEntityId !== 0) {
+                        $aForeignKey = explode('_', $sAttributeName);
+                        $sTableName = $aForeignKey[0];
+                        $sPrimaryKeyName = $aForeignKey[1];
 
-                    # Find an existent record for foreign key
-                    $oSelectQuery = new Select();
-                    $oSelectQuery->addColumn($sPrimaryKeyName)
-                        ->setFrom($sTableName)
-                        ->setLimit(1)
-                        ->addWhereCondition(Operators::smaller($sPrimaryKeyName));
-                    $oStatement = Pdo::dbQuery($oSelectQuery->build(), array(':' . $sPrimaryKeyName => '100000'));
+                        # Find an existent record for foreign key
+                        $oSelectQuery = new Select();
+                        $oSelectQuery->addColumn($sPrimaryKeyName)
+                            ->setFrom($sTableName)
+                            ->setLimit(1)
+                            ->addWhereCondition(Operators::smaller($sPrimaryKeyName));
+                        $oStatement = Pdo::dbQuery($oSelectQuery->build(), array(':' . $sPrimaryKeyName => '100000'));
 
-                    $iForeingId = $oStatement->fetchColumn();
+                        $this->iForeignEntityId = $oStatement->fetchColumn();
 
-                    if ($iForeingId === false) {
-                        # No foreign Entity Record found we need to store one manually with EntityMapper in this case
-                        die('No mapped entities found on table: ' . $sTableName);
+                        if ($this->iForeignEntityId === false) {
+                            # No foreign Entity Record found we need to store one manually with EntityMapper in this case
+                            die('No mapped entities found on table: ' . $sTableName);
+                        }
                     }
 
-                    $oGeneratedEntity->$sAttributeName = $iForeingId;
+                    $oGeneratedEntity->$sAttributeName = $this->iForeignEntityId;
                     continue;
 
                 }
@@ -176,13 +186,14 @@ class EntityGenerator
     }
 
     /**
-     * Flush the generated Entities buffer
+     * Flush the generated Entities buffer and detected foreign key value
      *
      * @return bool
      */
     protected function reset()
     {
         $this->aGeneratedEntities = array();
+        $this->iForeignEntityId = 0;
         return (bool) (empty($this->aGeneratedEntities) === true);
     }
 

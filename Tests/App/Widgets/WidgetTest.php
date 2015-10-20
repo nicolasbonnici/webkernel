@@ -35,6 +35,7 @@ class WidgetTest extends Test
     public function testConstructor()
     {
         $this->assertTrue($this->oDummyWidgetInstance instanceof WidgetNameWidget);
+
         $this->assertEquals(
             'vendorname',
             $this->oDummyWidgetInstance->getVendorName()

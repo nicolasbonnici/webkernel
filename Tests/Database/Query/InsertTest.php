@@ -2,7 +2,7 @@
 namespace Library\Core\Tests\Database\Query;
 
 use Library\Core\Database\Query\Operators;
-use Library\Core\Database\Query\Query;
+use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Insert;
 use \Library\Core\Test as Test;
 
@@ -46,7 +46,7 @@ class InsertTest extends Test
         self::$oInsertInstance = new Insert();
         $this->assertTrue(self::$oInsertInstance instanceof Insert);
         $this->assertEquals(
-            Query::QUERY_TYPE_INSERT,
+            QueryAbstract::QUERY_TYPE_INSERT,
             self::$oInsertInstance->getQueryType()
         );
 

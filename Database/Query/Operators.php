@@ -1,7 +1,8 @@
 <?php
 namespace Library\Core\Database\Query;
 
-class Operators {
+class Operators
+{
 
     const OPERATOR_EQUAL            = '=';
     const OPERATOR_DIFFERENT        = '!=';
@@ -14,23 +15,18 @@ class Operators {
     const OPERATOR_LIKE_WILDCARDS   = '%';
     const OPERATOR_DEFAULT          = self::OPERATOR_EQUAL;
 
-    public function __construct()
-    {
-
-    }
-
     /**
      * Build bounded parameter
      *
      * @param string $sBoundedParameterName (optional)
      * @return string
      */
-    public static function buildBoundedParameter($sBoundedParameterName = null)
+    public static function buildBoundedParameter($sBoundedParameterName = null, $bBindParameter = true)
     {
         return (string) (
-            (is_null($sBoundedParameterName) === false)
-                ? Where::QUERY_WHERE_BOUNDED_ASSIGN . $sBoundedParameterName
-                : Where::QUERY_WHERE_BOUNDED_ASSIGN . Where::QUERY_WHERE_BOUNDED_PARAMETER
+            (is_null($sBoundedParameterName) === true || $bBindParameter === false)
+                ? Where::QUERY_WHERE_BOUNDED_PARAMETER
+                : Where::QUERY_WHERE_BOUNDED_ASSIGN . $sBoundedParameterName
         );
     }
 
@@ -40,9 +36,9 @@ class Operators {
      * @param string $sFieldName
      * @return string
      */
-    public static function equal($sFieldName)
+    public static function equal($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -51,9 +47,9 @@ class Operators {
      * @param string $sFieldName
      * @return string
      */
-    public static function different($sFieldName)
+    public static function different($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_DIFFERENT . ' ' . self::buildBoundedParameter($sFieldName);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_DIFFERENT . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -62,9 +58,9 @@ class Operators {
      * @param string $sFieldName
      * @return string
      */
-    public static function bigger($sFieldName)
+    public static function bigger($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER . ' ' . self::buildBoundedParameter($sFieldName);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -73,9 +69,9 @@ class Operators {
      * @param string $sFieldName
      * @return string
      */
-    public static function biggerOrEqual($sFieldName)
+    public static function biggerOrEqual($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -84,9 +80,9 @@ class Operators {
      * @param string $sFieldName
      * @return string
      */
-    public static function smaller($sFieldName)
+    public static function smaller($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER . ' ' . self::buildBoundedParameter($sFieldName);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -95,9 +91,9 @@ class Operators {
      * @param $sFieldName
      * @return string
      */
-    public static function smallerOrEqual($sFieldName)
+    public static function smallerOrEqual($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName);
+        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**

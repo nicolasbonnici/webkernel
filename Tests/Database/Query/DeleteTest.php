@@ -2,7 +2,7 @@
 namespace Library\Core\Tests\Database\Query;
 
 use Library\Core\Database\Query\Operators;
-use Library\Core\Database\Query\Query;
+use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Delete;
 use \Library\Core\Test as Test;
 
@@ -39,7 +39,7 @@ class DeleteTest extends Test
     {
         self::$oDeleteInstance = new Delete();
         $this->assertTrue(self::$oDeleteInstance instanceof Delete);
-        $this->assertEquals(self::$oDeleteInstance->getQueryType(), Query::QUERY_TYPE_DELETE);
+        $this->assertEquals(self::$oDeleteInstance->getQueryType(), QueryAbstract::QUERY_TYPE_DELETE);
 
     }
 

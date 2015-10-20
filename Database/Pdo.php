@@ -147,9 +147,12 @@ class Pdo extends Singleton
                 self::setLink();
             }
 
-            $oStatement = self::$_link->prepare($sQuery, array(
-                \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
-            ));
+            $oStatement = self::$_link->prepare(
+                $sQuery,
+                array(
+                    \PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true
+                )
+            );
             $oStatement->execute($aValues);
 
             return $oStatement;
@@ -172,7 +175,7 @@ class Pdo extends Singleton
         if (isset(self::$_link) === false) {
             return 0;
         }
-        return self::$_link->lastInsertId();
+        return (int) self::$_link->lastInsertId();
     }
 
 }

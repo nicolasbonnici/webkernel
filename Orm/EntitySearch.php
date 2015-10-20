@@ -117,7 +117,7 @@ class EntitySearch
                 }
             }
 
-            // @todo use Query component
+            // @todo use QueryAbstract component
             // @todo handle last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
             $oEntityCollection->loadByParameters(
                 $aParameters,

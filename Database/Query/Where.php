@@ -5,7 +5,7 @@ namespace Library\Core\Database\Query;
  * This class handle where conditions
  *
  * Class Where
- * @package Library\Core\Database\Query
+ * @package Library\Core\Database\QueryAbstract
  */
 class Where  {
 
@@ -44,10 +44,11 @@ class Where  {
     {
         $sWhere = '';
         foreach ($this->aWhere as $aWhereCondition) {
-            $sWhere .= ((is_null($aWhereCondition['connector']) === false)
+            $sWhere .= (
+                (is_null($aWhereCondition['connector']) === false)
                     ? ' ' . $aWhereCondition['connector'] . ' '
                     : ''
-                ) . $aWhereCondition['condition'];
+            ) . $aWhereCondition['condition'];
         }
         return $sWhere;
     }

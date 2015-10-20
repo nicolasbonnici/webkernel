@@ -2,18 +2,18 @@
 namespace Library\Core\Database\Query;
 
 
-class Delete extends Query {
+class Delete extends QueryAbstract {
 
     /**
      * Delete constructor
      */
     public function __construct()
     {
-        $this->setQueryType(Query::QUERY_TYPE_DELETE);
+        $this->setQueryType(QueryAbstract::QUERY_TYPE_DELETE);
     }
 
     /**
-     * Query build strategy factory
+     * QueryAbstract build strategy factory
      * @return array
      */
     protected function buildQuery()

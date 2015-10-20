@@ -1,18 +1,18 @@
 <?php
 namespace Library\Core\Database\Query;
 
-class Select extends Query {
+class Select extends QueryAbstract {
 
     /**
      * Select constructor
      */
     public function __construct()
     {
-        $this->setQueryType(Query::QUERY_TYPE_SELECT);
+        $this->setQueryType(QueryAbstract::QUERY_TYPE_SELECT);
     }
 
     /**
-     * Query build strategy factory
+     * QueryAbstract build strategy factory
      * @return array
      */
     protected function buildQuery()

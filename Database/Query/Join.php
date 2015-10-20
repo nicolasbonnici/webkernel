@@ -1,6 +1,14 @@
 <?php
 namespace Library\Core\Database\Query;
 
+/**
+ * Query Join component
+ *
+ * @todo declare this class abstract
+ *
+ * Class Join
+ * @package Library\Core\Database\Query
+ */
 class Join  extends Where {
 
     const QUERY_JOIN_TYPE_LEFT    = 'LEFT';
@@ -37,7 +45,7 @@ class Join  extends Where {
      * Add join statement
      *
      * @param string $sColumn
-     * @return Query
+     * @return QueryAbstract
      */
     public function addJoin($sJoin)
     {
@@ -49,7 +57,7 @@ class Join  extends Where {
      * Add join statements
      *
      * @param array $aJoins
-     * @return Query
+     * @return QueryAbstract
      */
     public function addJoins(array $aJoins)
     {

@@ -10,7 +10,7 @@ use \Library\Core\Test as Test;
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class WidgetTest extends Test
+class BundleTest extends Test
 {
 
     const TEST_BUNDLE = 'sample';
@@ -27,11 +27,7 @@ class WidgetTest extends Test
 
     public function setUp()
     {
-        try {
-            $this->oSampleBundleInstance = new Bundle(self::TEST_BUNDLE);
-        } catch (\Exception $oException) {
-            die($oException->getMessage());
-        }
+        $this->oSampleBundleInstance = new Bundle(self::TEST_BUNDLE);
     }
 
     public function tearDown()

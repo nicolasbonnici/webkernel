@@ -8,7 +8,7 @@ use Library\Core\Validator;
 /**
  * Entities attributes generic abstract
  *
- * @todo implement Query
+ * @todo implement QueryAbstract
  *
  * Class EntityAttributes
  * @package Library\Core\Orm
@@ -50,7 +50,7 @@ abstract class EntityAttributes {
     }
 
     /**
-     * Query if an attribute exists
+     * QueryAbstract if an attribute exists
      *
      * @return boolean
      */

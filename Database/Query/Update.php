@@ -1,9 +1,10 @@
 <?php
 namespace Library\Core\Database\Query;
 
-class Update extends Query {
+class Update extends QueryAbstract {
 
-    const QUERY_UPDATE_VALUE = 'VALUES';
+    const QUERY_UPDATE_SET    = 'SET';
+    const QUERY_UPDATE_VALUES = 'VALUES';
 
     /**
      * Update query fields names and values
@@ -16,11 +17,11 @@ class Update extends Query {
      */
     public function __construct()
     {
-        $this->setQueryType(Query::QUERY_TYPE_UPDATE);
+        $this->setQueryType(QueryAbstract::QUERY_TYPE_UPDATE);
     }
 
     /**
-     * Query build strategy factory
+     * QueryAbstract build strategy factory
      * @return array
      */
     protected function buildQuery()
@@ -34,10 +35,18 @@ class Update extends Query {
         return array_diff($aFactory, array(null));
     }
 
+    /**
+     * Build Update query parameters
+     *
+     * @return string
+     */
     protected function buildParameters()
     {
-        return '(' . implode(', ', array_keys($this->getParameters())) . ') ' .
-            self::QUERY_UPDATE_VALUE . '(' . implode(', ', array_values($this->getParameters())) . ')';
+        $aOutput = array();
+        foreach ($this->getParameters() as $sKey => $mValue) {
+            $aOutput[] = '`' . $sKey . '` = ' . self::QUERY_WHERE_BOUNDED_PARAMETER;
+        }
+        return self::QUERY_UPDATE_SET . ' ' . implode(', ', $aOutput);
     }
 
     /**
@@ -51,12 +60,12 @@ class Update extends Query {
      */
     public function addParameter($sFieldName, $mValue)
     {
-        $this->aParameters['`' . $sFieldName . '`'] = ((is_int($mValue) === true) ? $mValue : '"' . $mValue . '"');
+        $this->aParameters[$sFieldName] = ((is_int($mValue) === true) ? $mValue : '"' . $mValue . '"');
         return $this;
     }
 
     /**
-     * Query update parameters setter
+     * QueryAbstract update parameters setter
      * @param $aParameters
      * @return Update
      */
@@ -69,7 +78,7 @@ class Update extends Query {
     }
 
     /**
-     * Query update parameters getter
+     * QueryAbstract update parameters getter
      * @return array
      */
     public function getParameters()

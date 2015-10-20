@@ -3,25 +3,20 @@ namespace Library\Core\Orm;
 
 use Library\Core\Cache;
 use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Delete;
+use Library\Core\Database\Query\Insert;
 use Library\Core\Database\Query\Operators;
-use Library\Core\Database\Query\Query;
+use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
-use Library\Core\Database\Query\Where;
+use Library\Core\Database\Query\Update;
 
 /**
- * On the fly ORM CRUD managment abstract class
+ * On the fly ORM CRUD management abstract class
  *
- * @todo implement Query compoent
- * @todo decouper en composants unit testés
+ * Class Entity
+ * @package Library\Core\Orm
  *
- * @author Antoine <antoine.preveaux@bazarchic.com>
  * @author niko <nicolasbonnici@gmail.com>
- *
- * @important Entities need a primary auto incremented index (id[entity])
- *
- *       @dependancy \Library\Core\Validator
- *       @dependancy \Library\Core\Cache
- *       @dependancy Database
  */
 abstract class Entity extends EntityAttributes
 {
@@ -110,30 +105,23 @@ abstract class Entity extends EntityAttributes
     /**
      * Constructor
      *
-     * @param mixed $mPrimaryKey
-     *            Primary key. If left empty, blank object will be instanciated
+     * @param mixed int|array $mValue   Primary key value or parameters to load. If left empty, blank object will be instantiated
      * @throws EntityException
      */
-    public function __construct($mPrimaryKey = null)
+    public function __construct($mValue = null)
     {
         // If we just want to instanciate a blank object, do not pass any parameter to constructor
         $this->loadAttributes();
-        if (! is_null($mPrimaryKey) && is_string($mPrimaryKey) || is_int($mPrimaryKey)) {
+        if (! is_null($mValue) && is_string($mValue) || is_int($mValue)) {
             // Build only one object
-            $this->{static::PRIMARY_KEY} = $mPrimaryKey;
+            $this->{static::PRIMARY_KEY} = $mValue;
             $this->loadByPrimaryKey();
-        } elseif (is_array($mPrimaryKey)) {
-            // Array case
-
-            /**
-             * @todo Bug that way primary key value was not set in some case... need more investigation
-             */
-
-            $this->loadByParameters($mPrimaryKey);
+        } elseif (is_array($mValue)) {
+            $this->loadByParameters($mValue);
         }
 
+        # Store called class
         $this->sChildClass = get_called_class();
-        
     }
 
     /**
@@ -194,10 +182,10 @@ abstract class Entity extends EntityAttributes
         $oSelectQuery = new Select();
         # Build where condition
         foreach ($aParameters as $mKey => $mValue) {
-            $oSelectQuery->addWhereCondition(Operators::equal($mKey), Query::QUERY_WHERE_CONNECTOR_AND);
+            $oSelectQuery->addWhereCondition(Operators::equal($mKey), QueryAbstract::QUERY_WHERE_CONNECTOR_AND);
         }
         $oSelectQuery->addColumn('*')
-            ->setFrom($this->getTableName());
+            ->setFrom($this->getTableName(), true);
 
         return $this->loadByQuery(
             $oSelectQuery->build(),
@@ -281,97 +269,88 @@ abstract class Entity extends EntityAttributes
      */
     public function add()
     {
-        $aInsertedFields = array();
-        $aInsertedValues = array();
-        foreach ($this->aFields as $sFieldName => $aFieldInfos) {
-            if (
-                isset($this->{$sFieldName}) &&
-                $this->validate($sFieldName, $this->{$sFieldName})
-            ) {
-                $aInsertedFields[] = $sFieldName;
-                $aInsertedValues[] = $this->{$sFieldName};
-            }
-        }
-
-        # If Entity has the created attribute handle it (Unix timestamp format)
-        if (
-            in_array(self::FIELD_CREATED, $aInsertedFields) === false &&
-            $this->hasAttribute(self::FIELD_CREATED) === true
-        ) {
-            $sCreatedFieldName = self::FIELD_CREATED;
-            $this->$sCreatedFieldName = time();
-            $aInsertedFields[] = $sCreatedFieldName;
-            $aInsertedValues[] = $this->$sCreatedFieldName;
-        }
-
-        if (count($aInsertedFields) === 0) {
-            throw new EntityException('Cannot create empty object of class ' . get_called_class());
-        }
-
         try {
-        	$sQuery = 'INSERT INTO `' . static::TABLE_NAME . '` (`' . implode('`,`', $aInsertedFields) . '`) VALUES (?' . str_repeat(',?', count($aInsertedValues) - 1) . ')';
-            $oStatement = Pdo::dbQuery($sQuery, $aInsertedValues);
+            # Retrieve instance setted values
+            $aParameters = $this->getInstanceData();
+
+            # Build insert query
+            $oInsert = new Insert();
+            $oInsert->setFrom($this->getTableName(), true)
+                ->setParameters($aParameters);
+            $oStatement = Pdo::dbQuery($oInsert->build(), array_values($aParameters));
+
+            # Set primary key value
             $this->{static::PRIMARY_KEY} = Pdo::lastInsertId();
-            return $this->bIsLoaded = ($oStatement !== false && intval($this->{static::PRIMARY_KEY}) > 0);
-            
+
+            return (bool) $this->bIsLoaded = ($oStatement !== false && $this->{static::PRIMARY_KEY} > 0);
+
         } catch (\Exception $oException) {
+
+            # Throw exceptions on development environment
+            if (defined('ENV') && ENV === 'dev') {
+                throw new EntityException($oException->getMessage(), $oException->getCode());
+            }
+
             return false;
         }
-		
+
     }
 
     /**
      * Update record corresponding to object in database
      *
-     * @return boolean TRUE if record was successfully updated, otherwise FALSE
+     * @return boolean          TRUE if entity was successfully updated, otherwise FALSE
      * @throws EntityException
      */
     public function update()
     {
-        $aUpdatedFields = array();
-        $aUpdatedValues = array();
-        foreach ($this->aFields as $sFieldName => $aFieldInfos) {
-            if (isset($this->{$sFieldName})) {
-                $aUpdatedFields[] = $sFieldName;
-                $aUpdatedValues[] = $this->{$sFieldName};
-            }
-        }
-
-        if (count($aUpdatedFields) === 0) {
-            throw new EntityException('Cannot update empty object of class ' . get_called_class());
-        }
-
-        if (empty($this->{static::PRIMARY_KEY})) {
-            throw new EntityException('Cannot update object of class ' . get_called_class() . ' with no primary key value');
-        }
 
         try {
-            $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
 
-            if ($this->bIsHistorized) {
-                $this->saveHistory($oOriginalObject);
+            if (empty($this->{static::PRIMARY_KEY})) {
+                throw new EntityException(
+                    'Cannot update object of class ' . get_called_class() . ' with no primary key value'
+                );
             }
 
-            $aUpdatedValues[] = $this->{static::PRIMARY_KEY};
+            # Retrieve instance setted values
+            $aParameters = $this->getInstanceData();
 
-            if (
-                in_array(self::FIELD_LASTUPDATE, $aUpdatedFields) === false &&
-                $this->hasAttribute(self::FIELD_LASTUPDATE) === true
-            ) {
-                $sLastUpdateFieldName = self::FIELD_LASTUPDATE;
-                $this->$sLastUpdateFieldName = time();
-                $aUpdatedFields[] = $sLastUpdateFieldName;
-                $aUpdatedValues[] = $this->{$sLastUpdateFieldName};
+            # Prepare parameters
+            $aValues = array_values($aParameters);
+            # Add the current Entity instance id for the query where clause
+            $aValues[] = $this->getId();
+
+            $oUpdate = new Update();
+            $oUpdate->setFrom($this->getTableName(), true)
+                ->setParameters($aParameters)
+                ->addWhereCondition(Operators::equal($this->getPrimaryKeyName(), false));
+
+            # Handle historized Entities
+            if ($this->bIsHistorized) {
+
+                $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
+                $oEntityHistory = new EntityHistory($oOriginalObject);
+                if ($oEntityHistory->save($this) === true) {
+                    throw new EntityException(
+                        sprintf('Unable to store Entity history for object: %', $this->getEntityName())
+                    );
+                }
             }
 
             $oStatement = Pdo::dbQuery(
-                'UPDATE ' . static::TABLE_NAME . ' SET `' . implode('` = ?, `', $aUpdatedFields) . '` = ?
-                WHERE `' . static::PRIMARY_KEY . '` = ?',
-                $aUpdatedValues
+                $oUpdate->build(),
+                $aValues
             );
-            
+
             return ($oStatement !== false && $this->refresh());
         } catch (\Exception $oException) {
+
+            # Throw exceptions on development environment
+            if (defined('ENV') && ENV === 'dev') {
+                throw new EntityException($oException->getMessage(), $oException->getCode());
+            }
+
             return false;
         }
 
@@ -385,23 +364,43 @@ abstract class Entity extends EntityAttributes
      */
     public function delete()
     {
-        if ($this->isDeletable() === false) {
-            throw new EntityException('Cannot delete object of type "' . get_called_class() . '", this type of object is not deletable');
-        }
-
-        if ($this->isLoaded() === false) {
-            throw new EntityException('Cannot delete entry, object not loaded properly');
-        }
 
         try {
-            $oStatement = Pdo::dbQuery('DELETE FROM `' . static::TABLE_NAME . '` WHERE `' . static::PRIMARY_KEY . '` = ?', array(
-                $this->{static::PRIMARY_KEY}
-            ));
+            if ($this->isDeletable() === false) {
+                throw new EntityException('Cannot delete object of type "' . get_called_class() . '", this type of object is not deletable');
+            }
+
+            if ($this->isLoaded() === false) {
+                throw new EntityException('Cannot delete entry, object not loaded properly');
+            }
+
+            # Build delete query
+            $oDelete = new Delete();
+            $oDelete->setFrom($this->getTableName(), true)
+                ->addWhereCondition(Operators::equal($this->getPrimaryKeyName()));
+
+            # Build query parameters
+            $aParameters = array(
+                $this->getPrimaryKeyName() => $this->getId()
+            );
+
+            $oStatement = Pdo::dbQuery(
+                $oDelete->build(),
+                $aParameters
+            );
+
+            # Reset current instance
             $this->reset();
-            
-	        return ($oStatement !== false && $this->isLoaded() === false);
-	        
+
+            return ($oStatement !== false && $this->isLoaded() === false);
+
         } catch (\Exception $oException) {
+
+            # Throw exceptions on development environment
+            if (defined('ENV') && ENV === 'dev') {
+                throw new EntityException($oException->getMessage(), $oException->getCode());
+            }
+
             return false;
         }
 
@@ -418,22 +417,55 @@ abstract class Entity extends EntityAttributes
     }
 
     /**
-     * Load object using its primary key
+     * Get object instance value as an array
      *
-     * @param boolean $bUseCache
-     *            Whether object caching must be used to retrieve data or not
-     * @return boolean TRUE if object was successfully loaded, otherwise FALSE
+     * @return array
+     */
+    protected function getInstanceData()
+    {
+        $aParameters = array();
+        foreach ($this->aFields as $sFieldName => $aFieldInfos) {
+            if (
+                isset($this->{$sFieldName}) &&
+                $this->validate($sFieldName, $this->{$sFieldName})
+            ) {
+                $aParameters[$sFieldName] = $this->{$sFieldName};
+            }
+        }
+        return $aParameters;
+    }
+
+    /**
+     * Load Entity using its primary key
+     *
+     * @param boolean $bUseCache        Whether object caching must be used to retrieve data or not
+     * @return boolean                  TRUE if object was successfully loaded, otherwise FALSE
      * @throws EntityException
      */
     protected function loadByPrimaryKey($bUseCache = true)
     {
         if (! isset($this->{static::PRIMARY_KEY})) {
-            throw new EntityException('Cannot load object of class ' . get_called_class() . ' by primary key, no value provided for key ' . static::PRIMARY_KEY);
+            throw new EntityException(
+                'Cannot load object of class ' . get_called_class() . ' by primary key, no value provided for key ' . static::PRIMARY_KEY
+            );
         }
 
-        return $this->loadByQuery('SELECT * FROM ' . static::TABLE_NAME . ' WHERE `' . static::PRIMARY_KEY . '` = ?', array(
-            $this->{static::PRIMARY_KEY}
-        ), $bUseCache, Cache::getKey(get_called_class(), $this->{static::PRIMARY_KEY}));
+        $oSelect = new Select();
+        $oSelect->setFrom('`' . $this->getTableName() . '`')
+            ->addColumn('*')
+            ->setLimit(1)
+            ->addWhereCondition(Operators::equal($this->getPrimaryKeyName()));
+
+        $aParameters = array(
+            $this->getPrimaryKeyName() => $this->{static::PRIMARY_KEY}
+        );
+
+        return $this->loadByQuery(
+            $oSelect->build(),
+            $aParameters,
+            $bUseCache,
+            Cache::getKey(get_called_class())
+        );
     }
 
     /**
@@ -441,22 +473,18 @@ abstract class Entity extends EntityAttributes
      */
     public function reset()
     {
-        $aOriginProperties = array();
-        $oReflection = new \ReflectionClass($this);
-
-        foreach ($oReflection->getProperties() as $oRelectionProperty) {
-            $aOriginProperties[] = $oRelectionProperty->getName();
-        }
-
+        $aEntityAttrs = $this->getAttributes();
         foreach ($this as $sKey => $mValue) {
-            if (! in_array($sKey, $aOriginProperties)) {
+            if (array_key_exists($sKey, $aEntityAttrs) === false) {
                 unset($this->$sKey);
+            } else {
+                $this->$sKey = null;
             }
         }
 
         $this->bIsLoaded = false;
 
-        $this->bIsLoaded = false;
+        return (bool) ($this->bIsLoaded === false);
     }
 
     /**
@@ -485,13 +513,11 @@ abstract class Entity extends EntityAttributes
     /**
      * Check whether instance is in cache or not
      *
-     * @param integer $iId
-     *            Instance ID (primary key of table)
      * @return boolean TRUE if instance is in cache, otherwise false
      */
-    public static function isInCache($iId)
+    public function isInCache()
     {
-        return (Cache::get(Cache::getKey(get_called_class(), $iId)) !== false);
+        return (Cache::get(Cache::getKey(get_called_class(), $this->getId())) !== false);
     }
 
     /**
