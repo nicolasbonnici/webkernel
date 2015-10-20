@@ -77,7 +77,7 @@ class Insert extends QueryAbstract {
      */
     public function addParameter($sFieldName, $mValue)
     {
-        $this->aParameters['`' . $sFieldName . '`'] = ((is_int($mValue) === true) ? $mValue : '"' . $mValue . '"');
+        $this->aParameters['`' . $sFieldName . '`'] = ((is_int($mValue) === true) ? $mValue : "'" . $mValue . "'");
         return $this;
     }
 
@@ -118,6 +118,6 @@ class Insert extends QueryAbstract {
      */
     private function prefixTable()
     {
-        return ' ' . self::QUERY_INSERT_TABLE_PREFIX . ' ';
+        return self::QUERY_INSERT_TABLE_PREFIX;
     }
 }

@@ -277,6 +277,7 @@ abstract class Entity extends EntityAttributes
             $oInsert = new Insert();
             $oInsert->setFrom($this->getTableName(), true)
                 ->setParameters($aParameters);
+
             $oStatement = Pdo::dbQuery($oInsert->build(), array_values($aParameters));
 
             # Set primary key value
@@ -313,6 +314,12 @@ abstract class Entity extends EntityAttributes
                 );
             }
 
+            # Handle Entity history if needed
+            if ($this->bIsHistorized === true) {
+                $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
+                $oEntityHistory = new EntityHistory($oOriginalObject);
+            }
+
             # Retrieve instance setted values
             $aParameters = $this->getInstanceData();
 
@@ -326,24 +333,23 @@ abstract class Entity extends EntityAttributes
                 ->setParameters($aParameters)
                 ->addWhereCondition(Operators::equal($this->getPrimaryKeyName(), false));
 
-            # Handle historized Entities
-            if ($this->bIsHistorized) {
-
-                $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
-                $oEntityHistory = new EntityHistory($oOriginalObject);
-                if ($oEntityHistory->save($this) === true) {
-                    throw new EntityException(
-                        sprintf('Unable to store Entity history for object: %', $this->getEntityName())
-                    );
-                }
-            }
-
             $oStatement = Pdo::dbQuery(
                 $oUpdate->build(),
                 $aValues
             );
 
-            return ($oStatement !== false && $this->refresh());
+            if ($oStatement !== false && $this->refresh()) {
+                # Store Entity history
+                if ($this->bIsHistorized) {
+                    if ($oEntityHistory->save($aParameters) === false) {
+                        throw new EntityException(
+                            sprintf('Unable to store Entity history for object: %s', $this->getEntityName())
+                        );
+                    }
+                }
+
+                return true;
+            }
         } catch (\Exception $oException) {
 
             # Throw exceptions on development environment

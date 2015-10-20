@@ -60,9 +60,9 @@ class InsertTest extends Test
     public function testGetParameters()
     {
         $this->assertEquals(self::$oInsertInstance->getParameters(), array(
-            '`prop1`' => '"value1"',
+            '`prop1`' => "'value1'",
             '`prop2`' => 2,
-            '`prop3`' => '"lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum "',
+            '`prop3`' => "'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum '",
 
         ));
     }
@@ -85,7 +85,7 @@ class InsertTest extends Test
     public function testBuild()
     {
         $this->assertEquals(
-            'INSERT  INTO  table_name (`prop1`, `prop2`, `prop3`, `prop4`) VALUES("value1", 2, "lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ", "value for prop 4")',
+            "INSERT INTO table_name (`prop1`, `prop2`, `prop3`, `prop4`) VALUES('value1', 2, 'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ', 'value for prop 4')",
             self::$oInsertInstance->build()
         );
     }
@@ -97,7 +97,7 @@ class InsertTest extends Test
         $this->assertTrue(self::$oInsertInstance->addWhereCondition(Operators::equal('otherField2'), ',') instanceof Insert);
 
         $this->assertEquals(
-            'INSERT  INTO  table_name (`prop1`, `prop2`, `prop3`, `prop4`) VALUES("value1", 2, "lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ", "value for prop 4")  ON DUPLICATE KEY UPDATE `otherField1` = :otherField1 , `otherField2` = :otherField2',
+            "INSERT INTO table_name (`prop1`, `prop2`, `prop3`, `prop4`) VALUES('value1', 2, 'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ', 'value for prop 4')  ON DUPLICATE KEY UPDATE `otherField1` = :otherField1 , `otherField2` = :otherField2",
             self::$oInsertInstance->build()
         );
 

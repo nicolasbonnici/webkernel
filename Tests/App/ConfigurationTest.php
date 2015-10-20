@@ -72,6 +72,13 @@ class ConfigurationTest extends Test
         );
     }
 
+    public function testUpdateConfigurationValue()
+    {
+        $this->assertTrue(
+            $this->oConfigurationInstance->set('foo', 'bar2')
+        );
+    }
+
     public function testDeleteConfiguration()
     {
         $this->assertTrue($this->oConfigurationInstance->delete('foo'), 'Unable to delete configuration from database');

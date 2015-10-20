@@ -25,36 +25,37 @@ class EntityHistory {
     /**
      * Save history on update for historized objects
      *
-     * @param Entity $oUpdatedEntity
+     * @param array $aUpdatedParameters         Associative array of fieldname => value
      */
-    public function save(Entity $oUpdatedEntity)
+    public function save(array $aUpdatedParameters)
     {
-        if ($this->oOriginalEntity->getEntityName() !== $oUpdatedEntity->getEntityName()) {
-            throw new EntityHistoryException(
-                EntityHistoryException::getError(EntityHistoryException::ERROR_ENTITY_TYPE_MISMATCH),
-                EntityHistoryException::ERROR_ENTITY_TYPE_MISMATCH
-            );
-        }
-
         $aBefore = array();
-        $aAfter = array();
-
         foreach ($this->oOriginalEntity as $sPropertyName => $mValue) {
-            if ($mValue != $oUpdatedEntity->{$sPropertyName}) {
-                $aBefore[$sPropertyName] = $mValue;
-                $aAfter[$sPropertyName] = $oUpdatedEntity->{$sPropertyName};
-            }
+            $aBefore[$sPropertyName] = $mValue;
         }
 
-        $oHistory = new History();
-        $oHistory->entity = $this->oOriginalEntity->getEntityName();
-        $oHistory->entityId = $this->oOriginalEntity->getId();
-        $oHistory->before = new Json($aBefore);
-        $oHistory->after = new Json($aAfter);
-        $oHistory->modification_date = date('Y-m-d');
-        $oHistory->modification_time = date('H:i:s');
+        $aDiffBefore = array_diff($aBefore, $aUpdatedParameters);
+        $aDiffAfter = array_diff( $aUpdatedParameters, $aBefore);
 
-        return $oHistory->add();
+        # Avoid empty history record when update method called for nothing
+        if (empty($aDiffBefore) === false && empty($aDiffAfter) === false) {
+
+            $oBefore = new Json($aDiffBefore);
+            $oAfter = new Json($aDiffAfter);
+
+            /** @var Entity $oHistory */
+            $oHistory = new History();
+            $oHistory->entity = $this->oOriginalEntity->getEntityName();
+            $oHistory->entityId = $this->oOriginalEntity->getId();
+            $oHistory->pre_modification = $oBefore->__toString();
+            $oHistory->post_modification = $oAfter->__toString();
+            $oHistory->modification_date = date('Y-m-d H:i:s');
+
+            return $oHistory->add();
+        }
+
+        # Return true anyway since if the diff is empty it's not really an error and no need to throw exception
+        return true;
     }
 
 }
