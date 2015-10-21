@@ -18,7 +18,8 @@ class Operators
     /**
      * Build bounded parameter
      *
-     * @param string $sBoundedParameterName (optional)
+     * @param null $sBoundedParameterName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function buildBoundedParameter($sBoundedParameterName = null, $bBindParameter = true)
@@ -34,6 +35,7 @@ class Operators
      * Equal condition
      *
      * @param string $sFieldName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function equal($sFieldName, $bBindParameter = true)
@@ -45,6 +47,7 @@ class Operators
      * Different condition
      *
      * @param string $sFieldName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function different($sFieldName, $bBindParameter = true)
@@ -56,6 +59,7 @@ class Operators
      * Bigger condition
      *
      * @param string $sFieldName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function bigger($sFieldName, $bBindParameter = true)
@@ -67,6 +71,7 @@ class Operators
      * Bigger or equal condition
      *
      * @param string $sFieldName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function biggerOrEqual($sFieldName, $bBindParameter = true)
@@ -78,6 +83,7 @@ class Operators
      * Smaller than condition
      *
      * @param string $sFieldName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function smaller($sFieldName, $bBindParameter = true)
@@ -89,6 +95,7 @@ class Operators
      * Smaller or equal condition
      *
      * @param $sFieldName
+     * @param bool $bBindParameter
      * @return string
      */
     public static function smallerOrEqual($sFieldName, $bBindParameter = true)

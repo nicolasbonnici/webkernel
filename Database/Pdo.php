@@ -108,7 +108,7 @@ class Pdo extends Singleton
      * Close transactional mode to autocommit mode
      * @return mixed
      */
-    public function closeTransaction()
+    public static function closeTransaction()
     {
         return self::closeTransaction();
     }
@@ -126,7 +126,7 @@ class Pdo extends Singleton
      * Rollback current transaction
      * @return bool
      */
-    public function rollback()
+    public static function rollback()
     {
         return self::$_link->rollBack();
     }

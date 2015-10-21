@@ -139,6 +139,14 @@ abstract class MappingAbstract
     abstract public function store(Entity $oMappedEntity);
 
     /**
+     * Delete a mapped Entity
+     *
+     * @param Entity $oMappedEntity
+     * @return bool
+     */
+    abstract public function delete(Entity $oMappedEntity);
+
+    /**
      * Verify mapping configuration according to mapping type requirement
      *
      * @param array $aMappingConfiguration

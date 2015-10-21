@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Entity\Mapping;
 use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Delete;
 use Library\Core\Database\Query\Insert;
 use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;
@@ -88,6 +89,8 @@ class ManyToMany extends MappingAbstract
     /**
      * Store a mapped entity
      *
+     * @todo Transactional mode needed here
+     *
      * @param Entity $oMappedEntity
      * @return bool
      */
@@ -95,7 +98,6 @@ class ManyToMany extends MappingAbstract
     {
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
-            // @todo Transactional mode needed here
             if($oMappedEntity->add() === true) {
                 $oInsert = new Insert();
                 $oInsert->setFrom($aMappingConf[self::KEY_MAPPING_TABLE])
@@ -119,6 +121,46 @@ class ManyToMany extends MappingAbstract
                 if ($oStatement !== false) {
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Delete a mapped Entity
+     *
+     * @param Entity $oMappedEntity
+     * @return bool
+     */
+    public function delete(Entity $oMappedEntity)
+    {
+        $aMappingConf = $this->loadMappingConfiguration($oMappedEntity->getChildClass());
+        if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
+
+            # Start mysql transactional mode
+            Pdo::beginTransaction();
+            try {
+                # First delete mapping record then the Entity itself
+                $oDelete = new Delete();
+                $oDelete->setFrom($aMappingConf[MappingAbstract::KEY_MAPPING_TABLE], true)
+                    ->addWhereCondition(Operators::equal($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE], false))
+                    ->addWhereCondition(Operators::equal($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE], false));
+
+                $oStatement = Pdo::dbQuery(
+                    $oDelete->build(),
+                    array(
+                        $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE],
+                        $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
+                    )
+                );
+
+                if ($oStatement !== false && $oMappedEntity->delete() === true) {
+                    return Pdo::commit();
+                }
+                Pdo::rollback();
+            } catch (\Exception $oException) {
+                Pdo::rollback();
+                return false;
             }
         }
         return false;

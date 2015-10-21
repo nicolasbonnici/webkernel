@@ -103,6 +103,22 @@ class Mapper
     }
 
     /**
+     * Delete a mapped Entity
+     *
+     * @param Entity $oMappedEntity
+     * @return bool
+     */
+    public function delete(Entity $oMappedEntity)
+    {
+        $aMappingSetup = $this->getMappingConfiguration($oMappedEntity->getChildClass());
+        $oMapper = $this->getMapper($aMappingSetup[MappingAbstract::KEY_MAPPING_TYPE]);
+        if (is_null($oMapper) === false && $oMapper instanceof MappingAbstract) {
+            return $oMapper->delete($oMappedEntity);
+        }
+        return false;
+    }
+
+    /**
      * Retrieve an Entity mapping configuration
      *
      * @param $sEntityClassName

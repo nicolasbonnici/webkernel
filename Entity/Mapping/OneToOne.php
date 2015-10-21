@@ -71,4 +71,24 @@ class OneToOne extends MappingAbstract
         return false;
     }
 
+    /**
+     * Delete a mapped Entity
+     *
+     * @param Entity $oMappedEntity
+     * @return bool
+     */
+    public function delete(Entity $oMappedEntity)
+    {
+        $aMappingConf = $this->loadMappingConfiguration($oMappedEntity->getChildClass());
+        if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
+            if ($oMappedEntity->delete() === true) {
+                # If mapped entity was deleted then update source Entity to remove reference
+                $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE] = null;
+                return $this->oSourceEntity->update();
+            }
+        }
+        return false;
+    }
+
+
 }

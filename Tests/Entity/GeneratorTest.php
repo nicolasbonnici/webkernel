@@ -11,7 +11,7 @@ use Library\Core\Tests\Dummy\Entities\Dummy;
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class EntityGeneratorTest extends Test
+class GeneratorTest extends Test
 {
     /**
      * @var Generator

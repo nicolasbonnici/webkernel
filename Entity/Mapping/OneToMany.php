@@ -74,4 +74,17 @@ class OneToMany extends MappingAbstract
         return false;
     }
 
+    /**
+     * Delete a mapped entity
+     *
+     * @param Entity $oMappedEntity
+     * @return bool
+     * @throws \Library\Core\Entity\EntityException
+     */
+    public function delete(Entity $oMappedEntity)
+    {
+        # On this mapping simply delete mapped entity since the reference is store on it
+        return $oMappedEntity->delete();
+    }
+
 }

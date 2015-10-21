@@ -16,7 +16,7 @@ use Library\Core\Tests\Dummy\Entities\Dummy4;
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class EntityMapperTest extends Test
+class MapperTest extends Test
 {
     /**
      * @var Mapper
@@ -63,6 +63,16 @@ class EntityMapperTest extends Test
         );
     }
 
+    public function testDeleteOneToOneEntity()
+    {
+        $oDummy4 = new Dummy4();
+        $oDummy4->foo = 'Test string value';
+        $this->oEntityMapperInstance->store($oDummy4);
+        $this->assertTrue(
+            $this->oEntityMapperInstance->delete($oDummy4),
+            'Unable to delete a one to one mapping'
+        );
+    }
 
     /**
      * OneToMany mapping test
@@ -98,6 +108,18 @@ class EntityMapperTest extends Test
         );
     }
 
+    public function testDeleteOneToManyEntity()
+    {
+        $oDummy2 = new Dummy2();
+        $oDummy2->string = 'Test entity mapper';
+        $this->oEntityMapperInstance->store($oDummy2);
+
+        $this->assertTrue(
+            $this->oEntityMapperInstance->delete($oDummy2),
+            'Unable to delete a one to many Entities mapping'
+        );
+    }
+
     /**
      * ManyToMany mapping test
      */
@@ -128,6 +150,16 @@ class EntityMapperTest extends Test
 
     }
 
+    public function testDeleteManyToManyEntity()
+    {
+        $oDummy3 = new Dummy3();
+        $oDummy3->int = 66;
+        $this->oEntityMapperInstance->store($oDummy3);
+        $this->assertTrue(
+            $this->oEntityMapperInstance->delete($oDummy3),
+            'Unable to store a one to many Entities mapping'
+        );
+    }
 
     /**
      * Create a Mapper instance

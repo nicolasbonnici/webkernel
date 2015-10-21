@@ -210,11 +210,12 @@ abstract class QueryAbstract  extends  Join {
      * Set query from clause
      *
      * @param $sFromTable
+     * @param bool $bQuote          True to add `` quotes
      * @return $this
      */
-    public function setFrom($sFromTable, $bEscape = false)
+    public function setFrom($sFromTable, $bQuote = false)
     {
-        if ($bEscape === true) {
+        if ($bQuote === true) {
             $this->sFrom = '`' . $sFromTable . '`';
         } else {
             $this->sFrom = $sFromTable;
