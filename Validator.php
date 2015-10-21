@@ -556,6 +556,18 @@ class Validator
                 return self::STATUS_INVALID;
         }
     }
+
+    /**
+     * Custom generic validator that use regular expression to validate data
+     *
+     * @param string $sRegExp       Regular expression
+     * @param $sSubject             String to test
+     * @return int
+     */
+    static public function custom($sRegExp, $sSubject)
+    {
+        return (preg_match($sRegExp, $sSubject) === 1) ? self::STATUS_OK : self::STATUS_INVALID;
+    }
 }
 
 class CoreValidatorException extends \Exception

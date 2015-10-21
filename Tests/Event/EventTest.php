@@ -9,7 +9,7 @@ use \Library\Core\Test as Test;
  * 
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
-class DummyEventTest extends Test
+class EventTest extends Test
 {
     protected static $oDummyEventInstance;
 

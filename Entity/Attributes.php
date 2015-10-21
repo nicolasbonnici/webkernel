@@ -8,8 +8,6 @@ use Library\Core\Validator;
 /**
  * Entities attributes generic abstract
  *
- * @todo implement QueryAbstract
- *
  * Class Attributes
  * @package Library\Core\Orm
  */
@@ -19,10 +17,10 @@ abstract class Attributes {
      * Entity attribute's types
      * @var string
      */
-    const DATA_TYPE_STRING  = 'string';
-    const DATA_TYPE_INTEGER = 'integer';
-    const DATA_TYPE_FLOAT   = 'float';
-    const DATA_TYPE_ARRAY   = 'array';
+    const DATA_TYPE_STRING   = 'string';
+    const DATA_TYPE_INTEGER  = 'integer';
+    const DATA_TYPE_FLOAT    = 'float';
+    const DATA_TYPE_DATETIME = 'datetime';
 
     /**
      * Load the list of fields of the associated database table
@@ -33,8 +31,8 @@ abstract class Attributes {
     {
         $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
         if (($this->aFields = Cache::get($sCacheKey)) === false) {
-            if (($oStatement = Pdo::dbQuery('SHOW COLUMNS FROM `' . static::TABLE_NAME . '`')) === false) {
-                throw new EntityException('Unable to list fields for table ' . static::TABLE_NAME);
+            if (($oStatement = Pdo::dbQuery('SHOW COLUMNS FROM `' . $this->getTableName() . '`')) === false) {
+                throw new EntityException('Unable to list fields for table ' . $this->getTableName());
             }
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aColumn) {
                 $this->aFields[$aColumn['Field']] = $aColumn;
@@ -44,7 +42,7 @@ abstract class Attributes {
         }
 
         if (empty($this->aFields) === true) {
-            throw new EntityException('No fields found for table ' . static::TABLE_NAME . ' please check Entity.');
+            throw new EntityException('No fields found for table ' . $this->getTableName() . ' please check Entity.');
         }
 
     }
@@ -74,10 +72,6 @@ abstract class Attributes {
         }
         return null;
     }
-
-    /**
-     * @todo get attribute size information too
-     */
 
     /**
      * Determine if an Entity attribute can be nullable
@@ -115,8 +109,6 @@ abstract class Attributes {
     {
         assert('$this->getAttributeType($sName) !== null');
 
-        // @todo dynamic regexp with implode('|', $aStringDatabaseTypes) ...
-
         $sDataType = '';
         if (! is_null($sName)) {
             $sDatabaseType = $this->getAttributeType($sName);
@@ -133,8 +125,8 @@ abstract class Attributes {
                 case (preg_match('/^(float|decimal|numeric)/', $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_FLOAT;
                     break;
-                case (preg_match('/(enum|list)/', $sDataType) === 1) :
-                    $sDataType = self::DATA_TYPE_ARRAY;
+                case (preg_match('/(date|datetime)/', $sDataType) === 1) :
+                    $sDataType = self::DATA_TYPE_DATETIME;
                     break;
                 default:
                     throw new EntityException(
@@ -151,8 +143,7 @@ abstract class Attributes {
      * Validate data integrity for the database field
      *
      * @param string $sFieldName
-     * @param
-     *            mixed string|int|float $mValue
+     * @param mixed string|int|float $mValue
      * @throws EntityException
      * @return bool
      */
@@ -173,6 +164,12 @@ abstract class Attributes {
             throw new EntityException('Attribute data type not support: ' . $sDataType);
         } else {
             if (! empty($sFieldName) && ! empty($mValue)) {
+
+                # Auto cast Datetime before validation
+                if ($sDataType === self::DATA_TYPE_DATETIME) {
+                    $mValue = new \DateTime($mValue);
+                }
+
                 $iValidatorStatus = Validator::$sDataType($mValue);
                 if ($iValidatorStatus === Validator::STATUS_OK) {
                     return true;
