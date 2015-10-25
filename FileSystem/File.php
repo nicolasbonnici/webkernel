@@ -86,7 +86,7 @@ class File extends FileSystem
     /**
      * Grab file content
      * @param string $sFilePath         Absolute path to a file
-     * @return string
+     * @return mixed string|bool        The content otherwise FALSE
      */
     public static function getContent($sFilePath)
     {

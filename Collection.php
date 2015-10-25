@@ -153,8 +153,7 @@ class Collection implements \Iterator
 
     /**
      * Tell if the collection contain at least one item
-     * @return boolean
-     *              TRUE if the collection has at least one item otherwhise FALSE
+     * @return boolean      TRUE if the collection has at least one item otherwise FALSE
      */
     public function hasItem()
     {
@@ -167,6 +166,15 @@ class Collection implements \Iterator
     public function reset()
     {
         $this->aElements = array();
+    }
+
+    /**
+     * Get Entities collection
+     * @return array
+     */
+    public function getAsArray()
+    {
+        return $this->aElements;
     }
 }
 

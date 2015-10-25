@@ -72,12 +72,13 @@ class EntityTest extends Test
 
     public function testAddThenRetrieveEntityId()
     {
-        $this->oDummyEntity->test_string  = $this->aTestData['test_string'];
-        $this->oDummyEntity->test_int     = $this->aTestData['test_int'];
-        $this->oDummyEntity->test_float   = $this->aTestData['test_float'];
-        $this->oDummyEntity->test_null    = $this->aTestData['test_null'];
-        $this->oDummyEntity->lastupdate   = $this->aTestData['lastupdate'];
-        $this->oDummyEntity->created      = $this->aTestData['created'];
+        $this->oDummyEntity->test_string        = $this->aTestData['test_string'];
+        $this->oDummyEntity->test_int           = $this->aTestData['test_int'];
+        $this->oDummyEntity->test_float         = $this->aTestData['test_float'];
+        $this->oDummyEntity->test_null          = $this->aTestData['test_null'];
+        $this->oDummyEntity->lastupdate         = $this->aTestData['lastupdate'];
+        $this->oDummyEntity->created            = $this->aTestData['created'];
+        $this->oDummyEntity->dummy4_iddummy4    = 1;
 
         $this->assertTrue($this->oDummyEntity->add());
         self::$iCreatedDummyId = $this->oDummyEntity->getId();

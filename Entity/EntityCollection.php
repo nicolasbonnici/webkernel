@@ -3,19 +3,13 @@ namespace Library\Core\Entity;
 
 use Library\Core\Collection;
 use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Select;
 
 /**
- * On the fly ORM CRUD managment abstract class
+ * Handle collection of Entities
  *
- * @author niko <nicolasbonnici@gmail.com>
- *
- * @important Entities need a primary auto incremented index (id[entity])
- *
- *       @dependancy \Library\Core\Collection
- *       @dependancy \Library\Core\Validator
- *       @dependancy \Library\Core\Cache
- *       @dependancy \Library\Core\Database
- *
+ * Class EntityCollection
+ * @package Library\Core\Entity
  */
 abstract class EntityCollection extends Collection
 {
@@ -62,27 +56,28 @@ abstract class EntityCollection extends Collection
      * @param array $aLimit
      * @throws EntityException
      */
-    public function load($sOrderBy = '', $sOrder = 'DESC', array $aLimit = array(0,50))
+    public function load(array $aOrder = array(), $mLimit = null)
     {
 
-        if (empty($sOrderBy)) {
-            $sOrderBy = constant($this->sChildClass . '::PRIMARY_KEY');
+        # Build Select Query
+        $oSelect = new Select();
+        $oSelect->addColumn('*')
+            ->setFrom(constant($this->sChildClass . '::TABLE_NAME'), true);
+
+        # Order fields
+        if (empty($aOrder) === false) {
+            $oSelect->setOrderBy($aOrder);
         }
 
-        if (! in_array($sOrder, array(
-            'ASC',
-            'DESC'
-        ))) {
-            $sOrder = 'DESC';
+        # Limit clause
+        if (is_null($mLimit) === false) {
+            $oSelect->setLimit($mLimit);
         }
 
-        $sQuery = 'SELECT *
-        FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
-        ORDER BY ' . $sOrderBy . ' ' . $sOrder . ' LIMIT ' . $aLimit[0] . ',' . $aLimit[1];
         try {
-            $oStatement = Pdo::dbQuery($sQuery);
+            $oStatement = Pdo::dbQuery($oSelect->build());
         } catch (\PDOException $oException) {
-            throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" ');
+            throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $oSelect->build() . '" ');
         }
         if ($oStatement !== false) {
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
@@ -118,11 +113,11 @@ abstract class EntityCollection extends Collection
         if (count($aCachedObjects) === 0) {
             $aUncachedObjects = array_values($aIds);
         } else {
-        	foreach ($aCachedObjects as $iObjectId => $aCachedObject) {
-        		$oObject = new $this->sChildClass();
-        		$oObject->loadByData($aCachedObject);
-        		$this->add($oObject, $oObject->getId());
-        	}
+            foreach ($aCachedObjects as $iObjectId => $aCachedObject) {
+                $oObject = new $this->sChildClass();
+                $oObject->loadByData($aCachedObject);
+                $this->add($oObject, $oObject->getId());
+            }
         }
         if (empty($aUncachedObjects) === false) {
             $this->loadByQuery('
@@ -259,9 +254,9 @@ abstract class EntityCollection extends Collection
         $aCachedObjects = array();
         foreach ($aIds as $iId) {
             if (($aCachedObject = call_user_func(array(
-                $this->sChildClass,
-                'getCached'
-            ), $iId)) !== false) {
+                    $this->sChildClass,
+                    'getCached'
+                ), $iId)) !== false) {
                 $aCachedObjects[$iId] = $aCachedObject;
             }
         }
@@ -336,7 +331,7 @@ abstract class EntityCollection extends Collection
      */
     public function getChildClass()
     {
-    	return $this->sChildClass;
+        return $this->sChildClass;
     }
 }
 

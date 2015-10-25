@@ -2,11 +2,9 @@
 namespace Library\Core;
 
 /**
- * Common Toolbox
- * @todo convert as a trait
- * @todo some method are ViewHelper related
+ * Common Toolbox php traits
  */
-class Tools
+trait Tools
 {
 
     /**

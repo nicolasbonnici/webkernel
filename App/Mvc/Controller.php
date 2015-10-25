@@ -47,7 +47,6 @@ class Controller
      * Controllers pre and post dispatch routines methods names
      */
     const CONTROLLER_PRE_DISPATCH_METHOD_NAME   = '__preDispatch';
-    const CONTROLLER_POST_DISPATCH_METHOD_NAME  = '__postDispatch';
 
     /**
      * HTTP status codes
@@ -194,16 +193,14 @@ class Controller
         }
         $this->oView = new View($bLoadAllViewPaths, $aTemplatePaths);
 
-        // @see run action & pre|post dispatch callback (optionnal)
+        // @see run action & pre dispatch callback (optional)
         if (method_exists($this, $this->sAction)) {
 
-
             $sPreDispatchMethodName = self::CONTROLLER_PRE_DISPATCH_METHOD_NAME;
-            $sPostDispatchMethodName = self::CONTROLLER_POST_DISPATCH_METHOD_NAME;
-            // @see pre dispatch action hook
             if (method_exists($this, $sPreDispatchMethodName) === true) {
 
                 try {
+                    # Run pre dispatch hook method if available
                     $this->$sPreDispatchMethodName();
                 } catch (\Exception $oException) {
                     throw new ControllerException(
@@ -217,19 +214,6 @@ class Controller
             // Run mothafucka run!
             $this->{$this->sAction}();
 
-            // @see post dispatch action hook
-            if (method_exists($this, $sPostDispatchMethodName)) {
-
-                try {
-                    $this->$sPostDispatchMethodName();
-                } catch (\Exception $oException) {
-                    throw new ControllerException(
-                        'Post dispatch method throw an exception: ' . $oException->getMessage(),
-                        $oException->getCode()
-                    );
-                }
-
-            }
         } else {
             /**
              * @todo handle properly the 404 error and root if available to the error bundle

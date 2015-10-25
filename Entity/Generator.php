@@ -53,44 +53,8 @@ class Generator
             $oGeneratedEntity = clone $oEntity;
 
             foreach ($oGeneratedEntity->getAttributes() as $sAttributeName) {
-
-
-                # Handle primary and foreign key cases
-                if (substr($sAttributeName, 0, 2) === 'id') {
-                    # Primary key case
-                    $oGeneratedEntity->$sAttributeName = null;
-                    continue;
-                } elseif (strstr($sAttributeName, '_id') !== false) {
-
-                    # Foreign key case
-                    if ($this->iForeignEntityId !== 0) {
-                        $aForeignKey = explode('_', $sAttributeName);
-                        $sTableName = $aForeignKey[0];
-                        $sPrimaryKeyName = $aForeignKey[1];
-
-                        # Find an existent record for foreign key
-                        $oSelectQuery = new Select();
-                        $oSelectQuery->addColumn($sPrimaryKeyName)
-                            ->setFrom($sTableName)
-                            ->setLimit(1)
-                            ->addWhereCondition(Operators::smaller($sPrimaryKeyName));
-                        $oStatement = Pdo::dbQuery($oSelectQuery->build(), array(':' . $sPrimaryKeyName => '100000'));
-
-                        $this->iForeignEntityId = $oStatement->fetchColumn();
-
-                        if ($this->iForeignEntityId === false) {
-                            # No foreign Entity Record found we need to store one manually with Mapper in this case
-                            die('No mapped entities found on table: ' . $sTableName);
-                        }
-                    }
-
-                    $oGeneratedEntity->$sAttributeName = $this->iForeignEntityId;
-                    continue;
-
-                }
-
                 $oGeneratedEntity->$sAttributeName = $this->getRandomData(
-                    $oGeneratedEntity->getDataType($sAttributeName),
+                    $oGeneratedEntity,
                     $sAttributeName
                 );
             }
@@ -107,8 +71,61 @@ class Generator
      * @param $sDataType
      * @return mixed
      */
-    protected function getRandomData($sDataType, $sFieldName)
+    protected function getRandomData(Entity $oEntity, $sFieldName)
     {
+        # Retrieve data type
+        $sDataType = $oEntity->getDataType($sFieldName);
+
+
+        # Handle primary and foreign key cases
+        if (substr($sFieldName, 0, 2) === 'id') {
+            # Primary key case
+            return null;
+        } elseif (strstr($sFieldName, '_id') !== false) {
+            # Foreign key case
+            if ($this->iForeignEntityId === 0) {
+                $aForeignKey = explode('_', $sFieldName);
+                $sTableName = $aForeignKey[0];
+                $sPrimaryKeyName = $aForeignKey[1];
+
+                # Find an existent record for foreign key
+                $oSelectQuery = new Select();
+                $oSelectQuery->addColumn($sPrimaryKeyName)
+                    ->setFrom($sTableName)
+                    ->setLimit(1)
+                    ->addWhereCondition(Operators::smaller($sPrimaryKeyName));
+
+                $this->iForeignEntityId = Pdo::dbQuery(
+                    $oSelectQuery->build(),
+                    array($sPrimaryKeyName => '100000')
+                )->fetchColumn();
+
+                if ($this->iForeignEntityId === false) {
+                    # No foreign Entity Record found we need to store one manually with Mapper in this case
+                    foreach ($oEntity->getMappingConfiguration() as $sClass => $aConfiguration) {
+                        if (stristr($sClass, $sTableName) !== false) {
+                            /** @var Entity $oMappedEntity */
+                            $oMappedEntity = new $sClass;
+                            foreach ($oMappedEntity->getAttributes() as $sAttr) {
+                                $oMappedEntity->$sAttr = $this->getRandomData(
+                                    $oMappedEntity,
+                                    $sAttr
+                                );
+                            }
+
+                            if ($oMappedEntity->add() === true) {
+                                $this->iForeignEntityId = $oMappedEntity->getId();
+                            } else {
+                                die('Unable to create mapped entity');
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            return $this->iForeignEntityId;
+        }
 
         # Handle 'created' and 'lastupdate' fields to directly return current Unix timestamp
         if (
@@ -128,8 +145,8 @@ class Generator
             case Attributes::DATA_TYPE_FLOAT:
                 return $this->getRandomFloat();
                 break;
-            case Attributes::DATA_TYPE_ARRAY:
-                return $this->getRandomArray();
+            case Attributes::DATA_TYPE_DATETIME:
+                return $this->getRandomDatetime();
                 break;
             default :
                 return 1;
@@ -164,11 +181,11 @@ class Generator
 
     /**
      * Generate a random float value
-     * @return float
+     * @return string
      */
     protected function getRandomFloat()
     {
-        return (float) 3.14;
+        return (float) '3.14';
     }
 
     /**
@@ -176,13 +193,9 @@ class Generator
      *
      * @return array
      */
-    protected function getRandomArray()
+    protected function getRandomDatetime()
     {
-        return array(
-            $this->getRandomString(),
-            $this->getRandomInteger(),
-            $this->getRandomFloat()
-        );
+        return new \DateTime('now');
     }
 
     /**

@@ -19,7 +19,7 @@ abstract class Attributes {
      */
     const DATA_TYPE_STRING   = 'string';
     const DATA_TYPE_INTEGER  = 'integer';
-    const DATA_TYPE_FLOAT    = 'float';
+    const DATA_TYPE_FLOAT    = 'string'; # Issue with PDO handle float as string to avoid truncated data
     const DATA_TYPE_DATETIME = 'datetime';
 
     /**

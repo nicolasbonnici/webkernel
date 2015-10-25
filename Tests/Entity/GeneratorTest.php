@@ -30,7 +30,7 @@ class GeneratorTest extends Test
         );
     }
 
-    public function testGenerateThousandDummyEntities()
+    public function testGenerateDummyEntities()
     {
         $this->assertTrue(
             $this->oEntityGeneratorInstance->process(new Dummy(), 100),

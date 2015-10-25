@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
+use Library\Core\Database\Pdo;
 use \Library\Core\Test as Test;
 
 use Library\Core\Entity\Mapper;
@@ -58,8 +59,8 @@ class MapperTest extends Test
         );
 
         $this->assertEquals(
-            $oMappedDummy4->foo,
-            'Test string value'
+            'Mapper test mapped dummy4',
+            $oMappedDummy4->foo
         );
     }
 
@@ -88,10 +89,7 @@ class MapperTest extends Test
                 'Unable to store a one to many Entities mapping'
             );
         }
-    }
 
-    public function testStoreMappedOneToManyEntity()
-    {
         $oMappedDummy2Collection = $this->oEntityMapperInstance->loadMapped(new Dummy2());
         $this->assertTrue(
             $oMappedDummy2Collection instanceof Dummy2Collection,
@@ -124,7 +122,7 @@ class MapperTest extends Test
      * ManyToMany mapping test
      */
 
-    public function testStoreMappedManyToManyEntity()
+    public function testStoreThenLoadMappedManyToManyEntity()
     {
         for ($i = 0; $i < 100; $i++) {
             $oDummy3 = new Dummy3();
@@ -134,10 +132,7 @@ class MapperTest extends Test
                 'Unable to store a one to many Entities mapping'
             );
         }
-    }
 
-    public function testLoadMappedManyToManyEntity()
-    {
         $oMappedDummy3Collection = $this->oEntityMapperInstance->loadMapped(new Dummy3());
         $this->assertTrue(
             $oMappedDummy3Collection instanceof Dummy3Collection,
@@ -169,28 +164,31 @@ class MapperTest extends Test
      */
     private function getEntityMapper()
     {
+
         $aDummyEntityData = array(
             'test_string' => 'Test entity mapper',
             'test_int'    => 33,
-            'test_float'  => 666.99235,
+            'test_float'  => '666.99235',
             'test_null'   => null,
             'lastupdate'  => time(),
             'created'     => time(),
         );
 
         $oDummy = new Dummy();
-        $oDummy->loadByParameters(
-            array(
-                $oDummy->getPrimaryKeyName() => 1
-            )
-        );
+        $oDummy->loadByParameters($aDummyEntityData);
         if ($oDummy->isLoaded() === false) {
+
+            $oMappedDummy4 = new Dummy4();
+            $oMappedDummy4->foo = 'Mapper test mapped dummy4';
+            $oMappedDummy4->add();
+
             $oDummy->test_string      = $aDummyEntityData['test_string'];
             $oDummy->test_int         = $aDummyEntityData['test_int'];
             $oDummy->test_float       = $aDummyEntityData['test_float'];
             $oDummy->test_null        = $aDummyEntityData['test_null'];
             $oDummy->lastupdate       = $aDummyEntityData['lastupdate'];
             $oDummy->created          = $aDummyEntityData['created'];
+            $oDummy->dummy4_iddummy4  = $oMappedDummy4->getId();
 
             $oDummy->add();
 
@@ -200,5 +198,29 @@ class MapperTest extends Test
         $oEntityMapper->setSourceEntity($oDummy);
         return $oEntityMapper;
     }
+
+    /**
+     * This method is called after the last test of this test class is run.
+     *
+     * @since Method available since Release 3.4.0
+     */
+    public static function tearDownAfterClass()
+    {
+        # Truncate tables
+        $aLog = array();
+        $sQueries = 'SET FOREIGN_KEY_CHECKS=0;
+            TRUNCATE TABLE `dummy`;
+            TRUNCATE TABLE `dummy1`;
+            TRUNCATE TABLE `dummy2`;
+            TRUNCATE TABLE `dummy3`;
+            TRUNCATE TABLE `dummy4`;
+            TRUNCATE TABLE `dummyDummy3`;
+            SET FOREIGN_KEY_CHECKS=1;';
+        foreach (explode(';', $sQueries) as $sQuery) {
+            $aLog[] = $oStatement = Pdo::dbQuery($sQuery);
+        }
+        return (bool) (in_array(false, $aLog) === false);
+    }
+
 
 }
