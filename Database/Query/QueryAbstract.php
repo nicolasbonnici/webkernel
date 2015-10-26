@@ -44,6 +44,12 @@ abstract class QueryAbstract  extends  Join {
     );
 
     /**
+     * @var string
+     */
+    protected $sDefaultOrder = self::QUERY_DEFAULT_ORDER;
+
+
+    /**
      * QueryAbstract type
      * @var string
      */
@@ -61,11 +67,6 @@ abstract class QueryAbstract  extends  Join {
      */
     protected $sFrom = '';
 
-    /**
-     * QueryAbstract order
-     * @var string
-     */
-    protected $sOrder = self::QUERY_DEFAULT_ORDER;
     /**
      * QueryAbstract order by fields
      * @var array
@@ -130,7 +131,7 @@ abstract class QueryAbstract  extends  Join {
     protected function buildGroupBy()
     {
         if (empty($this->aGroupBy) === false) {
-            return self::QUERY_GROUP_BY . ' ' . implode(', ', $this->aGroupBy);
+            return self::QUERY_GROUP_BY . ' ' . $this->buildFields($this->aGroupBy);
         }
         return null;
     }
@@ -142,9 +143,37 @@ abstract class QueryAbstract  extends  Join {
     protected function buildOrderBy()
     {
         if (empty($this->aOrderBy) === false) {
-            return self::QUERY_ORDER_BY . ' ' . implode(', ', $this->aOrderBy) . ' ' . $this->sOrder;
+            return self::QUERY_ORDER_BY . ' ' . $this->buildFields($this->aOrderBy) . ' ' . $this->getDefaultOrder();
         }
         return null;
+    }
+
+    protected function buildFields(array $aFields)
+    {
+        $aOutput = array();
+        foreach ($aFields as $sColumn) {
+            $aOutput[] = Operators::buildFieldName($sColumn);
+        }
+        return implode(', ', $aOutput);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultOrder()
+    {
+        return $this->sDefaultOrder;
+    }
+
+    /**
+     * @param string $sDefaultOrder
+     */
+    public function setDefaultOrder($sDefaultOrder)
+    {
+        if (in_array($sDefaultOrder, array(self::QUERY_ORDER_DESC, self::QUERY_ORDER_ASC))) {
+            $this->sDefaultOrder = $sDefaultOrder;
+        }
+        return $this;
     }
 
     /**
@@ -170,7 +199,7 @@ abstract class QueryAbstract  extends  Join {
      */
     protected function buildColumns()
     {
-        return implode(', ', $this->aColumns);
+        return $this->buildFields($this->aColumns);
     }
 
     /**
@@ -235,7 +264,7 @@ abstract class QueryAbstract  extends  Join {
     /**
      * QueryAbstract order by setter
      *
-     * @param string $sOrderBy
+     * @param array $aOrderBy           string fieldName => string order (ASC,DESC)
      * @return QueryAbstract
      */
     public function setOrderBy(array $aOrderBy)
@@ -251,29 +280,6 @@ abstract class QueryAbstract  extends  Join {
     public function getOrderBy()
     {
         return $this->aOrderBy;
-    }
-
-    /**
-     * Set query order type
-     * @param string $sOrder
-     * @return $this|bool
-     */
-    public function setOrder($sOrder)
-    {
-        if (in_array($sOrder, $this->aQueryOrders)) {
-            $this->sOrder = $sOrder;
-            return $this;
-        }
-        return false;
-    }
-
-    /**
-     * QueryAbstract oder type accessor
-     * @return string
-     */
-    public function getOrder()
-    {
-        return $this->sOrder;
     }
 
     /**

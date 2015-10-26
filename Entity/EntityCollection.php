@@ -3,7 +3,10 @@ namespace Library\Core\Entity;
 
 use Library\Core\Collection;
 use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;
+use Library\Core\Database\Query\Where;
+use Library\Core\Exception\CoreException;
 
 /**
  * Handle collection of Entities
@@ -31,10 +34,7 @@ abstract class EntityCollection extends Collection
     /**
      * Constructor
      *
-     * @param string $sEntity
-     *            the tiy name
-     * @param array $aIds
-     *            IDs of the elements to instanciate
+     * @param array $aIds   IDs of the elements to instanciate
      */
     public function __construct($aIds = array())
     {
@@ -42,22 +42,20 @@ abstract class EntityCollection extends Collection
         if (is_array($aIds) && count($aIds) > 0) {
             $this->loadByIds($aIds);
         }
-
-        return;
     }
 
     /**
-     * Simple methode de load
+     * Simple load method with no parameters (/!\ use this method carefully, mostly for Dataset component usage)
      *
-     * @param string $sOrderBy
-     *            database field name
-     * @param string $sOrder
-     *            DESC|ASC
-     * @param array $aLimit
-     * @throws EntityException
+     * @param array $aOrder
+     * @param mixed array|int $mLimit
+     * @throws EntityCollectionException
+     * @throws \Exception
      */
     public function load(array $aOrder = array(), $mLimit = null)
     {
+        # First reset collection
+        $this->reset();
 
         # Build Select Query
         $oSelect = new Select();
@@ -77,7 +75,15 @@ abstract class EntityCollection extends Collection
         try {
             $oStatement = Pdo::dbQuery($oSelect->build());
         } catch (\PDOException $oException) {
-            throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $oSelect->build() . '" ');
+            throw new EntityCollectionException(
+                sprintf(
+                    EntityCollectionException::getError(
+                        EntityCollectionException::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY
+                    ),
+                    array($this->getChildClass(), $oSelect->build())
+                ),
+                EntityCollectionException::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY
+            );
         }
         if ($oStatement !== false) {
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
@@ -91,27 +97,19 @@ abstract class EntityCollection extends Collection
     /**
      * Load collection regarding given IDs
      *
-     * @todo Algo pas du tout clair et bug... Need code review
-     *
-     * @param array $aIds
-     *            List of IDs
+     * @param array $aIds List of IDs
      */
     protected function loadByIds($aIds)
     {
         assert('!empty($aIds)');
 
-        if (is_null(constant($this->sChildClass . '::TABLE_NAME'))) {
-            throw new EntityException('CoreObject class table name not defined for class ' . $this->sChildClass);
-        }
-
-        if (is_null(constant($this->sChildClass . '::PRIMARY_KEY'))) {
-            throw new EntityException('CoreObject class primary key not defined for class ' . $this->sChildClass);
-        }
-
+        # Set origin ids
         $this->aOriginIds = $aIds;
-        $aCachedObjects = $this->getCachedObjects($aIds);
+        $aUncachedObjects = array();
+        $aCachedObjects = $this->getCachedObjects($this->aOriginIds);
+
         if (count($aCachedObjects) === 0) {
-            $aUncachedObjects = array_values($aIds);
+            $aUncachedObjects = array_values($this->aOriginIds);
         } else {
             foreach ($aCachedObjects as $iObjectId => $aCachedObject) {
                 $oObject = new $this->sChildClass();
@@ -119,11 +117,14 @@ abstract class EntityCollection extends Collection
                 $this->add($oObject, $oObject->getId());
             }
         }
+
+        $oSelect = new Select();
+        $oSelect->addColumn('*')
+            ->setFrom(constant($this->sChildClass . '::TABLE_NAME'), true)
+            ->addWhereCondition(Operators::in(constant($this->sChildClass . '::PRIMARY_KEY'), $this->aOriginIds));
+
         if (empty($aUncachedObjects) === false) {
-            $this->loadByQuery('
-                SELECT *
-                FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
-                WHERE `' . constant($this->sChildClass . '::PRIMARY_KEY') . '` IN(?' . str_repeat(', ?', count($aUncachedObjects) - 1) . ')', $aUncachedObjects);
+            $this->loadByQuery($oSelect->build(), $aUncachedObjects);
         }
 
         uksort($this->aElements, array(
@@ -133,50 +134,49 @@ abstract class EntityCollection extends Collection
     }
 
     /**
-     * Load collection regarding values and ordering parameters
+     * Load collection with provided parameters and options
      *
-     * @todo handle Order parameter DESC|ASC
-     * @todo Use QueryAbstract component
-     *
-     * @param array $aParameters
-     *            List of parameters name/value
-     * @param array $aOrderFields
-     *            List of order fields/direction
-     * @param array $aLimit
-     *            Start / End limit request for pagination
-     * @param bool $bStrictMode
-     *            AND|OR operator switch and =|LIKE %%
+     * @param array $aParameters            List of parameters name/value
+     * @param array $aOrderFields           List of order fields/direction
+     * @param mixed array|int $mLimit       Start / End limit request for pagination or just limit with an integer
+     * @param bool $bStrictMode             AND|OR operator switch and =|LIKE %someValue%
      * @throws EntityException
      */
     public function loadByParameters(
         array $aParameters,
         array $aOrderFields = array(),
-        array $aLimit = array(0,10),
+        $mLimit = null,
         $bStrictMode = true
     )
     {
-        assert('is_int($aLimit[0]) && is_int($aLimit[1])');
+        # Reset instance
+        $this->reset();
 
         if (empty($aParameters)) {
-            throw new EntityCollectionException('No parameter provided for loading collection of type ' . $this->sChildClass);
+            throw new EntityCollectionException(
+                sprintf(
+                    EntityCollectionException::getError(EntityCollectionException::ERROR_UNABLE_TO_LOAD_WITHOUT_PARAMETERS),
+                    $this->getChildClass()
+                ),
+                EntityCollectionException::ERROR_UNABLE_TO_LOAD_WITHOUT_PARAMETERS
+            );
         }
 
-        $sWhere = '';
+        # Select Query
+        $oSelect = new Select();
+        $oSelect->addColumn('*')
+            ->setFrom(constant($this->sChildClass . '::TABLE_NAME'), true);
         $aBindedValues = array();
 
         foreach ($aParameters as $sParameterName => $mParameterValue) {
-            if (! empty($sWhere)) {
-                $sWhere .= ' ' . (($bStrictMode === true) ? 'AND' : 'OR') . ' ';
-            }
-            // Enable using LOWER(), UPPER(), ...
-            if (strpos($sParameterName, '(') === false) {
-                $sWhere .= '`' . $sParameterName . '`';
-            } else {
-                $sWhere .= $sParameterName;
-            }
 
             if (is_array($mParameterValue) && count($mParameterValue) > 0) {
-                $sWhere .= ' IN(?' . str_repeat(', ?', count($mParameterValue) - 1) . ')';
+                # Add Where condition
+                $oSelect->addWhereCondition(
+                    Operators::in($sParameterName, $mParameterValue),
+                    (($bStrictMode === true) ? Where::QUERY_WHERE_CONNECTOR_AND : Where::QUERY_WHERE_CONNECTOR_OR)
+                );
+
                 $aBindedValues = array_merge($aBindedValues, $mParameterValue);
             } elseif(
                 is_string($mParameterValue) === true ||
@@ -184,36 +184,41 @@ abstract class EntityCollection extends Collection
                 is_bool($mParameterValue) === true ||
                 is_null($mParameterValue) === true
             ) {
-                $sWhere .= ' ' . (($bStrictMode === true) ? '= ?' : 'LIKE ?');
+
+                # Add Where condition
+                $oSelect->addWhereCondition(
+                    (($bStrictMode === true)
+                        ? Operators::equal($sParameterName, false)
+                        : Operators::like($sParameterName, $mParameterValue)
+                    ),
+                    (($bStrictMode === true) ? Where::QUERY_WHERE_CONNECTOR_AND : Where::QUERY_WHERE_CONNECTOR_OR)
+                );
+
                 $aBindedValues[] = (($bStrictMode === true) ? $mParameterValue : '%' . $mParameterValue . '%');
             } else {
-                throw new EntityCollectionException('Bad bounded parameter value for : ' . $sParameterName);
+                throw new EntityCollectionException(
+                    sprintf(
+                        EntityCollectionException::getError(EntityCollectionException::ERROR_BAD_BOUNDED_PARAMETER_VALUE),
+                        $sParameterName
+                    ),
+                    EntityCollectionException::ERROR_BAD_BOUNDED_PARAMETER_VALUE
+                );
             }
         }
 
-        $sQuery = '
-            SELECT *
-            FROM `' . constant($this->sChildClass . '::TABLE_NAME') . '`
-            WHERE ' . $sWhere . '
-            ORDER BY ';
-
-        if (empty($aOrderFields)) {
-            $sQuery .= '`' . constant($this->sChildClass . '::PRIMARY_KEY') . '` DESC';
+        if (is_null($mLimit) === true) {
+            $oSelect->setLimit(array(0,10));
         } else {
-            foreach ($aOrderFields as $sFieldName => $sOrder) {
-                if (strpos($sFieldName, '(') === false) {
-                    $sQuery .= '`' . $sFieldName . '` ' . $sOrder . ', ';
-                } else {
-                    $sQuery .= $sFieldName . ' ' . $sOrder . ', ';
-                }
-            }
-            $sQuery = trim($sQuery, ', ');
+            $oSelect->setLimit($mLimit);
         }
 
-        if (is_int($aLimit[0]) && is_int($aLimit[1])) {
-            $sQuery .= ' LIMIT ' . $aLimit[0] . ', ' . $aLimit[1];
+        if (empty($aOrderFields) === true) {
+            $oSelect->setOrderBy(array(constant($this->sChildClass . '::PRIMARY_KEY')));
+        } else {
+            $oSelect->setOrderBy($aOrderFields);
         }
-        $this->loadByQuery($sQuery, $aBindedValues);
+
+        $this->loadByQuery($oSelect->build(), $aBindedValues);
     }
 
     /**
@@ -230,7 +235,13 @@ abstract class EntityCollection extends Collection
         try {
             $oStatement = Pdo::dbQuery($sQuery, $aValues);
         } catch (\PDOException $oException) {
-            throw new EntityException('Unable to load collection of ' . $this->sChildClass . ' with query "' . $sQuery . '" and values ' . print_r($aValues, true));
+            throw new EntityException(
+                sprintf(
+                    EntityCollectionException::getError(EntityCollectionException::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY_AND_PARAMETERS),
+                    array($sQuery, var_export($aValues, true))
+                ),
+                EntityCollectionException::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY_AND_PARAMETERS
+            );
         }
 
         if ($oStatement !== false) {
@@ -281,8 +292,7 @@ abstract class EntityCollection extends Collection
     /**
      * Search within the collection
      *
-     * @todo ajouter la gestion des filtre pour obtenir des sous collection avec cette methode
-     * @todo migrer cette methode vers EntityCollection!!
+     * @todo ajouter la gestion des filtres pour obtenir des sous collection avec cette methode
      *
      * @param int|string $mKey
      * @param int|string $mValue
@@ -335,6 +345,17 @@ abstract class EntityCollection extends Collection
     }
 }
 
-class EntityCollectionException extends \Exception
+class EntityCollectionException extends CoreException
 {
+    const ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY                = 2;
+    const ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY_AND_PARAMETERS = 3;
+    const ERROR_UNABLE_TO_LOAD_WITHOUT_PARAMETERS                   = 4;
+    const ERROR_BAD_BOUNDED_PARAMETER_VALUE                         = 5;
+
+    public static $aErrors = array(
+        self::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY => 'Unable to load collection of "%s" with query "%s".',
+        self::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY_AND_PARAMETERS => 'Unable to load collection of "%s" with query "%s" and parameters: %s.',
+        self::ERROR_UNABLE_TO_LOAD_WITHOUT_PARAMETERS    => 'No parameter provided for loading collection of type "%s".',
+        self::ERROR_BAD_BOUNDED_PARAMETER_VALUE          => 'Bad bounded parameter value for : %s',
+    );
 }

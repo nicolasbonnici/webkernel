@@ -13,6 +13,10 @@ use \Library\Core\Test as Test;
  */
 class SelectTest extends Test
 {
+
+    /**
+     * @var Select
+     */
     protected static $oSelectInstance;
 
     protected $aColumns = array(
@@ -89,14 +93,10 @@ class SelectTest extends Test
 
     public function testSetOrder()
     {
-        $this->assertTrue(self::$oSelectInstance->setOrder(Select::QUERY_ORDER_ASC) instanceof Select);
-        $this->assertTrue(self::$oSelectInstance->setOrder(Select::QUERY_ORDER_DESC) instanceof Select);
-        $this->assertFalse(self::$oSelectInstance->setOrder('not in scope'));
-    }
-
-    public function testGetOrder()
-    {
-        $this->assertEquals(self::$oSelectInstance->getOrder(), Select::QUERY_ORDER_DESC);
+        $this->assertTrue(self::$oSelectInstance->setDefaultOrder(Select::QUERY_ORDER_ASC) instanceof Select);
+        $this->assertTrue(self::$oSelectInstance->setDefaultOrder(Select::QUERY_ORDER_DESC) instanceof Select);
+        self::$oSelectInstance->setDefaultOrder('not in scope');
+        $this->assertTrue(self::$oSelectInstance->setDefaultOrder(Select::QUERY_ORDER_DESC) instanceof Select);
     }
 
     public function testSetGroupBy()
@@ -124,7 +124,7 @@ class SelectTest extends Test
     public function testBuild()
     {
         $this->assertEquals(
-            'SELECT prop1, prop2, prop3, prop4 FROM table_name AS t GROUP BY prop1, prop2, prop3 ORDER BY prop1, prop2, prop3 DESC LIMIT 1099, 25',
+            'SELECT `prop1`, `prop2`, `prop3`, `prop4` FROM table_name AS t GROUP BY `prop1`, `prop2`, `prop3` ORDER BY `prop1`, `prop2`, `prop3` DESC LIMIT 1099, 25',
             self::$oSelectInstance->build()
         );
     }

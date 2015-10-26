@@ -40,7 +40,7 @@ class Operators
      */
     public static function equal($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -52,7 +52,7 @@ class Operators
      */
     public static function different($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_DIFFERENT . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_DIFFERENT . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -64,7 +64,7 @@ class Operators
      */
     public static function bigger($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_BIGGER . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -76,7 +76,7 @@ class Operators
      */
     public static function biggerOrEqual($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_BIGGER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_BIGGER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -88,7 +88,7 @@ class Operators
      */
     public static function smaller($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_SMALLER . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -100,7 +100,7 @@ class Operators
      */
     public static function smallerOrEqual($sFieldName, $bBindParameter = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_SMALLER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_SMALLER_OR_EQUAL . ' ' . self::buildBoundedParameter($sFieldName, $bBindParameter);
     }
 
     /**
@@ -112,7 +112,7 @@ class Operators
      */
     public static function in($sFieldName, array $aBoundedValues)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_IN . '(' . WHERE::QUERY_WHERE_BOUNDED_PARAMETER .
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_IN . '(' . WHERE::QUERY_WHERE_BOUNDED_PARAMETER .
             str_repeat(',' . WHERE::QUERY_WHERE_BOUNDED_PARAMETER, (count($aBoundedValues) - 1)) . ')';
     }
 
@@ -126,7 +126,7 @@ class Operators
      */
     public static function like($sFieldName, $sValue, $bStartWildCards = true, $bEndWildCards = true)
     {
-        return '`' . $sFieldName . '`' . ' ' . self::OPERATOR_LIKE . ' ' .
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_LIKE . ' ' .
             self::prepareLikeParameter($sValue, $bStartWildCards, $bEndWildCards);
     }
 
@@ -150,6 +150,23 @@ class Operators
                 ? self::OPERATOR_LIKE_WILDCARDS
                 : ''
         );
+    }
+
+    /**
+     * Prepare field name for Query
+     *
+     * @param $sFieldName
+     * @return string
+     */
+    public static function buildFieldName($sFieldName)
+    {
+        # Enable using SQL methods (LOWER(), UPPER(), ...)
+        if (strpos($sFieldName, '(') === false && strpos($sFieldName, '*') === false) {
+            return '`' . $sFieldName . '`';
+        } else {
+            return $sFieldName;
+        }
+
     }
 
 }

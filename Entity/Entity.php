@@ -9,9 +9,10 @@ use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Update;
+use Library\Core\Exception\CoreException;
 
 /**
- * On the fly ORM CRUD management abstract class
+ * Entities management abstract class
  *
  * Class Entity
  * @package Library\Core\Orm
@@ -176,7 +177,13 @@ abstract class Entity extends Attributes
     public function loadByParameters(array $aParameters)
     {
         if (empty($aParameters)) {
-            throw new EntityException('No parameter provided for loading object of type ' . get_called_class());
+            throw new EntityException(
+                sprintf(
+                    EntityException::getError(EntityException::ERROR_NO_PARAMETERS_TO_LOAD_ENTITY),
+                    get_called_class()
+                ),
+                EntityException::ERROR_NO_PARAMETERS_TO_LOAD_ENTITY
+            );
         }
 
         $oSelectQuery = new Select();
@@ -221,7 +228,13 @@ abstract class Entity extends Attributes
             $bRefreshCache = true;
 
             if (($oStatement = Pdo::dbQuery($sQuery, $aBindedValues)) === false) {
-                throw new EntityException('Unable to construct object of class ' . get_called_class() . ' with query ' . $sQuery);
+                throw new EntityException(
+                    sprintf(
+                        EntityException::getError(EntityException::ERROR_UNABLE_TO_CONSTRUCT_ENTITY),
+                        array(get_called_class(), $sQuery)
+                    ),
+                    EntityException::ERROR_UNABLE_TO_CONSTRUCT_ENTITY
+                );
             }
 
             if ($oStatement->rowCount() === 0) {
@@ -229,7 +242,13 @@ abstract class Entity extends Attributes
             }
 
             if ($oStatement->rowCount() > 1) {
-                throw new EntityException('More than one occurence of object try to build a entityCollection?...' . get_called_class() . ' found for query ' . $sQuery);
+                throw new EntityException(
+                    sprintf(
+                        EntityException::getError(EntityException::ERROR_MORE_THAN_ONE_ENTITY_FOUND),
+                        array(get_called_class(), $sQuery)
+                    ),
+                    EntityException::ERROR_MORE_THAN_ONE_ENTITY_FOUND
+                );
             }
 
             $aObject = $oStatement->fetchAll(\PDO::FETCH_ASSOC);
@@ -289,7 +308,7 @@ abstract class Entity extends Attributes
 
             # Throw exceptions on development environment
             if (defined('ENV') && ENV === 'dev') {
-                throw new EntityException($oException->getMessage(), $oException->getCode());
+                throwException($oException);
             }
 
             return false;
@@ -310,7 +329,11 @@ abstract class Entity extends Attributes
 
             if (empty($this->{static::PRIMARY_KEY})) {
                 throw new EntityException(
-                    'Cannot update object of class ' . get_called_class() . ' with no primary key value'
+                    sprintf(
+                        EntityException::getError(EntityException::ERROR_UPDATE_WITH_NO_PRIMARY_KEY),
+                        get_called_class()
+                    ),
+                    EntityException::ERROR_UPDATE_WITH_NO_PRIMARY_KEY
                 );
             }
 
@@ -343,7 +366,11 @@ abstract class Entity extends Attributes
                 if ($this->bIsHistorized) {
                     if ($oEntityHistory->save($aParameters) === false) {
                         throw new EntityException(
-                            sprintf('Unable to store Entity history for object: %s', $this->getEntityName())
+                            sprintf(
+                                EntityException::getError(EntityException::ERROR_UNABLE_TO_STORE_ENTITY_HISTORY),
+                                $this->getEntityName()
+                            ),
+                            EntityException::ERROR_UNABLE_TO_STORE_ENTITY_HISTORY
                         );
                     }
                 }
@@ -354,7 +381,7 @@ abstract class Entity extends Attributes
 
             # Throw exceptions on development environment
             if (defined('ENV') && ENV === 'dev') {
-                throw new EntityException($oException->getMessage(), $oException->getCode());
+                throwException($oException);
             }
 
             return false;
@@ -373,11 +400,17 @@ abstract class Entity extends Attributes
 
         try {
             if ($this->isDeletable() === false) {
-                throw new EntityException('Cannot delete object of type "' . get_called_class() . '", this type of object is not deletable');
+                throw new EntityException(
+                    sprintf(EntityException::getError(EntityException::ERROR_ENTITY_NOT_DELETABLE), get_called_class()),
+                    EntityException::ERROR_ENTITY_NOT_DELETABLE
+                );
             }
 
             if ($this->isLoaded() === false) {
-                throw new EntityException('Cannot delete entry, object not loaded properly');
+                throw new EntityException(
+                    EntityException::getError(EntityException::ERROR_DELETE_NOT_LOADED_ENTITY),
+                    EntityException::ERROR_DELETE_NOT_LOADED_ENTITY
+                );
             }
 
             # Build delete query
@@ -404,7 +437,7 @@ abstract class Entity extends Attributes
 
             # Throw exceptions on development environment
             if (defined('ENV') && ENV === 'dev') {
-                throw new EntityException($oException->getMessage(), $oException->getCode());
+                throwException($oException);
             }
 
             return false;
@@ -452,7 +485,11 @@ abstract class Entity extends Attributes
     {
         if (! isset($this->{static::PRIMARY_KEY})) {
             throw new EntityException(
-                'Cannot load object of class ' . get_called_class() . ' by primary key, no value provided for key ' . static::PRIMARY_KEY
+                sprintf(
+                    EntityException::getError(EntityException::ERROR_CANNOT_LOAD_WITH_EMPTY_PK),
+                    array(get_called_class(), static::PRIMARY_KEY)
+                ),
+                EntityException::ERROR_CANNOT_LOAD_WITH_EMPTY_PK
             );
         }
 
@@ -575,7 +612,10 @@ abstract class Entity extends Attributes
     public function getId()
     {
         if (! $this->bIsLoaded) {
-            throw new EntityException('Cannot get ID of object not loaded');
+            throw new EntityException(
+                EntityException::getError(EntityException::ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY),
+                EntityException::ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY
+            );
         }
         return (int) $this->{static::PRIMARY_KEY};
     }
@@ -630,7 +670,29 @@ abstract class Entity extends Attributes
 
 }
 
-class EntityException extends \Exception
+class EntityException extends CoreException
 {
+
+    const ERROR_NO_PARAMETERS_TO_LOAD_ENTITY        = 2;
+    const ERROR_UNABLE_TO_CONSTRUCT_ENTITY          = 3;
+    const ERROR_MORE_THAN_ONE_ENTITY_FOUND          = 4;
+    const ERROR_UPDATE_WITH_NO_PRIMARY_KEY          = 5;
+    const ERROR_UNABLE_TO_STORE_ENTITY_HISTORY      = 6;
+    const ERROR_ENTITY_NOT_DELETABLE                = 7;
+    const ERROR_DELETE_NOT_LOADED_ENTITY            = 8;
+    const ERROR_CANNOT_LOAD_WITH_EMPTY_PK           = 9;
+    const ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY  = 10;
+
+    public static $aErrors = array(
+        self::ERROR_NO_PARAMETERS_TO_LOAD_ENTITY        => 'No parameter provided for loading object of type: %s.',
+        self::ERROR_UNABLE_TO_CONSTRUCT_ENTITY          => 'Unable to construct object of class "%s" with query: %s.',
+        self::ERROR_MORE_THAN_ONE_ENTITY_FOUND          => 'More than "%s" Entity type found for query %s.',
+        self::ERROR_UPDATE_WITH_NO_PRIMARY_KEY          => 'Cannot update object of class %s with no primary key value.',
+        self::ERROR_UNABLE_TO_STORE_ENTITY_HISTORY      => 'Unable to store Entity history for object: %s.',
+        self::ERROR_ENTITY_NOT_DELETABLE                => 'Cannot delete object of type "%s", this not allowed.',
+        self::ERROR_DELETE_NOT_LOADED_ENTITY            => 'Cannot delete Entity, instance not loaded properly.',
+        self::ERROR_CANNOT_LOAD_WITH_EMPTY_PK           => 'Cannot load object of class "%s" by primary key, no value provided for key %s',
+        self::ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY  => 'Cannot get ID of object not loaded',
+    );
 }
 
