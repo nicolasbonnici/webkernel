@@ -129,6 +129,51 @@ class EntityCollectionTest extends Test
         );
     }
 
+    public function testSearch()
+    {
+        $aOrders = array(
+            'created'
+        );
+        $iLimit = 18;
+
+        $aParameters = array(
+            'iddummy' => array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
+        );
+
+        $this->oDummyEntityCollection->loadByParameters($aParameters, $aOrders, $iLimit);
+
+        $oFound = $this->oDummyEntityCollection->search('iddummy', 5);
+        $this->assertInstanceOf(
+            get_class(new Dummy()),
+            $oFound
+        );
+
+        $this->assertTrue(
+            $oFound->isLoaded()
+        );
+    }
+
+    public function testFilter()
+    {
+        $aOrders = array(
+            'created'
+        );
+        $iLimit = 18;
+
+        $aParameters = array(
+            'iddummy' => array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)
+        );
+
+        $this->oDummyEntityCollection->loadByParameters($aParameters, $aOrders, $iLimit);
+
+        $this->oDummyEntityCollection->filter(array('iddummy' => 5));
+
+        $this->assertEquals(
+            1,
+            $this->oDummyEntityCollection->count()
+        );
+    }
+
     public function testComputeEntityClassName()
     {
         $this->assertEquals(

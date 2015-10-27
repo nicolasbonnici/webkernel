@@ -144,11 +144,18 @@ class Collection implements \Iterator
     }
 
     /**
-     * @todo remove member
+     * Delete an item from Collection instance
+     *
+     * @param mixed string|int $mKey
+     * @return bool
      */
-    public function delete()
+    public function delete($mKey)
     {
-
+        if (isset($this->aElements[$mKey]) === true) {
+            unset($this->aElements[$mKey]);
+            return true;
+        }
+        return false;
     }
 
     /**

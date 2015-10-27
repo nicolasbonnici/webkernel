@@ -103,8 +103,12 @@ abstract class EntityCollection extends Collection
     {
         assert('!empty($aIds)');
 
+        # Reset instance
+        $this->reset();
+
         # Set origin ids
         $this->aOriginIds = $aIds;
+
         $aUncachedObjects = array();
         $aCachedObjects = $this->getCachedObjects($this->aOriginIds);
 
@@ -292,20 +296,40 @@ abstract class EntityCollection extends Collection
     /**
      * Search within the collection
      *
-     * @todo ajouter la gestion des filtres pour obtenir des sous collection avec cette methode
-     *
      * @param int|string $mKey
      * @param int|string $mValue
-     * @return object mixed NULL NULL
+     * @return Entity
      */
     public function search($mKey, $mValue)
     {
         foreach ($this->aElements as $iCollectionIndex => $oEntity) {
-            if (isset($oEntity->$mKey) && $oEntity->$mKey === $mValue) {
+            if (isset($oEntity->$mKey) && $oEntity->$mKey == $mValue) {
                 return $oEntity;
             }
         }
-        return NULL;
+        return null;
+    }
+
+    /**
+     * Filter Entity Collection with parameters
+     *
+     * @param array $aParameters
+     */
+    public function filter(array $aParameters)
+    {
+        foreach ($this->aElements as $iCollectionIndex => $oEntity) {
+            $bMatch = false;
+            foreach($aParameters as $sKey => $mValue) {
+                if (isset($oEntity->$sKey) && $oEntity->$sKey == $mValue) {
+                    $bMatch = true;
+                }
+            }
+
+            if ($bMatch === false) {
+                $this->delete($iCollectionIndex);
+            }
+
+        }
     }
 
     /**
