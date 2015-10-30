@@ -383,16 +383,16 @@ abstract class Entity extends Attributes
 
                 return true;
             }
+            return false;
         } catch (\Exception $oException) {
 
             # Throw exceptions on development environment
             if (defined('ENV') && ENV === 'dev') {
-                throwException($oException);
+                throw $oException; 
             }
 
             return false;
         }
-
     }
 
     /**
@@ -403,7 +403,6 @@ abstract class Entity extends Attributes
      */
     public function delete()
     {
-
         try {
             if ($this->isDeletable() === false) {
                 throw new EntityException(
@@ -443,7 +442,7 @@ abstract class Entity extends Attributes
 
             # Throw exceptions on development environment
             if (defined('ENV') && ENV === 'dev') {
-                throwException($oException);
+                throw $oException;
             }
 
             return false;

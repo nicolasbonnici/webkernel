@@ -2,8 +2,10 @@
 namespace Library\Core;
 
 use app\Entities\Collection\PermissionCollection;
-use app\Entities\Collection\RessourceCollection;
-use app\Entities\Mapping\Collection\UserGroupCollection;
+use app\Entities\Collection\ResourceCollection;
+use app\Entities\Group;
+use app\Entities\Permission;
+use app\Entities\Ressource;
 use app\Entities\User;
 
 /**
@@ -38,19 +40,23 @@ class Acl
      *
      * @var PermissionCollection
      */
-    protected $oPermissions;
+    protected $oPermissionCollection;
 
     /**
      * User instance current group
      *
-     * @var UserGroupCollection
+     * @var GroupCollection
      */
-    protected $oGroups;
+    protected $oGroupCollection;
+
+    /**
+     * Permissions mapped resources
+     * @var ResourceCollection
+     */
+    protected $oResourceCollection;
 
     /**
      * An array to store already parsed rights
-     *
-     * @todo store directly json objects in cache
      *
      * @var array
      */
@@ -75,10 +81,7 @@ class Acl
             throw new AclException(get_called_class() . ' Empty user instance provided.');
         } else {
             $this->oUser = $oUser;
-            $this->getUserGroups();
-            if ($this->getPermissions()) {
-                $this->getRessources();
-            }
+            $this->loadUserRights();
         }
     }
 
@@ -191,9 +194,9 @@ class Acl
     private function getCRUD($sRessource)
     {
         $sRessource = strtolower($sRessource);
-        if (! empty($sRessource) && $this->oGroups->hasItem() && $this->oPermissions->count() > 0) {
+        if (! empty($sRessource) && $this->oGroupCollection->hasItem() && $this->oPermissionCollection->count() > 0) {
             if (($oRessource = $this->oRessources->search('name', $sRessource)) !== NULL) {
-                if (($oPermission = $this->oPermissions->search('ressource_idressource', $oRessource->idressource)) !== NULL) {
+                if (($oPermission = $this->oPermissionCollection->search('ressource_idressource', $oRessource->idressource)) !== NULL) {
                     return json_decode($oPermission->permission);
                 }
             }
@@ -208,69 +211,33 @@ class Acl
      * @throws AclException
      * @return boolean
      */
-    private function getUserGroups()
+    private function loadUserRights()
     {
         assert('$this->oUser->isLoaded()');
-        $this->oGroups = new UserGroupCollection();
-        try {
-            $this->oGroups->loadByParameters(array(
-                'user_iduser' => $this->oUser->getId()
-            ));
-        } catch (\Exception $oException) {
-            throw new AclException('Error: Unable to load group for given user');
+
+        $this->oGroupCollection = $this->oUser->loadMapped(new Group());
+
+        # Load mapped permissions
+        foreach ($this->oGroupCollection as $oGroup) {
+            $this->oPermissionCollection = $oGroup->loadMapped(new Permission());
         }
-        return $this->oGroups->hasItem();
+
+        # Load mapped resources
+        $this->oResourceCollection = new ResourceCollection();
+        foreach ($this->oPermissionCollection as $oPermission) {
+            $this->oResourceCollection->add(
+                $oPermission->loadMapped(new Ressource()),
+                $this->oResourceCollection->count() + 1
+            );
+        }
+
+        return (bool) (
+            $this->oGroupCollection->hasItem() === true &&
+            $this->oPermissionCollection->hasItem() === true &&
+            $this->oResourceCollection->hasItem() === true
+        );
     }
 
-    /**
-     * Load user instances current permission
-     *
-     * @return boolean
-     */
-    private function getPermissions()
-    {
-        try {
-        	$this->oPermissions = new PermissionCollection();
-	        if ($this->oGroups->hasItem()) {
-		        
-	            $aGroups = array();
-	            foreach ($this->oGroups as $oGroup) {
-	                $aGroups[] = (int) $oGroup->group_idgroup;
-	            }
-	            $this->oPermissions->loadByParameters(array(
-	                'group_idgroup' => $aGroups
-	            ));
-	        }
-	        return ($this->oPermissions->count() > 0) ? true : false;
-        } catch (AclException $oException) {
-        	return false;
-        }
-    }
-
-    /**
-     * Load current user available ressources
-     *
-     * @throws AclException
-     */
-    private function getRessources()
-    {
-        assert('$this->oGroups->hasItem() && $this->oPermissions->count() > 0');
-
-        $this->oRessources = new RessourceCollection();
-        $aAvailableRessources = array();
-        foreach ($this->oPermissions as $oPermission) {
-            $aAvailableRessources[] = (int) $oPermission->ressource_idressource;
-        }
-        if (count($aAvailableRessources) > 0) {
-            try {
-                $this->oRessources->loadByParameters(array(
-                    'idressource' => $aAvailableRessources
-                ));
-            } catch (AclException $oException) {}
-        }
-
-        return $this->oRessources->count() > 0;
-    }
 }
 
 class AclException extends \Exception
