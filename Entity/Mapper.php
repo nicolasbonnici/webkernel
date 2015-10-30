@@ -75,13 +75,13 @@ class Mapper
         Entity $oMappedEntity,
         array $aParameters = array(),
         array $aOrderFields = array(),
-        array $aLimit = array(0, 100)
+        $mLimit = null
     )
     {
         $aMappingSetup = $this->getMappingConfiguration(get_class($oMappedEntity));
         $oMapper = $this->getMapper($aMappingSetup[MappingAbstract::KEY_MAPPING_TYPE]);
         if (is_null($oMapper) === false && $oMapper instanceof MappingAbstract) {
-            return $oMapper->loadMapped($oMappedEntity, $aParameters, $aOrderFields, $aLimit);
+            return $oMapper->loadMapped($oMappedEntity, $aParameters, $aOrderFields, $mLimit);
         }
         return null;
     }
@@ -174,7 +174,7 @@ class Mapper
     /**
      * @return boolean
      */
-    public function setForceLoad()
+    public function getForceLoad()
     {
         return $this->bForceLoad;
     }
@@ -182,7 +182,7 @@ class Mapper
     /**
      * @param boolean $bForceLoad
      */
-    public function getForceLoad($bForceLoad)
+    public function setForceLoad($bForceLoad)
     {
         $this->bForceLoad = (bool) $bForceLoad;
     }

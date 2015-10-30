@@ -104,6 +104,12 @@ abstract class Entity extends Attributes
     protected $aFields = array();
 
     /**
+     * Entities Mapper instance
+     * @var Mapper
+     */
+    protected $oMapperInstance = null;
+
+    /**
      * Constructor
      *
      * @param mixed int|array $mValue   Primary key value or parameters to load. If left empty, blank object will be instantiated
@@ -512,6 +518,72 @@ abstract class Entity extends Attributes
     }
 
     /**
+     * Load a mapped entity
+     *
+     * @param Entity $oMappedEntity
+     * @param array $aParameters
+     * @param array $aOrders
+     * @param mixed array|int $mLimit
+     * @param bool $bForceLoad
+     * @return mixed Entity|EntityCollection    NULL if something went wrong
+     */
+    public function loadMapped(
+        Entity $oMappedEntity,
+        array $aParameters = array(),
+        array $aOrders = array(),
+        $mLimit = null,
+        $bForceLoad = false
+    )
+    {
+        if ($this->isLoaded() === true && $this->loadMapper() === true) {
+
+            if ($bForceLoad === true) {
+                $this->oMapperInstance->setForceLoad(true);
+            }
+
+            return $this->oMapperInstance->loadMapped(
+                $oMappedEntity,
+                $aParameters,
+                $aOrders,
+                $mLimit
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Store a mapped Entity
+     *
+     * @param Entity $oMappedEntity
+     * @return bool
+     */
+    public function storeMapped(Entity $oMappedEntity)
+    {
+        if ($this->loadMapper() === true) {
+            return $this->oMapperInstance->store($oMappedEntity);
+        }
+        return false;
+    }
+
+    /**
+     * Load the entities Mapper component
+     *
+     * @return bool
+     */
+    protected function loadMapper()
+    {
+        if (is_null($this->oMapperInstance) === true) {
+
+            # Create new Entities Mapper instance
+            $this->oMapperInstance = new Mapper();
+            $this->oMapperInstance->setSourceEntity($this);
+
+        }
+
+        return (bool) ($this->oMapperInstance instanceof Mapper);
+    }
+
+    /**
      * Reset current instance to blank state
      */
     public function reset()
@@ -584,7 +656,7 @@ abstract class Entity extends Attributes
     }
 
     /**
-     * Check if Entity is cachable
+     * Check if Entity is cacheable
      *
      * @return bool
      */

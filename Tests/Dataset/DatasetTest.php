@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core\Tests\Entity\Dataset;
+namespace Library\Core\Tests\Dataset;
 
 use Library\Core\Bootstrap;
 use Library\Core\Database\Pdo;

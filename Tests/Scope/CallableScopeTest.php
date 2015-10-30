@@ -7,8 +7,8 @@ use \Library\Core\Test as Test;
 use Library\Core\Scope\CallableScope;
 
 use bundles\blog\Entities\Post;
-use bundles\lifestream\Entities\FeedItem;
-use bundles\user\Entities\User;
+use app\Entities\FeedItem;
+use app\Entities\User;
 
 
 /**

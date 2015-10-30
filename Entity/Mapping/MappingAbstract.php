@@ -119,15 +119,17 @@ abstract class MappingAbstract
     /**
      * Find specific mapped entity or EntityCollection with parameters
      *
-     * @param Entity $oMappedEntityc
+     * @param Entity $oMappedEntity
      * @param array $aParameters
-     * @return mixed Entity|EntityCollection
+     * @param array $aOrderFields
+     * @param mixed int|array $mLimit
+     * @return mixed
      */
     abstract public function loadMapped(
         Entity $oMappedEntity,
         array $aParameters = array(),
         array $aOrderFields = array(),
-        array $aLimit = array(0, 100)
+        $mLimit = null
     );
 
     /**

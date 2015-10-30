@@ -4,6 +4,7 @@ namespace Library\Core\Tests\Entity;
 use Library\Core\Entity\Entity;
 use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
+use Library\Core\Tests\Dummy\Entities\Dummy4;
 
 /**
  * ORM Entity component unit tests
@@ -185,6 +186,39 @@ class EntityTest extends Test
             );
         }
     }
+
+    public function testStoreThenLoadMapped()
+    {
+        if ($this->oDummyEntity->isLoaded() === false) {
+            $this->oDummyEntity = new Dummy(1);
+
+        }
+
+        # Create a Dummy4
+        $oDummy4 = new Dummy4();
+        $oDummy4->foo = 'Test string value';
+
+        $this->assertTrue(
+            $this->oDummyEntity->storeMapped($oDummy4),
+            'Unable to store mapped Entity directly from Entity Instance'
+        );
+
+        $oDummy = new Dummy(1);
+        $oDummy4 = $oDummy->loadMapped(new Dummy4());
+
+        $this->assertInstanceOf(
+            get_class(new Dummy4()),
+            $oDummy4,
+            'Unable to load mapped Entity in EntityTest.'
+        );
+
+        $this->assertEquals(
+            'Test string value',
+            $oDummy4->foo,
+            'Incorrect value found on mapped Dummy4 in EntityTest.'
+        );
+    }
+
 
     public function testGetPrimaryKeyName()
     {

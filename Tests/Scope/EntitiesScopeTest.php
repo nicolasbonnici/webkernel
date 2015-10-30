@@ -6,7 +6,7 @@ use \Library\Core\Test as Test;
 use Library\Core\Scope\EntitiesScope;
 
 use bundles\blog\Entities\Post;
-use bundles\lifestream\Entities\FeedItem;
+use app\Entities\FeedItem;
 use app\Entities\User;
 
 

@@ -25,7 +25,7 @@ class OneToOne extends MappingAbstract
      * @param Entity $oMappedEntity
      * @param array $aParameters
      * @param array $aOrderFields
-     * @param array $aLimit
+     * @param array $mLimit
      * @return Entity|null
      * @throws \Library\Core\Entity\EntityException
      */
@@ -33,7 +33,7 @@ class OneToOne extends MappingAbstract
         Entity $oMappedEntity,
         array $aParameters = array(),
         array $aOrderFields = array(),
-        array $aLimit = array(0, 100)
+        $mLimit = null
     )
     {
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));

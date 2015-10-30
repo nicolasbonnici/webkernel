@@ -70,9 +70,7 @@ class EntityCollectionTest extends Test
 
     public function loadWithOrderAndLimit()
     {
-        $aOrders = array(
-            'created' => 'DESC'
-        );
+        $aOrders = array('created');
         $iLimit = 10;
 
         $this->oDummyEntityCollection->load($aOrders, $iLimit);
