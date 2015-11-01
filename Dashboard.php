@@ -17,14 +17,9 @@ use Library\Core\Entity\Entity;
 class Dashboard extends Crud {
 	
 
-    public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)	
+    public function __construct(Entity $oEntity, $mUser = null)
     {
-   		parent::__construct(
-				$sEntityClassName,
-   				$sEntityCollectionClassName, 
-   				$iPrimaryKey, 
-   				$mUser
-		);
+   		parent::__construct($oEntity,$mUser);
     }
 	
 	/**

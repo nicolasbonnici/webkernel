@@ -2,18 +2,16 @@
 namespace Library\Core;
 
 use app\Entities\Collection\PermissionCollection;
-use app\Entities\Collection\ResourceCollection;
 use app\Entities\Group;
 use app\Entities\Permission;
-use app\Entities\Ressource;
 use app\Entities\User;
+use Library\Core\Exception\CoreException;
+use Library\Core\Json\Json;
 
 /**
- * ACL couch layer to manage CRUD access to entities using permissions setted to user's groups
- *
+ * ACL layer to manage CRUD access to entities using permissions at group level system
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
- *
  */
 class Acl
 {
@@ -43,17 +41,11 @@ class Acl
     protected $oPermissionCollection;
 
     /**
-     * User instance current group
+     * User instance current groups
      *
      * @var GroupCollection
      */
     protected $oGroupCollection;
-
-    /**
-     * Permissions mapped resources
-     * @var ResourceCollection
-     */
-    protected $oResourceCollection;
 
     /**
      * An array to store already parsed rights
@@ -63,12 +55,18 @@ class Acl
     protected $aRights = array();
 
     /**
-     * Availables ressources
+     * Available resources
      *
      * @param \app\Entities\User $oUser
      * @throws AclException
      */
     protected $aAvailableRessources;
+
+    /**
+     * Tell if Acl was properly load for given User instance
+     * @var bool
+     */
+    protected $bIsLoaded = false;
 
     /**
      * Instance constructor
@@ -81,128 +79,130 @@ class Acl
             throw new AclException(get_called_class() . ' Empty user instance provided.');
         } else {
             $this->oUser = $oUser;
-            $this->loadUserRights();
+
+            # Try to load Acl rights for the given User instance
+            $this->bIsLoaded = $this->loadUserRights();
+
         }
+
     }
 
     /**
-     * Tell if current user has create access on a given ressource name
+     * Tell if current user has create access on a given resource name
      *
-     * @param unknown $sRessource
+     * @param string $sEntityClassName
      * @return boolean
      */
-    public function hasCreateAccess($sRessource)
+    public function hasCreateAccess($sEntityClassName)
     {
-        if (
-            ! empty($sRessource) &&
-            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
-            isset($oRights->create)
-        ) {
-            return (bool) ($oRights->create === 1);
+        try {
+            if (empty($sEntityClassName) === false && (($oRights = $this->getCRUD($sEntityClassName)) !== null)) {
+                return (bool) ($oRights->get('create') === 1);
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
         }
-
-        return false;
     }
 
     /**
-     * Tell if current user has read access on a given ressource name
-     * @param unknown $sRessource
+     * Tell if current user has read access on a given resource name
+     * @param string $sEntityClassName
      * @return boolean
      */
-    public function hasReadAccess($sRessource)
+    public function hasReadAccess($sEntityClassName)
     {
-        if (
-            ! empty($sRessource) &&
-            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
-            isset($oRights->read)
-        ) {
-            return (bool) ($oRights->read === 1);
+        try {
+            if (empty($sEntityClassName) === false && (($oRights = $this->getCRUD($sEntityClassName)) !== null)) {
+                return (bool) ($oRights->get('read') === 1);
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
         }
-
-        return false;
     }
 
     /**
-     * Tell if current user has update access on a given ressource name
-     * @param string $sRessource        Ressource label name
+     * Tell if current user has update access on a given resource name
+     * @param string $sEntityClassName        Ressource label name
      * @return boolean
      */
-    public function hasUpdateAccess($sRessource)
+    public function hasUpdateAccess($sEntityClassName)
     {
-        if (
-            ! empty($sRessource) &&
-            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
-            isset($oRights->update)
-        ) {
-            return (bool) ($oRights->update === 1);
+        try {
+            if (empty($sEntityClassName) === false && (($oRights = $this->getCRUD($sEntityClassName)) !== null)) {
+                return (bool) ($oRights->get('update') === 1);
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
         }
-
-        return false;
     }
 
     /**
      * Tell if user has delete access on a given entity name
-     * @param unknown $sRessource
+     * @param string $sEntityClassName
      * @return boolean
      */
-    public function hasDeleteAccess($sRessource)
+    public function hasDeleteAccess($sEntityClassName)
     {
-        if (
-            ! empty($sRessource) &&
-            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
-            isset($oRights->delete)
-        ) {
-            return (bool) ($oRights->delete === 1);
+        try {
+            if (empty($sEntityClassName) === false && (($oRights = $this->getCRUD($sEntityClassName)) !== null)) {
+                return (bool) ($oRights->get('delete') === 1);
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
         }
-
-        return false;
     }
 
     /**
      * Tell if user has list access on a given entity name
-     * @param unknown $sRessource
+     * @param string $sEntityClassName
      * @return boolean
      */
-    public function hasListAccess($sRessource)
+    public function hasListAccess($sEntityClassName)
     {
-        if (
-            ! empty($sRessource) &&
-            (($oRights = $this->getCRUD($sRessource)) !== NULL) &&
-            isset($oRights->list)
-        ) {
-            return (bool) ($oRights->list === 1);
+        try {
+            if (empty($sEntityClassName) === false && (($oRights = $this->getCRUD($sEntityClassName)) !== null)) {
+                return (bool) ($oRights->get('list') === 1);
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
         }
-
-        return false;
     }
 
     /**
      * Tell if user has list access on a given entity name
-     * @param unknown $sRessource
+     * @param string $sEntityClassName
      * @return boolean
      */
-    public function hasListByUserAccess($sRessource)
+    public function hasListByUserAccess($sEntityClassName)
     {
-        return $this->hasListAccess($sRessource);
+        return $this->hasListAccess($sEntityClassName);
     }
 
     /**
      * Get user's CRUD rights
-     * @param unknown $sRessource
-     * @return mixed|NULL
+     * @param string $sEntityClassName
+     * @return Json
      */
-    private function getCRUD($sRessource)
+    private function getCRUD($sEntityClassName)
     {
-        $sRessource = strtolower($sRessource);
-        if (! empty($sRessource) && $this->oGroupCollection->hasItem() && $this->oPermissionCollection->count() > 0) {
-            if (($oRessource = $this->oRessources->search('name', $sRessource)) !== NULL) {
-                if (($oPermission = $this->oPermissionCollection->search('ressource_idressource', $oRessource->idressource)) !== NULL) {
-                    return json_decode($oPermission->permission);
-                }
-            }
+        if ($this->bIsLoaded !== true) {
+            throw new AclException(
+                AclException::getError(AclException::ERROR_NOT_LOADED_INSTANCE),
+                AclException::ERROR_NOT_LOADED_INSTANCE
+            );
         }
 
-        return NULL;
+        if (! empty($sEntityClassName) && $this->oGroupCollection->hasItem() && $this->oPermissionCollection->hasItem()) {
+            if (($oPermission = $this->oPermissionCollection->search('entity_class', $sEntityClassName)) != null) {
+                return new Json($oPermission->permission);
+            }
+        }
+        return null;
     }
 
     /**
@@ -213,33 +213,38 @@ class Acl
      */
     private function loadUserRights()
     {
-        assert('$this->oUser->isLoaded()');
-
+        /** @var GroupCollection oGroupCollection */
         $this->oGroupCollection = $this->oUser->loadMapped(new Group());
+        if (is_null($this->oGroupCollection) === false && $this->oGroupCollection->hasItem() === true) {
+            # Load mapped permissions
+            /** @var Group $oGroup */
+            foreach ($this->oGroupCollection as $oGroup) {
+                $this->oPermissionCollection = $oGroup->loadMapped(new Permission());
+            }
 
-        # Load mapped permissions
-        foreach ($this->oGroupCollection as $oGroup) {
-            $this->oPermissionCollection = $oGroup->loadMapped(new Permission());
-        }
-
-        # Load mapped resources
-        $this->oResourceCollection = new ResourceCollection();
-        foreach ($this->oPermissionCollection as $oPermission) {
-            $this->oResourceCollection->add(
-                $oPermission->loadMapped(new Ressource()),
-                $this->oResourceCollection->count() + 1
+            return (bool) (
+                $this->oGroupCollection->hasItem() == true &&
+                $this->oPermissionCollection->hasItem() == true
             );
         }
-
-        return (bool) (
-            $this->oGroupCollection->hasItem() === true &&
-            $this->oPermissionCollection->hasItem() === true &&
-            $this->oResourceCollection->hasItem() === true
-        );
+        return false;
     }
 
+    /**
+     * Tell if Acl layer was properly loaded
+     * @return bool
+     */
+    public function isLoaded()
+    {
+        return $this->bIsLoaded;
+    }
 }
 
-class AclException extends \Exception
+class AclException extends CoreException
 {
+    const ERROR_NOT_LOADED_INSTANCE = 2;
+
+    public static $aErrors = array(
+        self::ERROR_NOT_LOADED_INSTANCE => 'Acl not loaded properly for given User instance, probably no mapped group.'
+    );
 }

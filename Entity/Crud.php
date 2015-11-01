@@ -56,43 +56,27 @@ abstract class Crud
     /**
      * Instance constructor
      *
-     * @todo virer le param entity collection et plutot computer entity avec un methode generique
-     *
      */
-    public function __construct($sEntityClassName, $sEntityCollectionClassName, $iPrimaryKey = 0, $mUser = null)
+    public function __construct(Entity $oEntity, $mUser = null)
     {
-        assert('is_null($iPrimaryKey) || $iPrimaryKey === 0 || (is_int($iPrimaryKey) && intval($iPrimaryKey) > 0)');
 
-        if (empty($sEntityClassName) === true || class_exists($sEntityClassName) === false) {
-            throw new CrudException(
-                'Entity requested not found (' . $sEntityClassName . '), you need to create manually or scaffold his \app\Entities class.',
-                self::ERROR_ENTITY_EXISTS
-            );
+        // Instanciate User provided at instance constructor
+        if ($mUser instanceof User && $mUser->isLoaded()) {
+            $this->oUser = $mUser;
+        } elseif (is_int($mUser) && intval($mUser) > 0) {
+            try {
+                $this->oUser = new User($mUser);
+            } catch (EntityException $oException) {
+                $this->oUser = null;
+            }
         } else {
-            try {
-                // Instanciate User provided at instance constructor
-                if ($mUser instanceof User && $mUser->isLoaded()) {
-                    $this->oUser = $mUser;
-                } elseif (is_int($mUser) && intval($mUser) > 0) {
-                    try {
-                        $this->oUser = new User($mUser);
-                    } catch (EntityException $oException) {
-                        $this->oUser = null;
-                    }
-                } else {
-                    $this->oUser = null;
-                }
-            } catch (EntityException $oException) {
-                throw new CrudException('Invalid user instance provided', self::ERROR_USER_INVALID);
-            }
-
-            try {
-                $this->oEntity = new $sEntityClassName(((intval($iPrimaryKey) > 0) ? $iPrimaryKey : null));
-                $this->oEntities = new $sEntityCollectionClassName;
-            } catch (EntityException $oException) {
-                throw new CrudException('Invalid entity provided, unable to load...', self::ERROR_ENTITY_NOT_LOADED);
-            }
+            $this->oUser = null;
         }
+
+        # Load Entity and EntityCollection instances
+        $this->oEntity = $oEntity;
+        $sCollectionClassName = $oEntity->computeCollectionClassName();
+        $this->oEntities = new $sCollectionClassName;
     }
 
     /**

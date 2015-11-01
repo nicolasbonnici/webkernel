@@ -13,23 +13,6 @@ use Library\Core\FileSystem\Directory;
 class Template
 {
 
-
-    /**
-     * Template engine mode (frontend|backend)
-     */
-    const VIEWS_FRONTEND   = 'frontend';
-    const VIEWS_BACKEND    = 'backend';
-    const VIEWS_DEFAULT    = self::VIEWS_FRONTEND;
-
-    /**
-     * Template modes
-     * @var array
-     */
-    protected $aTemplateMode = array(
-        self::VIEWS_FRONTEND,
-        self::VIEWS_BACKEND
-    );
-
     /**
      * Template name
      * @var string
@@ -38,18 +21,12 @@ class Template
 
 
     /**
-     * Template mode (frontend or backend) frontend by default
-     * @var string
-     */
-    protected $sMode = self::VIEWS_DEFAULT;
-
-    /**
      * Current bundle that use this template
      * @var Bundle
      */
     protected $oBundle;
 
-    public function __construct(Bundle $oBundle, $sTemplateMode = self::VIEWS_FRONTEND)
+    public function __construct(Bundle $oBundle)
     {
 
         if ($oBundle->isLoaded() === false) {
@@ -60,11 +37,6 @@ class Template
                 ),
                 TemplateException::ERROR_BUNDLE_NOT_LOADED
             );
-        }
-
-        # Set the template mode
-        if (in_array($sTemplateMode, $this->aTemplateMode) === true) {
-            $this->sMode = $sTemplateMode;
         }
 
         # Assign related bundle
@@ -91,10 +63,7 @@ class Template
     protected function load()
     {
         # Load theme info
-        $sDefaultTemplateConfKey = ($this->sMode === self::VIEWS_FRONTEND)
-            ? Bundle::CONFIGURATION_KEY_TEMPLATE_FRONTEND
-            : Bundle::CONFIGURATION_KEY_TEMPLATE_BACKEND;
-        $this->sName = $this->oBundle->getConf($sDefaultTemplateConfKey);
+        $this->sName = $this->oBundle->getConf(Bundle::CONFIGURATION_KEY_TEMPLATE_FRONTEND);
     }
 
     /**
@@ -104,8 +73,7 @@ class Template
      */
     protected function computePath()
     {
-        return $this->oBundle->getPath(Bundle::PATH_VIEWS) . $this->getMode() . DIRECTORY_SEPARATOR . $this->getName()
-            . DIRECTORY_SEPARATOR;
+        return $this->oBundle->getPath(Bundle::PATH_VIEWS) . $this->getName() . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -125,16 +93,6 @@ class Template
     public function getName()
     {
         return $this->sName;
-    }
-
-    /**
-     * Get template mode
-     *
-     * @return string
-     */
-    public function getMode()
-    {
-        return $this->sMode;
     }
 
     public function getPath()

@@ -31,7 +31,6 @@ class Bundle
      * Configuration keys for the default frontend/backend template
      */
     const CONFIGURATION_KEY_TEMPLATE_FRONTEND   = 'template';
-    const CONFIGURATION_KEY_TEMPLATE_BACKEND    = 'backend.template';
 
     /**
      * Default template name configuration value
