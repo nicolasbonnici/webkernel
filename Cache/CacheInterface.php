@@ -31,6 +31,12 @@ interface CacheInterface
     const CACHE_KEY_PREFIX = 'Core';
 
     /**
+     * Connect to the cache engine
+     * @return void                 set CacheAbstract::$bIsConnected member to true
+     */
+    public static function connect();
+
+    /**
      * Get cached value
      *
      * @param string $name

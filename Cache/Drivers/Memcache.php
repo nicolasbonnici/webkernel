@@ -23,7 +23,7 @@ class Memcache extends CacheAbstract
      */
     protected static $iZLibSupport = 0;
 
-    protected function connect()
+    public static function connect()
     {
         $memcacheServer = CACHE_HOST;
         $memcachePort = CACHE_PORT;
@@ -41,8 +41,19 @@ class Memcache extends CacheAbstract
                 throw new \Exception("Memcache n'est pas configuré dans le fichier config.ini.<br>" . "server : '" . $memcacheServer . "'," . "port : '" . $memcachePort . "'");
             }
         }
+
+        if (self::isConnected() === false) {
+            throw new \Exception('Memcache driver: Unable to connect');
+        }
     }
 
+    /**
+     * Read from cache engine
+     *
+     * @param string $name
+     * @return array|bool|string
+     * @throws \Exception
+     */
     public static function get($name)
     {
         // @todo quick and dirty
@@ -67,17 +78,16 @@ class Memcache extends CacheAbstract
     }
 
     /**
-     *
-     * @todo modifier la signature pour apporter la gestion du parametre $bZLib par le membre du driver idem interface
+     * Store onto cache engine
      *
      * @param string $name
      * @param mixed $value
-     * @param int $bZLibPacked
      * @param int $expire
+     * @param int $bZLibPacked
      * @return bool
      * @throws \Exception
      */
-    public static function set($name, $value, $bZLibPacked = 0, $expire = CacheInterface::CACHE_TIME_DEFAULT)
+    public static function set($name, $value, $expire = CacheInterface::CACHE_TIME_DEFAULT, $bZLibPacked = 0)
     {
         if (self::isConnected()) {
             self::$res_memcache->set(self::CACHE_KEY_PREFIX . '-' . $name, $value, $bZLibPacked, $expire);

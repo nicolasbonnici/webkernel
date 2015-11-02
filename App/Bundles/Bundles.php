@@ -2,7 +2,7 @@
 namespace Library\Core\App\Bundles;
 
 use Library\Core\Bootstrap;
-use Library\Core\Cache;
+use Library\Core\Cache\Drivers\Memcache;
 
 /**
  * Bundles management
@@ -14,7 +14,7 @@ class Bundles
 {
 
     /**
-     * \Library\Core\Bundles::$aBundles \Library\Core\Cache duration in seconds
+     * \Library\Core\Bundles::$aBundles Cache duration in seconds
      * @var integer
      */
     protected static $iBundlesCacheDuration = 1314000;
@@ -51,7 +51,7 @@ class Bundles
     protected function build($bFlushBundlesCache)
     {
         $this->aBundles = array();
-        $this->aBundles = \Library\Core\Cache::get(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'));
+        $this->aBundles = Memcache::get(Memcache::getKey(get_called_class(), 'aBundlesDistribution'));
         if ($bFlushBundlesCache || $this->aBundles === false ) {
             $this->parseBundles();
         }
@@ -66,7 +66,7 @@ class Bundles
         foreach ($aBundles as $iIndex=>$sBundle) {
             $this->aBundles[$sBundle] = null;
         }
-        Cache::set(\Library\Core\Cache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aBundles, false, self::$iBundlesCacheDuration);
+        Memcache::set(Memcache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aBundles, self::$iBundlesCacheDuration);
     }
 
     /**

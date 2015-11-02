@@ -1,12 +1,15 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Traits;
+
 
 /**
- * Common Toolbox php traits
+ * Gravatar API usage
+ *
+ * Class Gravatar
+ * @package Library\Core\Traits
  */
-trait Tools
+trait Gravatar
 {
-
     /**
      * Retrieve gravatar url
      *
@@ -25,18 +28,4 @@ trait Tools
             $sDefault
         );
     }
-
-    /**
-     * Generate a random hex color
-     * @return string
-     */
-    public function generateRandomHexColor()
-    {
-        $sOutput = '';
-        for ($i = 0; $i < 2; $i++) {
-            $sOutput .= str_pad( dechex( mt_rand( 0, 255 ) ), 2, '0', STR_PAD_LEFT);
-        }
-        return $sOutput;
-    }
-
 }

@@ -2,7 +2,9 @@
 namespace Library\Core;
 
 /**
- * Command line interface wrapper 
+ * Command line interface wrapper
+ *
+ * @todo restrict usage to a scope of bash function
  *  
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
@@ -22,14 +24,12 @@ class Cli
 	/**
 	 * Run a command on the CLI interface and return result as a string
 	 *
-     * @todo seems like a big security hole :p
-     *
 	 * @param string $sCommand
 	 * @return string
 	 */
 	private function run($sCommand)
 	{
-		return passthru($sCommand);
+		return shell_exec($sCommand);
 	}
 	
 	/**

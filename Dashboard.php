@@ -7,13 +7,11 @@ use Library\Core\Entity\Crud;
 use Library\Core\Entity\Entity;
 
 /**
- * Dashboard common couch
- * Useful generic methods to build a dashboard
- * 
- * @author niko
+ * Dashboard common layer, useful generic methods to build a dashboard
  *
+ * Class Dashboard
+ * @package Library\Core
  */
-
 class Dashboard extends Crud {
 	
 

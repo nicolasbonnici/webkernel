@@ -14,7 +14,7 @@ use Library\Core\App\Widgets\WidgetAbstract;
 use Library\Core\Bootstrap;
 use Library\Core\Http;
 use Library\Core\Router;
-use Library\Core\Tools;
+use Library\Core\Traits\Gravatar;
 use Library\Core\Translation\Translation;
 
 /**
@@ -443,10 +443,10 @@ class Controller
         // @todo provisoire
         if (isset($this->aView['aSession']['auth'])) {
             $aUserSession = $this->aView['aSession']['auth'];
-            $this->aView['sGravatarSrc16'] = Tools::getGravatar($aUserSession['mail'], 16);
-            $this->aView['sGravatarSrc32'] = Tools::getGravatar($aUserSession['mail'], 32);
-            $this->aView['sGravatarSrc64'] = Tools::getGravatar($aUserSession['mail'], 64);
-            $this->aView['sGravatarSrc128'] = Tools::getGravatar($aUserSession['mail'], 128);
+            $this->aView['sGravatarSrc16'] = Gravatar::getGravatar($aUserSession['mail'], 16);
+            $this->aView['sGravatarSrc32'] = Gravatar::getGravatar($aUserSession['mail'], 32);
+            $this->aView['sGravatarSrc64'] = Gravatar::getGravatar($aUserSession['mail'], 64);
+            $this->aView['sGravatarSrc128'] = Gravatar::getGravatar($aUserSession['mail'], 128);
         }
 
         // Views common couch

@@ -22,12 +22,6 @@ abstract class CacheAbstract extends Singleton implements CacheInterface
     }
 
     /**
-     * Connect to the cache engine
-     * @return void                 set CacheAbstract::$bIsConnected member to true
-     */
-    abstract protected function connect();
-
-    /**
      * Generate cache key depending on given parameters
      * Variable types "ressource" and "NULL" and "Unknown type" are not handled
      * If key string is more than 250 characters long, MD5 hash is retrieved

@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Entity;
 
-use Library\Core\Cache;
+use Library\Core\Cache\Drivers\Memcache;
 use Library\Core\Database\Pdo;
 use Library\Core\Validator;
 
@@ -29,8 +29,8 @@ abstract class Attributes {
      */
     protected function loadAttributes()
     {
-        $sCacheKey = Cache::getKey(__METHOD__, get_called_class());
-        if (($this->aFields = Cache::get($sCacheKey)) === false) {
+        $sCacheKey = Memcache::getKey(__METHOD__, get_called_class());
+        if (($this->aFields = Memcache::get($sCacheKey)) === false) {
             if (($oStatement = Pdo::dbQuery('SHOW COLUMNS FROM `' . $this->getTableName() . '`')) === false) {
                 throw new EntityException('Unable to list fields for table ' . $this->getTableName());
             }
@@ -38,7 +38,11 @@ abstract class Attributes {
                 $this->aFields[$aColumn['Field']] = $aColumn;
             }
 
-            Cache::set($sCacheKey, $this->aFields, false, Cache::CACHE_TIME_MINUTE);
+            /**
+             * @todo utiliser la cache duration de la configuration de l entité pour la mise en cache
+             */
+
+            Memcache::set($sCacheKey, $this->aFields, Memcache::CACHE_TIME_MINUTE);
         }
 
         if (empty($this->aFields) === true) {

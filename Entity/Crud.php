@@ -319,7 +319,7 @@ abstract class Crud
      * Set allowed entity attributes scope
      *
      * @param array $aEntityRestrictedAttributes
-     * @return \Library\Core\Crud
+     * @return Crud
      */
     public function setRestrictedEntityAttributes(array $aEntityRestrictedAttributes)
     {

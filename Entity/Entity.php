@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Entity;
 
-use Library\Core\Cache;
+use Library\Core\Cache\Drivers\Memcache;
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Delete;
 use Library\Core\Database\Query\Insert;
@@ -162,9 +162,9 @@ abstract class Entity extends Attributes
             $sObjectCacheKey = self::getCacheKey($aData[static::PRIMARY_KEY]);
             // If given cache key is not object main key, we save relation between given cache key and object
             if (!is_null($sCacheKey) && $sCacheKey !== $sObjectCacheKey) {
-                Cache::set($sCacheKey, $aData[static::PRIMARY_KEY], Cache::CACHE_TIME_DAY);
+                Memcache::set($sCacheKey, $aData[static::PRIMARY_KEY], Memcache::CACHE_TIME_DAY);
             }
-            Cache::set($sObjectCacheKey, $aData, $this->iCacheDuration);
+            Memcache::set($sObjectCacheKey, $aData, $this->iCacheDuration);
         }
         $this->bIsLoaded = true;
         
@@ -204,7 +204,7 @@ abstract class Entity extends Attributes
             $oSelectQuery->build(),
             $aParameters,
             true,
-            Cache::getKey(__METHOD__, $aParameters)
+            Memcache::getKey(__METHOD__, $aParameters)
         );
     }
 
@@ -225,9 +225,9 @@ abstract class Entity extends Attributes
         $bRefreshCache = false;
         if ($bUseCache && $this->isCacheable() && ! empty($this->iCacheDuration)) {
             if (is_null($sCacheKey)) {
-                $sCacheKey = Cache::getKey(get_called_class(), $sQuery, $aBindedValues);
+                $sCacheKey = Memcache::getKey(get_called_class(), $sQuery, $aBindedValues);
             }
-            $aObject = Cache::get($sCacheKey);
+            $aObject = Memcache::get($sCacheKey);
         }
 
         if (! isset($aObject) || $aObject === false) {
@@ -272,7 +272,7 @@ abstract class Entity extends Attributes
      */
     public static function getCached($iId)
     {
-        return \Library\Core\Cache::get(self::getCacheKey($iId));
+        return Memcache::get(self::getCacheKey($iId));
     }
 
     /**
@@ -283,7 +283,7 @@ abstract class Entity extends Attributes
      */
     public static function getCacheKey($iId)
     {
-        return \Library\Core\Cache::getKey(get_called_class(), $iId);
+        return Memcache::getKey(get_called_class(), $iId);
     }
 
     /**
@@ -512,7 +512,7 @@ abstract class Entity extends Attributes
             $oSelect->build(),
             $aParameters,
             $bUseCache,
-            Cache::getKey(get_called_class())
+            Memcache::getKey(get_called_class())
         );
     }
 
@@ -631,7 +631,7 @@ abstract class Entity extends Attributes
      */
     public function isInCache()
     {
-        return (Cache::get(Cache::getKey(get_called_class(), $this->getId())) !== false);
+        return (Memcache::get(Memcache::getKey(get_called_class(), $this->getId())) !== false);
     }
 
     /**
