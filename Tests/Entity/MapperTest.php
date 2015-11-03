@@ -199,6 +199,14 @@ class MapperTest extends Test
         return $oEntityMapper;
     }
 
+    public function testDeleteMappedEntities()
+    {
+        $this->assertTrue(
+            $this->oEntityMapperInstance->deleteMapped(),
+            'Unable to delete all mapped entities in MapperTest'
+        );
+    }
+
     /**
      * This method is called after the last test of this test class is run.
      *

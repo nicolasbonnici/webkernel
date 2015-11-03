@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Entity\Mapping;
 
+use Library\Core\Entity\EntityCollection;
 use Library\Core\Exception\CoreException;
 use Library\Core\Entity\Entity;
 
@@ -112,7 +113,7 @@ abstract class MappingAbstract
     public function load()
     {
         foreach ($this->aMappingConfiguration as $sLinkedEntity => $aMappingSetup) {
-            $this->loadMapped($sLinkedEntity);
+            $this->loadMapped(new $sLinkedEntity());
         }
     }
 

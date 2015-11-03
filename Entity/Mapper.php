@@ -87,6 +87,28 @@ class Mapper
     }
 
     /**
+     * Delete all mapped entities
+     */
+    public function deleteMapped()
+    {
+        $aReturns = array();
+        foreach ($this->aMappingConfiguration as $sLinkedEntity => $aMappingSetup) {
+            $oMapped = $this->loadMapped(new $sLinkedEntity());
+            if ($oMapped instanceof Entity) {
+                $aReturns[] = $this->delete($oMapped);
+            } elseif ($oMapped instanceof EntityCollection) {
+                foreach ($oMapped as $oEntity) {
+                    $aReturns[] = $this->delete($oEntity);
+                }
+            } else {
+                # NULL case no mapped Entities found
+                continue;
+            }
+        }
+        return (bool) (in_array(false, $aReturns) === false);
+    }
+
+    /**
      * Store a mapped entity
      *
      * @param $oMappedEntity
