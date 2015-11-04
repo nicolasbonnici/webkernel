@@ -12,7 +12,6 @@ use Library\Core\App\Mvc\View\View;
 use Library\Core\App\Session;
 use Library\Core\App\Widgets\WidgetAbstract;
 use Library\Core\Bootstrap;
-use Library\Core\Http;
 use Library\Core\Router;
 use Library\Core\Traits\Gravatar;
 use Library\Core\Translation\Translation;
@@ -218,7 +217,7 @@ class Controller
             /**
              * @todo handle properly the 404 error and root if available to the error bundle
              */
-            $oHttpHeader = new Http();
+            $oHttpHeader = new Http\Headers();
             $oHttpHeader->setStatus(404);
             $oHttpHeader->sendHeaders();
             exit;

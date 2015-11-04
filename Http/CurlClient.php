@@ -7,10 +7,10 @@ namespace Library\Core;
  * 
  * Handle post|put|delete|get|head requests 
  */
-class Curl 
+class CurlClient
 {
 	/**
-	 * Curl instance
+	 * CurlClient instance
 	 * @var ressource cURL session id
 	 */
     private $_oCurlSession;

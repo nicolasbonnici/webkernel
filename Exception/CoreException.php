@@ -2,9 +2,10 @@
 namespace Library\Core\Exception;
 
 /**
- * Exception management
+ * This inherit this component all framework components exceptions
  *
- * @author Nicolas BONNICI
+ * Class CoreException
+ * @package Library\Core\Exception
  */
 class CoreException extends \Exception
 {

@@ -1,6 +1,8 @@
 <?php
 namespace Library\Core;
 
+use Library\Core\Http\Headers;
+
 /**
  * That class bootstrap project
  *
@@ -303,7 +305,7 @@ class Bootstrap
             /**
              * @todo handle properly the 404 error and root if available to the error bundle
              */
-            $oHttpHeader = new Http();
+            $oHttpHeader = new Headers();
             $oHttpHeader->setStatus(404);
             $oHttpHeader->sendHeaders();
             exit;

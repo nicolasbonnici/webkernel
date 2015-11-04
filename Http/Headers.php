@@ -1,12 +1,11 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Http;
 
 /**
- * HTTP header management class
- * @author Antoine <antoine.preveaux@bazarchic.com>
+ * HTTP headers management class
  * @link http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
  */
-class Http
+class Headers
 {
     const HEADER_CONTENT_TYPE_JSON = 'application/json';
 
