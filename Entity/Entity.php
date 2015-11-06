@@ -23,6 +23,11 @@ abstract class Entity extends Attributes
 {
 
     /**
+     * Separator between foreign table name and primary key name on a foreign key name (ex: table_idtable)
+     */
+    const FOREIGN_KEY_SEPARATOR = '_';
+
+    /**
      * Generic fields to handle or not on all Entities
      */
     const FIELD_LASTUPDATE = 'lastupdate';
@@ -612,6 +617,15 @@ abstract class Entity extends Attributes
             '\\Entities',
         ), '\\Entities\Collection', get_called_class());
         return $sCollectionClassName . 'Collection';
+    }
+
+    /**
+     * Compute entity foreign key name
+     * @return string
+     */
+    public function computeForeignKeyName()
+    {
+        return $this->getTableName() . self::FOREIGN_KEY_SEPARATOR . $this->getPrimaryKeyName();
     }
 
     /**

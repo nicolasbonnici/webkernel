@@ -236,4 +236,13 @@ class EntityTest extends Test
         );
     }
 
+    public function testComputeForeignKeyName()
+    {
+        $this->assertEquals(
+            'dummy_iddummy',
+            $this->oDummyEntity->computeForeignKeyName(),
+            'Error on comuted Entity foreign key name'
+        );
+    }
+
 }

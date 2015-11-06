@@ -47,10 +47,15 @@ class OneToMany extends MappingAbstract
             /** @var EntityCollection $oMappedEntityCollection */
             $oMappedEntityCollection = new $sMappedCollectionClassName;
 
-            $oMappedEntityCollection->loadByParameters(
+            $aParameter = array_merge(
+                $aParameters,
                 array(
                     $aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] => $this->oSourceEntity->getId()
                 )
+            );
+
+            $oMappedEntityCollection->loadByParameters(
+                $aParameter
             );
 
             return $oMappedEntityCollection;

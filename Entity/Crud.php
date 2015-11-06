@@ -92,59 +92,51 @@ abstract class Crud
         assert('!is_null($this->oEntity)');
         assert('!is_null($this->oUser)');
 
-        // Check for user bypass attempt
-        if (
-        ($this->oEntity->hasAttribute('user_iduser') && isset($aParameter['user_iduser']) &&
-            $this->oUser->getId() !== intval($aParameter['user_iduser']))
-        ) {
-            throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-        } else {
-            try {
-                $oEntity = clone $this->oEntity;
+        try {
+            $oEntity = clone $this->oEntity;
 
-                foreach ($aParameters as $sParameter=>$mValue) {
-                    if ($oEntity->hasAttribute($sParameter)) {
-                        $oEntity->{$sParameter} = $mValue;
-                    }
+            foreach ($aParameters as $sParameter=>$mValue) {
+                if ($oEntity->hasAttribute($sParameter)) {
+                    $oEntity->{$sParameter} = $mValue;
                 }
-
-                // Check for user bypass attempt
-                if ($oEntity->hasAttribute('user_iduser')) {
-                    $oEntity->user_iduser = $this->oUser->getId();
-                }
-
-                if ($oEntity->hasAttribute('created')) {
-                    $oEntity->created = time();
-                }
-                if ($oEntity->hasAttribute('lastupdate')) {
-                    $oEntity->lastupdate = null;
-                }
-
-                // Check for Null attributes
-                foreach ($oEntity->getAttributes() as $sAttr) {
-                    if (
-                        $sAttr !== $oEntity->getPrimaryKeyName() &&
-                        $oEntity->isNullable($sAttr) === false &&
-                        (
-                            empty($oEntity->{$sAttr}) === true ||
-                            is_null($oEntity->{$sAttr}) === true
-                        )
-                    ) {
-                        throw new CrudException(
-                            'No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity',
-                            self::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE
-                        );
-                    }
-                }
-
-                if ($oEntity->add() === true) {
-                    $this->oEntity = clone $oEntity;
-                    return $this->oEntity->isLoaded();
-                }
-                return false;
-            } catch (\Exception $oException) {
-                return false;
             }
+
+            # Check for foreign keys on User Entity
+            if ($oEntity->hasAttribute($this->oUser->computeForeignKeyName())) {
+                $oEntity->user_iduser = $this->oUser->getId();
+            }
+
+            if ($oEntity->hasAttribute('created')) {
+                $oEntity->created = time();
+            }
+            if ($oEntity->hasAttribute('lastupdate')) {
+                $oEntity->lastupdate = null;
+            }
+
+            # Check for Nullable attributes
+            foreach ($oEntity->getAttributes() as $sAttr) {
+                if (
+                    $sAttr !== $oEntity->getPrimaryKeyName() &&
+                    $oEntity->isNullable($sAttr) === false &&
+                    (
+                        empty($oEntity->{$sAttr}) === true ||
+                        is_null($oEntity->{$sAttr}) === true
+                    )
+                ) {
+                    throw new CrudException(
+                        'No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity',
+                        self::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE
+                    );
+                }
+            }
+
+            if ($oEntity->add() === true) {
+                $this->oEntity = clone $oEntity;
+                return $this->oEntity->isLoaded();
+            }
+            return false;
+        } catch (\Exception $oException) {
+            return false;
         }
     }
 

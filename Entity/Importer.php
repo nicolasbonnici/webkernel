@@ -10,6 +10,8 @@ use Library\Core\Traits\NamespaceTools;
 /**
  * This class can import any entity sql structure from project and bundles
  *
+ * @todo ajouté une notion de versionning des patches (dans le dossier deploy)
+ *
  * Class Importer
  * @package Library\Core\Entity
  */
@@ -113,7 +115,7 @@ class Importer
         # Extract class name from namespace
         $sClassName = array_pop($aNamespace);
         return $this->computeAbsolutePathFromNamespace(implode('\\', $aNamespace))  . DIRECTORY_SEPARATOR .
-            self::DUMPS_FOLDER_NAME . DIRECTORY_SEPARATOR . $sClassName . '.sql';
+            self::DUMPS_FOLDER_NAME . DIRECTORY_SEPARATOR . $sClassName . DIRECTORY_SEPARATOR . $sClassName  . '.sql';
     }
 
     /**

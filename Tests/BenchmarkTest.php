@@ -9,6 +9,8 @@ use Library\Core\Tests\Dummy\Entities\Dummy;
 
 
 /**
+ * This class allow to perform Benchmark on framework components
+ *
  * Class Benchmark
  * @package Library\Core
  */
@@ -17,35 +19,23 @@ class BenchmarkTest extends Test
 
     protected $aBenchmark = array();
 
-    public function testInsert()
+    public function testEntityComponent()
     {
         # First generate 1000 Dummy
-        $this->aBenchmark['create_1000'] = $this->generateDummies(1000);
+        $this->aBenchmark['create_100'] = $this->generateDummies(100);
         # First generate 10 000 Dummy
-        $this->aBenchmark['create_10000'] = $this->generateDummies(10000);
+        $this->aBenchmark['create_1000'] = $this->generateDummies(1000);
 
 //        # First generate 100 000 Dummy
 //        $this->aBenchmark['create_100000'] = $this->generateDummies(100000);
 
-        # Make some assertions to ensure there's no step effect
-        $this->assertTrue(
-            $this->aBenchmark['create_1000'] * 100 > $this->aBenchmark['create_10000'],
-            'Low performance detected, step on creating Dummy entities.'
-        );
+        # Load a hundred entities
+        $this->aBenchmark['load_100'] = $this->loadDummies(100);
+        # Load a thousand entities
+        $this->aBenchmark['load_1000'] = $this->loadDummies(1000);
 
         # Render benchmark results
         $this->renderResults();
-    }
-
-    public function testLoad()
-    {
-        $this->aBenchmark['load_1000'] = $this->loadDummies(1000);
-        $this->aBenchmark['load_10000'] = $this->loadDummies(10000);
-var_dump($this->aBenchmark['load_1000'] * 100, $this->aBenchmark['load_10000']);
-        $this->assertTrue(
-            $this->aBenchmark['load_1000'] * 100 > $this->aBenchmark['load_10000'],
-            'Low performance detected, step on loading Dummy entities.'
-        );
     }
 
     protected function renderResults()

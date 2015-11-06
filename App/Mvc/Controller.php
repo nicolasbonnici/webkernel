@@ -449,7 +449,7 @@ class Controller
         }
 
         // Views common couch
-        $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou constante mais quelquechose
+        $this->aView["appLayout"] = '../../../app/Views/layout.tpl'; // @todo degager ca ou computer
         $this->aView["helpers"] = '../../../app/Views/helpers/';
 
         // Bootstrap
