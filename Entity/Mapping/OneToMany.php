@@ -47,10 +47,17 @@ class OneToMany extends MappingAbstract
             /** @var EntityCollection $oMappedEntityCollection */
             $oMappedEntityCollection = new $sMappedCollectionClassName;
 
+            # Build optional source foreign key name parameter
+            if (isset($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]) === true) {
+                $sForeignKeyName = $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE];
+            } else {
+                $sForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+            }
+
             $aParameter = array_merge(
                 $aParameters,
                 array(
-                    $aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] => $this->oSourceEntity->getId()
+                    $sForeignKeyName => $this->oSourceEntity->getId()
                 )
             );
 
@@ -73,7 +80,15 @@ class OneToMany extends MappingAbstract
     {
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
-            $oMappedEntity->$aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] = $this->oSourceEntity->getId();
+
+            # Build optional source foreign key name parameter
+            if (isset($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]) === true) {
+                $sForeignKeyName = $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE];
+            } else {
+                $sForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+            }
+
+            $oMappedEntity->$sForeignKeyName = $this->oSourceEntity->getId();
             return $oMappedEntity->add();
         }
         return false;

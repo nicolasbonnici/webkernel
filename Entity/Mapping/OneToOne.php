@@ -43,7 +43,9 @@ class OneToOne extends MappingAbstract
             $oMappedEntity->loadByParameters(
                 array(
                     $oMappedEntity->getPrimaryKeyName() =>
-                        $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
+                    (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true)
+                        ? $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
+                        : $this->oSourceEntity->computeForeignKeyName()
                 )
             );
 
@@ -63,8 +65,16 @@ class OneToOne extends MappingAbstract
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
             if ($oMappedEntity->add() === true) {
+
+                # Build optional mapped foreign key name parameter
+                if (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true) {
+                    $sForeignKeyName = $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE];
+                } else {
+                    $sForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+                }
+
                 # Persist reference to create Entity on source Entity
-                $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE] = $oMappedEntity->getId();
+                $this->oSourceEntity->$sForeignKeyName = $oMappedEntity->getId();
                 return $this->oSourceEntity->update();
             }
         }
@@ -82,8 +92,16 @@ class OneToOne extends MappingAbstract
         $aMappingConf = $this->loadMappingConfiguration($oMappedEntity->getChildClass());
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
             if ($oMappedEntity->delete() === true) {
+
+                # Build optional mapped foreign key name parameter
+                if (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true) {
+                    $sForeignKeyName = $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE];
+                } else {
+                    $sForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+                }
+
                 # If mapped entity was deleted then update source Entity to remove reference
-                $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE] = null;
+                $this->oSourceEntity->$sForeignKeyName = null;
                 return $this->oSourceEntity->update();
             }
         }

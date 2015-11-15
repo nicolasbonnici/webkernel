@@ -47,14 +47,28 @@ class ManyToMany extends MappingAbstract
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
 
+            # Build optional source foreign key name parameter
+            if (isset($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]) === true) {
+                $sSourceForeignKeyName = $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE];
+            } else {
+                $sSourceForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+            }
+
+            # Build optional mapped foreign key name parameter
+            if (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true) {
+                $sMappedForeignKeyName = $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE];
+            } else {
+                $sMappedForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+            }
+
             # Build the mapping table query
             $oSelect = new Select();
-            $oSelect->addColumn($aMappingConf[self::KEY_MAPPED_ENTITY_REFERENCE])
+            $oSelect->addColumn($sMappedForeignKeyName)
                 ->setFrom($aMappingConf[self::KEY_MAPPING_TABLE])
-                ->addWhereCondition(Operators::equal($aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE]));
+                ->addWhereCondition(Operators::equal($sSourceForeignKeyName));
             $oStatement = Pdo::dbQuery(
                 $oSelect->build(),
-                array($aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] => $this->oSourceEntity->getId())
+                array($sSourceForeignKeyName => $this->oSourceEntity->getId())
             );
 
             if ($oStatement !== false) {
@@ -99,22 +113,37 @@ class ManyToMany extends MappingAbstract
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
             if($oMappedEntity->add() === true) {
+
+                # Build optional source foreign key name parameter
+                if (isset($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]) === true) {
+                    $sSourceForeignKeyName = $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE];
+                } else {
+                    $sSourceForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+                }
+
+                # Build optional mapped foreign key name parameter
+                if (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true) {
+                    $sMappedForeignKeyName = $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE];
+                } else {
+                    $sMappedForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+                }
+
                 $oInsert = new Insert();
                 $oInsert->setFrom($aMappingConf[self::KEY_MAPPING_TABLE])
                     ->addParameter(
-                        $aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE],
+                        $sSourceForeignKeyName,
                         $this->oSourceEntity->getId()
                     )
                     ->addParameter(
-                        $aMappingConf[self::KEY_MAPPED_ENTITY_REFERENCE],
+                        $sMappedForeignKeyName,
                         $oMappedEntity->getId()
                     );
 
                 $oStatement = Pdo::dbQuery(
                     $oInsert->build(),
                     array(
-                        $aMappingConf[self::KEY_SOURCE_ENTITY_REFERENCE] => $this->oSourceEntity->getId(),
-                        $aMappingConf[self::KEY_MAPPED_ENTITY_REFERENCE] => $oMappedEntity->getId()
+                        $sSourceForeignKeyName => $this->oSourceEntity->getId(),
+                        $sMappedForeignKeyName => $oMappedEntity->getId()
                     )
                 );
 
@@ -140,17 +169,32 @@ class ManyToMany extends MappingAbstract
             # Start mysql transactional mode
             Pdo::beginTransaction();
             try {
+
+                # Build optional source foreign key name parameter
+                if (isset($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]) === true) {
+                    $sSourceForeignKeyName = $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE];
+                } else {
+                    $sSourceForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+                }
+
+                # Build optional mapped foreign key name parameter
+                if (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true) {
+                    $sMappedForeignKeyName = $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE];
+                } else {
+                    $sMappedForeignKeyName = $this->oSourceEntity->computeForeignKeyName();
+                }
+
                 # First delete mapping record then the Entity itself
                 $oDelete = new Delete();
                 $oDelete->setFrom($aMappingConf[MappingAbstract::KEY_MAPPING_TABLE], true)
-                    ->addWhereCondition(Operators::equal($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE], false))
-                    ->addWhereCondition(Operators::equal($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE], false));
+                    ->addWhereCondition(Operators::equal($sSourceForeignKeyName, false))
+                    ->addWhereCondition(Operators::equal($sMappedForeignKeyName, false));
 
                 $oStatement = Pdo::dbQuery(
                     $oDelete->build(),
                     array(
-                        $aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE],
-                        $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
+                        $sSourceForeignKeyName,
+                        $sMappedForeignKeyName
                     )
                 );
 

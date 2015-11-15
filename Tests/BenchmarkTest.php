@@ -24,7 +24,7 @@ class BenchmarkTest extends Test
         # First generate 1000 Dummy
         $this->aBenchmark['create_100'] = $this->generateDummies(100);
         # First generate 10 000 Dummy
-        $this->aBenchmark['create_1000'] = $this->generateDummies(1000);
+//        $this->aBenchmark['create_1000'] = $this->generateDummies(1000);
 
 //        # First generate 100 000 Dummy
 //        $this->aBenchmark['create_100000'] = $this->generateDummies(100000);
@@ -32,7 +32,7 @@ class BenchmarkTest extends Test
         # Load a hundred entities
         $this->aBenchmark['load_100'] = $this->loadDummies(100);
         # Load a thousand entities
-        $this->aBenchmark['load_1000'] = $this->loadDummies(1000);
+//        $this->aBenchmark['load_1000'] = $this->loadDummies(1000);
 
         # Render benchmark results
         $this->renderResults();
