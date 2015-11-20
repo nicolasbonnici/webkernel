@@ -110,7 +110,6 @@ class Json
      */
     public function getAsArray()
     {
-        assert('$this->isLoaded() === true');
         return $this->aJson;
     }
 

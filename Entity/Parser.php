@@ -26,7 +26,12 @@ class Parser
 
     public function __construct($sAbsolutePath)
     {
-        if (empty($sAbsolutePath) || Directory::exists($sAbsolutePath) === false) {
+        # By default only scan project level entities
+        if (empty($sAbsolutePath) === true) {
+            $sAbsolutePath = Bootstrap::getPath(Bootstrap::PATH_APP) . 'Entities/';
+        }
+
+        if (Directory::exists($sAbsolutePath) === false) {
             throw new EntityParserException(
                 sprintf(EntityParserException::$aErrors[EntityParserException::ERROR_INVALID_PATH], $sAbsolutePath),
                 EntityParserException::ERROR_INVALID_PATH

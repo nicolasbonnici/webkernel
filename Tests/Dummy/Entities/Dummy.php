@@ -39,6 +39,9 @@ class Dummy extends Entity {
      */
     protected $aMappingConfiguration = array(
         'Library\Core\Tests\Dummy\Entities\Dummy4' => array(
+            /**
+             * Mandatory parameters
+             */
             MappingAbstract::KEY_MAPPING_TYPE    => MappingAbstract::MAPPING_ONE_TO_ONE,
             /**
              * @todo optional
@@ -47,6 +50,9 @@ class Dummy extends Entity {
             MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE => 'dummy4_iddummy4'
         ),
         'Library\Core\Tests\Dummy\Entities\Dummy2' => array(
+            /**
+             * Mandatory parameters
+             */
             MappingAbstract::KEY_MAPPING_TYPE            => MappingAbstract::MAPPING_ONE_TO_MANY,
             /**
              * @todo optional
@@ -55,6 +61,9 @@ class Dummy extends Entity {
             MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE => 'dummy_iddummy'
         ),
         'Library\Core\Tests\Dummy\Entities\Dummy3' => array(
+            /**
+             * Mandatory parameters
+             */
             MappingAbstract::KEY_MAPPING_TYPE 	         => MappingAbstract::MAPPING_MANY_TO_MANY,
             MappingAbstract::KEY_MAPPING_TABLE           => 'dummyDummy3',
             /**

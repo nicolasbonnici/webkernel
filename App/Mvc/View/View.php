@@ -180,6 +180,21 @@ class View
     }
 
     /**
+     * Register several client components
+     *
+     * @param array $aClientComponents
+     * @return bool
+     */
+    public function registerClientComponents(array $aClientComponents)
+    {
+        $aLog = array();
+        foreach ($aClientComponents as $sClientComponent) {
+            $aLog[] = $this->registerClientComponent($sClientComponent);
+        }
+        return (bool) (in_array(false, array_values($aLog)) === false);
+    }
+
+    /**
      * Registered client components accessor
      *
      * @return array

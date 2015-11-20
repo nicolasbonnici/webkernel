@@ -35,14 +35,14 @@ abstract class Crud
     /**
      * Current \app\Entities\
      *
-     * @var \Library\Core\Entity\Entity $oEntity
+     * @var Entity $oEntity
      */
     protected $oEntity;
 
     /**
      * Entities collection
      *
-     * @var \app\Entities\Collection\
+     * @var EntityCollection
      */
     protected $oEntities;
 
@@ -251,9 +251,9 @@ abstract class Crud
      * @param array $aLimit
      * @return boolean
      */
-    public function load($sOrderBy = '', $sOrder = 'DESC', array $aLimit = array(0,50))
+    public function load(array $aOrder = array(), $mLimit = null)
     {
-        $this->oEntities->load($sOrderBy, $sOrder, $aLimit);
+        $this->oEntities->load($aOrder, $mLimit);
         return ($this->oEntities->count() > 0);
     }
 
