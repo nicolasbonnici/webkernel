@@ -22,9 +22,7 @@ class ManyToMany extends MappingAbstract
 
     protected $aRequiredMappingConfigurationFields = array(
         MappingAbstract::KEY_MAPPING_TYPE,
-        MappingAbstract::KEY_LOAD_BY_DEFAULT,
-        MappingAbstract::KEY_MAPPING_TABLE,
-        MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE
+        MappingAbstract::KEY_MAPPING_TABLE
     );
 
     /**

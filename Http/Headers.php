@@ -7,13 +7,26 @@ namespace Library\Core\Http;
  */
 class Headers
 {
+
+    const HEADER_CONTENT_TYPE_KEY = 'Content-Type';
+
+    /**
+     * Supported content types
+     * @var string
+     */
     const HEADER_CONTENT_TYPE_JSON = 'application/json';
+
+    /**
+     * HTTP status code
+     * @var int
+     */
+    const HTTP_STATUS_OK = 200;
 
     /**
      * HTTP status code
      * @var integer
      */
-    protected static $iStatus = 200;
+    protected static $iStatus = self::HTTP_STATUS_OK;
 
     /**
      * Response header
@@ -73,11 +86,10 @@ class Headers
     /**
      * Set content type header
      * @param string $sType Content type
-     * @todo declarer en static les type tolérés
      */
     public static function setContentType($sType)
     {
-        self::$aHeaders['Content-Type'] = $sType;
+        self::$aHeaders[self::HEADER_CONTENT_TYPE_KEY] = $sType;
     }
 
     /**

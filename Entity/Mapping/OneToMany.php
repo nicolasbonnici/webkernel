@@ -17,9 +17,7 @@ class OneToMany extends MappingAbstract
 {
 
     protected $aRequiredMappingConfigurationFields = array(
-        MappingAbstract::KEY_MAPPING_TYPE,
-        MappingAbstract::KEY_LOAD_BY_DEFAULT,
-        MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE
+        MappingAbstract::KEY_MAPPING_TYPE
     );
 
     /**
@@ -62,7 +60,9 @@ class OneToMany extends MappingAbstract
             );
 
             $oMappedEntityCollection->loadByParameters(
-                $aParameter
+                $aParameter,
+                $aOrderFields,
+                $mLimit
             );
 
             return $oMappedEntityCollection;

@@ -9,7 +9,7 @@ class Json
 {
     /**
      * A valid json encoded object
-     * @var \Library\Core\Json\Json
+     * @var string
      */
     protected $oJson;
 
@@ -35,20 +35,18 @@ class Json
     {
 		try {
 			if (is_array($mJson) === true && count($mJson) > 0) {
-				if($this->encode($mJson) === false) {
-					throw new JsonException('Unable to encode Array, json error code: ' . $this->getLastError());
-				}
+                $this->bIsLoaded = $this->encode($mJson);
 			} elseif (is_string($mJson) === true && empty($mJson) === false) {
-				if($this->decode($mJson) === false) {
-					throw new JsonException('Unable to decode JSON, json error code: ' . $this->getLastError());
-				}
+                $this->bIsLoaded = $this->decode($mJson);
 			} else {
 				throw new JsonException('Invalid constructor parameter type, must be: Array|String');
 			}
-			return $this->oJson;			
+
+			return $this->oJson;
 		} catch (\Exception $oException) {
+            echo $oException->getMessage();
 			return null;
-		}        
+		}
     }
 
     /**
@@ -57,8 +55,7 @@ class Json
      */
     public function __toString()
     {
-        assert('$this->isLoaded() === true');
-        return $this->oJson;
+        return (string) $this->getAsObject();
     }
 
     /**
@@ -76,7 +73,6 @@ class Json
      */
     public function isValid()
     {
-        // @todo also return the parse error line and character
         return (json_last_error() === 0);
     }
 
@@ -86,7 +82,7 @@ class Json
      */
     public function isLoaded()
     {
-        return $this->bIsLoaded;
+        return (bool) $this->bIsLoaded;
     }
 
     /**
@@ -104,13 +100,29 @@ class Json
     }
 
     /**
-     * Return array reprensatation of the json object
+     * Return array representation of the json object
      *
-     * @return object
+     * @return array
      */
     public function getAsArray()
     {
-        return $this->aJson;
+        if ($this->isLoaded() === true) {
+            return $this->aJson;
+        }
+        return null;
+    }
+
+    /**
+     * Return json object
+     *
+     * @return object
+     */
+    public function getAsObject()
+    {
+        if ($this->isLoaded() === true) {
+            return $this->oJson;
+        }
+        return null;
     }
 
     /**
@@ -121,12 +133,12 @@ class Json
      */
     private function decode($sJson)
     {
-        $this->aJson = json_decode($sJson, JSON_PRETTY_PRINT);
-        if (is_array($this->aJson) === true) {
-	    	$this->oJson = $sJson;
-            $this->bIsLoaded = true;
+        $aJson = json_decode($sJson, true);
+        if (empty($aJson) === false) {
+            $this->setJson($aJson);
+            return $this->isValid();
         }
-        return $this->bIsLoaded;
+        return false;
     }
 
     /**
@@ -134,13 +146,24 @@ class Json
      *
      * @param boolean
      */
-    private function encode($aJson)
+    private function encode(array $aJson)
     {
-    	$this->aJson = $aJson;
-        $this->oJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
-       	$this->bIsLoaded = (is_string($this->oJson) === true);
-        return $this->bIsLoaded;        
+        if (empty($aJson) === false) {
+            $this->setJson($aJson);
+            return $this->isValid();
+        }
+        return false;
     }
+
+    /**
+     * @param array $aJson
+     */
+    public function setJson(array $aJson)
+    {
+        $this->aJson = $aJson;
+        $this->oJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
+    }
+
 }
 
 class JsonException extends \Exception

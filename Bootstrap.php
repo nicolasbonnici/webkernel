@@ -49,12 +49,28 @@ class Bootstrap
 
     /**
      * Project default localization settings
-     * @todo move under the Locales component
      */
     const DEFAULT_COUNTRY        = 'FR';
     const DEFAULT_LANG           = 'fr';
     const COUNTRY_LANG_SEPARATOR = '_';
     const DEFAULT_COUNTRY_LANG   = self::DEFAULT_COUNTRY . self::COUNTRY_LANG_SEPARATOR . self::DEFAULT_LANG;
+
+    /**
+     * Request locale parameter
+     * @var string
+     */
+    protected static $sLocale = '';
+
+    /**
+     * Available translation
+     * @var array
+     */
+    protected static $aSupportedCountries = array(
+        'us' => 'EN',
+        'en' => 'EN',
+        'fr' => 'FR'
+    );
+
 
     /**
      * Bootstrap instance
@@ -323,13 +339,20 @@ class Bootstrap
         $sCountryLangSeparator = self::COUNTRY_LANG_SEPARATOR
     )
     {
-
-        if (strlen(\Locale::getPrimaryLanguage($sDefaultLocale) . $sCountryLangSeparator . \Locale::getRegion($sDefaultLocale)) > 1) {
-            $sDefaultLocale = \Locale::getPrimaryLanguage($sDefaultLocale) . $sCountryLangSeparator . \Locale::getRegion($sDefaultLocale);
+        # Retrieve default browser language
+        $aUserAcceptedLanguages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $sLang = array_shift($aUserAcceptedLanguages);
+        if (in_array($sLang, self::$aSupportedCountries) === true) {
+            $sDefaultLocale = self::$aSupportedCountries[$sLang] . $sCountryLangSeparator . \Locale::getPrimaryLanguage($sLang);
         }
 
-        putenv('LC_ALL=' . $sDefaultLocale . '.' . strtolower(str_replace('-', '', \Library\Core\Router::DEFAULT_ENCODING)));
-        setlocale(LC_ALL, $sDefaultLocale . '.' . strtolower(str_replace('-', '', \Library\Core\Router::DEFAULT_ENCODING)));
+        # test for $sDefaultLocale value
+        if (preg_match('/^[A-Z]{2}_{1}[a-z]{2}$/', $sDefaultLocale)) {
+            $sDefaultLocale = \Locale::getRegion($sDefaultLocale) . $sCountryLangSeparator . \Locale::getPrimaryLanguage($sDefaultLocale);
+        }
+
+        # Assign for instance
+        self::$sLocale = $sDefaultLocale;
 
         return $sDefaultLocale;
     }
@@ -420,6 +443,15 @@ class Bootstrap
     public static function getAutoloaderInstance()
     {
         return self::$oAutoloaderInstance;
+    }
+
+    /**
+     * Get the current locales country_lang FR_fr
+     * @return string
+     */
+    public static function getLocale()
+    {
+        return self::$sLocale;
     }
 
 }

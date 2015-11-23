@@ -42,7 +42,7 @@ class Dummy extends Entity {
             /**
              * Mandatory parameters
              */
-            MappingAbstract::KEY_MAPPING_TYPE    => MappingAbstract::MAPPING_ONE_TO_ONE,
+            MappingAbstract::KEY_MAPPING_TYPE => MappingAbstract::MAPPING_ONE_TO_ONE,
             /**
              * @todo optional
              */
@@ -53,7 +53,7 @@ class Dummy extends Entity {
             /**
              * Mandatory parameters
              */
-            MappingAbstract::KEY_MAPPING_TYPE            => MappingAbstract::MAPPING_ONE_TO_MANY,
+            MappingAbstract::KEY_MAPPING_TYPE => MappingAbstract::MAPPING_ONE_TO_MANY,
             /**
              * @todo optional
              */
@@ -64,8 +64,8 @@ class Dummy extends Entity {
             /**
              * Mandatory parameters
              */
-            MappingAbstract::KEY_MAPPING_TYPE 	         => MappingAbstract::MAPPING_MANY_TO_MANY,
-            MappingAbstract::KEY_MAPPING_TABLE           => 'dummyDummy3',
+            MappingAbstract::KEY_MAPPING_TYPE => MappingAbstract::MAPPING_MANY_TO_MANY,
+            MappingAbstract::KEY_MAPPING_TABLE => 'dummyDummy3',
             /**
              * @todo those are optional use Entity::computeForeignKeyName by default if not set on manytoMany
              */

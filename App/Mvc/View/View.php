@@ -6,6 +6,7 @@ use Library\Core\App\Mvc\Controller;
 use Library\Core\App\Mvc\View\Assets\Assets;
 use Library\Core\Bootstrap;
 use Library\Core\FileSystem\Directory;
+use Library\Core\Http\Headers;
 use Library\Core\Router;
 use Library\Core\Json\Json;
 
@@ -113,11 +114,15 @@ class View
                 )
             );
             if ($bToString === true) {
-                return $oResponse->__toString();
+                return $oResponse->getAsString();
             }
 
+            $oHeader = new Headers();
+            $oHeader->setStatus(Headers::HTTP_STATUS_OK);
+            $oHeader->setContentType(Headers::HEADER_CONTENT_TYPE_JSON);
+            $oHeader->sendHeaders();
             header('Content-Type: application/json');
-            echo $oResponse;
+            echo $oResponse->getAsObject();
             exit();
         }
 

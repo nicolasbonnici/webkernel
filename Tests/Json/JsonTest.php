@@ -20,7 +20,11 @@ class JsonTest extends Test
         'prop3' => 3
     );
     
-    protected $sTestDataString = '{"prop1":1,"prop2":2,"prop3":3}';
+    protected $sTestDataString = '{
+    "prop1": 1,
+    "prop2": 2,
+    "prop3": 3
+}';
     
     public static function setUpBeforeClass()
     {
@@ -84,4 +88,17 @@ class JsonTest extends Test
 		$this->assertFalse(self::$oJsonInstance->isValid());
 	}    
 
+    public function testGetAsArray()
+    {
+        self::$oJsonInstance = new Json($this->sTestDataString);
+        $aJson = self::$oJsonInstance->getAsArray();
+        $this->assertTrue(is_array($aJson));
+    }
+
+    public function testGetAsObject()
+    {
+        self::$oJsonInstance = new Json($this->sTestDataString);
+        $oJson = self::$oJsonInstance->getAsObject();
+        $this->assertTrue(is_object($oJson));
+    }
 }

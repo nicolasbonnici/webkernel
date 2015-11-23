@@ -15,20 +15,6 @@ class Router extends Singleton
 {
 
     /**
-     * Encoding
-     *
-     * @var string
-     */
-    const DEFAULT_ENCODING = 'UTF-8';
-
-    /**
-     * Default country_language
-     *
-     * @var string
-     */
-    const DEFAULT_LOCALE = 'FR_fr';
-
-    /**
      * Default router settings for frontend
      *
      * @var string
@@ -36,12 +22,6 @@ class Router extends Singleton
     private static $sDefaultBundle = 'frontend';
     private static $sDefaultController = 'home';
     private static $sDefaultAction = 'index';
-
-    /**
-     * Application localization settings (COUNTRY_langage)
-     * @var string
-     */
-    private static $sLang;
 
     /**
      * Current request url
@@ -105,7 +85,6 @@ class Router extends Singleton
             self::$sDefaultAction       = $aApplicationConf['routing']['default_action'];
         }
 
-        self::$sLang        = self::DEFAULT_LOCALE; // @todo
         self::$sBundle      = self::$sDefaultBundle;
         self::$sController  = self::$sDefaultController;
         self::$sAction      = self::$sDefaultAction;
@@ -118,8 +97,6 @@ class Router extends Singleton
         self::$sUrl = $_SERVER['REQUEST_URI'];
 
         self::$aRequest = self::cleanArray(explode(DIRECTORY_SEPARATOR, self::$sUrl));
-
-        self::$sLang = self::DEFAULT_LOCALE;
 
         if (is_array(self::$aRequest) && count(self::$aRequest) > 0) {
             // Try to match a custom route or dispatch a basic MVC routing
@@ -290,10 +267,6 @@ class Router extends Singleton
         return self::$aParams[$id];
     }
 
-    public static function getLang()
-    {
-        return self::$sLang;
-    }
 }
 
 class RouterException extends \Exception

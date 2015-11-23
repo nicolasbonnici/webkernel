@@ -273,7 +273,7 @@ class Controller
         $this->sController = Router::getController() . self::CONTROLLER_FILE_PATTERN;
         $this->sAction = Router::getAction() . self::CONTROLLER_ACTION_PATTERN;
         $this->aParams = Router::getParams();
-        $this->sLang = Router::getLang();
+        $this->sLang = Bootstrap::getLocale();
     }
 
     /**

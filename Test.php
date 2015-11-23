@@ -17,6 +17,7 @@ class Test extends \PHPUnit_Framework_TestCase
     public function __construct()
     {
         $_SERVER['SERVER_NAME'] = 'nbonnici.dev';
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'fr,en_EN';
         $_SERVER['REQUEST_URI'] = '/';
         if (isset($_SESSION) === false || is_array($_SESSION) === false) {
             global $_SESSION;
