@@ -94,11 +94,16 @@ class Collection implements \Iterator
     /**
      * Sort collection elements by value
      *
-     * @return boolean TRUE on success, otherwise FALSE
+     * @param bool $bReverse
+     * @return bool
      */
-    public function sort()
+    public function sort($bReverse = false)
     {
-        return asort($this->aElements);
+        if ($bReverse === true) {
+            return rsort($this->aElements);
+        } else {
+            return asort($this->aElements);
+        }
     }
 
     /**
@@ -160,7 +165,7 @@ class Collection implements \Iterator
 
     /**
      * @param Collection $oCollection
-     * @param bool $bIgnoreIndex          TRUE to override existent keys FALSE to use \Iterator index
+     * @param bool $bIgnoreIndex          TRUE to ignore indexes, FALSE to keep them and merge with existent
      */
     public function merge(Collection $oCollection, $bIgnoreIndex = false)
     {

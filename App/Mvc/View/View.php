@@ -114,7 +114,7 @@ class View
                 )
             );
             if ($bToString === true) {
-                return $oResponse->getAsString();
+                return $oResponse->__toString();
             }
 
             $oHeader = new Headers();
@@ -122,7 +122,7 @@ class View
             $oHeader->setContentType(Headers::HEADER_CONTENT_TYPE_JSON);
             $oHeader->sendHeaders();
             header('Content-Type: application/json');
-            echo $oResponse->getAsObject();
+            echo $oResponse->__toString();
             exit();
         }
 

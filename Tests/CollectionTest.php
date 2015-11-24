@@ -281,6 +281,25 @@ class CollectionTest extends Test
         );
     }
 
+    public function testReverseSort()
+    {
+        $this->assertTrue(
+            $this->oCollectionInstance->addItems($this->aTestDataArray),
+            'Unable to add several items to collection'
+        );
+
+        $this->assertTrue(
+            $this->oCollectionInstance->sort(true),
+            'Unable to reverse sort Collection'
+        );
+
+        $this->assertEquals(
+            $this->aTestDataArray['prop3'],
+            $this->oCollectionInstance->current()
+        );
+
+    }
+
     public function testResetThenAssertCollectionNotHasItemAndIsEmpty()
     {
         $this->assertTrue(
