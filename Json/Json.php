@@ -14,6 +14,12 @@ class Json
     protected $oJson;
 
     /**
+     * string representation of the json object
+     * @var string
+     */
+    protected $sJson;
+
+    /**
      * Array to store Json decoded data
      * @var array
      */
@@ -55,7 +61,7 @@ class Json
      */
     public function __toString()
     {
-        return (string) $this->getAsObject();
+        return $this->sJson;
     }
 
     /**
@@ -120,7 +126,7 @@ class Json
     public function getAsObject()
     {
         if ($this->isLoaded() === true) {
-            return $this->oJson;
+            return (object) $this->oJson;
         }
         return null;
     }
@@ -161,7 +167,8 @@ class Json
     public function setJson(array $aJson)
     {
         $this->aJson = $aJson;
-        $this->oJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
+        $this->sJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
+        $this->oJson = json_decode($this->sJson, true);
     }
 
 }

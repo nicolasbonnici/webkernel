@@ -144,6 +144,40 @@ class Collection implements \Iterator
     }
 
     /**
+     * Add several elements from a given array
+     *
+     * @param array $aItems
+     * @return bool
+     */
+    public function addItems(array $aItems)
+    {
+        $aLog = array();
+        foreach ($aItems as $mKey => $mValue) {
+            $aLog[] = $this->add($mValue, $mKey);
+        }
+        return (bool) (in_array(false, $aLog) === false);
+    }
+
+    /**
+     * @param Collection $oCollection
+     * @param bool $bIgnoreIndex          TRUE to override existent keys FALSE to use \Iterator index
+     */
+    public function merge(Collection $oCollection, $bIgnoreIndex = false)
+    {
+        if ($bIgnoreIndex === true) {
+            foreach ($oCollection->getAsArray() as $mIndex => $mValue) {
+                $this->add($mValue);
+            }
+        } else {
+            $this->aElements = array_merge($this->aElements, $oCollection->getAsArray());
+        }
+
+        # Resort collection
+        return $this->sort();
+
+    }
+
+    /**
      * Delete an item from Collection instance
      *
      * @param mixed string|int $mKey
@@ -173,6 +207,7 @@ class Collection implements \Iterator
     public function reset()
     {
         $this->aElements = array();
+        return (bool) (empty($this->aElements) === true);
     }
 
     /**

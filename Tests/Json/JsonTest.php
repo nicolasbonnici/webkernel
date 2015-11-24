@@ -100,5 +100,17 @@ class JsonTest extends Test
         self::$oJsonInstance = new Json($this->sTestDataString);
         $oJson = self::$oJsonInstance->getAsObject();
         $this->assertTrue(is_object($oJson));
+        $this->assertEquals(
+            $this->aTestDataArray['prop1'],
+            $oJson->prop1
+        );
+        $this->assertEquals(
+            $this->aTestDataArray['prop2'],
+            $oJson->prop2
+        );
+        $this->assertEquals(
+            $this->aTestDataArray['prop3'],
+            $oJson->prop3
+        );
     }
 }
