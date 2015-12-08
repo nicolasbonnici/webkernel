@@ -53,7 +53,7 @@ class Bootstrap
     const DEFAULT_COUNTRY        = 'FR';
     const DEFAULT_LANG           = 'fr';
     const COUNTRY_LANG_SEPARATOR = '_';
-    const DEFAULT_COUNTRY_LANG   = self::DEFAULT_COUNTRY . self::COUNTRY_LANG_SEPARATOR . self::DEFAULT_LANG;
+    const DEFAULT_COUNTRY_LANG   = 'FR_fr';
 
     /**
      * Request locale parameter
