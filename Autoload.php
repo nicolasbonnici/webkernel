@@ -10,8 +10,8 @@ class Autoload {
      * @var array
      */
     protected $aPrefixes = array(
-        'Library' . DIRECTORY_SEPARATOR,
-        'Library' . DIRECTORY_SEPARATOR . 'Haanga' . DIRECTORY_SEPARATOR
+        'Library/',
+        'Library/Haanga/'
     );
 
     /**
