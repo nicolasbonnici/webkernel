@@ -12,7 +12,7 @@ class Collection implements \Iterator
 
     /**
      * Current \Iterator key
-     * @var unknown
+     * @var int
      */
     protected $iIndex = 0;
 

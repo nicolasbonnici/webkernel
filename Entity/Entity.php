@@ -706,6 +706,15 @@ abstract class Entity extends Attributes
     }
 
     /**
+     * Entity attributes fields accessor
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->aFields;
+    }
+
+    /**
      * Return Entity instance name
      *
      * @return string

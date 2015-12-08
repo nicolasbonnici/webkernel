@@ -68,7 +68,7 @@ abstract class Attributes {
      * @param string $sAttributeName
      * @return NULL string SGBD field type if exists otherwhise NULL
      */
-    private function getAttributeType($sAttributeName)
+    public function getDatabaseType($sAttributeName)
     {
         assert('strlen($sAttributeName) > 0');
         if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {
@@ -111,11 +111,11 @@ abstract class Attributes {
      */
     public function getDataType($sName = null)
     {
-        assert('$this->getAttributeType($sName) !== null');
+        assert('$this->getDatabaseType($sName) !== null');
 
         $sDataType = '';
         if (! is_null($sName)) {
-            $sDatabaseType = $this->getAttributeType($sName);
+            $sDatabaseType = $this->getDatabaseType($sName);
             switch ($sDatabaseType) {
                 case (preg_match('/^(int|integer|tinyint|smallint|mediumint|tinyint|bigint)/', $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_INTEGER;

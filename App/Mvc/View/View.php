@@ -118,10 +118,9 @@ class View
             }
 
             $oHeader = new Headers();
-            $oHeader->setStatus(Headers::HTTP_STATUS_OK);
+            $oHeader->setStatus($iStatusXHR);
             $oHeader->setContentType(Headers::HEADER_CONTENT_TYPE_JSON);
             $oHeader->sendHeaders();
-            header('Content-Type: application/json');
             echo $oResponse->__toString();
             exit();
         }

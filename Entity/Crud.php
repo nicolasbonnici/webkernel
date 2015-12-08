@@ -180,7 +180,7 @@ abstract class Crud
         if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
             throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
         } elseif (! $this->oEntity->isLoaded()) {
-            throw new CrudException('Cannot update an unloaded enitity.', self::ERROR_ENTITY_NOT_LOADED);
+            throw new CrudException('Cannot update an unloaded entity.', self::ERROR_ENTITY_NOT_LOADED);
         } else {
             try {
 

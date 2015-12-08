@@ -174,6 +174,8 @@ class Acl
     }
 
     /**
+     * @todo delete useless
+     *
      * Tell if user has list access on a given entity name
      * @param string $sEntityClassName
      * @return boolean
@@ -197,7 +199,11 @@ class Acl
             );
         }
 
-        if (! empty($sEntityClassName) && $this->oGroupCollection->hasItem() && $this->oPermissionCollection->hasItem()) {
+        if (
+            empty($sEntityClassName) === false &&
+            $this->oGroupCollection->hasItem() &&
+            $this->oPermissionCollection->hasItem()
+        ) {
             if (($oPermission = $this->oPermissionCollection->search('entity_class', $sEntityClassName)) != null) {
                 return new Json($oPermission->permission);
             }
