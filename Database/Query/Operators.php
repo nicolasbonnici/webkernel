@@ -126,8 +126,8 @@ class Operators
      */
     public static function like($sFieldName, $sValue, $bStartWildCards = true, $bEndWildCards = true)
     {
-        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_LIKE . ' ' .
-            self::prepareLikeParameter($sValue, $bStartWildCards, $bEndWildCards);
+        return self::buildFieldName($sFieldName) . ' ' . self::OPERATOR_LIKE . ' "' .
+            self::prepareLikeParameter($sValue, $bStartWildCards, $bEndWildCards) . '"';
     }
 
     /**

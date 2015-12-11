@@ -1,6 +1,10 @@
 <?php
 namespace Library\Core\Entity;
 
+use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Operators;
+use Library\Core\Database\Query\Select;
+use Library\Core\Database\Query\Where;
 use Library\Core\Exception\CoreException;
 use Library\Core\Collection;
 use Library\Core\Scope\BundlesEntitiesScope;
@@ -90,7 +94,6 @@ class Search
     {
         assert('empty($this->sSearch) === false');
 
-        $aParameters = array();
         $sEntityCollectionClassName = $oEntity->computeCollectionClassName();
 
         // Entities must be searchable and have a EntityCollection class too
@@ -105,29 +108,38 @@ class Search
                 SearchException::ERROR_ENTITY_COLLECTION_NOT_FOUND
             );
         } else {
+            /** @var EntityCollection $oEntityCollection */
             $oEntityCollection = new $sEntityCollectionClassName();
-
-            // @todo build query with constraints directly then pass the query to EntityCollection::loadByQuery
 
             // Generic search
             $aAttributes = $oEntity->getAttributes();
+            $aWhere = array();
+            $aBindedValues = array();
             foreach ($aAttributes as $sKey) {
-                if ($oEntity->getDataType($sKey) === Attributes::DATA_TYPE_STRING) {
-                    $aParameters[$sKey] = $this->sSearch;
-                }
+                $aWhere[Operators::like($sKey, $this->getSearch())] = Where::QUERY_WHERE_CONNECTOR_OR;
+                $aBindedValues[] = $this->getSearch();
             }
 
-            // @todo use QueryAbstract component
-            // @todo handle last parameters the bStrictMode flag to false (for switch AND => OR | ' = ?' => LIKE %?%)
-            $oEntityCollection->loadByParameters(
-                $aParameters,
-                array(),
-                array(0,99),
-                false
-            );
+            $oSelect = new Select();
+            $oSelect->setFrom($oEntity->getTableName(), true)
+                ->addColumns($aAttributes)
+                ->setLimit(array(0, 99))
+                ->addWhereConditions($aWhere);
+
+            $oStatement = Pdo::dbQuery($oSelect->build(), $aBindedValues);
+
+            if ($oStatement !== false) {
+                foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aResult) {
+                    $oFoundEntity = clone $oEntity;
+                    $oFoundEntity->loadByData($aResult);
+                    if ($oFoundEntity->isLoaded() === true) {
+                        $oEntityCollection->add($oFoundEntity, $oFoundEntity->getId());
+                    }
+                }
+
+            }
 
             // store Entity primary key value (id[entity] value)
-            // @todo dirty and quick just for avoid calling methods from view
             foreach ($oEntityCollection as $oEntity) {
                 $oEntity->pk = $oEntity->getId();
             }

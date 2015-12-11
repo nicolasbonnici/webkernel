@@ -29,18 +29,21 @@ class BundlesEntitiesScope extends BundlesScope
      * Current filter
      * @var string
      */
+    /**
+     * @todo Ceci dois etre un tableau
+     */
     protected $sFilter = null;
 
-    public function __construct()
+    public function __construct($bGetProjectEntities = false)
     {
         parent::__construct();
-        $this->build();
+        $this->build($bGetProjectEntities);
     }
 
     /**
      * Parse bundles entities with filter support
      */
-    protected function build()
+    protected function build($bGetProjectEntities)
     {
         foreach($this->getScope() as $sBundlesName => $mFreeDimension) {
             if (Directory::exists(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundlesName . '/Entities/')) {
@@ -49,13 +52,8 @@ class BundlesEntitiesScope extends BundlesScope
                 if (count($aBundleEntities) > 0) {
                     /** @var \Library\Core\Entity\Entity $oEntity */
                     foreach ($aBundleEntities as $oEntity) {
-                        if (is_null($this->sFilter) === true) {
+                        if (is_null($this->sFilter) === true || $oEntity->$this->sFilter() === true) {
                             $this->aScope[$sBundlesName][] = $oEntity;
-                        } else {
-                            // Directly run the filter method on Entity
-                            if ($oEntity->$this->sFilter() === true) {
-                                $this->aScope[$sBundlesName][] = $oEntity;
-                            }
                         }
                     }
                 } else {
@@ -67,6 +65,17 @@ class BundlesEntitiesScope extends BundlesScope
                 $this->delete($sBundlesName);
             }
         }
+
+//        // Also add project's entities when flag requested
+//        if ($bGetProjectEntities === true) {
+//            $oEntityParser = new Parser(Bootstrap::getPath(Bootstrap::PATH_APP) . '/Entities/');
+//            $aEntities = $oEntityParser->getEntities();
+//            foreach ($aEntities as $oEntity) {
+//                $this->aScope['app'][] = $oEntity;
+//            }
+//
+//        }
+
     }
 
     /**

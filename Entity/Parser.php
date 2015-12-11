@@ -67,8 +67,7 @@ class Parser
         $aExcludedPath = array(
             '',
             'Deploy',
-            'Collection',
-            'Mapping',
+            'Collection'
         );
         $aExcludedFile = array(
             'Foo.php'
