@@ -124,11 +124,11 @@ abstract class Entity extends Attributes
     {
         // If we just want to instanciate a blank object, do not pass any parameter to constructor
         $this->loadAttributes();
-        if (! is_null($mValue) && is_string($mValue) || is_int($mValue)) {
+        if (is_null($mValue) === false && is_string($mValue) === true|| is_int($mValue) === true) {
             // Build only one object
             $this->{static::PRIMARY_KEY} = $mValue;
             $this->loadByPrimaryKey();
-        } elseif (is_array($mValue)) {
+        } elseif (is_array($mValue) === true) {
             $this->loadByParameters($mValue);
         }
 
@@ -308,7 +308,7 @@ abstract class Entity extends Attributes
             $oInsert->setFrom($this->getTableName(), true)
                 ->setParameters($aParameters);
 
-            $oStatement = Pdo::dbQuery($oInsert->build(), array_values($aParameters));
+            $oStatement = Pdo::dbQuery($oInsert->build(), $aParameters);
 
             # Set primary key value
             $this->{static::PRIMARY_KEY} = Pdo::lastInsertId();
@@ -596,8 +596,6 @@ abstract class Entity extends Attributes
         foreach ($this as $sKey => $mValue) {
             if (array_key_exists($sKey, $aEntityAttrs) === false) {
                 unset($this->$sKey);
-            } else {
-                $this->$sKey = null;
             }
         }
 

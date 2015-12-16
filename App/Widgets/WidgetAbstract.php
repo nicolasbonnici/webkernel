@@ -2,6 +2,7 @@
 namespace Library\Core\App\Widgets;
 
 use Library\Core\Bootstrap;
+use Library\Core\Entity\Entity;
 use Library\Core\Exception\CoreException;
 use Library\Core\App\Mvc\View\View;
 use Library\Core\Html\Element;
