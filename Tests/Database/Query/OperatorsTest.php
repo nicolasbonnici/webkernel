@@ -68,13 +68,13 @@ class OperatorsTest extends Test
     public function testLike()
     {
         $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value');
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' %value%');
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' "%value%"');
         $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value', true, false);
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' %value');
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' "%value"');
         $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value', false, true);
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' value%');
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' "value%"');
         $sPreparatedLikeParameter = self::$oOperatorsInstance->like('prop', 'value', false, false);
-        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' value');
+        $this->assertEquals($sPreparatedLikeParameter, '`prop` ' . Operators::OPERATOR_LIKE . ' "value"');
     }
 
 }

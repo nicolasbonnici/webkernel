@@ -55,7 +55,7 @@ class WhereTest extends Test
     public function testBuildWhere()
     {
         $this->assertEquals(
-            'WHERE `prop1` = :prop1 AND `prop2` != :prop2 AND `prop3` = :prop3 AND `prop4` > :prop4 AND `prop5` < :prop5 AND `prop6` >= :prop6 AND `prop7` <= :prop7 OR `prop8` LIKE %value% AND `prop8` IN(?,?,?,?,?,?,?,?,?) AND `prop9` <= :prop9',
+            'WHERE `prop1` = :prop1 AND `prop2` != :prop2 AND `prop3` = :prop3 AND `prop4` > :prop4 AND `prop5` < :prop5 AND `prop6` >= :prop6 AND `prop7` <= :prop7 OR `prop8` LIKE "%value%" AND `prop8` IN(?,?,?,?,?,?,?,?,?) AND `prop9` <= :prop9',
             self::$oWhereInstance->buildWhere()
         );
     }
