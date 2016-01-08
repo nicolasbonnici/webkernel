@@ -13,6 +13,8 @@ use Library\Core\Cache\Drivers\Memcache;
 class Bundles
 {
 
+    const BUNDLES_CACHE_KEY = 'aProjectBundles';
+
     /**
      * \Library\Core\Bundles::$aBundles Cache duration in seconds
      * @var integer
@@ -23,7 +25,8 @@ class Bundles
         '..',
         '.',
         'composer',
-        'autoload.php'
+        'autoload.php',
+        'EMPTY'
     );
 
     /**
@@ -51,8 +54,8 @@ class Bundles
     protected function build($bFlushBundlesCache)
     {
         $this->aBundles = array();
-        $this->aBundles = Memcache::get(Memcache::getKey(get_called_class(), 'aBundlesDistribution'));
-        if ($bFlushBundlesCache || $this->aBundles === false ) {
+        $this->aBundles = Memcache::get(Memcache::getKey(get_called_class(), self::BUNDLES_CACHE_KEY));
+        if ($bFlushBundlesCache || $this->aBundles === false) {
             $this->parseBundles();
         }
     }
@@ -66,7 +69,7 @@ class Bundles
         foreach ($aBundles as $iIndex=>$sBundle) {
             $this->aBundles[$sBundle] = null;
         }
-        Memcache::set(Memcache::getKey(get_called_class(), 'aBundlesDistribution'), $this->aBundles, self::$iBundlesCacheDuration);
+        Memcache::set(Memcache::getKey(get_called_class(), self::BUNDLES_CACHE_KEY), $this->aBundles, self::$iBundlesCacheDuration);
     }
 
     /**
