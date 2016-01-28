@@ -9,6 +9,17 @@ namespace Library\Core\FileSystem;
  */
 class File extends FileSystem
 {
+
+    const TYPE_IMAGE = 'img';
+    const TYPE_AUDIO = 'audio';
+    const TYPE_VIDEO = 'video';
+
+    public static $aSupportedTypes = array(
+        self::TYPE_IMAGE,
+        self::TYPE_AUDIO,
+        self::TYPE_VIDEO
+    );
+
     /**
      * Delete a file
      *
@@ -113,6 +124,58 @@ class File extends FileSystem
     public static function reset($sFilePath)
     {
         return file_put_contents($sFilePath, '');
+    }
+
+    /**
+     * Get the file extension
+     *
+     * @param $sFileName
+     * @return string
+     */
+    public static function getExtension($sFileName)
+    {
+        $aExplodedFilename = explode('.', $sFileName);
+        return array_pop($aExplodedFilename);
+    }
+
+    /**
+     * Get the file type
+     *
+     * @param $sFileName
+     * @return string
+     */
+    public static function getType($sFileExtension)
+    {
+        $sType = '';
+        switch($sFileExtension) {
+            case 'jpg' :
+            case 'jpeg' :
+            case 'JPG' :
+            case 'JPEG' :
+            case 'bmp' :
+            case 'BMG' :
+            case 'png' :
+            case 'PNG' :
+            case 'gif' :
+            case 'GIF' :
+                $sType = self::TYPE_IMAGE;
+                break;
+            case 'ogg' :
+            case 'mp3' :
+            case 'wma' :
+            case 'wav' :
+            case 'aac' :
+                $sType = self::TYPE_AUDIO;
+                break;
+            case 'mp4' :
+            case 'avi' :
+            case 'oga' :
+            case 'mpeg' :
+                $sType = self::TYPE_VIDEO;
+                break;
+        }
+
+        return $sType;
     }
 }
 

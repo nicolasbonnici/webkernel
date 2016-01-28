@@ -50,8 +50,20 @@ class FileSystem extends Singleton {
             foreach($oRecursiveIterator as $sDirectoryItem) {
                 $aChmods[] = chmod($sDirectoryItem, $iMode);
             }
-            return (in_array(true, $aChmods) === true && in_array(false, $aChmods) === false);
+            return (in_array(false, $aChmods) === false);
         }
+    }
+
+    /**
+     * Create a symlink
+     *
+     * @param $sTarget
+     * @param $sLinkName
+     * @return bool
+     */
+    public static function ln($sTarget, $sLinkName)
+    {
+        return symlink($sTarget, $sLinkName);
     }
 }
 
