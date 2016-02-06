@@ -225,7 +225,7 @@ class Acl
             # Load mapped permissions
             /** @var Group $oGroup */
             foreach ($this->oGroupCollection as $oGroup) {
-                $this->oPermissionCollection = $oGroup->loadMapped(new Permission());
+                $this->oPermissionCollection = $oGroup->loadMapped(new Permission(), array(), array(), array(0,99));
             }
 
             return (bool) (

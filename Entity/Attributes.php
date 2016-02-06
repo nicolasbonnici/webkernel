@@ -23,6 +23,14 @@ abstract class Attributes {
     const DATA_TYPE_DATETIME = 'datetime';
 
     /**
+     * Regular expressions to detect the SGBD field type
+     */
+    const REGEXP_DETECT_STRING   = '/^(varchar|text|blob|tinyblob|tinytext|mediumblob|mediumtext|longblob|longtext)/';
+    const REGEXP_DETECT_INTEGER  = '/^(int|integer|tinyint|smallint|mediumint|tinyint|bigint)/';
+    const REGEXP_DETECT_FLOAT    = '/^(float|decimal|numeric)/';
+    const REGEXP_DETECT_DATETIME = '/^(date|datetime)/';
+
+    /**
      * Load the list of fields of the associated database table
      *
      * @throws EntityException
@@ -117,19 +125,16 @@ abstract class Attributes {
         if (! is_null($sName)) {
             $sDatabaseType = $this->getDatabaseType($sName);
             switch ($sDatabaseType) {
-                case (preg_match('/^(int|integer|tinyint|smallint|mediumint|tinyint|bigint)/', $sDatabaseType) === 1) :
+                case (preg_match(self::REGEXP_DETECT_INTEGER, $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_INTEGER;
                     break;
-                case (preg_match(
-                        '/^(varchar|text|blob|tinyblob|tinytext|mediumblob|mediumtext|longblob|longtext|date|datetime)/',
-                        $sDatabaseType
-                    ) === 1) :
+                case (preg_match(self::REGEXP_DETECT_STRING, $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_STRING;
                     break;
-                case (preg_match('/^(float|decimal|numeric)/', $sDatabaseType) === 1) :
+                case (preg_match(self::REGEXP_DETECT_FLOAT, $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_FLOAT;
                     break;
-                case (preg_match('/(date|datetime)/', $sDataType) === 1) :
+                case (preg_match(self::REGEXP_DETECT_DATETIME, $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_DATETIME;
                     break;
                 default:

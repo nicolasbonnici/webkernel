@@ -69,10 +69,7 @@ class BundlesEntitiesScope extends BundlesScope
         if ($bGetProjectEntities === true) {
             $oEntityParser = new Parser(Bootstrap::getPath(Bootstrap::PATH_APP) . 'Entities/');
             $aEntities = $oEntityParser->getEntities();
-            foreach ($aEntities as $oEntity) {
-                $this->aScope['project'][] = $oEntity;
-            }
-
+            $this->aScope['app'] = $aEntities;
         }
 
     }

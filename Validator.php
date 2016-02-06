@@ -269,7 +269,7 @@ class Validator
      *            DateTime to check
      * @return integer Check status
      */
-    static public function dateTime(DateTime $oDateTime)
+    static public function dateTime(\DateTime $oDateTime)
     {
         // -2000000000 corresponds to 1906
         return ($oDateTime->getTimestamp() > - 2000000000) ? self::STATUS_OK : self::STATUS_INVALID;

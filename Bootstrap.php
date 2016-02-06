@@ -11,7 +11,6 @@ use Library\Core\Http\Headers;
  */
 class Bootstrap
 {
-
     /**
      * Project global configuration path (relative from the detected project root path)
      */

@@ -25,7 +25,9 @@ class JsonTest extends Test
     "prop2": 2,
     "prop3": 3
 }';
-    
+
+    protected $sTestDataStringMinified = '{"prop1":1,"prop2":2,"prop3":3}';
+
     public static function setUpBeforeClass()
     {
         parent::setUpBeforeClass();
@@ -51,13 +53,20 @@ class JsonTest extends Test
         $this->assertTrue(self::$oJsonInstance->isLoaded());
     }
     
-    public function testToString()
+    public function testToStringWithPrettyPrint()
     {
-    	self::$oJsonInstance = new Json($this->sTestDataString);
+    	self::$oJsonInstance = new Json($this->sTestDataString, true);
     	$this->assertTrue(is_string(self::$oJsonInstance->__toString()));
     	$this->assertEquals(self::$oJsonInstance->__toString(), $this->sTestDataString);    	
     }
-    
+
+    public function testToStringWithoutPrettyPrint()
+    {
+    	self::$oJsonInstance = new Json($this->sTestDataString);
+    	$this->assertTrue(is_string(self::$oJsonInstance->__toString()));
+    	$this->assertEquals(self::$oJsonInstance->__toString(), $this->sTestDataStringMinified);
+    }
+
     public function testGet()
     {
     	self::$oJsonInstance = new Json($this->sTestDataString);

@@ -35,15 +35,15 @@ class Json
      *  Instance constructor
      *
      * @param mixed string|array $mJson	Array or a Json encoded string
-     * @throws JsonException
+     * @param bool|false $bPrettyPrint  Flag to use the pretty print mode to render Json as string
      */
-    public function __construct($mJson)
+    public function __construct($mJson, $bPrettyPrint = false)
     {
 		try {
 			if (is_array($mJson) === true && count($mJson) > 0) {
-                $this->bIsLoaded = $this->encode($mJson);
+                $this->bIsLoaded = $this->encode($mJson, $bPrettyPrint);
 			} elseif (is_string($mJson) === true && empty($mJson) === false) {
-                $this->bIsLoaded = $this->decode($mJson);
+                $this->bIsLoaded = $this->decode($mJson, $bPrettyPrint);
 			} else {
 				throw new JsonException('Invalid constructor parameter type, must be: Array|String');
 			}
@@ -135,13 +135,14 @@ class Json
      *  Decode a json encoded string
      *
      * @param string $sJson		Json encoded string
-     * @return boolean
+     * @param bool|false $bPrettyPrint
+     * @return bool
      */
-    private function decode($sJson)
+    private function decode($sJson, $bPrettyPrint = false)
     {
         $aJson = json_decode($sJson, true);
         if (empty($aJson) === false) {
-            $this->setJson($aJson);
+            $this->setJson($aJson, $bPrettyPrint);
             return $this->isValid();
         }
         return false;
@@ -150,24 +151,33 @@ class Json
     /**
      *  Encode an array
      *
-     * @param boolean
+     * @param array $aJson
+     * @param bool|false $bPrettyPrint
+     * @return bool
      */
-    private function encode(array $aJson)
+    private function encode(array $aJson, $bPrettyPrint = false)
     {
         if (empty($aJson) === false) {
-            $this->setJson($aJson);
+            $this->setJson($aJson, $bPrettyPrint);
             return $this->isValid();
         }
         return false;
     }
 
     /**
+     * Set instance Json data
+     *
      * @param array $aJson
+     * @param bool|false $bPrettyPrint
      */
-    public function setJson(array $aJson)
+    public function setJson(array $aJson, $bPrettyPrint = false)
     {
         $this->aJson = $aJson;
-        $this->sJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
+        if ($bPrettyPrint === true) {
+            $this->sJson = json_encode($this->aJson, JSON_PRETTY_PRINT);
+        } else {
+            $this->sJson = json_encode($this->aJson);
+        }
         $this->oJson = json_decode($this->sJson, true);
     }
 

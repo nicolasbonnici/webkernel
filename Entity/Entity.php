@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Entity;
 
+use app\Entities\Translation;
 use Library\Core\Cache\Drivers\Memcache;
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Delete;
@@ -10,6 +11,7 @@ use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Update;
 use Library\Core\Exception\CoreException;
+use Library\Core\Json\Json;
 
 /**
  * Entities management abstract class
@@ -217,20 +219,18 @@ abstract class Entity extends Attributes
      * Load object by executing given SQL query
      * NOTE: method is protected because query must be generated within child class along with cache key definition
      *
-     * @param string $sQuery
-     *            SQL query to use for loading object
-     * @param array $aBindedValues
-     * @param string $sCacheKey
-     *            Cache key for given query
+     * @param string $sQuery SQL query to use for loading object
+     * @param array $aBoundedValues
+     * @param string $sCacheKey Cache key for given query
      * @return boolean TRUE if object was successfully loaded, otherwise FALSE
      * @throws EntityException
      */
-    protected function loadByQuery($sQuery, array $aBindedValues = array(), $bUseCache = true, $sCacheKey = null)
+    protected function loadByQuery($sQuery, array $aBoundedValues = array(), $bUseCache = true, $sCacheKey = null)
     {
         $bRefreshCache = false;
         if ($bUseCache && $this->isCacheable() && ! empty($this->iCacheDuration)) {
             if (is_null($sCacheKey)) {
-                $sCacheKey = Memcache::getKey(get_called_class(), $sQuery, $aBindedValues);
+                $sCacheKey = Memcache::getKey(get_called_class(), $sQuery, $aBoundedValues);
             }
             $aObject = Memcache::get($sCacheKey);
         }
@@ -238,7 +238,7 @@ abstract class Entity extends Attributes
         if (! isset($aObject) || $aObject === false) {
             $bRefreshCache = true;
 
-            if (($oStatement = Pdo::dbQuery($sQuery, $aBindedValues)) === false) {
+            if (($oStatement = Pdo::dbQuery($sQuery, $aBoundedValues)) === false) {
                 throw new EntityException(
                     sprintf(
                         EntityException::getError(EntityException::ERROR_UNABLE_TO_CONSTRUCT_ENTITY),
@@ -319,7 +319,8 @@ abstract class Entity extends Attributes
 
             # Throw exceptions on development environment
             if (defined('ENV') && ENV === 'dev') {
-                throwException($oException);
+                // @todo log reporting
+                die(var_dump(array($oException->getMessage(), $oException->getCode())));
             }
 
             return false;
@@ -618,6 +619,82 @@ abstract class Entity extends Attributes
     }
 
     /**
+     * Get a translation of the Entity for a given locale
+     *
+     * @param $sLocale      Example: US_en, BE_fr....
+     * @return \app\Entities\Translation|null
+     */
+    public function getTranslation($sLocale)
+    {
+        try {
+            if ($this->isLoaded() === true) {
+                $oTranslation = new \app\Entities\Translation();
+                $oTranslation->loadByParameters(
+                    array(
+                        'entity_class'  => $this->getChildClass(),
+                        'pk'            => $this->getId(),
+                        'locale'        => $sLocale
+                    )
+                );
+
+                if ($oTranslation->isLoaded() === true) {
+                    return $oTranslation;
+                }
+            }
+            return null;
+        } catch(\Exception $oException) {
+            return null;
+        }
+    }
+
+    /**
+     * Add a new translation for Entity
+     *
+     * @param string $sLocale
+     * @param mixed string|int $sKey
+     * @param string $sTranslation
+     * @return bool
+     */
+    public function setTranslation($sLocale, $sKey, $sTranslation)
+    {
+        try {
+            if ($this->isLoaded() === true && empty($sKey) === false && empty($sTranslation) === false) {
+                $oTranslation = $this->getTranslation($sLocale);
+                if (is_null($oTranslation) === true || $oTranslation->isLoaded() !== true) {
+                    # Create new translation entity
+                    $oTranslation = new Translation();
+                    $oJsonContent = new Json(array(
+                        $sKey => $sTranslation
+                    ));
+
+                    $oTranslation->entity_class = str_replace('\\', '\\\\', $this->getChildClass());
+                    $oTranslation->pk           = $this->getId();
+                    $oTranslation->content      = $oJsonContent->__toString();
+                    $oTranslation->locale       = $sLocale;
+                    $oTranslation->lastupdate   = time();
+                    $oTranslation->created      = time();
+                    return $oTranslation->add();
+                } else {
+                    # Update found translation
+                    $oJsonContent = new Json($oTranslation->content);
+                    $aJsonContent = $oJsonContent->getAsArray();
+
+                    # Add the new translation on content
+                    $aUpdatedContent = array_merge($aJsonContent, array($sKey => $sTranslation));
+                    $oUpdatedJson = new Json($aUpdatedContent);
+
+                    $oTranslation->content = $oUpdatedJson->__toString();
+                    $oTranslation->lastupdate   = time();
+                    return $oTranslation->update();
+                }
+            }
+            return false;
+        } catch(\Exception $oException) {
+            return false;
+        }
+    }
+
+    /**
      * Compute entity foreign key name
      * @return string
      */
@@ -702,6 +779,8 @@ abstract class Entity extends Attributes
         }
         return (int) $this->{static::PRIMARY_KEY};
     }
+
+
 
     /**
      * Entity attributes fields accessor

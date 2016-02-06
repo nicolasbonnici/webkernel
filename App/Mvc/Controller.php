@@ -462,6 +462,7 @@ class Controller
         $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundleName . '/img/icon.png';
 
         // MVC infos
+        $this->aView['sLocale'] = $this->sLang;
         $this->aView['sBundle'] = $this->sBundleName;
         $this->aView["sController"] = $this->sController;
         $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));

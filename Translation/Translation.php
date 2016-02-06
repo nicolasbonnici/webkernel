@@ -1,6 +1,11 @@
 <?php
 namespace Library\Core\Translation;
+
 use Library\Core\Bootstrap;
+use Library\Core\Entity\Entity;
+use Library\Core\FileSystem\File;
+use Library\Core\FileSystem\FileSystem;
+use Library\Core\Scope\BundlesScope;
 
 
 /**
@@ -9,11 +14,23 @@ use Library\Core\Bootstrap;
  */
 class Translation
 {
+
+    /**
+     * Global translation filename
+     * @var string
+     */
+    const TRANSLATION_FOLDER_NAME = 'Translations';
+
     /**
      * Global translation filename
      * @var string
      */
     const GLOBAL_TRANSLATION_FILENAME = 'global.php';
+
+    /**
+     * @var string
+     */
+    protected $sLocale;
 
     /**
      * @var array
@@ -22,27 +39,61 @@ class Translation
 
     /**
      * Translation constructor
-     * @param string $sLang
+     * @param string $sLocale
      * @param string $sBundleName
      */
-    public function __construct($sLang, $sBundleName  = null)
+    public function __construct($sLocale, $sBundleName = null)
     {
+        # Set the current locale value
+        $this->setLocale($sLocale);
+
+        # Global project translation
         $tr = array();
-
-        /**
-         * @todo constant on "Translations"
-         */
-
-        require_once Bootstrap::getPath(Bootstrap::PATH_APP) . '/Translations/' . $sLang . '/' . self::GLOBAL_TRANSLATION_FILENAME; // @see globale translation
-        if (file_exists(Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . '/Translations/' . $sLang . '.php')) {
-            require_once Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . '/Translations/' . $sLang . '.php';
+        $sGlobalTrPath = Bootstrap::getPath(Bootstrap::PATH_APP) . FileSystem::SEPARATOR . self::TRANSLATION_FOLDER_NAME
+            . FileSystem::SEPARATOR . $this->getLocale() . FileSystem::SEPARATOR . self::GLOBAL_TRANSLATION_FILENAME;
+        if (File::exists($sGlobalTrPath) === true) {
+            include $sGlobalTrPath;
         }
 
-        /**
-         * This php array come from the previous includes (ugly but fast)
-         * @var array $tr
-         */
-        $this->build($tr);
+        # This php array come from the previous includes (ugly but fastest)
+        $this->addTranslations($tr);
+
+        # Load bundle level translation, if no bundle name was provided at instance we load all available bundle translations
+        if (is_null($sBundleName) === true) {
+            # Load all bundles translation
+            $this->loadBundles();
+        } elseif (is_string($sBundleName) === true) {
+            # Load bundle translation
+            $this->loadByBundle($sBundleName);
+        }
+
+    }
+
+    /**
+     * Load translations for all available bundles
+     */
+    private function loadBundles()
+    {
+        $oBundles = new BundlesScope();
+        foreach ($oBundles->getScope() as $sBundle => $mValue) {
+            $this->loadByBundle($sBundle);
+        }
+    }
+
+    /**
+     * Load translation for a given bundle
+     *
+     * @param $sBundleName
+     */
+    private function loadByBundle($sBundleName)
+    {
+        $tr = array();
+        $sTranslationPath = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . FileSystem::SEPARATOR
+            . self::TRANSLATION_FOLDER_NAME . FileSystem::SEPARATOR . $this->getLocale() . '.php';
+        if (file_exists($sTranslationPath)) {
+            include $sTranslationPath;
+        }
+        $this->addTranslations($tr);
     }
 
     /**
@@ -59,16 +110,6 @@ class Translation
     }
 
     /**
-     * Build all available translations
-     *
-     * @param array $aTranslations
-     */
-    private function  build(array $aTranslations)
-    {
-        $this->setTranslations($aTranslations);
-    }
-
-    /**
      * @return array
      */
     public function getTranslations()
@@ -80,9 +121,26 @@ class Translation
      * @param array $aTranslations
      * @return Translation
      */
-    public function setTranslations(array $aTranslations)
+    public function addTranslations(array $aTranslations)
     {
         $this->aTranslations = array_merge($this->aTranslations, $aTranslations);
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->sLocale;
+    }
+
+    /**
+     * @param string $sLocale
+     */
+    public function setLocale($sLocale)
+    {
+        $this->sLocale = $sLocale;
+    }
+
 }

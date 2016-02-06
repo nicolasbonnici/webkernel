@@ -2,6 +2,7 @@
 namespace Library\Core\Tests\Entity;
 
 use Library\Core\Entity\Entity;
+use Library\Core\Json\Json;
 use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 use Library\Core\Tests\Dummy\Entities\Dummy4;
@@ -241,8 +242,57 @@ class EntityTest extends Test
         $this->assertEquals(
             'dummy_iddummy',
             $this->oDummyEntity->computeForeignKeyName(),
-            'Error on comuted Entity foreign key name'
+            'Error on computed Entity foreign key name'
         );
+    }
+
+    public function testSetThenGetTranslation()
+    {
+
+        $this->oDummyEntity = new Dummy((int) self::$iCreatedDummyId);
+
+        $aTr = array(
+            array(
+                'key' => 'foo',
+                'value' => 'Foo translated!'
+            ),
+            array(
+                'key' => 'foo1',
+                'value' => 'Foo 1 translated!'
+            ),
+            array(
+                'key' => 'foo2',
+                'value' => 'Foo 2 translated!'
+            ),
+        );
+
+        $aTrs = array();
+        foreach ($aTr as $aTranslation) {
+            $aTrs[$aTranslation['key']] = $aTranslation['value'];
+            $this->assertTrue(
+                $this->oDummyEntity->setTranslation('FR_fr', $aTranslation['key'], $aTranslation['value']),
+                'Unable to add a translation for an Entity'
+            );
+        }
+
+        $oTranslation = $this->oDummyEntity->getTranslation('FR_fr');
+
+        $this->assertNotNull(
+            $oTranslation,
+            'Unable to retrieve entity translation'
+        );
+
+        $this->assertTrue(
+            $this->oDummyEntity->isLoaded(),
+            'Unable to load Entity translation'
+        );
+
+        $oJsonTranslation = new Json($oTranslation->content);
+        $this->assertEquals(
+            $oJsonTranslation->getAsArray(),
+            $aTrs
+        );
+
     }
 
 }

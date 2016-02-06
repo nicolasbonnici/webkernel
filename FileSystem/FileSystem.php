@@ -11,7 +11,13 @@ use Library\Core\Pattern\Singleton;
  *
  * @package Library\Core\FileSystem
  */
-class FileSystem extends Singleton {
+class FileSystem extends Singleton
+{
+
+    /**
+     * Default file system directory separator
+     */
+    const SEPARATOR = DIRECTORY_SEPARATOR;
 
     /**
      * @todo list all handled mime file types

@@ -27,7 +27,7 @@ class TranslationTest extends Test
     {
         $this->assertInstanceOf(
             get_class($this->oTranslationInstance),
-            $this->oTranslationInstance->setTranslations(array('test' => 'lorem ipsum'))
+            $this->oTranslationInstance->addTranslations(array('test' => 'lorem ipsum'))
         );
         $this->assertEquals('lorem ipsum', $this->oTranslationInstance->get('test'));
 
