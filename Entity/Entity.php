@@ -1,7 +1,6 @@
 <?php
 namespace Library\Core\Entity;
 
-use app\Entities\Translation;
 use Library\Core\Cache\Drivers\Memcache;
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Delete;
@@ -11,7 +10,6 @@ use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Update;
 use Library\Core\Exception\CoreException;
-use Library\Core\Json\Json;
 
 /**
  * Entities management abstract class
@@ -61,6 +59,13 @@ abstract class Entity extends Attributes
     protected $bIsCacheable = true;
 
     /**
+     * Whether object may be put in cache or not
+     *
+     * @var boolean
+     */
+    protected $bIsI18n = false;
+
+    /**
      * Object caching duration in seconds
      *
      * @var integer
@@ -104,6 +109,12 @@ abstract class Entity extends Attributes
     protected $aMappingConfiguration = array();
 
     /**
+     * Internationalization configuration
+     * @var array
+     */
+    protected $aTranslatedAttributes = array();
+
+    /**
      * List of entity fields (parsed from database)
      *
      * @var array
@@ -120,11 +131,11 @@ abstract class Entity extends Attributes
      * Constructor
      *
      * @param mixed int|array $mValue   Primary key value or parameters to load. If left empty, blank object will be instantiated
+     * @param string $sLocale
      * @throws EntityException
      */
-    public function __construct($mValue = null)
+    public function __construct($mValue = null, $sLocale = null)
     {
-        // If we just want to instanciate a blank object, do not pass any parameter to constructor
         $this->loadAttributes();
         if (is_null($mValue) === false && is_string($mValue) === true|| is_int($mValue) === true) {
             // Build only one object
@@ -136,6 +147,12 @@ abstract class Entity extends Attributes
 
         # Store called class
         $this->sChildClass = get_called_class();
+
+        # Internationalization support
+        if ($this->isI18n() === true && empty($sLocale) === false) {
+            $this->loadTranslation($sLocale);
+        }
+
     }
 
     /**
@@ -619,82 +636,6 @@ abstract class Entity extends Attributes
     }
 
     /**
-     * Get a translation of the Entity for a given locale
-     *
-     * @param $sLocale      Example: US_en, BE_fr....
-     * @return \app\Entities\Translation|null
-     */
-    public function getTranslation($sLocale)
-    {
-        try {
-            if ($this->isLoaded() === true) {
-                $oTranslation = new \app\Entities\Translation();
-                $oTranslation->loadByParameters(
-                    array(
-                        'entity_class'  => $this->getChildClass(),
-                        'pk'            => $this->getId(),
-                        'locale'        => $sLocale
-                    )
-                );
-
-                if ($oTranslation->isLoaded() === true) {
-                    return $oTranslation;
-                }
-            }
-            return null;
-        } catch(\Exception $oException) {
-            return null;
-        }
-    }
-
-    /**
-     * Add a new translation for Entity
-     *
-     * @param string $sLocale
-     * @param mixed string|int $sKey
-     * @param string $sTranslation
-     * @return bool
-     */
-    public function setTranslation($sLocale, $sKey, $sTranslation)
-    {
-        try {
-            if ($this->isLoaded() === true && empty($sKey) === false && empty($sTranslation) === false) {
-                $oTranslation = $this->getTranslation($sLocale);
-                if (is_null($oTranslation) === true || $oTranslation->isLoaded() !== true) {
-                    # Create new translation entity
-                    $oTranslation = new Translation();
-                    $oJsonContent = new Json(array(
-                        $sKey => $sTranslation
-                    ));
-
-                    $oTranslation->entity_class = str_replace('\\', '\\\\', $this->getChildClass());
-                    $oTranslation->pk           = $this->getId();
-                    $oTranslation->content      = $oJsonContent->__toString();
-                    $oTranslation->locale       = $sLocale;
-                    $oTranslation->lastupdate   = time();
-                    $oTranslation->created      = time();
-                    return $oTranslation->add();
-                } else {
-                    # Update found translation
-                    $oJsonContent = new Json($oTranslation->content);
-                    $aJsonContent = $oJsonContent->getAsArray();
-
-                    # Add the new translation on content
-                    $aUpdatedContent = array_merge($aJsonContent, array($sKey => $sTranslation));
-                    $oUpdatedJson = new Json($aUpdatedContent);
-
-                    $oTranslation->content = $oUpdatedJson->__toString();
-                    $oTranslation->lastupdate   = time();
-                    return $oTranslation->update();
-                }
-            }
-            return false;
-        } catch(\Exception $oException) {
-            return false;
-        }
-    }
-
-    /**
      * Compute entity foreign key name
      * @return string
      */
@@ -764,6 +705,16 @@ abstract class Entity extends Attributes
     }
 
     /**
+     * Check if Entity use internationalization
+     *
+     * @return bool
+     */
+    public function isI18n()
+    {
+        return $this->bIsI18n;
+    }
+
+    /**
      * Retrieve instance ID (primary key)
      *
      * @return mixed Instance ID
@@ -808,6 +759,14 @@ abstract class Entity extends Attributes
     public function getMappingConfiguration()
     {
         return $this->aMappingConfiguration;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTranslatedAttributes()
+    {
+        return $this->aTranslatedAttributes;
     }
 
     /**

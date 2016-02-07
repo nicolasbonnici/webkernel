@@ -14,9 +14,9 @@ use Library\Core\Entity\Mapping\MappingAbstract;
  */
 class Dummy extends Entity {
 
-    const ENTITY = 'Dummy';
-    const TABLE_NAME = 'dummy';
-    const PRIMARY_KEY = 'iddummy';
+    const ENTITY        = 'Dummy';
+    const TABLE_NAME    = 'dummy';
+    const PRIMARY_KEY   = 'iddummy';
 
     /**
      * Object caching duration in seconds
@@ -32,6 +32,22 @@ class Dummy extends Entity {
     protected $bIsDeletable  = true;
     protected $bIsCacheable  = true;
     protected $bIsHistorized = false;
+
+    /**
+     * Internationalization flag for Entity (false by default)
+     * @var bool
+     */
+    protected $bIsI18n = true;
+
+    /**
+     * Internationalization configuration
+     * @var array
+     */
+    protected $aTranslatedAttributes = array(
+        'test_string',
+        'test_int',
+        'test_float'
+    );
 
     /**
      * Mapping configuration

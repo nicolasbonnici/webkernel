@@ -249,21 +249,21 @@ class EntityTest extends Test
     public function testSetThenGetTranslation()
     {
 
-        $this->oDummyEntity = new Dummy((int) self::$iCreatedDummyId);
+        $this->oDummyEntity = new Dummy((int) self::$iCreatedDummyId, 'FR_fr');
 
         $aTr = array(
             array(
-                'key' => 'foo',
+                'key' => 'test_string',
                 'value' => 'Foo translated!'
             ),
             array(
-                'key' => 'foo1',
+                'key' => 'test_int',
                 'value' => 'Foo 1 translated!'
             ),
             array(
-                'key' => 'foo2',
+                'key' => 'test_float',
                 'value' => 'Foo 2 translated!'
-            ),
+            )
         );
 
         $aTrs = array();
@@ -271,28 +271,19 @@ class EntityTest extends Test
             $aTrs[$aTranslation['key']] = $aTranslation['value'];
             $this->assertTrue(
                 $this->oDummyEntity->setTranslation('FR_fr', $aTranslation['key'], $aTranslation['value']),
-                'Unable to add a translation for an Entity'
+                'Unable to add a "' . $aTranslation['key'] . '" with value "' . $aTranslation['value'] . '" translation'
             );
         }
 
-        $oTranslation = $this->oDummyEntity->getTranslation('FR_fr');
-
-        $this->assertNotNull(
-            $oTranslation,
-            'Unable to retrieve entity translation'
-        );
-
-        $this->assertTrue(
-            $this->oDummyEntity->isLoaded(),
-            'Unable to load Entity translation'
-        );
-
-        $oJsonTranslation = new Json($oTranslation->content);
-        $this->assertEquals(
-            $oJsonTranslation->getAsArray(),
-            $aTrs
-        );
-
+        # Refresh current instance to retrieve setted translations
+        $this->oDummyEntity = new Dummy((int) self::$iCreatedDummyId, 'FR_fr');
+        foreach ($this->oDummyEntity->getTranslatedAttributes() as $sKey) {
+            $this->assertEquals(
+                $aTrs[$sKey],
+                $this->oDummyEntity->$sKey,
+                'Wrong or empty translation found for field ' . $sKey
+            );
+        }
     }
 
 }
