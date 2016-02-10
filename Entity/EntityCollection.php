@@ -32,16 +32,23 @@ abstract class EntityCollection extends Collection
     protected $aOriginIds;
 
     /**
+     * @var string
+     */
+    protected $sCollectionLocale = null;
+
+    /**
      * Constructor
      *
-     * @param array $aIds   IDs of the elements to instanciate
+     * @param array $aIds   Primary key of the Entity type to load
      */
-    public function __construct($aIds = array())
+    public function __construct($aIds = array(), $sLocale = null)
     {
         $this->sChildClass = $this->computeEntityClassName();
         if (is_array($aIds) && count($aIds) > 0) {
             $this->loadByIds($aIds);
         }
+
+        $this->sCollectionLocale = $sLocale;
     }
 
     /**
@@ -85,9 +92,11 @@ abstract class EntityCollection extends Collection
                 EntityCollectionException::ERROR_UNABLE_TO_LOAD_COLLECTION_WITH_QUERY
             );
         }
+
+
         if ($oStatement !== false) {
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
-                $oObject = new $this->sChildClass();
+                $oObject = new $this->sChildClass(null, $this->sCollectionLocale);
                 $oObject->loadByData($aObjectData);
                 $this->add($oObject, $oObject->getId());
             }
@@ -116,7 +125,7 @@ abstract class EntityCollection extends Collection
             $aUncachedObjects = array_values($this->aOriginIds);
         } else {
             foreach ($aCachedObjects as $iObjectId => $aCachedObject) {
-                $oObject = new $this->sChildClass();
+                $oObject = new $this->sChildClass(null, $this->sCollectionLocale);
                 $oObject->loadByData($aCachedObject);
                 $this->add($oObject, $oObject->getId());
             }
@@ -250,7 +259,7 @@ abstract class EntityCollection extends Collection
 
         if ($oStatement !== false) {
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aObjectData) {
-                $oObject = new $this->sChildClass();
+                $oObject = new $this->sChildClass(null, $this->sCollectionLocale);
                 $oObject->loadByData($aObjectData);
                 $this->add($oObject, $oObject->getId());
             }

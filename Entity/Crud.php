@@ -94,8 +94,17 @@ abstract class Crud
 
         $oEntity = clone $this->oEntity;
 
-        foreach ($aParameters as $sParameter=>$mValue) {
+        foreach ($aParameters as $sParameter => $mValue) {
             if ($oEntity->hasAttribute($sParameter)) {
+
+                # Internationalization support
+                if ($oEntity->isI18n() === true) {
+                    if (in_array($sParameter, $oEntity->getTranslatedAttributes()) === true) {
+                        $oEntity->setTranslation($sParameter, $mValue);
+                    }
+                    continue;
+                }
+
                 $oEntity->{$sParameter} = $mValue;
             }
         }
@@ -131,7 +140,6 @@ abstract class Crud
         }
 
         if ($oEntity->add() === true) {
-            die(var_dump($oEntity, $oEntity->isLoaded()));
             $this->oEntity = clone $oEntity;
             return $this->oEntity->isLoaded();
         }
@@ -181,12 +189,31 @@ abstract class Crud
             throw new CrudException('Cannot update an unloaded entity.', self::ERROR_ENTITY_NOT_LOADED);
         } else {
 
-            foreach ($aParameters as $sKey=>$mValue) {
-                if (! empty($sKey)) { // Since value can be nullable handle later on the Entity component
+            foreach ($aParameters as $sKey => $mValue) {
+                if (! empty($sKey)) { // The value can be null if allowed in database will check by Entity component
 
                     // Check for user bypass attempt
-                    if (($this->oEntity->hasAttribute('user_iduser') && $sKey === 'user_iduser' && $this->oUser->getId() !== intval($mValue)) || ($this->oEntity->hasAttribute('user_iduser') && $sKey === 'iduser' && $this->oUser->getId() !== intval($mValue))) {
+                    if (
+                        (
+                            $this->oEntity->hasAttribute('user_iduser') &&
+                            $sKey === 'user_iduser' &&
+                            $this->oUser->getId() !== intval($mValue)
+                        ) ||
+                        (
+                            $this->oEntity->hasAttribute('user_iduser') &&
+                            $sKey === 'iduser' &&
+                            $this->oUser->getId() !== intval($mValue)
+                        )
+                    ) {
                         throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
+                    }
+
+                    # Internationalization support
+                    if ($this->oEntity->isI18n() === true) {
+                        if (in_array($sKey, $this->oEntity->getTranslatedAttributes()) === true) {
+                            $this->oEntity->setTranslation($sKey, $mValue);
+                        }
+                        continue;
                     }
 
                     $this->oEntity->{$sKey} = $mValue;
@@ -260,9 +287,9 @@ abstract class Crud
      * @param array $aLimit
      * @return boolean
      */
-    public function loadEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 25))
+    public function loadEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 25), $sLocale = null)
     {
-        $this->oEntities->loadByParameters($aParameters, $aOrderBy, $aLimit);
+        $this->oEntities->loadByParameters($aParameters, $aOrderBy, $aLimit, $sLocale);
         return ($this->oEntities->count() > 0);
     }
 
@@ -275,7 +302,7 @@ abstract class Crud
      * @throws CrudException
      * @return boolean
      */
-    public function loadUserEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10))
+    public function loadUserEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10), $sLocale = null)
     {
         if (is_null($this->oUser)) {
             throw new CrudException('No User entity instance found!', self::ERROR_USER_INVALID);
@@ -285,7 +312,7 @@ abstract class Crud
             $aParameters['user_iduser'] = $this->oUser->getId();
         }
 
-        return $this->loadEntities($aParameters, $aOrderBy, $aLimit);
+        return $this->loadEntities($aParameters, $aOrderBy, $aLimit, $sLocale);
     }
 
     /**

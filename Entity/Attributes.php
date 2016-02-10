@@ -11,10 +11,20 @@ use Library\Core\Validator;
  * Class Attributes
  * @package Library\Core\Orm
  */
-abstract class Attributes extends I18n {
+abstract class Attributes extends I18n
+{
+    /**
+     * PDO field information keys
+     * @var string
+     */
+    const KEY_FIELD_NAME        = 'Field';
+    const KEY_FIELD_TYPE        = 'Type';
+    const KEY_FIELD_NULLABLE    = 'Null';
+    const KEY_FIELD_DEFAULT     = 'Default';
+    const KEY_FIELD_EXTRA       = 'Extra';
 
     /**
-     * Entity attribute's types
+     * Entity attribute's data types
      * @var string
      */
     const DATA_TYPE_STRING   = 'string';
@@ -43,7 +53,7 @@ abstract class Attributes extends I18n {
                 throw new EntityException('Unable to list fields for table ' . $this->getTableName());
             }
             foreach ($oStatement->fetchAll(\PDO::FETCH_ASSOC) as $aColumn) {
-                $this->aFields[$aColumn['Field']] = $aColumn;
+                $this->aFields[$aColumn[self::KEY_FIELD_NAME]] = $aColumn;
             }
 
             /**
@@ -80,7 +90,7 @@ abstract class Attributes extends I18n {
     {
         assert('strlen($sAttributeName) > 0');
         if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {
-            return $this->aFields[$sAttributeName]['Type'];
+            return $this->aFields[$sAttributeName][self::KEY_FIELD_TYPE];
         }
         return null;
     }
@@ -95,7 +105,7 @@ abstract class Attributes extends I18n {
     {
         assert('strlen($sAttributeName) > 0');
         if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {
-            return $this->aFields[$sAttributeName]['Null'] !== 'NO';
+            return $this->aFields[$sAttributeName][self::KEY_FIELD_NULLABLE] !== 'NO';
         }
         return false;
     }

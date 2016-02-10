@@ -270,7 +270,7 @@ class EntityTest extends Test
         foreach ($aTr as $aTranslation) {
             $aTrs[$aTranslation['key']] = $aTranslation['value'];
             $this->assertTrue(
-                $this->oDummyEntity->setTranslation('FR_fr', $aTranslation['key'], $aTranslation['value']),
+                $this->oDummyEntity->setTranslation($aTranslation['key'], $aTranslation['value']),
                 'Unable to add a "' . $aTranslation['key'] . '" with value "' . $aTranslation['value'] . '" translation'
             );
         }

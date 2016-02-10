@@ -94,6 +94,12 @@ abstract class Entity extends Attributes
     protected $sChildClass;
 
     /**
+     * Current instance locale (country lang info ex: BE_fr)
+     * @var string
+     */
+    protected $sLocale = null;
+
+    /**
      * Cache identifiers params at instance
      *
      * Collection Idientifiers list at instance (optionnal)
@@ -137,22 +143,21 @@ abstract class Entity extends Attributes
     public function __construct($mValue = null, $sLocale = null)
     {
         $this->loadAttributes();
-        if (is_null($mValue) === false && is_string($mValue) === true|| is_int($mValue) === true) {
-            // Build only one object
-            $this->{static::PRIMARY_KEY} = $mValue;
-            $this->loadByPrimaryKey();
-        } elseif (is_array($mValue) === true) {
-            $this->loadByParameters($mValue);
+        if (is_null($mValue) === false) {
+            if (is_string($mValue) === true|| is_int($mValue) === true) {
+                // Build only one object
+                $this->{static::PRIMARY_KEY} = $mValue;
+                $this->loadByPrimaryKey();
+            } elseif (is_array($mValue) === true) {
+                $this->loadByParameters($mValue);
+            }
         }
 
-        # Store called class
-        $this->sChildClass = get_called_class();
+        # Instance local for i18n
+        $this->sLocale = $sLocale;
 
-        # Internationalization support
-        if ($this->isI18n() === true && empty($sLocale) === false) {
-            $this->loadTranslation($sLocale);
-        }
-
+        # Post init hook
+        $this->postLoadedHook();
     }
 
     /**
@@ -173,9 +178,10 @@ abstract class Entity extends Attributes
      *            Object data
      * @param boolean $bRefreshCache
      *            Whether cache must be updated or not
+     * @param string $sLocale
      * @return boolean TRUE if object was successfully loaded, otherwise FALSE
      */
-    public function loadByData(array $aData, $bRefreshCache = true, $sCacheKey = null)
+    public function loadByData(array $aData, $bRefreshCache = true, $sCacheKey = null, $sLocale = null)
     {
         $this->loadAttributes();
         foreach ($aData as $sName => $mValue) {
@@ -190,18 +196,38 @@ abstract class Entity extends Attributes
             }
             Memcache::set($sObjectCacheKey, $aData, $this->iCacheDuration);
         }
+
+        # Instance local for i18n
+        if (is_null($sLocale) === false) {
+            $this->sLocale = $sLocale;
+        }
+
+        # Set instance to loaded
         $this->bIsLoaded = true;
-        
+
+        # Run the post loaded hook
+        $this->postLoadedHook();
+
         return $this->isLoaded();
+    }
+
+    protected function postLoadedHook()
+    {
+        # Store called class
+        $this->sChildClass = get_called_class();
+
+        # Internationalization support
+        if ($this->isI18n() === true && is_null($this->sLocale) === false) {
+            $this->loadTranslation();
+        }
     }
 
     /**
      * Load object depending on given parameters values
      * Parameters is a key/value array, key being table fields names
      *
-     * @param array $aParameters
-     *            Parameters to check
-     * @return boolean TRUE if object was successfully loaded, otherwise FALSE
+     * @param array $aParameters Parameters to check
+     * @param string $sLocale
      * @throws EntityException
      */
     public function loadByParameters(array $aParameters)
@@ -282,7 +308,7 @@ abstract class Entity extends Attributes
             $aObject = $oStatement->fetchAll(\PDO::FETCH_ASSOC);
             $aObject = $aObject[0];
         }
-        return $this->loadByData($aObject, $bRefreshCache);
+        return $this->loadByData($aObject, $bRefreshCache, $this->getLocale());
     }
 
     /**
@@ -767,6 +793,14 @@ abstract class Entity extends Attributes
     public function getTranslatedAttributes()
     {
         return $this->aTranslatedAttributes;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->sLocale;
     }
 
     /**
