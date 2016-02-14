@@ -21,7 +21,8 @@ class GeneratorTest extends Test
 
     protected function setUp()
     {
-        $this->oEntityGeneratorInstance = new Generator();
+        self::loadUser(true);
+        $this->oEntityGeneratorInstance = new Generator(self::$oUser);
     }
 
     public function testConstructor()

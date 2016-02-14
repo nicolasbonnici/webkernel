@@ -110,7 +110,7 @@ class ManyToMany extends MappingAbstract
     {
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
-            if($oMappedEntity->add() === true) {
+            if($oMappedEntity->create() === true) {
 
                 # Build optional source foreign key name parameter
                 if (isset($aMappingConf[MappingAbstract::KEY_SOURCE_ENTITY_REFERENCE]) === true) {

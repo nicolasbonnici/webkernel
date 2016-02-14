@@ -2,148 +2,103 @@
 namespace Library\Core\Entity;
 
 use app\Entities\User;
+use Library\Core\Exception\CoreException;
 
 /**
  * CRUD action model layer abstract class
- * Perform generic create, update, read and delete actions on Entity
- * Also perform load and search requests
- * If Entity has a foreign key to a User the scope is restricted to current session entities for CRUD, load and search actions
+ * Perform generic create, update, read and delete actions on Entities with ACL check, data validation and I18n support
+ * If Entity has a foreign key to a User the scope is restricted to current session for CRUD
  *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  *
  */
-abstract class Crud
+abstract class Crud extends Acl
 {
 
     /**
-     * Error codes
-     * @var integer
-     */
-    const ERROR_USER_INVALID                        = 402;
-    const ERROR_FORBIDDEN_BY_ACL                    = 403;
-    const ERROR_ENTITY_EXISTS                       = 404;
-    const ERROR_ENTITY_NOT_LOADED                   = 405;
-    const ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE   = 406;
-
-    /**
-     * Current user instance (optional if $oEntity has no foreign key attribute to User)
-     *
+     * User instance for the ACL layer check
      * @var User
      */
-    protected $oUser;
-
-    /**
-     * Current \app\Entities\
-     *
-     * @var Entity $oEntity
-     */
-    protected $oEntity;
-
-    /**
-     * Entities collection
-     *
-     * @var EntityCollection
-     */
-    protected $oEntities;
-
-    /**
-     * Restricted attributes scope for update
-     *
-     * @var array
-     */
-    protected $aEntityRestrictedAttributes = array();
-
-    /**
-     * Instance constructor
-     *
-     */
-    public function __construct(Entity $oEntity, $mUser = null)
-    {
-
-        // Instanciate User provided at instance constructor
-        if ($mUser instanceof User && $mUser->isLoaded()) {
-            $this->oUser = $mUser;
-        } elseif (is_int($mUser) && intval($mUser) > 0) {
-            try {
-                $this->oUser = new User($mUser);
-            } catch (EntityException $oException) {
-                $this->oUser = null;
-            }
-        } else {
-            $this->oUser = null;
-        }
-
-        # Load Entity and EntityCollection instances
-        $this->oEntity = $oEntity;
-        $sCollectionClassName = $oEntity->computeCollectionClassName();
-        $this->oEntities = new $sCollectionClassName;
-    }
+    protected $oUser = null;
 
     /**
      * Create new entity
      *
-     * @param array $aParameters A one dimensional array: attribute name => value
-     * @throws CrudException If the currently loaded user session is different than the ne entity one
      * @return boolean Library\Core\EntityException
      */
-    public function create(array $aParameters = array())
+    public function create()
     {
-        assert('count($aParameters) > 0');
-        assert('!is_null($this->oEntity)');
-        assert('!is_null($this->oUser)');
+        try {
+            if ($this->hasAccess('create') === false) {
+                throw new CrudException(
+                    sprintf(
+                        CrudException::$aErrors[CrudException::ERROR_FORBIDDEN_BY_ACL],
+                        array(
+                            'create',
+                            $this->getEntityName(),
+                            $this->oUser->getId()
+                        )
+                    ),
+                    CrudException::ERROR_FORBIDDEN_BY_ACL
+                );
+            }
 
-        $oEntity = clone $this->oEntity;
-
-        foreach ($aParameters as $sParameter => $mValue) {
-            if ($oEntity->hasAttribute($sParameter)) {
+            foreach ($this->getAttributes() as $sParameter) {
 
                 # Internationalization support
-                if ($oEntity->isI18n() === true) {
-                    if (in_array($sParameter, $oEntity->getTranslatedAttributes()) === true) {
-                        $oEntity->setTranslation($sParameter, $mValue);
+                if ($this->isI18n() === true) {
+                    if (in_array($sParameter, $this->getTranslatedAttributes()) === true) {
+                        $this->setTranslation($sParameter, $this->{$sParameter});
                     }
                     continue;
                 }
 
-                $oEntity->{$sParameter} = $mValue;
             }
-        }
 
-        # Check for foreign keys on User Entity
-        if ($oEntity->hasAttribute($this->oUser->computeForeignKeyName()) && is_null($this->oUser) === false) {
-            $sUserRef = $this->oUser->computeForeignKeyName();
-            $oEntity->{$sUserRef} = $this->oUser->getId();
-        }
-
-        if ($oEntity->hasAttribute('created')) {
-            $oEntity->created = time();
-        }
-        if ($oEntity->hasAttribute('lastupdate')) {
-            $oEntity->lastupdate = null;
-        }
-
-        # Check for Nullable attributes
-        foreach ($oEntity->getAttributes() as $sAttr) {
-            if (
-                $sAttr !== $oEntity->getPrimaryKeyName() &&
-                $oEntity->isNullable($sAttr) === false &&
-                (
-                    empty($oEntity->{$sAttr}) === true ||
-                    is_null($oEntity->{$sAttr}) === true
-                )
-            ) {
-                throw new CrudException(
-                    'No value provided for the "' . $sAttr . '" attribute of "' . $oEntity . '" Entity',
-                    self::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE
-                );
+            # Check for foreign keys on User Entity
+            if (is_null($this->oUser) === false && $this->hasAttribute($this->oUser->computeForeignKeyName())) {
+                $sUserRef = $this->oUser->computeForeignKeyName();
+                $this->{$sUserRef} = $this->oUser->getId();
             }
-        }
 
-        if ($oEntity->add() === true) {
-            $this->oEntity = clone $oEntity;
-            return $this->oEntity->isLoaded();
+            if ($this->hasAttribute('created')) {
+                $this->created = time();
+            }
+            if ($this->hasAttribute('lastupdate')) {
+                $this->lastupdate = null;
+            }
+
+            # Check for Nullable attributes
+            foreach ($this->getAttributes() as $sAttr) {
+                if (
+                    $sAttr !== $this->getPrimaryKeyName() &&
+                    $this->isNullable($sAttr) === false &&
+                    (
+                        empty($this->{$sAttr}) === true ||
+                        is_null($this->{$sAttr}) === true
+                    )
+                ) {
+                    throw new CrudException(
+                        sprintf(
+                            CrudException::$aErrors[CrudException::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE],
+                            $sAttr
+                        ),
+                        CrudException::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE
+                    );
+                }
+            }
+
+            if ($this->_create() === true) {
+                return $this->isLoaded();
+            }
+
+            return false;
+        } catch (\Exception $oException) {
+
+            die(var_dump($oException->getMessage()));
+
+            return false;
         }
-        return false;
     }
 
     /**
@@ -154,92 +109,133 @@ abstract class Crud
      */
     public function read()
     {
-        if (is_null($this->oUser)) {
-            throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-        } else {
-            // Check for user bypass attempt
-            if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
-                throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-            } elseif (! $this->oEntity->isLoaded()) {
-                throw new CrudException('Cannot read an unloaded entity.', self::ERROR_ENTITY_NOT_LOADED);
-            } else {
-                try {
-                    return $this->getEntity();
-                } catch (EntityException $oException) {
-                    return $oException;
-                }
+        try {
+            if ($this->hasAccess('read') === false) {
+                throw new CrudException(
+                    sprintf(
+                        CrudException::$aErrors[CrudException::ERROR_FORBIDDEN_BY_ACL],
+                        array(
+                            'read',
+                            $this->getEntityName(),
+                            $this->oUser->getId()
+                        )
+                    ),
+                    CrudException::ERROR_FORBIDDEN_BY_ACL
+                );
             }
+
+            // Check for user bypass attempt
+            if ($this->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->user_iduser)) {
+                throw new CrudException(
+                    CrudException::$aErrors[CrudException::ERROR_USER_INVALID],
+                    CrudException::ERROR_USER_INVALID
+                );
+            } elseif (! $this->isLoaded()) {
+                throw new CrudException(
+                    CrudException::$aErrors[CrudException::ERROR_ENTITY_NOT_FOUND],
+                    CrudException::ERROR_ENTITY_NOT_FOUND
+                );
+            } else {
+                return $this;
+            }
+
+        } catch (\Exception $oException) {
+            return false;
         }
     }
 
     /**
      * Update an entity restricted to instanciate user scope if entity is mapped with User
      *
-     * @param array $aParameters
-     * @throws CrudException
      * @return EntityException
      */
-    public function update(array $aParameters = array())
+    public function update()
     {
-        assert('count($aParameters) > 0');
-
-        if ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser)) {
-            throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-        } elseif (! $this->oEntity->isLoaded()) {
-            throw new CrudException('Cannot update an unloaded entity.', self::ERROR_ENTITY_NOT_LOADED);
-        } else {
-
-            foreach ($aParameters as $sKey => $mValue) {
-                if (! empty($sKey)) { // The value can be null if allowed in database will check by Entity component
-
-                    // Check for user bypass attempt
-                    if (
-                        (
-                            $this->oEntity->hasAttribute('user_iduser') &&
-                            $sKey === 'user_iduser' &&
-                            $this->oUser->getId() !== intval($mValue)
-                        ) ||
-                        (
-                            $this->oEntity->hasAttribute('user_iduser') &&
-                            $sKey === 'iduser' &&
-                            $this->oUser->getId() !== intval($mValue)
+        try {
+            if ($this->hasAccess('update') === false) {
+                throw new CrudException(
+                    sprintf(
+                        CrudException::$aErrors[CrudException::ERROR_FORBIDDEN_BY_ACL],
+                        array(
+                            'update',
+                            $this->getEntityName(),
+                            $this->oUser->getId()
                         )
-                    ) {
-                        throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-                    }
+                    ),
+                    CrudException::ERROR_FORBIDDEN_BY_ACL
+                );
+            }
 
-                    # Internationalization support
-                    if ($this->oEntity->isI18n() === true) {
-                        if (in_array($sKey, $this->oEntity->getTranslatedAttributes()) === true) {
-                            $this->oEntity->setTranslation($sKey, $mValue);
+            if ($this->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->user_iduser)) {
+                throw new CrudException(
+                    CrudException::$aErrors[CrudException::ERROR_USER_INVALID],
+                    CrudException::ERROR_USER_INVALID
+                );
+            } elseif (! $this->isLoaded()) {
+                throw new CrudException(
+                    CrudException::$aErrors[CrudException::ERROR_ENTITY_EXISTS],
+                    CrudException::ERROR_ENTITY_EXISTS
+                );
+            } else {
+
+                foreach ($this->getAttributes() as $sKey) {
+                    if (empty($sKey) === false) {
+
+                        // Check for user bypass attempt
+                        if (
+                            (
+                                $this->hasAttribute('user_iduser') &&
+                                $sKey === 'user_iduser' &&
+                                $this->oUser->getId() !== intval($this->{$sKey})
+                            ) ||
+                            (
+                                $this->hasAttribute('user_iduser') &&
+                                $sKey === 'iduser' &&
+                                $this->oUser->getId() !== intval($this->{$sKey})
+                            )
+                        ) {
+                            throw new CrudException(
+                                CrudException::$aErrors[CrudException::ERROR_USER_INVALID],
+                                CrudException::ERROR_USER_INVALID
+                            );
                         }
-                        continue;
+
+                        # Internationalization support
+                        if ($this->isI18n() === true) {
+                            if (in_array($sKey, $this->getTranslatedAttributes()) === true) {
+                                $this->setTranslation($sKey, $this->{$sKey});
+                            }
+                            continue;
+                        }
+                    }
+                }
+
+                if ($this->hasAttribute('lastupdate')) {
+                    $this->lastupdate = time();
+                }
+
+                foreach ($this->getAttributes() as $sAttr) {
+
+                    // Check for restricted attributes
+                    if (array_key_exists($sAttr, $this->getRestrictedEntityAttributes()) === true) {
+                        unset($this->{$sAttr});
                     }
 
-                    $this->oEntity->{$sKey} = $mValue;
-                }
-            }
+                    // Check for not null value
+                    if (empty($this->{$sAttr}) && $this->isNullable($sAttr) === false) {
+                        unset($this->{$sAttr});
+                    }
 
-            if ($this->oEntity->hasAttribute('lastupdate')) {
-                $this->oEntity->lastupdate = time();
-            }
-
-            foreach ($this->oEntity->getAttributes() as $sAttr) {
-
-                // Check for restricted attributes
-                if (array_key_exists($sAttr, $this->getRestrictedEntityAttributes()) === true) {
-                    unset($this->oEntity->{$sAttr});
                 }
 
-                // Check for not null value
-                if (empty($this->oEntity->{$sAttr}) && $this->oEntity->isNullable($sAttr) === false) {
-                    unset($this->oEntity->{$sAttr});
-                }
+                return $this->_update();
 
             }
+        } catch (\Exception $oException) {
 
-            return $this->oEntity->update();
+            die(var_dump($oException->getMessage(), $this->getEntityName(), 'there'));
 
+            return false;
         }
     }
 
@@ -251,72 +247,43 @@ abstract class Crud
      */
     public function delete()
     {
-        // Check for user bypass attempt
-        if (($this->oEntity->hasAttribute('user_iduser') && (is_null($this->oUser))) || ($this->oEntity->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->oEntity->user_iduser))) {
-            throw new CrudException('Invalid user', self::ERROR_USER_INVALID);
-        } elseif (! $this->oEntity->isLoaded()) {
-            throw new CrudException('Cannot delete an unloaded entity.', self::ERROR_ENTITY_NOT_LOADED);
-        } else {
-            try {
-                return $this->oEntity->delete();
-            } catch (EntityException $oException) {
-                return $oException;
+        try {
+            if ($this->hasAccess('delete') === false) {
+                throw new CrudException(
+                    sprintf(
+                        CrudException::$aErrors[CrudException::ERROR_FORBIDDEN_BY_ACL],
+                        array(
+                            'delete',
+                            $this->getEntityName(),
+                            $this->oUser->getId()
+                        )
+                    ),
+                    CrudException::ERROR_FORBIDDEN_BY_ACL
+                );
             }
-        }
-    }
 
-    /**
-     * Load latest entities
-     *
-     * @param array $aParameters
-     * @param array $aOrderBy
-     * @param array $aLimit
-     * @return boolean
-     */
-    public function load(array $aOrder = array(), $mLimit = null)
-    {
-        $this->oEntities->load($aOrder, $mLimit);
-        return ($this->oEntities->count() > 0);
-    }
-
-    /**
-     * Load entities on given parameters
-     *
-     * @param array $aParameters
-     * @param array $aOrderBy
-     * @param array $aLimit
-     * @return boolean
-     */
-    public function loadEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 25), $sLocale = null)
-    {
-        $this->oEntities->loadByParameters($aParameters, $aOrderBy, $aLimit, $sLocale);
-        return ($this->oEntities->count() > 0);
-    }
-
-    /**
-     * Load user's entities
-     *
-     * @param array $aParameters
-     * @param array $aOrderBy
-     * @param array $aLimit
-     * @throws CrudException
-     * @return boolean
-     */
-    public function loadUserEntities(array $aParameters = array(), array $aOrderBy = array(), array $aLimit = array(0, 10), $sLocale = null)
-    {
-        if (is_null($this->oUser)) {
-            throw new CrudException('No User entity instance found!', self::ERROR_USER_INVALID);
+            // Check for user bypass attempt
+            if (($this->hasAttribute('user_iduser') && (is_null($this->oUser))) || ($this->hasAttribute('user_iduser') && $this->oUser->getId() !== intval($this->user_iduser))) {
+                throw new CrudException(
+                    CrudException::$aErrors[CrudException::ERROR_USER_INVALID],
+                    CrudException::ERROR_USER_INVALID
+                );
+            } elseif (! $this->isLoaded()) {
+                throw new CrudException(
+                    CrudException::$aErrors[CrudException::ERROR_ENTITY_EXISTS],
+                    CrudException::ERROR_ENTITY_EXISTS
+                );
+            } else {
+                return $this->_delete();
+            }
+        } catch (\Exception $oException) {
+            return false;
         }
 
-        if (isset($aParameters['user_iduser']) === false) {
-            $aParameters['user_iduser'] = $this->oUser->getId();
-        }
-
-        return $this->loadEntities($aParameters, $aOrderBy, $aLimit, $sLocale);
     }
 
     /**
-     * Get allowed entity attributes scope
+     * Get CRUD restricted entity attributes scope
      *
      * @return array
      */
@@ -337,33 +304,45 @@ abstract class Crud
         return $this;
     }
 
-    /*
-     * Get current instance \app\Entities Entity properties @return array
+    /**
+     * @return User
      */
-    public function getEntityAttributes()
+    public function getUser()
     {
-        return $this->oEntity->getAttributes();
+        return $this->oUser;
     }
 
     /**
-     *
-     * @return \app\Entities\Collection\
+     * @param User $oUser
      */
-    public function getEntities()
+    public function setUser(User $oUser)
     {
-        return $this->oEntities;
+        $this->oUser = $oUser;
+
+        # Refresh of the ACL layer
+        $this->loadUserAcl();
     }
 
-    /**
-     *
-     * @return \app\Entities\
-     */
-    public function getEntity()
-    {
-        return $this->oEntity;
-    }
 }
 
-class CrudException extends \Exception
+class CrudException extends CoreException
 {
+    /**
+     * Error codes
+     * @var integer
+     */
+    const ERROR_USER_INVALID                        = 402;
+    const ERROR_FORBIDDEN_BY_ACL                    = 403;
+    const ERROR_ENTITY_EXISTS                       = 404;
+    const ERROR_ENTITY_NOT_FOUND                    = 405;
+    const ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE   = 406;
+
+    public static $aErrors = array(
+        self::ERROR_USER_INVALID                        => 'You cannot update other user Entities.',
+        self::ERROR_FORBIDDEN_BY_ACL                    => 'Current request %s forbidden by ACL layer On Entity %s for User #%s',
+        self::ERROR_ENTITY_EXISTS                       => 'Entity was not found.',
+        self::ERROR_ENTITY_NOT_FOUND                    => 'Invalid User instance provided.',
+        self::ERROR_ENTITY_MISSING_REQUIRED_ATTRIBUTE   => 'Not nullable attribute %s with no value setted.'
+    );
+
 }

@@ -18,7 +18,10 @@ class ConfigurationTest extends Test
 
     protected function setUp()
     {
-        $this->oConfigurationInstance = new Configuration('sample');
+        if (self::loadUser(true) === false) {
+            die('Unable to load Test user');
+        }
+        $this->oConfigurationInstance = new Configuration('sample', self::$oUser);
     }
 
     public function testThatControllerBuildAllConfigurations()

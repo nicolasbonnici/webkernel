@@ -62,8 +62,7 @@ class OneToOne extends MappingAbstract
     {
         $aMappingConf = $this->loadMappingConfiguration(get_class($oMappedEntity));
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
-            if ($oMappedEntity->add() === true) {
-
+            if ($oMappedEntity->create() === true) {
                 # Build optional mapped foreign key name parameter
                 if (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true) {
                     $sForeignKeyName = $aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE];
@@ -73,6 +72,7 @@ class OneToOne extends MappingAbstract
 
                 # Persist reference to create Entity on source Entity
                 $this->oSourceEntity->$sForeignKeyName = $oMappedEntity->getId();
+
                 return $this->oSourceEntity->update();
             }
         }

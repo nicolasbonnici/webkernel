@@ -1,8 +1,10 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
+use app\Entities\User;
+use bundles\auth\Models\AuthModel;
+use Library\Core\Database\Query\Insert;
 use Library\Core\Entity\Entity;
-use Library\Core\Json\Json;
 use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 use Library\Core\Tests\Dummy\Entities\Dummy4;
@@ -36,7 +38,9 @@ class EntityTest extends Test
 
     protected function setUp()
     {
-        $this->oDummyEntity = new Dummy();
+        self::loadUser(true);
+        $this->oDummyEntity = new Dummy(null, 'FR_fr');
+        $this->oDummyEntity->setUser(self::$oUser);
     }
 
     public function testConstructor()
@@ -74,20 +78,19 @@ class EntityTest extends Test
 
     public function testAddThenRetrieveEntityId()
     {
+
         $this->oDummyEntity->test_string        = $this->aTestData['test_string'];
         $this->oDummyEntity->test_int           = $this->aTestData['test_int'];
         $this->oDummyEntity->test_float         = $this->aTestData['test_float'];
         $this->oDummyEntity->test_null          = $this->aTestData['test_null'];
         $this->oDummyEntity->lastupdate         = $this->aTestData['lastupdate'];
         $this->oDummyEntity->created            = $this->aTestData['created'];
-        $this->oDummyEntity->dummy4_iddummy4    = 1;
 
-        $this->assertTrue($this->oDummyEntity->add());
+        $this->assertTrue($this->oDummyEntity->create());
+
         self::$iCreatedDummyId = $this->oDummyEntity->getId();
         $this->assertTrue(self::$iCreatedDummyId > 0);
-
         $this->assertTrue($this->oDummyEntity->getId() > 0);
-
         $this->assertEquals(
             true,
             $this->oDummyEntity->isLoaded()
@@ -124,6 +127,10 @@ class EntityTest extends Test
     {
         $this->oDummyEntity = new Dummy(self::$iCreatedDummyId);
         $this->oDummyEntity->test_string  = 'Other string value';
+
+        # Set User for ACL check
+        $this->oDummyEntity->setUser(self::$oUser);
+
         $this->assertTrue($this->oDummyEntity->update());
     }
 
@@ -188,24 +195,29 @@ class EntityTest extends Test
         }
     }
 
-    public function testStoreThenLoadMapped()
+    public function testStoreMappedThenLoadMapped()
     {
-        if ($this->oDummyEntity->isLoaded() === false) {
-            $this->oDummyEntity = new Dummy(1);
 
-        }
+        $this->oDummyEntity->test_string        = $this->aTestData['test_string'];
+        $this->oDummyEntity->test_int           = $this->aTestData['test_int'];
+        $this->oDummyEntity->test_float         = $this->aTestData['test_float'];
+        $this->oDummyEntity->test_null          = $this->aTestData['test_null'];
+        $this->oDummyEntity->lastupdate         = $this->aTestData['lastupdate'];
+        $this->oDummyEntity->created            = $this->aTestData['created'];
+
+        $this->assertTrue($this->oDummyEntity->create());
 
         # Create a Dummy4
         $oDummy4 = new Dummy4();
         $oDummy4->foo = 'Test string value';
 
+        $oDummy4->setUser(self::$oUser);
         $this->assertTrue(
             $this->oDummyEntity->storeMapped($oDummy4),
             'Unable to store mapped Entity directly from Entity Instance'
         );
 
-        $oDummy = new Dummy(1);
-        $oDummy4 = $oDummy->loadMapped(new Dummy4());
+        $oDummy4 = $this->oDummyEntity->loadMapped($oDummy4);
 
         $this->assertInstanceOf(
             get_class(new Dummy4()),
@@ -265,6 +277,8 @@ class EntityTest extends Test
                 'value' => 'Foo 2 translated!'
             )
         );
+
+        $this->oDummyEntity->setUser(self::$oUser);
 
         $aTrs = array();
         foreach ($aTr as $aTranslation) {

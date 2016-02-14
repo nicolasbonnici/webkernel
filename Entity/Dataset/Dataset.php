@@ -109,7 +109,7 @@ class Dataset
         foreach ($aDataset as $sKey => $mValue) {
             $oEntity->$sKey = $mValue;
         }
-        return $oEntity->add();
+        return $oEntity->create();
     }
 
     /**

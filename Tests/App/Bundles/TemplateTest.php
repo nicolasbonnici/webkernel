@@ -27,7 +27,8 @@ class TemplateTest extends Test
 
     public function setUp()
     {
-        $this->oTemplateInstance = new Template(new Bundle(self::TEST_BUNDLE));
+        self::loadUser(true);
+        $this->oTemplateInstance = new Template(new Bundle(self::TEST_BUNDLE, self::$oUser));
     }
 
     public function tearDown()

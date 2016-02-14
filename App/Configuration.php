@@ -4,7 +4,9 @@ namespace Library\Core\App;
 
 use app\Entities\Config;
 use app\Entities\Collection\ConfigCollection;
+use app\Entities\User;
 use Library\Core\Bootstrap;
+use Library\Core\Exception\CoreException;
 use Library\Core\FileSystem\File;
 use Library\Core\Json\Json;
 
@@ -37,12 +39,15 @@ class Configuration {
 
     protected $sBundleName;
 
+    protected $oUser;
+
     /**
-     * Configuration constructor with optional bundle name
+     * Configuration constructor
      * @param string $sBundleName   Bundle name (optional)
      */
-    public function __construct($sBundleName = 'sample')
+    public function __construct($sBundleName, User $oUser)
     {
+        $this->oUser = $oUser;
         $this->sBundleName = $sBundleName;
         $this->build();
     }
@@ -78,12 +83,16 @@ class Configuration {
      */
     public function set($sKey, $mValue)
     {
-        $oConfig = $this->loadConfigByKeyName($sKey);
-        if (is_null($oConfig) === true) {
-            return $this->store($sKey, $mValue);
-        } else {
-            $oConfig->value = $mValue;
-            return $oConfig->update();
+        try {
+            $oConfig = $this->loadConfigByKeyName($sKey);
+            if (is_null($oConfig) === true) {
+                return $this->store($sKey, $mValue);
+            } else {
+                $oConfig->value = $mValue;
+                return $oConfig->update();
+            }
+        } catch(\Exception $oException) {
+            return false;
         }
     }
 
@@ -95,6 +104,13 @@ class Configuration {
      */
     public function delete($sConfigurationKey)
     {
+        if ($this->oUser->isLoaded() === false) {
+            throw new ConfigurationException(
+                ConfigurationException::$aErrors[ConfigurationException::ERROR_NO_LOADED_USER_INSTANCE],
+                ConfigurationException::ERROR_NO_LOADED_USER_INSTANCE
+            );
+        }
+
         $oConfig = $this->loadConfigByKeyName($sConfigurationKey);
         if ($oConfig != null) {
             return $oConfig->delete();
@@ -133,6 +149,13 @@ class Configuration {
      */
     private function store($sKey, $mValue)
     {
+        if ($this->oUser->isLoaded() === false) {
+            throw new ConfigurationException(
+                ConfigurationException::$aErrors[ConfigurationException::ERROR_NO_LOADED_USER_INSTANCE],
+                ConfigurationException::ERROR_NO_LOADED_USER_INSTANCE
+            );
+        }
+
         if (empty($sKey) === false && empty($mValue) === false) {
             $oConfiguration = new Config();
             $oConfiguration->name       = $sKey;
@@ -140,11 +163,14 @@ class Configuration {
             $oConfiguration->bundle     = $this->sBundleName;
             $oConfiguration->created    = time();
             $oConfiguration->lastupdate = time();
+            $oConfiguration->setUser($this->oUser);
 
-            // Store on instance
-            $this->aConfiguration[$sKey] = $mValue;
+            if ($oConfiguration->create() === true) {
+                // Store on instance
+                $this->aConfiguration[$sKey] = $mValue;
+                return true;
+            }
 
-            return $oConfiguration->add();
         }
         return false;
     }
@@ -213,6 +239,7 @@ class Configuration {
     {
         try {
             $oConfiguration = new Config();
+            $oConfiguration->setUser($this->oUser);
             $oConfiguration->loadByParameters(
                 array(
                     'bundle' => $this->sBundleName,
@@ -230,4 +257,11 @@ class Configuration {
 
 }
 
-class ConfigurationException extends \Exception {}
+class ConfigurationException extends CoreException {
+
+    const ERROR_NO_LOADED_USER_INSTANCE = 2;
+
+    public static $aErrors = array(
+        self::ERROR_NO_LOADED_USER_INSTANCE => 'No loaded or valid user instance provided.'
+    );
+}

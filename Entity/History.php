@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Entity;
 
+use app\Entities\User;
 use Library\Core\Exception\CoreException;
 use Library\Core\Json\Json;
 
@@ -16,8 +17,15 @@ class History {
      */
     protected $oOriginalEntity;
 
-    public function __construct(Entity $oOriginalEntity)
+    /**
+     * @var User
+     */
+    protected $oUser;
+
+    public function __construct(Entity $oOriginalEntity, User $oUser)
     {
+        $this->oUser = $oUser;
+
         # Set original entity
         $this->oOriginalEntity = $oOriginalEntity;
     }
@@ -51,7 +59,9 @@ class History {
             $oHistory->post_modification = $oAfter->__toString();
             $oHistory->modification_date = date('Y-m-d H:i:s');
 
-            return $oHistory->add();
+            $oHistory->setUser($this->oUser);
+
+            return $oHistory->create();
         }
 
         # Return true anyway since if the diff is empty it's not really an error and no need to throw exception

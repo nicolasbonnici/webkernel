@@ -1,8 +1,11 @@
 <?php
 namespace Library\Core\Tests\Dataset;
 
+use app\Entities\User;
+use bundles\auth\Models\AuthModel;
 use Library\Core\Bootstrap;
 use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Insert;
 use Library\Core\Entity\Dataset\Dataset;
 use Library\Core\Entity\Generator;
 use Library\Core\FileSystem\File;
@@ -19,22 +22,9 @@ class DatasetTest extends Test
 
     protected function setUp()
     {
+        self::loadUser(true);
         $this->oDataset = new Dataset(new Dummy());
     }
-
-    /**
-     * Display class name before run all testcase methods
-     */
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
-
-        # Add some dummies data
-        $oEntityGenerator = new Generator();
-        $oEntityGenerator->process(new Dummy(), 100);
-
-    }
-
 
     public function testConstructor()
     {
@@ -51,7 +41,12 @@ class DatasetTest extends Test
 
         if ($iInitialDummiesCount === 0) {
             $oGenerator = new Generator();
-            $oGenerator->process(new Dummy(), 100);
+
+            # Create Dummy instance with a generated root user for Acl layer
+            $oDummy = new Dummy(null, 'FR_fr');
+            $oDummy->setUser(self::$oUser);
+
+            $oGenerator->process($oDummy, 100);
             $iInitialDummiesCount = Pdo::dbQuery('SELECT COUNT(1) FROM `dummy`')->fetchColumn();
         }
 

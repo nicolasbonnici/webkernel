@@ -95,9 +95,11 @@ class Mapper
         foreach ($this->aMappingConfiguration as $sLinkedEntity => $aMappingSetup) {
             $oMapped = $this->loadMapped(new $sLinkedEntity());
             if ($oMapped instanceof Entity) {
+                $oMapped->setUser($this->oSourceEntity->getUser());
                 $aReturns[] = $this->delete($oMapped);
             } elseif ($oMapped instanceof EntityCollection) {
                 foreach ($oMapped as $oEntity) {
+                    $oEntity->setUser($this->oSourceEntity->getUser());
                     $aReturns[] = $this->delete($oEntity);
                 }
             } else {

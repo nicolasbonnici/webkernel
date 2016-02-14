@@ -11,7 +11,7 @@ use Library\Core\Validator;
  * Class Attributes
  * @package Library\Core\Orm
  */
-abstract class Attributes extends I18n
+abstract class Attributes extends Crud
 {
     /**
      * PDO field information keys

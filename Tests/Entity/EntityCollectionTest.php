@@ -10,7 +10,7 @@ use Library\Core\Tests\Dummy\Entities\Dummy;
 
 /**
  * ORM EntityCollection component unit tests
- * 
+ *
  * @author Nicolas Bonnici <nicolasbonnici@gmail.com>
  */
 class EntityCollectionTest extends Test
@@ -19,6 +19,11 @@ class EntityCollectionTest extends Test
      * @var EntityCollection
      */
     protected $oDummyEntityCollection;
+
+    public static function setUpBeforeClass()
+    {
+        self::loadUser(true);
+    }
 
     protected function setUp()
     {
@@ -35,8 +40,8 @@ class EntityCollectionTest extends Test
         # Count total row first
         $iInitialDummiesCount = Pdo::dbQuery('SELECT COUNT(1) FROM `dummy`')->fetchColumn();
 
-        if ($iInitialDummiesCount === 0) {
-            $oGenerator = new Generator();
+        if (intval($iInitialDummiesCount) === 0) {
+            $oGenerator = new Generator(self::$oUser);
             $iInitialDummiesCount = 100;
             $oGenerator->process(new Dummy(), $iInitialDummiesCount);
         }
@@ -71,14 +76,15 @@ class EntityCollectionTest extends Test
     public function loadWithOrderAndLimit()
     {
         $aOrders = array('created');
-        $iLimit = 10;
+        $aLimit = array(0,10);
 
-        $this->oDummyEntityCollection->load($aOrders, $iLimit);
+        $this->oDummyEntityCollection->load($aOrders, $aLimit);
 
         $this->assertEquals(
-            $iLimit,
+            $aLimit[1],
             $this->oDummyEntityCollection->count()
         );
+        die;
 
     }
 

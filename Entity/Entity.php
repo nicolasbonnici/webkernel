@@ -128,6 +128,13 @@ abstract class Entity extends Attributes
     protected $aFields = array();
 
     /**
+     * Excluded for CRUD operations
+     *
+     * @var array
+     */
+    protected $aEntityRestrictedAttributes = array();
+
+    /**
      * Entities Mapper instance
      * @var Mapper
      */
@@ -144,7 +151,7 @@ abstract class Entity extends Attributes
     {
         $this->loadAttributes();
         if (is_null($mValue) === false) {
-            if (is_string($mValue) === true|| is_int($mValue) === true) {
+            if (is_string($mValue) === true || is_int($mValue) === true) {
                 // Build only one object
                 $this->{static::PRIMARY_KEY} = $mValue;
                 $this->loadByPrimaryKey();
@@ -220,6 +227,7 @@ abstract class Entity extends Attributes
         if ($this->isI18n() === true && is_null($this->sLocale) === false) {
             $this->loadTranslation();
         }
+
     }
 
     /**
@@ -235,7 +243,7 @@ abstract class Entity extends Attributes
         if (empty($aParameters)) {
             throw new EntityException(
                 sprintf(
-                    EntityException::getError(EntityException::ERROR_NO_PARAMETERS_TO_LOAD_ENTITY),
+                    EntityException::$aErrors[EntityException::ERROR_NO_PARAMETERS_TO_LOAD_ENTITY],
                     get_called_class()
                 ),
                 EntityException::ERROR_NO_PARAMETERS_TO_LOAD_ENTITY
@@ -284,7 +292,7 @@ abstract class Entity extends Attributes
             if (($oStatement = Pdo::dbQuery($sQuery, $aBoundedValues)) === false) {
                 throw new EntityException(
                     sprintf(
-                        EntityException::getError(EntityException::ERROR_UNABLE_TO_CONSTRUCT_ENTITY),
+                        EntityException::$aErrors[EntityException::ERROR_UNABLE_TO_CONSTRUCT_ENTITY],
                         array(get_called_class(), $sQuery)
                     ),
                     EntityException::ERROR_UNABLE_TO_CONSTRUCT_ENTITY
@@ -298,7 +306,7 @@ abstract class Entity extends Attributes
             if ($oStatement->rowCount() > 1) {
                 throw new EntityException(
                     sprintf(
-                        EntityException::getError(EntityException::ERROR_MORE_THAN_ONE_ENTITY_FOUND),
+                        EntityException::$aErrors[EntityException::ERROR_MORE_THAN_ONE_ENTITY_FOUND],
                         array(get_called_class(), $sQuery)
                     ),
                     EntityException::ERROR_MORE_THAN_ONE_ENTITY_FOUND
@@ -340,7 +348,7 @@ abstract class Entity extends Attributes
      * @return boolean TRUE if record was successfully inserted, otherwise FALSE
      * @throws EntityException
      */
-    public function add()
+    protected function _create()
     {
         try {
             # Retrieve instance setted values
@@ -359,13 +367,7 @@ abstract class Entity extends Attributes
             return (bool) $this->bIsLoaded = ($oStatement !== false && $this->{static::PRIMARY_KEY} > 0);
 
         } catch (\Exception $oException) {
-
-            # Throw exceptions on development environment
-            if (defined('ENV') && ENV === 'dev') {
-                // @todo log reporting
-                die(var_dump(array($oException->getMessage(), $oException->getCode())));
-            }
-
+            die(var_dump(array($oException->getMessage(), $oException->getCode())));
             return false;
         }
 
@@ -377,7 +379,7 @@ abstract class Entity extends Attributes
      * @return boolean          TRUE if entity was successfully updated, otherwise FALSE
      * @throws EntityException
      */
-    public function update()
+    protected function _update()
     {
 
         try {
@@ -385,7 +387,7 @@ abstract class Entity extends Attributes
             if (empty($this->{static::PRIMARY_KEY})) {
                 throw new EntityException(
                     sprintf(
-                        EntityException::getError(EntityException::ERROR_UPDATE_WITH_NO_PRIMARY_KEY),
+                        EntityException::$aErrors[EntityException::ERROR_UPDATE_WITH_NO_PRIMARY_KEY],
                         get_called_class()
                     ),
                     EntityException::ERROR_UPDATE_WITH_NO_PRIMARY_KEY
@@ -395,7 +397,7 @@ abstract class Entity extends Attributes
             # Handle Entity history if needed
             if ($this->bIsHistorized === true) {
                 $oOriginalObject = new $this->sChildClass($this->{static::PRIMARY_KEY});
-                $oEntityHistory = new History($oOriginalObject);
+                $oEntityHistory = new History($oOriginalObject, $this->getUser());
             }
 
             # Retrieve instance setted values
@@ -422,7 +424,7 @@ abstract class Entity extends Attributes
                     if ($oEntityHistory->save($aParameters) === false) {
                         throw new EntityException(
                             sprintf(
-                                EntityException::getError(EntityException::ERROR_UNABLE_TO_STORE_ENTITY_HISTORY),
+                                EntityException::$aErrors[EntityException::ERROR_UNABLE_TO_STORE_ENTITY_HISTORY],
                                 $this->getEntityName()
                             ),
                             EntityException::ERROR_UNABLE_TO_STORE_ENTITY_HISTORY
@@ -450,19 +452,19 @@ abstract class Entity extends Attributes
      * @throws EntityException
      * @return boolean TRUE if deletion was successful, otherwise FALSE
      */
-    public function delete()
+    protected function _delete()
     {
         try {
             if ($this->isDeletable() === false) {
                 throw new EntityException(
-                    sprintf(EntityException::getError(EntityException::ERROR_ENTITY_NOT_DELETABLE), get_called_class()),
+                    sprintf(EntityException::$aErrors[EntityException::ERROR_ENTITY_NOT_DELETABLE], get_called_class()),
                     EntityException::ERROR_ENTITY_NOT_DELETABLE
                 );
             }
 
             if ($this->isLoaded() === false) {
                 throw new EntityException(
-                    EntityException::getError(EntityException::ERROR_DELETE_NOT_LOADED_ENTITY),
+                    EntityException::$aErrors[EntityException::ERROR_DELETE_NOT_LOADED_ENTITY],
                     EntityException::ERROR_DELETE_NOT_LOADED_ENTITY
                 );
             }
@@ -517,7 +519,7 @@ abstract class Entity extends Attributes
     protected function getInstanceData()
     {
         $aParameters = array();
-        foreach ($this->aFields as $sFieldName => $aFieldInfos) {
+        foreach ($this->getAttributes() as $sFieldName) {
             if (
                 isset($this->{$sFieldName}) &&
                 $this->validate($sFieldName, $this->{$sFieldName})
@@ -540,7 +542,7 @@ abstract class Entity extends Attributes
         if (! isset($this->{static::PRIMARY_KEY})) {
             throw new EntityException(
                 sprintf(
-                    EntityException::getError(EntityException::ERROR_CANNOT_LOAD_WITH_EMPTY_PK),
+                    EntityException::$aErrors[EntityException::ERROR_CANNOT_LOAD_WITH_EMPTY_PK],
                     array(get_called_class(), static::PRIMARY_KEY)
                 ),
                 EntityException::ERROR_CANNOT_LOAD_WITH_EMPTY_PK
@@ -748,16 +750,14 @@ abstract class Entity extends Attributes
      */
     public function getId()
     {
-        if (! $this->bIsLoaded) {
+        if ($this->bIsLoaded !== true) {
             throw new EntityException(
-                EntityException::getError(EntityException::ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY),
+                EntityException::$aErrors[EntityException::ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY],
                 EntityException::ERROR_CANNOT_GET_ID_OF_NOT_LOADED_ENTITY
             );
         }
         return (int) $this->{static::PRIMARY_KEY};
     }
-
-
 
     /**
      * Entity attributes fields accessor

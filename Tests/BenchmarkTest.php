@@ -1,7 +1,10 @@
 <?php
 namespace Library\Core\Tests;
 
+use app\Entities\User;
+use bundles\auth\Models\AuthModel;
 use Library\Core\Database\Pdo;
+use Library\Core\Database\Query\Insert;
 use Library\Core\Entity\Generator;
 use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Collection\DummyCollection;
@@ -16,8 +19,19 @@ use Library\Core\Tests\Dummy\Entities\Dummy;
  */
 class BenchmarkTest extends Test
 {
-
     protected $aBenchmark = array();
+
+    /**
+     * Sets up the fixture, for example, open a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp()
+    {
+        if(self::loadUser(true) === false) {
+            die('Unable to load Test User');
+        }
+    }
+
 
     public function testEntityComponent()
     {
@@ -69,10 +83,12 @@ class BenchmarkTest extends Test
     {
         $iGenTime = microtime(true);
 
-        #Generate 1000 entities then benchmark loading
-        $oGenerator = new Generator(new Dummy(), $iIterationNumber);
+        # Create Dummy instance with a generated root user for Acl layer
+        $oDummy = new Dummy(null, 'FR_fr');
 
-        if ($oGenerator->process(new Dummy(), $iIterationNumber) === false) {
+        #Generate 1000 entities then benchmark loading
+        $oGenerator = new Generator(self::$oUser);
+        if ($oGenerator->process($oDummy, $iIterationNumber) === false) {
             die('Benchmark unable to generate ' . $iIterationNumber . ' Dummy entities');
         }
 

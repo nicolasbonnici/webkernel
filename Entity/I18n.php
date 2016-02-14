@@ -64,7 +64,10 @@ abstract class I18n
                     $oTranslation->locale       = $sLocale;
                     $oTranslation->lastupdate   = time();
                     $oTranslation->created      = time();
-                    return $oTranslation->add();
+
+                    $oTranslation->setUser($this->oUser);
+
+                    return $oTranslation->create();
                 } else {
                     # Update found translation
                     $oJsonContent = new Json($oTranslation->content);
@@ -76,6 +79,9 @@ abstract class I18n
 
                     $oTranslation->content = $oUpdatedJson->__toString();
                     $oTranslation->lastupdate   = time();
+
+                    $oTranslation->setUser($this->oUser);
+
                     return $oTranslation->update();
                 }
             }

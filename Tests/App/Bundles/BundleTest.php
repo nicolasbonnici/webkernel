@@ -20,18 +20,11 @@ class BundleTest extends Test
      */
     private $oSampleBundleInstance;
 
-    public static function setUpBeforeClass()
-    {
-        parent::setUpBeforeClass();
-    }
 
     public function setUp()
     {
-        $this->oSampleBundleInstance = new Bundle(self::TEST_BUNDLE);
-    }
-
-    public function tearDown()
-    {
+        self::loadUser(true);
+        $this->oSampleBundleInstance = new Bundle(self::TEST_BUNDLE, self::$oUser);
     }
 
     public function testConstructor()

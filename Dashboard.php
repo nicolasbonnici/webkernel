@@ -12,14 +12,8 @@ use Library\Core\Entity\Entity;
  * Class Dashboard
  * @package Library\Core
  */
-class Dashboard extends Crud {
-	
+class Dashboard {
 
-    public function __construct(Entity $oEntity, $mUser = null)
-    {
-   		parent::__construct($oEntity,$mUser);
-    }
-	
 	/**
 	 * Count any entity with or without parameters
 	 *

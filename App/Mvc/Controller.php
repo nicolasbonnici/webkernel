@@ -131,13 +131,6 @@ class Controller
     protected $oSession;
 
     /**
-     * Access Control Layer instance
-     *
-     * @var Acl
-     */
-    protected $oAcl;
-
-    /**
      * Currently logged user instance
      *
      * @type \app\Entities\User
@@ -169,9 +162,6 @@ class Controller
 
         # Detect if a user is logged
         $this->getLoggedUser();
-
-        # Construct Acl layer parent
-        $this->loadAcl();
 
         # Load translations
         $this->loadTranslations();
@@ -398,16 +388,6 @@ class Controller
     }
 
     /**
-     * Init access control layer (only if we got a logged user)
-     */
-    protected function loadAcl()
-    {
-        if ($this->oUser->isLoaded() === true) {
-            $this->oAcl = new Acl($this->oUser);
-        }
-    }
-
-    /**
      * Load requested bundle
      *
      * @return bool
@@ -417,7 +397,7 @@ class Controller
         try {
             $sBundleName = $this->getBundleName();
             if (is_null($sBundleName) === false && empty($sBundleName) === false) {
-                $this->oBundle = new Bundle($sBundleName);
+                $this->oBundle = new Bundle($sBundleName, $this->oUser);
             } else {
                 $this->oBundle = null;
             }
@@ -484,6 +464,7 @@ class Controller
      */
     protected function loadUserBySession()
     {
+
         try {
             $this->oUser = new User();
             $aSession = $this->oSession->get();
@@ -497,21 +478,9 @@ class Controller
                 ));
 
                 if ($this->oUser->isLoaded()) {
-
-                    $aUserAuth = array();
-                    foreach ($this->oUser as $key => $mValue) {
-                        $aUserAuth[$key] = $mValue;
-                    }
-                    // Regenerate session token
-                    $aUserAuth['token'] = $this->generateToken();
-
-                    // Unset password
-                    unset($aUserAuth['pass']);
-
-                    $this->oSession->add('auth', $aUserAuth);
-
-                    $this->oUser->token = $aUserAuth['token'];
-                    return $this->oUser->update();
+                    // Unset user's password
+                    unset($this->oUser->pass);
+                    return true;
                 }
             }
             return false;

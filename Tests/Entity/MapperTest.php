@@ -24,10 +24,9 @@ class MapperTest extends Test
      */
     private $oEntityMapperInstance;
 
-    private $iDummyId = 0;
-
     protected function setUp()
     {
+        self::loadUser(true);
         $this->oEntityMapperInstance = $this->getEntityMapper();
     }
 
@@ -37,9 +36,11 @@ class MapperTest extends Test
 
     public function testStoreMappedOneToOneEntity()
     {
-
         $oDummy4 = new Dummy4();
         $oDummy4->foo = 'Test string value';
+
+        $oDummy4->setUser(self::$oUser);
+
         $this->assertTrue(
             $this->oEntityMapperInstance->store($oDummy4),
             'Unable to store a one to one mapping'
@@ -68,6 +69,9 @@ class MapperTest extends Test
     {
         $oDummy4 = new Dummy4();
         $oDummy4->foo = 'Test string value';
+
+        $oDummy4->setUser(self::$oUser);
+
         $this->oEntityMapperInstance->store($oDummy4);
         $this->assertTrue(
             $this->oEntityMapperInstance->delete($oDummy4),
@@ -84,6 +88,9 @@ class MapperTest extends Test
         for ($i = 0; $i < 10; $i++) {
             $oDummy2 = new Dummy2();
             $oDummy2->string = 'Test entity mapper';
+
+            $oDummy2->setUser(self::$oUser);
+
             $this->assertTrue(
                 $this->oEntityMapperInstance->store($oDummy2),
                 'Unable to store a one to many Entities mapping'
@@ -110,6 +117,9 @@ class MapperTest extends Test
     {
         $oDummy2 = new Dummy2();
         $oDummy2->string = 'Test entity mapper';
+
+        $oDummy2->setUser(self::$oUser);
+
         $this->oEntityMapperInstance->store($oDummy2);
 
         $this->assertTrue(
@@ -127,6 +137,9 @@ class MapperTest extends Test
         for ($i = 0; $i < 100; $i++) {
             $oDummy3 = new Dummy3();
             $oDummy3->int = 33;
+
+            $oDummy3->setUser(self::$oUser);
+
             $this->assertTrue(
                 $this->oEntityMapperInstance->store($oDummy3),
                 'Unable to store a one to many Entities mapping'
@@ -149,6 +162,9 @@ class MapperTest extends Test
     {
         $oDummy3 = new Dummy3();
         $oDummy3->int = 66;
+
+        $oDummy3->setUser(self::$oUser);
+
         $this->oEntityMapperInstance->store($oDummy3);
         $this->assertTrue(
             $this->oEntityMapperInstance->delete($oDummy3),
@@ -180,7 +196,10 @@ class MapperTest extends Test
 
             $oMappedDummy4 = new Dummy4();
             $oMappedDummy4->foo = 'Mapper test mapped dummy4';
-            $oMappedDummy4->add();
+
+            $oMappedDummy4->setUser(self::$oUser);
+
+            $oMappedDummy4->create();
 
             $oDummy->test_string      = $aDummyEntityData['test_string'];
             $oDummy->test_int         = $aDummyEntityData['test_int'];
@@ -190,7 +209,9 @@ class MapperTest extends Test
             $oDummy->created          = $aDummyEntityData['created'];
             $oDummy->dummy4_iddummy4  = $oMappedDummy4->getId();
 
-            $oDummy->add();
+            $oDummy->setUser(self::$oUser);
+
+            $oDummy->create();
 
         }
 

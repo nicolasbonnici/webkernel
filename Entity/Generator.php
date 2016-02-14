@@ -1,6 +1,7 @@
 <?php
 namespace Library\Core\Entity;
 
+use app\Entities\User;
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;
@@ -37,6 +38,13 @@ class Generator
      */
     protected $iForeignEntityId = 0;
 
+    protected $oUser;
+
+    public function __construct(User $oUser)
+    {
+        $this->oUser = $oUser;
+    }
+
     /**
      * Process Entities generation
      *
@@ -46,8 +54,6 @@ class Generator
      */
     public function process(Entity $oEntity, $iIterationNumber = self::DEFAULT_ITERATION_NUMBER)
     {
-        $this->reset();
-
         $aErrorLog = array();
         for ($i = 0; $i < $iIterationNumber; $i++) {
             $oGeneratedEntity = clone $oEntity;
@@ -59,7 +65,9 @@ class Generator
                 );
             }
 
-            $aErrorLog[] = $oGeneratedEntity->add();
+            $oGeneratedEntity->setUser($this->oUser);
+
+            $aErrorLog[] = $oGeneratedEntity->create();
             $this->aGeneratedEntities[] = $oGeneratedEntity;
         }
         return (in_array(false, $aErrorLog) === false);
@@ -75,7 +83,6 @@ class Generator
     {
         # Retrieve data type
         $sDataType = $oEntity->getDataType($sFieldName);
-
 
         # Handle primary and foreign key cases
         if (substr($sFieldName, 0, 2) === 'id') {
@@ -105,7 +112,10 @@ class Generator
                     foreach ($oEntity->getMappingConfiguration() as $sClass => $aConfiguration) {
                         if (stristr($sClass, $sTableName) !== false) {
                             /** @var Entity $oMappedEntity */
-                            $oMappedEntity = new $sClass;
+                            $oMappedEntity = new $sClass(null, $oEntity->getLocale());
+                            # Fix for the ACL layer
+                            $oMappedEntity->setUser($this->oUser);
+
                             foreach ($oMappedEntity->getAttributes() as $sAttr) {
                                 $oMappedEntity->$sAttr = $this->getRandomData(
                                     $oMappedEntity,
@@ -113,7 +123,7 @@ class Generator
                                 );
                             }
 
-                            if ($oMappedEntity->add() === true) {
+                            if ($oMappedEntity->create() === true) {
                                 $this->iForeignEntityId = $oMappedEntity->getId();
                             } else {
                                 die('Unable to create mapped entity');

@@ -20,11 +20,11 @@ class CoreException extends \Exception
      * Errors codes and messages accessor
      *
      * @param integer $iErrorCode
-     * @return mixed array|string|null  If an error code was found return error message otherwise null
+     * @return string If an error code was found return error message otherwise null
      */
     public static function getError($iErrorCode)
     {
-        return ((isset(self::$aErrors[$iErrorCode])=== true) ? self::$aErrors[$iErrorCode] : null);
+        return ((isset(self::$aErrors[$iErrorCode]) === true) ? self::$aErrors[$iErrorCode] : 'not found');
     }
 
     /**

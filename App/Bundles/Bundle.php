@@ -2,6 +2,7 @@
 namespace Library\Core\App\Bundles;
 
 
+use app\Entities\User;
 use Library\Core\App\Configuration;
 use Library\Core\Bootstrap;
 use Library\Core\Exception\CoreException;
@@ -130,6 +131,14 @@ class Bundle
     protected $sDescription = self::TRANSLATION_KEY_BUNDLE_DESCRIPTION;
 
     /**
+     * User instance for ACL
+     *
+     * @var User
+     */
+    protected $oUser;
+
+
+    /**
      * Bundle Configuration instance
      *
      * @var Configuration
@@ -154,8 +163,17 @@ class Bundle
      * @param string $sBundleName
      * @throws BundleException
      */
-    public function __construct($sBundleName)
+    public function __construct($sBundleName, User $oUser)
     {
+        if ($oUser->isLoaded() === false) {
+            throw new BundleException(
+                BundleException::$aErrors[BundleException::ERROR_NOT_LOADED_USER_INSTANCE],
+                BundleException::ERROR_NOT_LOADED_USER_INSTANCE
+            );
+        }
+
+        $this->oUser = $oUser;
+
         # Directly set the bundle name
         $this->sName = $sBundleName;
 
@@ -163,7 +181,7 @@ class Bundle
             # Bundle not found
             throw new BundleException(
                 sprintf(
-                    BundleException::getError(BundleException::ERROR_BUNDLE_NOT_FOUND),
+                    BundleException::$aErrors[BundleException::ERROR_BUNDLE_NOT_FOUND],
                     $sBundleName
                 ),
                 BundleException::ERROR_BUNDLE_NOT_FOUND
@@ -172,7 +190,7 @@ class Bundle
             # Bundle configuration not found
             throw new BundleException(
                 sprintf(
-                    BundleException::getError(BundleException::ERROR_BUNDLE_CONFIGURATION_NOT_FOUND),
+                    BundleException::$aErrors[BundleException::ERROR_BUNDLE_CONFIGURATION_NOT_FOUND],
                     $sBundleName
                 ),
                 BundleException::ERROR_BUNDLE_CONFIGURATION_NOT_FOUND
@@ -218,7 +236,8 @@ class Bundle
     protected function loadBundleConfiguration()
     {
         try {
-            $this->oConfiguration = new Configuration( $this->getName() );
+
+            $this->oConfiguration = new Configuration($this->getName(), $this->oUser);
 
             $this->sVersion            = $this->oConfiguration->get(self::CONFIGURATION_KEY_VERSION);
             $this->sAuthor             = $this->oConfiguration->get(self::CONFIGURATION_KEY_PROJECT_AUTHOR);
@@ -433,9 +452,11 @@ class BundleException extends CoreException
 
     const ERROR_BUNDLE_NOT_FOUND                = 2;
     const ERROR_BUNDLE_CONFIGURATION_NOT_FOUND  = 3;
+    const ERROR_NOT_LOADED_USER_INSTANCE        = 4;
 
     public static $aErrors = array(
         self::ERROR_BUNDLE_NOT_FOUND                => 'Bundle with name "%s" was not found.',
-        self::ERROR_BUNDLE_CONFIGURATION_NOT_FOUND  => 'Configuration for bundle "%s" was not found.'
+        self::ERROR_BUNDLE_CONFIGURATION_NOT_FOUND  => 'Configuration for bundle "%s" was not found.',
+        self::ERROR_NOT_LOADED_USER_INSTANCE        => 'No valid User instance found.'
     );
 }

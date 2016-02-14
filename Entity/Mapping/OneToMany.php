@@ -89,7 +89,12 @@ class OneToMany extends MappingAbstract
             }
 
             $oMappedEntity->$sForeignKeyName = $this->oSourceEntity->getId();
-            return $oMappedEntity->add();
+
+            if (is_null($oMappedEntity->getUser()) === true) {
+                $oMappedEntity->setUser($this->oSourceEntity->getUser());
+            }
+
+            return $oMappedEntity->create();
         }
         return false;
     }
