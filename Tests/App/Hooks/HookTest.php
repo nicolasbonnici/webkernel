@@ -2,8 +2,8 @@
 namespace Library\Core\Tests\App\Hooks;
 
 
+use Library\Core\Tests\Test;
 use Library\Core\App\Hooks\Hook;
-use Library\Core\Test;
 use Library\Core\Tests\Dummy\Widgets\vendorname\WidgetName\WidgetNameWidget;
 
 class HookTest extends Test

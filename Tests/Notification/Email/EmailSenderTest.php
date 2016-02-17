@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Tests\Notification\Email;
 
-use Library\Core\Test;
+use Library\Core\Tests\Test;
 
 use Library\Core\Notification\Email\EmailNotification;
 use Library\Core\Notification\Email\EmailSender;

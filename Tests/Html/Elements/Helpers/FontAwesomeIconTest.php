@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core\Tests\Html\Elements\Helpers;
 
+use Library\Core\Tests\Test;
 use Library\Core\Html\Elements\Helpers\FontAwesomeIcon;
-use \Library\Core\Test as Test;
 
 /**
  * Font Awesome Icon Helper test

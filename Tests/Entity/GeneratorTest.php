@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
+use Library\Core\Tests\Test;
 use Library\Core\Database\Pdo;
-use \Library\Core\Test;
 use Library\Core\Entity\Generator;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 

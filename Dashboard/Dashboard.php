@@ -1,9 +1,8 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Dashboard;
 
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Select;
-use Library\Core\Entity\Crud;
 use Library\Core\Entity\Entity;
 
 /**

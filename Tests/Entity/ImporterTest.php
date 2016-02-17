@@ -1,9 +1,9 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
+use Library\Core\Tests\Test;
 use Library\Core\Database\Pdo;
 use Library\Core\Entity\Importer;
-use \Library\Core\Test as Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 
 /**

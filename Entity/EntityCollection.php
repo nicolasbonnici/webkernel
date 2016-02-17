@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Entity;
 
-use Library\Core\Collection;
+use Library\Core\Collection\Collection;
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;

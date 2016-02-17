@@ -1,15 +1,9 @@
 <?php
 namespace Library\Core\Tests\Scope;
 
-use Library\Core\Bootstrap;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 use Library\Core\Scope\CallableScope;
-
-use bundles\blog\Entities\Post;
-use app\Entities\FeedItem;
-use app\Entities\User;
-
 
 /**
  * Scope\Enitities component unit tests

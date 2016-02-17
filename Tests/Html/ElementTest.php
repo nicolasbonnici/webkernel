@@ -1,8 +1,7 @@
 <?php
 namespace Library\Core\Tests\Html;
 
-use Library\Core\Html\Element;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 use Library\Core\Tests\Dummy\Html\ElementMock;
 
 

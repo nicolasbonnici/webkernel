@@ -2,7 +2,7 @@
 namespace Library\Core\Tests\Translation;
 
 
-use Library\Core\Test;
+use Library\Core\Tests\Test;
 use Library\Core\Translation\Translation;
 
 class TranslationTest extends Test

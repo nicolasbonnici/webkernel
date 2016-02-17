@@ -1,8 +1,8 @@
 <?php
-namespace Library\Core\Tests;
+namespace Library\Core\Tests\Collection;
 
-use Library\Core\Collection;
-use Library\Core\Test;
+use Library\Core\Collection\Collection;
+use Library\Core\Tests\Test;
 
 class CollectionTest extends Test
 {

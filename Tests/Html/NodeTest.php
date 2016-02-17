@@ -1,10 +1,9 @@
 <?php
 namespace Library\Core\Tests\Html;
 
+use Library\Core\Tests\Test;
 use Library\Core\Html\Node;
-use \Library\Core\Test as Test;
 use Library\Core\Tests\Dummy\Html\ElementMock;
-use Library\Core\Tests\Dummy\Widgets\vendorname\WidgetName\WidgetNameWidget;
 
 
 /**

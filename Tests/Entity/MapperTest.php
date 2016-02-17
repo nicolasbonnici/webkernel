@@ -1,9 +1,9 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
-use Library\Core\Database\Pdo;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
+use Library\Core\Database\Pdo;
 use Library\Core\Entity\Mapper;
 use Library\Core\Tests\Dummy\Entities\Collection\Dummy2Collection;
 use Library\Core\Tests\Dummy\Entities\Collection\Dummy3Collection;

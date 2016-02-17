@@ -2,7 +2,7 @@
 namespace Core\Tests\App;
 
 use Library\Core\App\Session;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 /**
  * Session component unit tests

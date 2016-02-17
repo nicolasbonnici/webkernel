@@ -11,7 +11,7 @@ use Library\Core\Pattern\Singleton;
 /**
  * MVC Router component
  *
- * bundle/controler/action/param/value or /customRoute/paramValue
+ * bundle/controller/action/param/value or /customRoute/param/value
  *
  */
 class Router extends Singleton
@@ -173,45 +173,30 @@ class Router extends Singleton
     {
         if (($iRequestCount = count(self::$aRequest)) > 0) {
 
+            # Parse request from uri
             if (isset(self::$aRequest[0])) {
                 self::$sBundle = self::$aRequest[0];
             }
-
             if (isset(self::$aRequest[1])) {
                 self::$sController = self::$aRequest[1];
             }
-
             if (isset(self::$aRequest[2])) {
                 self::$sAction = self::$aRequest[2];
             }
 
+            # Parse MVC parameters from url
             self::setParams(array_slice(self::$aRequest, 3));
 
-            # @todo for the moment the parameters cannot be handled find a way -.-
-            if (isset(self::$aRequest[0]) === true && empty(self::$aRequest[0]) === false && empty(self::getParams()) === true) {
-
-                if (
-                    (
-                        isset(self::$aRequest[1], self::$aRequest[2]) === true &&
-                        self::$aRequest[1] === self::DEFAULT_CONTROLLER_NAME &&
-                        self::$aRequest[2] === self::DEFAULT_ACTION_NAME
-                    ) || (
-                        isset(self::$aRequest[1]) === true &&
-                        self::$aRequest[1] === self::DEFAULT_CONTROLLER_NAME
-                    )
-                ) {
-                    # set domain root
-                    $sUri = FileSystem::DS;
-
-                    if (self::$aRequest[0] !== self::$sDefaultBundle) {
-                        # Set uri to to requested bundle
-                        $sUri .= self::$aRequest[0] . FileSystem::DS;
-                    } else {
-
-                    }
-                    self::redirect($sUri);
-                }
-
+            # SEO duplicate content friendly -.-
+            if (
+                isset(self::$aRequest[0]) === true &&
+                empty(self::$aRequest[0]) === false &&
+                self::getBundle() === self::getDefaultBundle() &&
+                self::getController() === self::getDefaultController() &&
+                self::getAction() === self::getDefaultAction()
+            ) {
+                # Redirect to root domain
+                self::redirect(FileSystem::DS);
             }
 
             return true;

@@ -1,7 +1,7 @@
 <?php
 namespace Library\Core\Tests\Event;
 
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 
 /**

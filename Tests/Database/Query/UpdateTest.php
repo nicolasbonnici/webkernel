@@ -1,10 +1,10 @@
 <?php
 namespace Library\Core\Tests\Database\Query;
 
+use Library\Core\Tests\Test;
 use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Update;
-use \Library\Core\Test as Test;
 
 
 /**

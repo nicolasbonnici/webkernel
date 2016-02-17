@@ -2,7 +2,7 @@
 namespace Core\Tests\App\Widgets;
 
 use Library\Core\App\Widgets\WidgetAbstract;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 use Library\Core\Tests\Dummy\Widgets\vendorname\WidgetName\WidgetNameWidget;
 

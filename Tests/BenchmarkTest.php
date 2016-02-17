@@ -3,7 +3,6 @@ namespace Library\Core\Tests;
 
 use Library\Core\Database\Pdo;
 use Library\Core\Entity\Generator;
-use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Collection\DummyCollection;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 

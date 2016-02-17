@@ -2,9 +2,9 @@
 namespace Library\Core\Tests\Acl;
 
 
+use Library\Core\Tests\Test;
 use Library\Core\Acl;
 use Library\Core\Entity\Crud;
-use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 
 class AclTest extends Test {

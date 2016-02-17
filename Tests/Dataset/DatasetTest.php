@@ -1,16 +1,13 @@
 <?php
 namespace Library\Core\Tests\Dataset;
 
-use app\Entities\User;
-use bundles\auth\Models\AuthModel;
-use Library\Core\Bootstrap;
+use Library\Core\Tests\Test;
+
 use Library\Core\Database\Pdo;
-use Library\Core\Database\Query\Insert;
 use Library\Core\Entity\Dataset\Dataset;
 use Library\Core\Entity\Generator;
 use Library\Core\FileSystem\File;
 use Library\Core\Json\Json;
-use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 
 class DatasetTest extends Test

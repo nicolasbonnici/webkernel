@@ -1,9 +1,9 @@
 <?php
 namespace Library\Core\Tests\Database\Query;
 
+use Library\Core\Tests\Test;
 use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
-use \Library\Core\Test as Test;
 
 
 /**

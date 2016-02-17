@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core\Tests\Scaffold;
 
+use Library\Core\Tests\Test;
 use Library\Core\Bootstrap;
-use Library\Core\Test;
 use Library\Core\Traits\NamespaceTools;
 
 class NamespaceToolsTest extends Test

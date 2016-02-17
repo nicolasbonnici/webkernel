@@ -1,9 +1,9 @@
 <?php
 namespace Core\Tests\App\Bundles;
 
+use Library\Core\Tests\Test;
 use Library\Core\App\Bundles\Bundle;
 use Library\Core\App\Bundles\Template;
-use \Library\Core\Test as Test;
 
 /**
  * Widget component unit tests

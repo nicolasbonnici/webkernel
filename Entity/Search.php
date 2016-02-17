@@ -6,7 +6,7 @@ use Library\Core\Database\Query\Operators;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Where;
 use Library\Core\Exception\CoreException;
-use Library\Core\Collection;
+use Library\Core\Collection\Collection;
 use Library\Core\Scope\BundlesEntitiesScope;
 
 use app\Entities\User;

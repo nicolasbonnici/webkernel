@@ -2,7 +2,7 @@
 namespace Library\Core\Tests\Html;
 
 use Library\Core\Html\Attributes;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 /**
  * Html Attributes component unit tests

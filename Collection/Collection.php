@@ -1,5 +1,5 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Collection;
 
 /**
  *
@@ -224,5 +224,3 @@ class Collection implements \Iterator
         return $this->aElements;
     }
 }
-
-?>

@@ -1,5 +1,6 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Tests;
+
 use app\Entities\Group;
 use app\Entities\User;
 use bundles\auth\Models\AuthModel;
@@ -48,7 +49,7 @@ class Test extends \PHPUnit_Framework_TestCase
 
 
         // Register autoload and load config for given staging environment
-        include_once __DIR__ . '/Bootstrap.php';
+        include_once __DIR__ . '/../Bootstrap.php';
         \Library\Core\Bootstrap::getInstance();
     }
 

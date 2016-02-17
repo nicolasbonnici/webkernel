@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
+use Library\Core\Tests\Test;
 use Library\Core\Bootstrap;
-use \Library\Core\Test as Test;
 use Library\Core\Entity\Parser;
 
 

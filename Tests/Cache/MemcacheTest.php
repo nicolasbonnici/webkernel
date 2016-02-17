@@ -2,7 +2,7 @@
 namespace Library\Core\Tests\Cache;
 
 use Library\Core\Cache\Drivers\Memcache;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 /**
  * Json component unit tests

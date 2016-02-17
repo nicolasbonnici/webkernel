@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core\Tests\Router;
 
+use Library\Core\Tests\Test;
 use Library\Core\Router\Router;
-use Library\Core\Test;
 
 
 /**

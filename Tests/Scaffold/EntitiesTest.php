@@ -1,11 +1,11 @@
 <?php
 namespace Library\Core\Tests\Scaffold;
 
+use Library\Core\Tests\Test;
 use Library\Core\Bootstrap;
 use Library\Core\Entity\Mapping\MappingAbstract;
 use Library\Core\FileSystem\File;
 use Library\Core\Scaffold\Entities;
-use Library\Core\Test;
 
 class EntitiesTest extends Test
 {

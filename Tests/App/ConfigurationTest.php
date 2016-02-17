@@ -2,7 +2,7 @@
 namespace Core\Tests\App;
 
 use Library\Core\App\Configuration;
-use \Library\Core\Test as Test;
+use Library\Core\Tests\Test;
 
 /**
  * Configuration component unit tests

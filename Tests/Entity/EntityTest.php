@@ -1,11 +1,8 @@
 <?php
 namespace Library\Core\Tests\Entity;
 
-use app\Entities\User;
-use bundles\auth\Models\AuthModel;
-use Library\Core\Database\Query\Insert;
+use Library\Core\Tests\Test;
 use Library\Core\Entity\Entity;
-use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Dummy;
 use Library\Core\Tests\Dummy\Entities\Dummy4;
 

@@ -1,8 +1,8 @@
 <?php
 namespace Library\Core\Tests\Html\Elements;
 
+use Library\Core\Tests\Test;
 use Library\Core\Html\Elements\FormElements\SelectOption;
-use \Library\Core\Test as Test;
 
 /**
  * Form element InputNumber component unit tests

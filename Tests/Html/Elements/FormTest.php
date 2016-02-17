@@ -1,13 +1,14 @@
 <?php
 namespace Library\Core\Tests\Html\Elements;
 
+use Library\Core\Tests\Test;
+
 use Library\Core\Html\Elements\Form;
 use Library\Core\Html\Elements\FormElements\Autocomplete;
 use Library\Core\Html\Elements\FormElements\InputFile;
 use Library\Core\Html\Elements\FormElements\InputNumber;
 use Library\Core\Html\Elements\FormElements\InputText;
 use Library\Core\Html\Elements\FormElements\Select;
-use \Library\Core\Test as Test;
 
 /**
  * Form component unit tests
