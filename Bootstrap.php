@@ -88,7 +88,7 @@ class Bootstrap
     /**
      * Router instance
      *
-     * @var \Library\Core\Router
+     * @var \Library\Core\Router\Router
      */
     private static $oRouterInstance;
 
@@ -171,7 +171,7 @@ class Bootstrap
         self::initEnv();
 
         # Init Router component
-        self::$oRouterInstance = \Library\Core\Router::getInstance();
+        self::$oRouterInstance = \Library\Core\Router\Router::getInstance();
         self::$aRequest = self::initRouter();
 
         # Init error reporting according to project staging environment

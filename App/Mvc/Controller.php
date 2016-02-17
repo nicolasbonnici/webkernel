@@ -13,7 +13,7 @@ use Library\Core\App\Session;
 use Library\Core\App\Widgets\WidgetAbstract;
 use Library\Core\Bootstrap;
 use Library\Core\Http\Headers;
-use Library\Core\Router;
+use Library\Core\Router\Router;
 use Library\Core\Traits\Gravatar;
 use Library\Core\Translation\Translation;
 
@@ -53,11 +53,11 @@ class Controller
      *
      * @var integer
      */
-    const XHR_STATUS_OK = 200;
-    const XHR_STATUS_SESSION_EXPIRED = 401;
-    const XHR_STATUS_ACCESS_DENIED = 403;
-    const XHR_STATUS_NOT_FOUND = 404;
-    const XHR_STATUS_ERROR = 500;
+    const XHR_STATUS_OK                 = 200;
+    const XHR_STATUS_SESSION_EXPIRED    = 401;
+    const XHR_STATUS_ACCESS_DENIED      = 403;
+    const XHR_STATUS_NOT_FOUND          = 404;
+    const XHR_STATUS_ERROR              = 500;
 
     /**
      * Current locale "[COUNTRY]_[LANGUAGE]"
@@ -307,6 +307,7 @@ class Controller
      *
      * @param mixed array|string $mUrl
      * @todo handle router request object totaly abstracted in type and format and move to the HTTP component
+     * @todo implémenter Router::redirect() en lieu et place de cette méthode
      */
     public function redirect($mUrl)
     {

@@ -17,7 +17,7 @@ class FileSystem extends Singleton
     /**
      * Default file system directory separator
      */
-    const SEPARATOR = DIRECTORY_SEPARATOR;
+    const DS = DIRECTORY_SEPARATOR;
 
     /**
      * @todo list all handled mime file types

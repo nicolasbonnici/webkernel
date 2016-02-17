@@ -1,10 +1,7 @@
 <?php
 namespace Library\Core\Tests;
 
-use app\Entities\User;
-use bundles\auth\Models\AuthModel;
 use Library\Core\Database\Pdo;
-use Library\Core\Database\Query\Insert;
 use Library\Core\Entity\Generator;
 use Library\Core\Test;
 use Library\Core\Tests\Dummy\Entities\Collection\DummyCollection;

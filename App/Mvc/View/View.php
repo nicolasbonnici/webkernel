@@ -7,7 +7,7 @@ use Library\Core\App\Mvc\View\Assets\Assets;
 use Library\Core\Bootstrap;
 use Library\Core\FileSystem\Directory;
 use Library\Core\Http\Headers;
-use Library\Core\Router;
+use Library\Core\Router\Router;
 use Library\Core\Json\Json;
 
 /**

@@ -49,8 +49,8 @@ class Translation
 
         # Global project translation
         $tr = array();
-        $sGlobalTrPath = Bootstrap::getPath(Bootstrap::PATH_APP) . FileSystem::SEPARATOR . self::TRANSLATION_FOLDER_NAME
-            . FileSystem::SEPARATOR . $this->getLocale() . FileSystem::SEPARATOR . self::GLOBAL_TRANSLATION_FILENAME;
+        $sGlobalTrPath = Bootstrap::getPath(Bootstrap::PATH_APP) . FileSystem::DS . self::TRANSLATION_FOLDER_NAME
+            . FileSystem::DS . $this->getLocale() . FileSystem::DS . self::GLOBAL_TRANSLATION_FILENAME;
         if (File::exists($sGlobalTrPath) === true) {
             include $sGlobalTrPath;
         }
@@ -88,8 +88,8 @@ class Translation
     private function loadByBundle($sBundleName)
     {
         $tr = array();
-        $sTranslationPath = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . FileSystem::SEPARATOR
-            . self::TRANSLATION_FOLDER_NAME . FileSystem::SEPARATOR . $this->getLocale() . '.php';
+        $sTranslationPath = Bootstrap::getPath(Bootstrap::PATH_BUNDLES) . $sBundleName . FileSystem::DS
+            . self::TRANSLATION_FOLDER_NAME . FileSystem::DS . $this->getLocale() . '.php';
         if (file_exists($sTranslationPath)) {
             include $sTranslationPath;
         }

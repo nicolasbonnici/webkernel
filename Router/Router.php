@@ -1,7 +1,10 @@
 <?php
-namespace Library\Core;
+namespace Library\Core\Router;
 
+use Library\Core\Bootstrap;
+use Library\Core\Exception\CoreException;
 use Library\Core\FileSystem\File;
+use Library\Core\FileSystem\FileSystem;
 use Library\Core\Json\Json;
 use Library\Core\Pattern\Singleton;
 
@@ -13,10 +16,11 @@ use Library\Core\Pattern\Singleton;
  */
 class Router extends Singleton
 {
+    const DEFAULT_CONTROLLER_NAME   = 'home';
+    const DEFAULT_ACTION_NAME       = 'index';
 
     /**
      * Default router settings for frontend
-     *
      * @var string
      */
     private static $sDefaultBundle = 'frontend';
@@ -90,7 +94,6 @@ class Router extends Singleton
         self::$sAction      = self::$sDefaultAction;
 
         // Load custom routes from configuration
-        // @todo constant on 'config' and 'route.json' and DIRECTORY_SEPARATOR usage
         $oRoutesConf = new Json(File::getContent(Bootstrap::getPath(Bootstrap::PATH_APP) . 'config/routes.json'));
         self::$aRules = $oRoutesConf->getAsArray();
 
@@ -143,7 +146,7 @@ class Router extends Singleton
                 self::$sController = self::$aRules[$sUrl]['controller'];
                 self::$sAction = self::$aRules[$sUrl]['action'];
 
-                // if we got at least one parameter to check for
+                # Bind from route parameters
                 if (isset($aUrl[1]) && count($aRule['params'] > 0)) {
                     $aParsedParameters = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))));
                     foreach ($aParsedParameters as $iIndex=>$mParameters) {
@@ -156,7 +159,7 @@ class Router extends Singleton
 
         // No custom route matched so we proceed with a basic routing treatment
         if ($bRouted === false) {
-            self::dispatch();
+            return self::dispatch();
         }
 
         return false;
@@ -183,7 +186,38 @@ class Router extends Singleton
             }
 
             self::setParams(array_slice(self::$aRequest, 3));
+
+            # @todo for the moment the parameters cannot be handled find a way -.-
+            if (isset(self::$aRequest[0]) === true && empty(self::$aRequest[0]) === false && empty(self::getParams()) === true) {
+
+                if (
+                    (
+                        isset(self::$aRequest[1], self::$aRequest[2]) === true &&
+                        self::$aRequest[1] === self::DEFAULT_CONTROLLER_NAME &&
+                        self::$aRequest[2] === self::DEFAULT_ACTION_NAME
+                    ) || (
+                        isset(self::$aRequest[1]) === true &&
+                        self::$aRequest[1] === self::DEFAULT_CONTROLLER_NAME
+                    )
+                ) {
+                    # set domain root
+                    $sUri = FileSystem::DS;
+
+                    if (self::$aRequest[0] !== self::$sDefaultBundle) {
+                        # Set uri to to requested bundle
+                        $sUri .= self::$aRequest[0] . FileSystem::DS;
+                    } else {
+
+                    }
+                    self::redirect($sUri);
+                }
+
+            }
+
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -220,6 +254,15 @@ class Router extends Singleton
             }
         }
         return self::$aParams;
+    }
+
+    public static function redirect($sUrl)
+    {
+        if (is_null($sUrl) === true || empty($sUrl) === true) {
+            header('Location: /');
+        }
+        header('Location: ' . $sUrl);
+        exit;
     }
 
     /**
@@ -269,6 +312,6 @@ class Router extends Singleton
 
 }
 
-class RouterException extends \Exception
+class RouterException extends CoreException
 {
 }
