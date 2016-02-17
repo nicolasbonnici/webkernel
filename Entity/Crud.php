@@ -15,6 +15,24 @@ use Library\Core\Exception\CoreException;
 abstract class Crud extends Acl
 {
 
+    const ACTION_CREATE = 'create';
+    const ACTION_READ   = 'read';
+    const ACTION_UPDATE = 'update';
+    const ACTION_DELETE = 'delete';
+    const ACTION_LIST   = 'list';
+
+    /**
+     * Allowed action scope
+     * @var array
+     */
+    public static $aActionScope = array(
+        self::ACTION_CREATE,
+        self::ACTION_READ,
+        self::ACTION_UPDATE,
+        self::ACTION_DELETE,
+        self::ACTION_LIST,
+    );
+
     /**
      * User instance for the ACL layer check
      * @var User
