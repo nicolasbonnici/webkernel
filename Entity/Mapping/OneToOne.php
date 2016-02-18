@@ -43,7 +43,7 @@ class OneToOne extends MappingAbstract
                     $oMappedEntity->getPrimaryKeyName() =>
                     (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true)
                         ? $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
-                        : $this->oSourceEntity->computeForeignKeyName()
+                        : $this->oSourceEntity->{$oMappedEntity->computeForeignKeyName()}
                 )
             );
 
