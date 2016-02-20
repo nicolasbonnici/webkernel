@@ -53,6 +53,8 @@ class Bootstrap
     const DEFAULT_LANG           = 'fr';
     const COUNTRY_LANG_SEPARATOR = '_';
     const DEFAULT_COUNTRY_LANG   = 'FR_fr';
+    /** Add in configuration file config.ini */
+    const DEFAULT_DATE_FORMAT    = 'd/m/Y H:i:s';
 
     /**
      * Request locale parameter

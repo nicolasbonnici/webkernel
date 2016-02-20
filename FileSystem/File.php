@@ -115,18 +115,6 @@ class File extends FileSystem
     }
 
     /**
-     * Empty file content
-     *
-     * @param unknown $sFilePath
-     * @throws FilesException
-     * @return boolean
-     */
-    public static function reset($sFilePath)
-    {
-        return file_put_contents($sFilePath, '');
-    }
-
-    /**
      * Get the file extension
      *
      * @param $sFileName
@@ -136,6 +124,18 @@ class File extends FileSystem
     {
         $aExplodedFilename = explode('.', $sFileName);
         return array_pop($aExplodedFilename);
+    }
+
+    /**
+     * Empty file content
+     *
+     * @param string $sFilePath
+     * @throws FilesException
+     * @return boolean
+     */
+    public static function reset($sFilePath)
+    {
+        return file_put_contents($sFilePath, '');
     }
 
     /**
