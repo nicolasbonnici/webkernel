@@ -203,4 +203,12 @@ abstract class LogAbstract
         $this->oLoggerInstance = $oLoggerInstance;
     }
 
+    /**
+     * Get allowed log types scope
+     * @return array
+     */
+    public function getTypes()
+    {
+        return $this->aTypes;
+    }
 }

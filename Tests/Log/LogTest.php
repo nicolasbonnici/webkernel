@@ -2,6 +2,7 @@
 namespace Library\Core\Tests\Log;
 
 use Library\Core\Log\Log;
+use Library\Core\Log\LogAbstract;
 use Library\Core\Tests\Test;
 
 class LogTest extends Test
@@ -67,13 +68,17 @@ class LogTest extends Test
         $oLog->setMessage('Houston we got a problem...');
         $oLog->setErrorCode(13);
         $oLog->setStackTrace($this->aStack);
-        $oLog->setType(Log::TYPE_INFO);
         $oLog->setDatetime($oDateTime);
 
-        $this->assertTrue(
-            $oLog->create($oLog),
-            'Unable to store a log type info'
-        );
+        foreach ($oLog->getTypes() as $sType) {
+            $oLog->setType($sType);
+
+            $this->assertTrue(
+                $oLog->create($oLog),
+                'Unable to store a log type: ' . $sType
+            );
+        }
+
     }
 
 }
