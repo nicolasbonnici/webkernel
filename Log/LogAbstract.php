@@ -1,7 +1,6 @@
 <?php
 namespace Library\Core\Log;
 
-
 use Library\Core\Bootstrap;
 
 abstract class LogAbstract
@@ -87,7 +86,7 @@ abstract class LogAbstract
      */
     function __toString()
     {
-        $sLog = "\n" . 'Type: ' .$this->getType()
+        $sLog = 'Type: ' .$this->getType()
             . ' | Datetime: ' . $this->getDatetime()->format(Bootstrap::DEFAULT_DATE_FORMAT)
             . ' | Message: ' . $this->getMessage()
             . ' | Code: ' . $this->getErrorCode()

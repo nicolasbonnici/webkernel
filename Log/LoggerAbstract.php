@@ -35,8 +35,6 @@ abstract class LoggerAbstract
             }
             return false;
         } catch(\Exception $oException) {
-
-            die(var_dump($oException->getMessage()));
             return false;
         }
     }

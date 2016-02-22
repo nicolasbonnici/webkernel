@@ -1,8 +1,10 @@
 <?php
 namespace Library\Core\Tests\Log;
 
+use Library\Core\Bootstrap;
+use Library\Core\FileSystem\File;
 use Library\Core\Log\Log;
-use Library\Core\Log\LogAbstract;
+use Library\Core\Log\LoggerAbstract;
 use Library\Core\Tests\Test;
 
 class LogTest extends Test
@@ -15,7 +17,10 @@ class LogTest extends Test
      */
     protected function setUp()
     {
-        $this->aStack = debug_backtrace();
+        $this->aStack = array(
+            get_called_class(),
+            'phpunit'
+        );
     }
 
 
@@ -70,12 +75,42 @@ class LogTest extends Test
         $oLog->setStackTrace($this->aStack);
         $oLog->setDatetime($oDateTime);
 
+        # Try to store for each log types
         foreach ($oLog->getTypes() as $sType) {
             $oLog->setType($sType);
 
             $this->assertTrue(
                 $oLog->create($oLog),
                 'Unable to store a log type: ' . $sType
+            );
+
+            $sLogTypePath = $oLog->getLoggerInstance()->getLogsPath() . $sType . LoggerAbstract::LOG_FILE_EXTENSION;
+
+            $this->assertTrue(
+                File::exists($sLogTypePath),
+                'Unable to found a file for log type ' . $sType
+            );
+
+            $sLogContent = File::getContent($sLogTypePath);
+
+            $this->assertNotEmpty(
+                $sLogContent,
+                'Empty log found for type ' . $sType
+            );
+
+            $this->assertNotFalse(
+                strstr($sLogContent, $oLog->getMessage()),
+                'Unable to find log message under log file'
+            );
+
+            $this->assertNotFalse(
+                strstr($sLogContent, '13'),
+                'Unable to find log error code under log file'
+            );
+
+            $this->assertNotFalse(
+                strstr($sLogContent, $oLog->getDatetime()->format(Bootstrap::DEFAULT_DATE_FORMAT)),
+                'Unable to find log message under log file'
             );
         }
 
