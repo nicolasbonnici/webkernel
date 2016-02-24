@@ -191,12 +191,18 @@ class Router extends Singleton
             if (
                 isset(self::$aRequest[0]) === true &&
                 empty(self::$aRequest[0]) === false &&
-                self::getBundle() === self::getDefaultBundle() &&
+                isset(self::$aRequest[1]) === true &&
+                empty(self::$aRequest[1]) === false &&
                 self::getController() === self::getDefaultController() &&
                 self::getAction() === self::getDefaultAction()
             ) {
-                # Redirect to root domain
-                self::redirect(FileSystem::DS);
+                if (self::getBundle() === self::getDefaultBundle()) {
+                    # Redirect to root domain
+                    self::redirect(FileSystem::DS);
+                } else {
+                    # Redirect to bundle root
+                    self::redirect(FileSystem::DS . self::getBundle());
+                }
             }
 
             return true;

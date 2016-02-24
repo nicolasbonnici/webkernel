@@ -13,29 +13,28 @@ use Library\Core\Entity\Entity;
  */
 class Dashboard {
 
-	/**
-	 * Count any entity with or without parameters
-	 *
-	 * @param Entity $oEntity
-	 * @param array $aWhereClause
-	 * @return number
-	 */
-	public function count(Entity $oEntity, array $aWhereClause = array())
-	{
-		try {
-
+    /**
+    * Count any entity with or without parameters
+    *
+    * @param Entity $oEntity
+    * @param array $aWhereClause
+    * @return number
+    */
+    public function count(Entity $oEntity, array $aWhereClause = array())
+    {
+        try {
             $oSelectQuery = new Select();
             $oSelectQuery->addColumn('COUNT(1)')
                 ->setFrom($oEntity->getTableName())
                 ->addWhereConditions($aWhereClause);
-			$oStatement = Pdo::dbQuery($oSelectQuery->build(), $aWhereClause);
-			if ($oStatement !== false) {
-				return (int) $oStatement->fetchColumn();
-			}
-			return 0;
-		} catch (\Exception $oException) {
-			return 0;
-		}
-	}	
-	
-}
+            $oStatement = Pdo::dbQuery($oSelectQuery->build(), $aWhereClause);
+            if ($oStatement !== false) {
+            return (int) $oStatement->fetchColumn();
+            }
+            return 0;
+        } catch (\Exception $oException) {
+            return 0;
+        }
+    }
+
+    }

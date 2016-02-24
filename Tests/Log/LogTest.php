@@ -110,7 +110,7 @@ class LogTest extends Test
 
             $this->assertNotFalse(
                 strstr($sLogContent, $oLog->getDatetime()->format(Bootstrap::DEFAULT_DATE_FORMAT)),
-                'Unable to find log message under log file'
+                'Unable to find log datetime under log file'
             );
         }
 
