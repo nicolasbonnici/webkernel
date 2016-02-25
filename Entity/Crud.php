@@ -3,6 +3,7 @@ namespace Library\Core\Entity;
 
 use app\Entities\User;
 use Library\Core\Exception\CoreException;
+use Library\Core\Log\Log;
 
 /**
  * CRUD action model layer abstract class
@@ -113,7 +114,14 @@ abstract class Crud extends Acl
             return false;
         } catch (\Exception $oException) {
 
-            die(var_dump($oException->getMessage()));
+            # Log exception
+            $oLog = new Log();
+            $oLog->setMessage($oException->getMessage())
+                ->setErrorCode($oException->getCode())
+                ->setStackTrace(debug_backtrace())
+                ->setType(Log::TYPE_EXCEPTION)
+                ->setDatetime(new \DateTime())
+                ->create();
 
             return false;
         }
@@ -251,7 +259,14 @@ abstract class Crud extends Acl
             }
         } catch (\Exception $oException) {
 
-            die(var_dump($oException->getMessage(), $this->getEntityName(), 'there'));
+            # Log exception
+            $oLog = new Log();
+            $oLog->setMessage($oException->getMessage())
+                ->setErrorCode($oException->getCode())
+                ->setStackTrace(debug_backtrace())
+                ->setType(Log::TYPE_EXCEPTION)
+                ->setDatetime(new \DateTime())
+                ->create();
 
             return false;
         }

@@ -120,6 +120,7 @@ abstract class LogAbstract
     public function setType($sType)
     {
         $this->sType = $sType;
+        return $this;
     }
 
     /**
@@ -136,6 +137,7 @@ abstract class LogAbstract
     public function setMessage($sMessage)
     {
         $this->sMessage = $sMessage;
+        return $this;
     }
 
     /**
@@ -152,6 +154,7 @@ abstract class LogAbstract
     public function setErrorCode($iErrorCode)
     {
         $this->iErrorCode = $iErrorCode;
+        return $this;
     }
 
     /**
@@ -168,6 +171,7 @@ abstract class LogAbstract
     public function setStackTrace($aStackTrace)
     {
         $this->aStackTrace = $aStackTrace;
+        return $this;
     }
 
     /**
@@ -184,6 +188,7 @@ abstract class LogAbstract
     public function setDatetime(\Datetime $oDatetime)
     {
         $this->oDatetime = $oDatetime;
+        return $this;
     }
 
     /**
@@ -200,6 +205,7 @@ abstract class LogAbstract
     public function setLoggerInstance(Logger $oLoggerInstance)
     {
         $this->oLoggerInstance = $oLoggerInstance;
+        return $this;
     }
 
     /**

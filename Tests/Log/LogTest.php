@@ -23,8 +23,7 @@ class LogTest extends Test
         );
     }
 
-
-    public function testLogAccessors()
+    public function testLogAccessorsWithoutCallChain()
     {
         $oLog = new Log();
         $oDateTime = new \DateTime();
@@ -33,6 +32,48 @@ class LogTest extends Test
         $oLog->setStackTrace($this->aStack);
         $oLog->setType(Log::TYPE_INFO);
         $oLog->setDatetime($oDateTime);
+
+        $this->assertEquals(
+            'Houston we got a problem...',
+            $oLog->getMessage(),
+            'Unable to set log message'
+        );
+
+        $this->assertEquals(
+            13,
+            $oLog->getErrorCode(),
+            'Unable to set log error code'
+        );
+
+        $this->assertEquals(
+            $this->aStack,
+            $oLog->getStackTrace(),
+            'Unable to set log stack trace'
+        );
+
+        $this->assertEquals(
+            Log::TYPE_INFO,
+            $oLog->getType(),
+            'Unable to set log type'
+        );
+
+        $this->assertInstanceOf(
+            get_class($oDateTime),
+            $oLog->getDatetime(),
+            'Unable to get log Datetime object'
+        );
+
+    }
+
+    public function testLogAccessorsWithCallChain()
+    {
+        $oLog = new Log();
+        $oDateTime = new \DateTime();
+        $oLog->setMessage('Houston we got a problem...')
+            ->setErrorCode(13)
+            ->setStackTrace($this->aStack)
+            ->setType(Log::TYPE_INFO)
+            ->setDatetime($oDateTime);
 
         $this->assertEquals(
             'Houston we got a problem...',

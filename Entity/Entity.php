@@ -10,6 +10,7 @@ use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Update;
 use Library\Core\Exception\CoreException;
+use Library\Core\Log\Log;
 
 /**
  * Entities management abstract class
@@ -367,7 +368,16 @@ abstract class Entity extends Attributes
             return (bool) $this->bIsLoaded = ($oStatement !== false && $this->{static::PRIMARY_KEY} > 0);
 
         } catch (\Exception $oException) {
-            die(var_dump(array($oException->getMessage(), $oException->getCode())));
+
+            # Log exception
+            $oLog = new Log();
+            $oLog->setMessage($oException->getMessage())
+                ->setErrorCode($oException->getCode())
+                ->setStackTrace(debug_backtrace())
+                ->setType(Log::TYPE_EXCEPTION)
+                ->setDatetime(new \DateTime())
+                ->create();
+
             return false;
         }
 
@@ -437,10 +447,14 @@ abstract class Entity extends Attributes
             return false;
         } catch (\Exception $oException) {
 
-            # Throw exceptions on development environment
-            if (defined('ENV') && ENV === 'dev') {
-                throw $oException; 
-            }
+            # Log exception
+            $oLog = new Log();
+            $oLog->setMessage($oException->getMessage())
+                ->setErrorCode($oException->getCode())
+                ->setStackTrace(debug_backtrace())
+                ->setType(Log::TYPE_EXCEPTION)
+                ->setDatetime(new \DateTime())
+                ->create();
 
             return false;
         }
@@ -491,10 +505,14 @@ abstract class Entity extends Attributes
 
         } catch (\Exception $oException) {
 
-            # Throw exceptions on development environment
-            if (defined('ENV') && ENV === 'dev') {
-                throw $oException;
-            }
+            # Log exception
+            $oLog = new Log();
+            $oLog->setMessage($oException->getMessage())
+                ->setErrorCode($oException->getCode())
+                ->setStackTrace(debug_backtrace())
+                ->setType(Log::TYPE_EXCEPTION)
+                ->setDatetime(new \DateTime())
+                ->create();
 
             return false;
         }
