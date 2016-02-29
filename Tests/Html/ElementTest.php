@@ -13,6 +13,9 @@ use Library\Core\Tests\Dummy\Html\ElementMock;
 class ElementTest extends Test
 {
 
+    /**
+     * @var \Library\Core\Html\Element
+     */
     protected static $oHtmlElementInstance;
 
     const TEST_STRING_KEY   = 'test';
@@ -77,6 +80,47 @@ class ElementTest extends Test
         $this->assertEquals(
             self::$oHtmlElementInstance->getAttributes(),
             array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
+        );
+    }
+
+    public function testSetSameAttributesMergeCorrectly()
+    {
+        self::$oHtmlElementInstance->setAttribute('class', 'foo');
+        self::$oHtmlElementInstance->setAttribute('class', 'foo1');
+        self::$oHtmlElementInstance->setAttribute('class', 'foo2');
+        self::$oHtmlElementInstance->setAttribute('class', 'foo3');
+
+        $this->assertEquals(
+            array(
+                'some-class',
+                'otherone',
+                'andsoon',
+                'foo',
+                'foo1',
+                'foo2',
+                'foo3'
+            ),
+            self::$oHtmlElementInstance->getAttribute('class'),
+            'Unable to set several values from for the same attributes'
+        );
+
+        self::$oHtmlElementInstance->setAttribute('class', array('foo4', 'foo5'));
+
+
+        $this->assertEquals(
+            array(
+                'some-class',
+                'otherone',
+                'andsoon',
+                'foo',
+                'foo1',
+                'foo2',
+                'foo3',
+                'foo4',
+                'foo5'
+            ),
+            self::$oHtmlElementInstance->getAttribute('class'),
+            'Unable to set several values from the same attribute from an array'
         );
     }
 }

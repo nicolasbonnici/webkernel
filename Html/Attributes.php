@@ -118,16 +118,29 @@ class Attributes
      */
     public function setAttribute($sAttrName, $mAttrValue)
     {
-        if (isset($this->aAttributes[$sAttrName]) === true) {
+        # Attribute already setted
+        if (isset($this->aAttributes[$sAttrName]) === true && empty($this->aAttributes[$sAttrName]) === false) {
+            # The setted value was an array
             if (is_array($this->aAttributes[$sAttrName]) === true) {
+                # If the passed attribute value is an array we merge it directly
                 if (is_array($mAttrValue) === true) {
-                    $this->aAttributes[$sAttrName] = array_merge_recursive($this->aAttributes[$sAttrName], $mAttrValue);
+                    $this->aAttributes[$sAttrName] = array_merge($this->aAttributes[$sAttrName], $mAttrValue);
                 } else {
+                    # Otherwise we push it on the attributes array directly
                     $this->aAttributes[$sAttrName][] = $mAttrValue;
                 }
+            } elseif (is_string($this->aAttributes[$sAttrName]) === true) {
+                # Already setted as a string so we cast it in an array
+                if (is_array($mAttrValue) === true) {
+                    $this->aAttributes[$sAttrName] = array_merge(array($this->aAttributes[$sAttrName]), $mAttrValue);
+                } else {
+                    # Otherwise we cast the attribute value in array then push the value in it
+                    $this->aAttributes[$sAttrName] = array($this->aAttributes[$sAttrName], $mAttrValue);
+                }
             }
+        } else {
+            $this->aAttributes[$sAttrName] = $mAttrValue;
         }
-        $this->aAttributes[$sAttrName] = $mAttrValue;
         return $this;
     }
 

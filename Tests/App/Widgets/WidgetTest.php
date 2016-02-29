@@ -1,10 +1,8 @@
 <?php
 namespace Core\Tests\App\Widgets;
 
-use Library\Core\App\Widgets\WidgetAbstract;
+use Library\Core\App\Widgets\Widget;
 use Library\Core\Tests\Test;
-
-use Library\Core\Tests\Dummy\Widgets\vendorname\WidgetName\WidgetNameWidget;
 
 /**
  * Widget component unit tests
@@ -14,9 +12,9 @@ use Library\Core\Tests\Dummy\Widgets\vendorname\WidgetName\WidgetNameWidget;
 class WidgetTest extends Test
 {
     /**
-     * @var WidgetNameWidget
+     * @var Widget
      */
-    private $oDummyWidgetInstance;
+    private $oWidgetInstance;
 
     public static function setUpBeforeClass()
     {
@@ -25,90 +23,89 @@ class WidgetTest extends Test
 
     public function setUp()
     {
-        $this->oDummyWidgetInstance = new WidgetNameWidget();
+        $this->oWidgetInstance = new Widget();
     }
 
     public function tearDown()
     {
     }
 
-    public function testConstructor()
-    {
-        $this->assertTrue($this->oDummyWidgetInstance instanceof WidgetNameWidget);
-
-        $this->assertEquals(
-            'vendorname',
-            $this->oDummyWidgetInstance->getVendorName()
-        );
-        $this->assertEquals(
-            'WidgetName',
-            $this->oDummyWidgetInstance->getName()
-        );
-    }
-
     public function testRender()
     {
         $this->assertEquals(
-            "<div>Hello world!</div>",
-            $this->oDummyWidgetInstance->render()
+            '<div class="ui-widget"><div class="ui-widget-data"><div class="ui-widget-header"></div><div class="ui-widget-content"></div><div class="ui-widget-footer"></div></div></div>',
+            $this->oWidgetInstance->render(),
+            'Invalid rendered widget markup'
+        );
+    }
+
+
+    public function testRenderWithUpdatedMakup()
+    {
+        # Overwrite widget header class
+        $this->oWidgetInstance->build()->getWidgetHeader()->setAttribute('class', 'test-123-ok');
+
+        $this->assertEquals(
+            '<div class="ui-widget"><div class="ui-widget-data"><div class="ui-widget-header test-123-ok"></div><div class="ui-widget-content"></div><div class="ui-widget-footer"></div></div></div>',
+            $this->oWidgetInstance->render(),
+            'Invalid rendered widget markup'
+        );
+    }
+
+    public function testRenderWithLoadableParameter()
+    {
+        $this->oWidgetInstance->setLoadable(true)
+                ->setUrl('/foo/ok');
+
+        $this->assertEquals(
+            '<div class="ui-widget"><div class="ui-widget-data ui-loadable" data-url="/foo/ok"></div></div>',
+            $this->oWidgetInstance->render(),
+            'Invalid rendered widget markup'
+        );
+    }
+
+    public function testRenderWithScrollLoadableParameter()
+    {
+        $this->oWidgetInstance->setScrollLoadable(true)
+                ->setUrl('/foo/ok');
+
+        $this->assertEquals(
+            '<div class="ui-widget"><div class="ui-widget-data ui-scroll-loadable" data-url="/foo/ok"></div></div>',
+            $this->oWidgetInstance->render(),
+            'Invalid rendered widget markup'
+        );
+    }
+
+    public function testRenderWithLoadableScrollLoadableParameter()
+    {
+        $this->oWidgetInstance->setLoadable(true)->setScrollLoadable(true)
+                ->setUrl('/foo/ok');
+
+        $this->assertEquals(
+            '<div class="ui-widget"><div class="ui-widget-data ui-loadable ui-scroll-loadable" data-url="/foo/ok"></div></div>',
+            $this->oWidgetInstance->render(),
+            'Invalid rendered widget markup'
+        );
+    }
+
+    public function testToStringMethod()
+    {
+        $this->oWidgetInstance->setLoadable(true)
+            ->setUrl('/foo/ok');
+
+        $this->assertEquals(
+            '<div class="ui-widget"><div class="ui-widget-data ui-loadable" data-url="/foo/ok"></div></div>',
+            $this->oWidgetInstance,
+            'Invalid rendered widget markup'
         );
     }
 
     public function testAddParameter()
     {
-        $this->oDummyWidgetInstance->addParameter('test', 'foo');
+        $this->oWidgetInstance->addParameter('test', 'foo');
         $this->assertEquals(
             array('test' => 'foo'),
-            $this->oDummyWidgetInstance->getParameters()
-        );
-    }
-
-    public function testDefaultRenderMode()
-    {
-        $this->assertEquals(
-            WidgetAbstract::DEFAULT_RENDER_MODE,
-            $this->oDummyWidgetInstance->getRenderMode()
-        );
-    }
-
-    public function testSetRenderModeWithInvalidParameter()
-    {
-        $this->assertFalse(
-            $this->oDummyWidgetInstance->setRenderMode('NotAllowedMode')
-        );
-    }
-
-    public function testSetRenderModeWithValidParameter()
-    {
-        $this->assertTrue(
-            $this->oDummyWidgetInstance->setRenderMode(WidgetAbstract::RENDER_MODE_EDITON)
-        );
-
-        $this->assertEquals(
-            WidgetAbstract::RENDER_MODE_EDITON,
-            $this->oDummyWidgetInstance->getRenderMode()
-        );
-    }
-
-    public function testAllAccessors()
-    {
-        $this->assertNotEmpty(
-            $this->oDummyWidgetInstance->getName()
-        );
-        $this->assertNotEmpty(
-            $this->oDummyWidgetInstance->getVendorName()
-        );
-        $this->assertNotEmpty(
-            $this->oDummyWidgetInstance->getPath()
-        );
-        $this->assertNotEmpty(
-            $this->oDummyWidgetInstance->getDisplayName()
-        );
-        $this->assertNotEmpty(
-            $this->oDummyWidgetInstance->getDescription()
-        );
-        $this->assertNotEmpty(
-            $this->oDummyWidgetInstance->getVersion()
+            $this->oWidgetInstance->getParameters()
         );
     }
 
@@ -120,11 +117,11 @@ class WidgetTest extends Test
             'to' => 'zisfool',
         );
 
-        $this->oDummyWidgetInstance->addParameters($aTest);
+        $this->oWidgetInstance->addParameters($aTest);
 
         $this->assertEquals(
             $aTest,
-            $this->oDummyWidgetInstance->getParameters()
+            $this->oWidgetInstance->getParameters()
         );
     }
 }

@@ -19,13 +19,13 @@ class WidgetNameWidget extends WidgetAbstract
      * Build widget data
      * @return bool
      */
-    protected function build()
+    public function build()
     {
 
         $oDivElement = new Div();
         $oDivElement->setContent('Hello world!');
 
-        $this->addHtmlElement($oDivElement);
+        $this->addChildElement($oDivElement);
 
         $this->bIsLoaded = true;
 

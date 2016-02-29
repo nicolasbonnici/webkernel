@@ -1,13 +1,9 @@
 <?php
 namespace Library\Core\App\Widgets;
 
-use Library\Core\Bootstrap;
-use Library\Core\Entity\Entity;
 use Library\Core\Exception\CoreException;
-use Library\Core\App\Mvc\View\View;
 use Library\Core\Html\Element;
 use Library\Core\Html\Node;
-use Library\Core\Json\Json;
 
 
 /**
@@ -32,22 +28,6 @@ abstract class WidgetAbstract
      */
     const TRANSLATION_KEY_WIDGET_NAME = 'widget_name';
     const TRANSLATION_KEY_WIDGET_DESC = 'widget_description';
-
-    /**
-     * Supported render modes
-     */
-    const RENDER_MODE_NORMAL  = 'normal';
-    const RENDER_MODE_EDITON  = 'edition';
-    const DEFAULT_RENDER_MODE = 'edition';
-
-    /**
-     * Widgets supported render modes
-     * @var array
-     */
-    protected $aRenderModes = array(
-        self::RENDER_MODE_NORMAL,
-        self::RENDER_MODE_EDITON
-    );
 
     /**
      * Vendor name
@@ -85,12 +65,6 @@ abstract class WidgetAbstract
      */
     protected $sDescription = self::TRANSLATION_KEY_WIDGET_NAME;
 
-    /**
-     * Widget rendering mode (default: normal render mode)
-     * @var string
-     */
-    protected $sRenderMode = self::DEFAULT_RENDER_MODE;
-
     /*
      * Html Dom Node instance to store markup
      * @var Node
@@ -110,12 +84,6 @@ abstract class WidgetAbstract
     protected $aRequiredParameters = array();
 
     /**
-     * Widget Core and bundles version dependencies
-     * @var array
-     */
-    protected $aDependencies = array();
-
-    /**
      * Flag to tell if the Widget was already built
      * @var bool
      */
@@ -130,27 +98,14 @@ abstract class WidgetAbstract
      */
     public function __construct()
     {
-        if ($this->checkRenderMode() === false) {
-            throw new WidgetException(
-                sprintf(
-                    WidgetException::getError(
-                        WidgetException::ERROR_RENDER_MODE_NOT_SUPPORTED
-                    ),
-                    $this->getRenderMode()
-                ),
-                WidgetException::ERROR_RENDER_MODE_NOT_SUPPORTED
-            );
-        } else {
-            # Resolve path, vendor name and plugin name from namespace
-            $aNamespace = $this->getNamespaceAsArray();
-            $this->sVendorName = $this->resolveVendorName($aNamespace);
-            $this->sName = $this->resolveWidgetName($aNamespace);
-            $this->sPath = $this->resoleWidgetPath($aNamespace);
+        # Resolve path, vendor name and plugin name from namespace
+        $aNamespace = $this->getNamespaceAsArray();
+        $this->sVendorName = $this->resolveVendorName($aNamespace);
+        $this->sName = $this->resolveWidgetName($aNamespace);
+        $this->sPath = $this->resoleWidgetPath($aNamespace);
 
-            # View component instance
-            $this->oNode = new Node();
-        }
-
+        # View component instance
+        $this->oNode = new Node();
     }
 
     /**
@@ -158,7 +113,30 @@ abstract class WidgetAbstract
      *
      * @return bool                 The $this->bIsloaded value
      */
-    abstract protected function build();
+    abstract public function build();
+
+    /**
+     * Render the widget
+     *
+     * @return string
+     */
+    public function render()
+    {
+        # Build Widget if not already done
+        if ($this->isLoaded() === false) {
+            $this->build();
+        }
+        return $this->oNode->render();
+    }
+
+    /**
+     * Render the widget markup on __toString magic method
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
+    }
 
     /**
      * Resolve widget vendor name from namespace
@@ -202,66 +180,6 @@ abstract class WidgetAbstract
         $aNamespace = explode('\\', get_called_class());
         # Remove the "Widget" class name from namespace
         return array_slice($aNamespace, 0, count($aNamespace) - 1);
-    }
-
-    /**
-     * Render the widget
-     *
-     * @return string
-     */
-    public function render()
-    {
-        # Build Widget if not already done
-        if ($this->isLoaded() === false) {
-            if ($this->build() === false) {
-                throw new WidgetException(
-                    WidgetException::getError(WidgetException::ERROR_UNABLE_TO_BUILD_WIDGET),
-                    WidgetException::ERROR_UNABLE_TO_BUILD_WIDGET
-                );
-            }
-        }
-
-        return $this->oNode->render();
-
-    }
-
-    /**
-     * Check the widget render mode
-     *
-     * @param string $sRenderMode
-     * @return boolean
-     */
-    private function checkRenderMode($sRenderMode = null)
-    {
-        if (is_null($sRenderMode)) {
-            $sRenderMode = $this->sRenderMode;
-        }
-        return (in_array($sRenderMode, $this->aRenderModes));
-    }
-
-    /**
-     * Render mode accessor
-     *
-     * @return string
-     */
-    public function getRenderMode()
-    {
-        return $this->sRenderMode;
-    }
-
-    /**
-     * Render mode setter
-     *
-     * @param string $sRenderMode
-     * @return WidgetAbstract
-     */
-    public function setRenderMode($sRenderMode)
-    {
-        if (! empty($sRenderMode) && $this->checkRenderMode($sRenderMode)) {
-            $this->sRenderMode = $sRenderMode;
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -309,9 +227,9 @@ abstract class WidgetAbstract
         return $this;
     }
 
-    public function addHtmlElement(Element $oElement)
+    public function addChildElement(Element $oElement)
     {
-        $this->oNode->addElement($oElement);
+        $this->getNode()->addElement($oElement);
         return $this;
     }
 
@@ -366,29 +284,20 @@ abstract class WidgetAbstract
         return $this->sDescription;
     }
 
-
-    /**
-     * @return array
-     */
-    public function getDependencies()
-    {
-        return $this->aDependencies;
-    }
-
-    /**
-     * @param array $aDependencies
-     */
-    public function setDependencies(array $aDependencies)
-    {
-        $this->aDependencies = $aDependencies;
-    }
-
     /**
      * @return array
      */
     public function getRequiredParameters()
     {
         return $this->aRequiredParameters;
+    }
+
+    /**
+     * @return Node
+     */
+    public function getNode()
+    {
+        return $this->oNode;
     }
 
     /**
@@ -409,9 +318,8 @@ class WidgetException extends CoreException
      *
      * @var integer
      */
-    const ERROR_RENDER_MODE_NOT_SUPPORTED = 2;
-    const ERROR_MISSING_DEPENDENCIES      = 3;
-    const ERROR_UNABLE_TO_BUILD_WIDGET    = 4;
+    const ERROR_MISSING_DEPENDENCIES      = 2;
+    const ERROR_UNABLE_TO_BUILD_WIDGET    = 3;
 
     /**
      * Error message
@@ -419,7 +327,6 @@ class WidgetException extends CoreException
      * @var array
      */
     public static $aErrors = array(
-        self::ERROR_RENDER_MODE_NOT_SUPPORTED => 'Render mode %s is not supported.',
         self::ERROR_MISSING_DEPENDENCIES      => 'Missing dependency: %s.',
         self::ERROR_UNABLE_TO_BUILD_WIDGET    => 'Unable to build Widget, please check logs.',
     );
