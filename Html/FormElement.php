@@ -39,17 +39,15 @@ abstract class FormElement extends Element
      * Form element label content
      * @var string
      */
-    protected $sLabel = 'Label';
+    protected $sLabel = '';
 
     /**
      * Form element constructor
      * @param array $aValidators
      */
-    public function __construct(array $aValidators = array())
+    public function __construct()
     {
         parent::__construct();
-
-        $this->aValidators = $aValidators;
 
         $this->setAttribute('class', array('form-control'));
 
@@ -103,7 +101,12 @@ abstract class FormElement extends Element
      */
     public function isValid()
     {
-        // @todo passer les validateurs et retourner un bool
+        $aValidation = array();
+        $aValidators = $this->getValidators();
+        foreach ($aValidators as $oValidator) {
+            $aValidation[] = $oValidator->process();
+        }
+        return (bool) (in_array(false, $aValidation) === false);
     }
 
     /**
@@ -168,5 +171,23 @@ abstract class FormElement extends Element
     {
         return ($this->bIsReadOnly === true);
     }
+
+    /**
+     * @return array
+     */
+    public function getValidators()
+    {
+        return $this->aValidators;
+    }
+
+    /**
+     * @param array $aValidators
+     */
+    public function setValidators(array $aValidators)
+    {
+        $this->aValidators = $aValidators;
+    }
+
+
 
 }

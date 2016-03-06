@@ -12,7 +12,7 @@ use Library\Core\Html\Elements\FormElements\Tag;
 class TagTest extends Test
 {
 
-protected static $oTagInstance;
+    protected $oTagInstance;
 
     const INPUT_TAG    = 'select';
     const TEST_STRING_KEY   = 'test';
@@ -36,6 +36,7 @@ protected static $oTagInstance;
 
     public function setUp()
     {
+        $this->oTagInstance = new Tag();
     }
 
     public function tearDown()
@@ -44,59 +45,24 @@ protected static $oTagInstance;
 
     public function testConstructor()
     {
-    	self::$oTagInstance = new Tag(array());
-        $this->assertTrue(self::$oTagInstance instanceof Tag);
+        $this->assertTrue($this->oTagInstance instanceof Tag);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oTagInstance->__toString(), self::$oTagInstance->render());
+        $this->assertEquals($this->oTagInstance->__toString(), $this->oTagInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oTagInstance->setValue(self::TEST_STRING_VALUE) instanceof Tag);
-    }
-
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oTagInstance->getValue(), self::TEST_STRING_VALUE);
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oTagInstance->setAttributes($this->aTestDataArray) instanceof Tag);
-    }
-
-    public function testSetAttribute()
-    {
-        // Also test if the setAttribute() overload properly the setAttributes()
-        $this->assertTrue(
-            self::$oTagInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Tag
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oTagInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oTagInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oTagInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
+        $this->assertTrue($this->oTagInstance->setValue(self::TEST_STRING_VALUE) instanceof Tag);
+        $this->assertEquals($this->oTagInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oTagInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oTagInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oTagInstance->render()));
+        $this->assertNotEmpty(strstr($this->oTagInstance->render(), self::INPUT_TAG));
     }
 
 }

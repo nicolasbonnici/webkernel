@@ -83,7 +83,7 @@ abstract class Element extends Attributes
      */
     public function getSubElements()
     {
-       $this->oNode->getElements();
+       return $this->oNode->getElements();
     }
 
     /**
@@ -115,6 +115,20 @@ abstract class Element extends Attributes
     public function addSubElement(Element $oElement)
     {
         $this->oNode->addElement($oElement);
+        return $this;
+    }
+
+    /**
+     * Add several sub elements to item
+     *
+     * @param Element $oElement
+     * @return Element
+     */
+    public function addSubElements(array $aElements)
+    {
+        foreach ($aElements as $oElement) {
+            $this->oNode->addElement($oElement);
+        }
         return $this;
     }
 

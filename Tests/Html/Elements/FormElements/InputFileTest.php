@@ -12,7 +12,10 @@ use Library\Core\Html\Elements\FormElements\InputFile;
 class InputFileTest extends Test
 {
 
-    protected static $oInputFileInstance;
+    /**
+     * @var InputFile
+     */
+    protected $oInputFileInstance;
 
     const INPUT_TAG    = 'input';
     const INPUT_TYPE   = 'file';
@@ -38,6 +41,7 @@ class InputFileTest extends Test
 
     public function setUp()
     {
+        $this->oInputFileInstance = new InputFile(array());
     }
 
     public function tearDown()
@@ -46,61 +50,39 @@ class InputFileTest extends Test
 
     public function testConstructor()
     {
-    	self::$oInputFileInstance = new InputFile(array());
-        $this->assertTrue(self::$oInputFileInstance instanceof InputFile);
-        $this->assertEquals(self::$oInputFileInstance->getAttribute('type'), self::INPUT_TYPE);
-        $this->assertEquals(self::$oInputFileInstance->getAttribute('value'), self::INPUT_DEFAULT_VALUE);
+        $this->assertTrue($this->oInputFileInstance instanceof InputFile);
+        $this->assertEquals($this->oInputFileInstance->getAttribute('type'), self::INPUT_TYPE);
+        $this->assertEquals($this->oInputFileInstance->getAttribute('value'), self::INPUT_DEFAULT_VALUE);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oInputFileInstance->__toString(), self::$oInputFileInstance->render());
+        $this->assertEquals($this->oInputFileInstance->__toString(), $this->oInputFileInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oInputFileInstance->setValue(self::TEST_STRING_VALUE) instanceof InputFile);
-    }
-
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oInputFileInstance->getValue(), self::TEST_STRING_VALUE);
+        $this->assertTrue($this->oInputFileInstance->setValue(self::TEST_STRING_VALUE) instanceof InputFile);
+        $this->assertEquals($this->oInputFileInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testSetAttributes()
     {
-        $this->assertTrue(self::$oInputFileInstance->setAttributes($this->aTestDataArray) instanceof InputFile);
+        $this->assertTrue($this->oInputFileInstance->setAttributes($this->aTestDataArray) instanceof InputFile);
     }
 
     public function testSetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oInputFileInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof InputFile
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oInputFileInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oInputFileInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oInputFileInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
+            $this->oInputFileInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof InputFile
         );
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oInputFileInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oInputFileInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oInputFileInstance->render()));
+        $this->assertNotEmpty(strstr($this->oInputFileInstance->render(), self::INPUT_TAG));
     }
 
 }

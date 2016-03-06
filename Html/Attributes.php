@@ -114,7 +114,7 @@ class Attributes
      *
      * @param string $sAttrName
      * @param mixed string|array $mAttrValue
-     * @return Attributes
+     * @return Element
      */
     public function setAttribute($sAttrName, $mAttrValue)
     {
@@ -148,11 +148,13 @@ class Attributes
      * Set all element attributes
      *
      * @param array $aAttributes
-     * @return Attributes
+     * @return Element
      */
     public function setAttributes(array $aAttributes)
     {
-        $this->aAttributes = array_merge_recursive($aAttributes);
+        foreach ($aAttributes as $sPropertyName => $mPropertyValue) {
+            $this->setAttribute($sPropertyName, $mPropertyValue);
+        }
         return $this;
     }
 

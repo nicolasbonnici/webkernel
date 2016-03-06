@@ -12,7 +12,10 @@ use Library\Core\Html\Elements\FormElements\Autocomplete;
 class AutocompleteTest extends Test
 {
 
-    protected static $oAutocompleteInstance;
+    /**
+     * @var Autocomplete
+     */
+    protected $oAutocompleteInstance;
 
     const INPUT_TAG    = 'select';
     const TEST_STRING_KEY   = 'test';
@@ -43,6 +46,7 @@ class AutocompleteTest extends Test
 
     public function setUp()
     {
+        $this->oAutocompleteInstance = new Autocomplete($this->aTestOptions, array());
     }
 
     public function tearDown()
@@ -51,59 +55,50 @@ class AutocompleteTest extends Test
 
     public function testConstructor()
     {
-        self::$oAutocompleteInstance = new Autocomplete($this->aTestOptions, array());
-        $this->assertTrue(self::$oAutocompleteInstance instanceof Autocomplete);
+        $this->assertTrue($this->oAutocompleteInstance instanceof Autocomplete);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oAutocompleteInstance->__toString(), self::$oAutocompleteInstance->render());
+        $this->assertEquals($this->oAutocompleteInstance->__toString(), $this->oAutocompleteInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oAutocompleteInstance->setValue(self::TEST_STRING_VALUE) instanceof Autocomplete);
+        $this->assertTrue($this->oAutocompleteInstance->setValue(self::TEST_STRING_VALUE) instanceof Autocomplete);
+
+        $this->assertEquals($this->oAutocompleteInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oAutocompleteInstance->getValue(), self::TEST_STRING_VALUE);
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oAutocompleteInstance->setAttributes($this->aTestDataArray) instanceof Autocomplete);
-    }
-
-    public function testSetAttribute()
+    public function testSetAndGetAttribute()
     {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oAutocompleteInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Autocomplete
+            $this->oAutocompleteInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Autocomplete
         );
+        $this->assertEquals($this->oAutocompleteInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
     }
 
-    public function testGetAttribute()
+    public function testSetAndGetAttributes()
     {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oAutocompleteInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oAutocompleteInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
+        $this->assertTrue($this->oAutocompleteInstance->setAttributes($this->aTestDataArray) instanceof Autocomplete);
 
-    public function testGetAttributes()
-    {
+        # Just the default autocomplete and Bootstrap3 form element class
+        $aData = $this->aTestDataArray;
+        $aData['class'] = array('form-control', 'ui-autocomplete', 'some-class', 'otherone', 'andsoon');
+
         $this->assertEquals(
-            self::$oAutocompleteInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
+            $aData,
+            $this->oAutocompleteInstance->getAttributes(),
+            'Error with setAttributes() or getAttributes() method'
         );
+
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oAutocompleteInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oAutocompleteInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oAutocompleteInstance->render()));
+        $this->assertNotEmpty(strstr($this->oAutocompleteInstance->render(), self::INPUT_TAG));
     }
 
 }

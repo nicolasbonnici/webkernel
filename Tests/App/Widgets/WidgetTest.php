@@ -32,21 +32,20 @@ class WidgetTest extends Test
 
     public function testRender()
     {
-        $this->assertEquals(
-            '<div class="ui-widget"><div class="ui-widget-data"><div class="ui-widget-header"></div><div class="ui-widget-content"></div><div class="ui-widget-footer"></div></div></div>',
-            $this->oWidgetInstance->render(),
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), '<div class="ui-widget"'),
             'Invalid rendered widget markup'
         );
     }
 
 
-    public function testRenderWithUpdatedMakup()
+    public function testRenderWithUpdatedMarkup()
     {
         # Overwrite widget header class
-        $this->oWidgetInstance->build()->getWidgetHeader()->setAttribute('class', 'test-123-ok');
+        $this->oWidgetInstance->build()->getHeader()->setAttribute('class', 'test-123-ok');
 
         $this->assertEquals(
-            '<div class="ui-widget"><div class="ui-widget-data"><div class="ui-widget-header test-123-ok"></div><div class="ui-widget-content"></div><div class="ui-widget-footer"></div></div></div>',
+            '<div class="ui-widget" data-snap-ignore="true"><div class="ui-widget-data"><div class="ui-widget-header test-123-ok"></div><div class="ui-widget-content"></div><div class="ui-widget-footer"></div></div></div>',
             $this->oWidgetInstance->render(),
             'Invalid rendered widget markup'
         );
@@ -57,10 +56,9 @@ class WidgetTest extends Test
         $this->oWidgetInstance->setLoadable(true)
                 ->setUrl('/foo/ok');
 
-        $this->assertEquals(
-            '<div class="ui-widget"><div class="ui-widget-data ui-loadable" data-url="/foo/ok"></div></div>',
-            $this->oWidgetInstance->render(),
-            'Invalid rendered widget markup'
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::LOADABLE_CLASS),
+            'Invalid rendered widget markup for loadable widget'
         );
     }
 
@@ -69,22 +67,51 @@ class WidgetTest extends Test
         $this->oWidgetInstance->setScrollLoadable(true)
                 ->setUrl('/foo/ok');
 
-        $this->assertEquals(
-            '<div class="ui-widget"><div class="ui-widget-data ui-scroll-loadable" data-url="/foo/ok"></div></div>',
-            $this->oWidgetInstance->render(),
-            'Invalid rendered widget markup'
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::SCROLL_LOADABLE_CLASS),
+            'Invalid rendered widget markup for scroll loadable with loadable widget'
         );
     }
 
-    public function testRenderWithLoadableScrollLoadableParameter()
+    public function testRenderWithLoadableAndScrollLoadableParameter()
     {
         $this->oWidgetInstance->setLoadable(true)->setScrollLoadable(true)
                 ->setUrl('/foo/ok');
 
-        $this->assertEquals(
-            '<div class="ui-widget"><div class="ui-widget-data ui-loadable ui-scroll-loadable" data-url="/foo/ok"></div></div>',
-            $this->oWidgetInstance->render(),
-            'Invalid rendered widget markup'
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::LOADABLE_CLASS),
+            'Invalid rendered widget markup for loadable with scroll loadable widget'
+        );
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::SCROLL_LOADABLE_CLASS),
+            'Invalid rendered widget markup for scroll loadable with loadable widget'
+        );
+    }
+
+    public function testWithToolbar()
+    {
+        $this->oWidgetInstance->setToolbar(true);
+
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::WIDGET_TOOLBAR_CLASS),
+            'Invalid rendered widget markup for scroll loadable with loadable widget'
+        );
+    }
+
+    public function testWithToolbarAndLoadableStructure()
+    {
+        $this->oWidgetInstance->setLoadable(true)
+            ->setUrl('/foo/ok')
+            ->setToolbar(true)->build();
+
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::WIDGET_TOOLBAR_CLASS),
+            'Invalid rendered widget markup for loadable widget with toolbar'
+        );
+
+        $this->assertNotFalse(
+            strstr($this->oWidgetInstance->render(), Widget::LOADABLE_CLASS),
+            'Invalid rendered widget markup for loadable widget with toolbar'
         );
     }
 
@@ -94,8 +121,8 @@ class WidgetTest extends Test
             ->setUrl('/foo/ok');
 
         $this->assertEquals(
-            '<div class="ui-widget"><div class="ui-widget-data ui-loadable" data-url="/foo/ok"></div></div>',
-            $this->oWidgetInstance,
+            $this->oWidgetInstance->render(),
+            $this->oWidgetInstance->__toString(),
             'Invalid rendered widget markup'
         );
     }

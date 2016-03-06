@@ -12,7 +12,7 @@ use Library\Core\Html\Elements\FormElements\InputText;
 class InputTextTest extends Test
 {
 
-    protected static $oInputTextInstance;
+    protected $oInputTextInstance;
 
     const INPUT_TAG    = 'input';
     const INPUT_TYPE   = 'text';
@@ -38,6 +38,7 @@ class InputTextTest extends Test
 
     public function setUp()
     {
+        $this->oInputTextInstance = new InputText(array());
     }
 
     public function tearDown()
@@ -46,61 +47,26 @@ class InputTextTest extends Test
 
     public function testConstructor()
     {
-    	self::$oInputTextInstance = new InputText(array());
-        $this->assertTrue(self::$oInputTextInstance instanceof InputText);
-        $this->assertEquals(self::$oInputTextInstance->getAttribute('type'), self::INPUT_TYPE);
-        $this->assertEquals(self::$oInputTextInstance->getAttribute('value'), self::INPUT_DEFAULT_VALUE);
+        $this->assertTrue($this->oInputTextInstance instanceof InputText);
+        $this->assertEquals($this->oInputTextInstance->getAttribute('type'), self::INPUT_TYPE);
+        $this->assertEquals($this->oInputTextInstance->getAttribute('value'), self::INPUT_DEFAULT_VALUE);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oInputTextInstance->__toString(), self::$oInputTextInstance->render());
+        $this->assertEquals($this->oInputTextInstance->__toString(), $this->oInputTextInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oInputTextInstance->setValue(self::TEST_STRING_VALUE) instanceof InputText);
-    }
-
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oInputTextInstance->getValue(), self::TEST_STRING_VALUE);
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oInputTextInstance->setAttributes($this->aTestDataArray) instanceof InputText);
-    }
-
-    public function testSetAttribute()
-    {
-        // Also test if the setAttribute() overload properly the setAttributes()
-        $this->assertTrue(
-            self::$oInputTextInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof InputText
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oInputTextInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oInputTextInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oInputTextInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
+        $this->assertTrue($this->oInputTextInstance->setValue(self::TEST_STRING_VALUE) instanceof InputText);
+        $this->assertEquals($this->oInputTextInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oInputTextInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oInputTextInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oInputTextInstance->render()));
+        $this->assertNotEmpty(strstr($this->oInputTextInstance->render(), self::INPUT_TAG));
     }
 
 }

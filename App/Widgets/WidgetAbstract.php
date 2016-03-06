@@ -223,7 +223,9 @@ abstract class WidgetAbstract
      */
     public function addParameters(array $aParameters)
     {
-        $this->aParameters = array_merge($this->aParameters, $aParameters);
+        foreach ($aParameters as $mKey => $mValue) {
+            $this->addParameter($mKey, $mValue);
+        }
         return $this;
     }
 

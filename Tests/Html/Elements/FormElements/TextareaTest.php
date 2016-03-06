@@ -12,7 +12,7 @@ use Library\Core\Html\Elements\FormElements\Textarea;
 class TextareaTest extends Test
 {
 
-    protected static $oTextareaInstance;
+    protected $oTextareaInstance;
 
     const INPUT_TAG    = 'textarea';
     const TEST_STRING_KEY   = 'test';
@@ -36,6 +36,7 @@ class TextareaTest extends Test
 
     public function setUp()
     {
+        $this->oTextareaInstance = new Textarea();
     }
 
     public function tearDown()
@@ -44,59 +45,24 @@ class TextareaTest extends Test
 
     public function testConstructor()
     {
-    	self::$oTextareaInstance = new Textarea(array());
-        $this->assertTrue(self::$oTextareaInstance instanceof Textarea);
+        $this->assertTrue($this->oTextareaInstance instanceof Textarea);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oTextareaInstance->__toString(), self::$oTextareaInstance->render());
+        $this->assertEquals($this->oTextareaInstance->__toString(), $this->oTextareaInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oTextareaInstance->setValue(self::TEST_STRING_VALUE) instanceof Textarea);
-    }
-
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oTextareaInstance->getValue(), self::TEST_STRING_VALUE);
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oTextareaInstance->setAttributes($this->aTestDataArray) instanceof Textarea);
-    }
-
-    public function testSetAttribute()
-    {
-        // Also test if the setAttribute() overload properly the setAttributes()
-        $this->assertTrue(
-            self::$oTextareaInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Textarea
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oTextareaInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oTextareaInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oTextareaInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
+        $this->assertTrue($this->oTextareaInstance->setValue(self::TEST_STRING_VALUE) instanceof Textarea);
+        $this->assertEquals($this->oTextareaInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oTextareaInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oTextareaInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oTextareaInstance->render()));
+        $this->assertNotEmpty(strstr($this->oTextareaInstance->render(), self::INPUT_TAG));
     }
 
 }

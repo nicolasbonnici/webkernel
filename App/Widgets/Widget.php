@@ -1,8 +1,9 @@
 <?php
 namespace Library\Core\App\Widgets;
 
-
+use Library\Core\Html\Elements\Button;
 use Library\Core\Html\Elements\Div;
+use Library\Core\Html\Elements\Helpers\FontAwesomeIcon;
 
 /**
  * Widget component
@@ -16,6 +17,7 @@ class Widget extends WidgetAbstract
      * Widget class structure
      */
     const WIDGET_CLASS                  = 'ui-widget';
+    const WIDGET_TOOLBAR                = 'ui-widget-toolbar';
     const WIDGET_DATA_CONTAINER_CLASS   = 'ui-widget-data';
     const WIDGET_HEADER_CLASS           = 'ui-widget-header';
     const WIDGET_TOOLBAR_CLASS          = 'ui-widget-toolbar';
@@ -37,31 +39,43 @@ class Widget extends WidgetAbstract
      * The Widget Node container
      * @var Div
      */
-    protected $oWidgetDiv;
+    protected $oWidgetContainer;
+
+    /**
+     * The widget header toolbar
+     * @var Div
+     */
+    protected $oToolbar;
 
     /**
      * The widget data content wrapper
      * @var Div
      */
-    protected $oWidgetDataContainer;
+    protected $oDataContainer;
 
     /**
      * The widget header
      * @var Div
      */
-    protected $oWidgetHeader;
+    protected $oHeader;
 
     /**
      * The widget content
      * @var Div
      */
-    protected $oWidgetContent;
+    protected $oContent;
 
     /**
      * The widget footer
      * @var Div
      */
-    protected $oWidgetFooter;
+    protected $oFooter;
+
+    /**
+     * Display widget toolbar flag
+     * @var bool
+     */
+    protected $bToolbar = false;
 
     /**
      * Is widget asynch loadable
@@ -86,11 +100,18 @@ class Widget extends WidgetAbstract
      */
     private function initMarkup()
     {
-        $this->oWidgetDiv = new Div();
-        $this->oWidgetDataContainer = new Div();
-        $this->oWidgetHeader = new Div();
-        $this->oWidgetContent= new Div();
-        $this->oWidgetFooter = new Div();
+        $this->oWidgetContainer = new Div();
+        $this->oDataContainer = new Div();
+
+        if ($this->isLoadable() === false && $this->isScrollLoadable() === false) {
+            $this->oHeader = new Div();
+            $this->oContent = new Div();
+            $this->oFooter = new Div();
+        }
+
+        if ($this->hasToolbar() === true) {
+            $this->oToolbar = new Div();
+        }
     }
     /**
      * Load and build widget data
@@ -103,13 +124,24 @@ class Widget extends WidgetAbstract
         $this->initMarkup();
 
         # Build widget wrap
-        $this->getWidgetDiv()->setAttribute('class', self::WIDGET_CLASS);
+        $this->getWidgetContainer()
+            ->setAttribute('class', self::WIDGET_CLASS)
+            ->setAttribute('data-snap-ignore', 'true');
+
+        # Build toolbar if needed
+        if ($this->hasToolbar() === true) {
+            $this->buildToolbar();
+
+            # Append the widget toolbar
+            $this->getWidgetContainer()
+                ->addSubElement($this->getToolbar());
+        }
 
         # Build widget data wrap
-        $this->getWidgetDataContainer()->setAttribute('class', self::WIDGET_DATA_CONTAINER_CLASS);
+        $this->getDataContainer()->setAttribute('class', self::WIDGET_DATA_CONTAINER_CLASS);
 
 
-        # YAGNI at this level but we can have an abstract factory here
+        # Build widget content (no need for a builder pattern at this level YAGNI)
         if ($this->isLoadable() === true || $this->isScrollLoadable() === true) {
 
             if ($this->isLoadable() === true) {
@@ -120,18 +152,19 @@ class Widget extends WidgetAbstract
                 $this->buildScrollLoadableWidget();
             }
 
-            $this->getWidgetDataContainer()->setAttribute(self::URL_DATA_ATTR, $this->getUrl());
+            # Set url for asynch calls
+            $this->getDataContainer()->setAttribute(self::URL_DATA_ATTR, $this->getUrl());
 
         } else {
             # Build simple default widget
-            $this->buildWidget();
+            $this->buildDefaultWidget();
         }
 
-        # Put the widget data inside the widget wrapper
-        $this->getWidgetDiv()->addSubElement($this->getWidgetDataContainer());
+        # Put the widget data inside the widget container
+        $this->getWidgetContainer()->addSubElement($this->getDataContainer());
 
         # Append the widget data under the root widget dom node
-        $this->getNode()->addElement($this->getWidgetDiv());
+        $this->getNode()->addElement($this->getWidgetContainer());
 
         $this->bIsLoaded = true;
 
@@ -141,17 +174,24 @@ class Widget extends WidgetAbstract
     /**
      * Build default widget structure
      */
-    private function buildWidget()
+    private function buildDefaultWidget()
     {
         # Build widgets sections
-        $this->getWidgetHeader()->setAttribute('class', self::WIDGET_HEADER_CLASS);
-        $this->getWidgetContent()->setAttribute('class', self::WIDGET_CONTENT_CLASS);
-        $this->getWidgetFooter()->setAttribute('class', self::WIDGET_FOOTER_CLASS);
+        $this->getHeader()
+            ->setAttribute('class', self::WIDGET_HEADER_CLASS);
+        $this->getContent()
+            ->setAttribute('class', self::WIDGET_CONTENT_CLASS);
+        $this->getFooter()
+            ->setAttribute('class', self::WIDGET_FOOTER_CLASS);
 
-        $this->getWidgetDataContainer()
-            ->addSubElement($this->getWidgetHeader())
-            ->addSubElement($this->getWidgetContent())
-            ->addSubElement($this->getWidgetFooter());
+        $this->getDataContainer()
+            ->addSubElements(
+                array(
+                    $this->getHeader(),
+                    $this->getContent(),
+                    $this->getFooter()
+                )
+            );
     }
 
     /**
@@ -160,7 +200,7 @@ class Widget extends WidgetAbstract
     private function buildLoadableWidget()
     {
         # We just populate some attributes (loadable class and url param) then left the widget empty
-        $this->getWidgetDataContainer()->setAttribute('class', self::LOADABLE_CLASS);
+        $this->getDataContainer()->setAttribute('class', self::LOADABLE_CLASS);
     }
 
     /**
@@ -169,47 +209,102 @@ class Widget extends WidgetAbstract
     private function buildScrollLoadableWidget()
     {
         # We just populate some attributes (loadable class and url param) then left the widget empty
-        $this->getWidgetDataContainer()->setAttribute('class', self::SCROLL_LOADABLE_CLASS);
+        $this->getDataContainer()->setAttribute('class', self::SCROLL_LOADABLE_CLASS);
+    }
+
+    /**
+     * Build the widget toolbar content
+     */
+    private function buildToolbar()
+    {
+        # Buttons group container
+        $oBtnGroup = new Div();
+        $oBtnGroup->setAttribute('class', array('btn-group',  'btn-group-sm'));
+
+        # Buttons
+        $oMinimizeBtn = new Button();
+        $oMinimizeBtn->setContent(new FontAwesomeIcon('compress'))
+            ->setAttribute('class', array('btn', 'btn-sm', 'btn-default', 'ui-grid-min'));
+
+        $oExpandBtn = new Button();
+        $oExpandBtn->setContent(new FontAwesomeIcon('expand'))
+            ->setAttribute('class', array('btn', 'btn-sm', 'btn-default', 'ui-grid-expand'));
+
+        $oCloseBtn = new Button();
+        $oCloseBtn->setContent(new FontAwesomeIcon('close'))
+            ->setAttribute('class', array('btn', 'btn-sm', 'btn-default', 'ui-grid-delete'));
+
+        # Wrap button under btn-group
+        $oBtnGroup->addSubElements(
+            array(
+                $oMinimizeBtn,
+                $oExpandBtn,
+                $oCloseBtn
+            )
+        );
+
+        # Build the widget toolbar
+        $this->getToolbar()
+            ->setAttribute('class', self::WIDGET_TOOLBAR_CLASS)
+            ->addSubElement($oBtnGroup);
+
+    }
+
+    /**
+     * Get a unique id
+     * @return string
+     */
+    public function getUniqueId()
+    {
+        return uniqid('widget');
     }
 
     /**
      * @return Div
      */
-    public function getWidgetDiv()
+    public function getWidgetContainer()
     {
-        return $this->oWidgetDiv;
+        return $this->oWidgetContainer;
     }
 
     /**
      * @return Div
      */
-    public function getWidgetDataContainer()
+    public function getToolbar()
     {
-        return $this->oWidgetDataContainer;
+        return $this->oToolbar;
     }
 
     /**
      * @return Div
      */
-    public function getWidgetHeader()
+    public function getDataContainer()
     {
-        return $this->oWidgetHeader;
+        return $this->oDataContainer;
     }
 
     /**
      * @return Div
      */
-    public function getWidgetContent()
+    public function getHeader()
     {
-        return $this->oWidgetContent;
+        return $this->oHeader;
     }
 
     /**
      * @return Div
      */
-    public function getWidgetFooter()
+    public function getContent()
     {
-        return $this->oWidgetFooter;
+        return $this->oContent;
+    }
+
+    /**
+     * @return Div
+     */
+    public function getFooter()
+    {
+        return $this->oFooter;
     }
 
     /**
@@ -252,6 +347,26 @@ class Widget extends WidgetAbstract
     }
 
     /**
+     * Return true when Widet use toolbar
+     * @return bool
+     */
+    public function hasToolbar()
+    {
+        return $this->bToolbar;
+    }
+
+    /**
+     * Toolbar flag
+     * @param $bToolbar
+     * @return Widget
+     */
+    public function setToolbar($bToolbar)
+    {
+        $this->bToolbar = $bToolbar;
+        return $this;
+    }
+
+    /**
      * Set Widget parameter
      * @param string $sUrl
      */
@@ -261,6 +376,10 @@ class Widget extends WidgetAbstract
         return $this;
     }
 
+    /**
+     * Get widget url (only if the widget is loadable ou scroll loadable)
+     * @return string
+     */
     public function getUrl()
     {
         return $this->sUrl;

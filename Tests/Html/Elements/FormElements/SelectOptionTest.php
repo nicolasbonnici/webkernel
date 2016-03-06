@@ -12,7 +12,7 @@ use Library\Core\Html\Elements\FormElements\SelectOption;
 class SelectOptionTest extends Test
 {
 
-protected static $oSelectOptionInstance;
+    protected $oSelectOptionInstance;
 
     const INPUT_TAG    = 'option';
     const TEST_STRING_KEY   = 'test';
@@ -36,6 +36,7 @@ protected static $oSelectOptionInstance;
 
     public function setUp()
     {
+        $this->oSelectOptionInstance = new SelectOption();
     }
 
     public function tearDown()
@@ -44,59 +45,24 @@ protected static $oSelectOptionInstance;
 
     public function testConstructor()
     {
-    	self::$oSelectOptionInstance = new SelectOption(array());
-        $this->assertTrue(self::$oSelectOptionInstance instanceof SelectOption);
+        $this->assertTrue($this->oSelectOptionInstance instanceof SelectOption);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oSelectOptionInstance->__toString(), self::$oSelectOptionInstance->render());
+        $this->assertEquals($this->oSelectOptionInstance->__toString(), $this->oSelectOptionInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oSelectOptionInstance->setValue(self::TEST_STRING_VALUE) instanceof SelectOption);
-    }
-
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oSelectOptionInstance->getValue(), self::TEST_STRING_VALUE);
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oSelectOptionInstance->setAttributes($this->aTestDataArray) instanceof SelectOption);
-    }
-
-    public function testSetAttribute()
-    {
-        // Also test if the setAttribute() overload properly the setAttributes()
-        $this->assertTrue(
-            self::$oSelectOptionInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof SelectOption
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oSelectOptionInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oSelectOptionInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oSelectOptionInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
+        $this->assertTrue($this->oSelectOptionInstance->setValue(self::TEST_STRING_VALUE) instanceof SelectOption);
+        $this->assertEquals($this->oSelectOptionInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oSelectOptionInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oSelectOptionInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oSelectOptionInstance->render()));
+        $this->assertNotEmpty(strstr($this->oSelectOptionInstance->render(), self::INPUT_TAG));
     }
 
 }

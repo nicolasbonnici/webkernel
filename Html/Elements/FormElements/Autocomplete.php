@@ -20,8 +20,15 @@ class Autocomplete extends FormElement {
      */
     protected $sMarkupTag = 'select';
 
-    protected $aAttributes = array(
-        'class' => array('form-control', 'ui-autocomplete')
-    );
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->setAttributes(
+            array(
+                'class' => 'ui-autocomplete'
+            )
+        );
+    }
 
 }

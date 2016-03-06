@@ -17,8 +17,8 @@ class Form extends Element
      */
     protected $sMarkupTag = 'form';
 
-    const HTTP_METHOD_POST  = 'POST';
-    const HTTP_METHOD_GET   = 'GET';
+    const HTTP_METHOD_POST  = 'post';
+    const HTTP_METHOD_GET   = 'get';
 
     /**
      * Form allowed values for attribute method
@@ -37,7 +37,7 @@ class Form extends Element
 
     public function __construct()
     {
-        # Important t
+        # Important
         parent::__construct();
 
         // Set default method attribute
@@ -76,7 +76,7 @@ class Form extends Element
     public function addElements(array $aFormElements)
     {
 
-        foreach ($aFormElements as $iIndex => $oFormElement) {
+        foreach ($aFormElements as $oFormElement) {
             try {
                 $this->addElement($oFormElement);
             } catch (\Exception $oException) {
@@ -120,19 +120,9 @@ class Form extends Element
     }
 
     /**
-     * Build the form elements markup
-     * @return string
+     * @return Button
      */
-    public function getContent()
-    {
-        $sElementsMarkup = '';
-        foreach ($this->getElements() as $iIndex => $oFormElement) {
-            $sElementsMarkup .= $oFormElement->render();
-        }
-        return $sElementsMarkup;
-    }
-
-    public function getAsynchSubmitButton()
+    public function buildAsynchSubmitButton()
     {
         $oButton = new Button();
         $oButton->setAttributes(array(

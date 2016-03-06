@@ -12,7 +12,7 @@ use Library\Core\Html\Elements\FormElements\Select;
 class SelectTest extends Test
 {
 
-protected static $oSelectInstance;
+    protected $oSelectInstance;
 
     const INPUT_TAG    = 'select';
     const TEST_STRING_KEY   = 'test';
@@ -43,6 +43,8 @@ protected static $oSelectInstance;
 
     public function setUp()
     {
+        $this->oSelectInstance = new Select($this->aTestOptions, array());
+
     }
 
     public function tearDown()
@@ -51,59 +53,24 @@ protected static $oSelectInstance;
 
     public function testConstructor()
     {
-    	self::$oSelectInstance = new Select($this->aTestOptions, array());
-        $this->assertTrue(self::$oSelectInstance instanceof Select);
+        $this->assertTrue($this->oSelectInstance instanceof Select);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oSelectInstance->__toString(), self::$oSelectInstance->render());
+        $this->assertEquals($this->oSelectInstance->__toString(), $this->oSelectInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oSelectInstance->setValue(self::TEST_STRING_VALUE) instanceof Select);
-    }
-
-    public function testGetValue()
-    {
-        $this->assertEquals(self::$oSelectInstance->getValue(), self::TEST_STRING_VALUE);
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oSelectInstance->setAttributes($this->aTestDataArray) instanceof Select);
-    }
-
-    public function testSetAttribute()
-    {
-        // Also test if the setAttribute() overload properly the setAttributes()
-        $this->assertTrue(
-            self::$oSelectInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Select
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oSelectInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oSelectInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oSelectInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
+        $this->assertTrue($this->oSelectInstance->setValue(self::TEST_STRING_VALUE) instanceof Select);
+        $this->assertEquals($this->oSelectInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oSelectInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oSelectInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oSelectInstance->render()));
+        $this->assertNotEmpty(strstr($this->oSelectInstance->render(), self::INPUT_TAG));
     }
 
 }

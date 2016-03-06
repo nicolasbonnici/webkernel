@@ -12,7 +12,7 @@ use Library\Core\Html\Elements\FormElements\Editor;
 class EditorTest extends Test
 {
 
-protected static $oEditorInstance;
+    protected $oEditorInstance;
 
     const INPUT_TAG    = 'div';
     const TEST_STRING_KEY   = 'test';
@@ -43,6 +43,7 @@ protected static $oEditorInstance;
 
     public function setUp()
     {
+        $this->oEditorInstance = new Editor();
     }
 
     public function tearDown()
@@ -51,60 +52,46 @@ protected static $oEditorInstance;
 
     public function testConstructor()
     {
-    	self::$oEditorInstance = new Editor(array());
-        $this->assertTrue(self::$oEditorInstance instanceof Editor);
-        $this->assertEquals(self::$oEditorInstance->getAttribute('contenteditable'), 'true');
+        $this->assertTrue($this->oEditorInstance instanceof Editor);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oEditorInstance->__toString(), self::$oEditorInstance->render());
+        $this->assertEquals($this->oEditorInstance->__toString(), $this->oEditorInstance->render());
     }
 
-    public function testSetValue()
+    public function testSetThenGetValue()
     {
-        $this->assertTrue(self::$oEditorInstance->setValue(self::TEST_STRING_VALUE) instanceof Editor);
+        $this->assertTrue($this->oEditorInstance->setValue(self::TEST_STRING_VALUE) instanceof Editor);
+
+        $this->assertEquals($this->oEditorInstance->getValue(), self::TEST_STRING_VALUE);
     }
 
-    public function testGetValue()
+    public function testSetAttributesThenRetrieveItBack()
     {
-        $this->assertEquals(self::$oEditorInstance->getValue(), self::TEST_STRING_VALUE);
-    }
+        $this->assertTrue($this->oEditorInstance->setAttributes($this->aTestDataArray) instanceof Editor);
 
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oEditorInstance->setAttributes($this->aTestDataArray) instanceof Editor);
-    }
-
-    public function testSetAttribute()
-    {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oEditorInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Editor
+            $this->oEditorInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Editor
         );
-    }
 
-    public function testGetAttribute()
-    {
+        # Just the default editor and Bootstrap3 form element class
+        $aData = $this->aTestDataArray;
+        $aData['class'] = array('form-control', 'ui-editor', 'some-class', 'otherone', 'andsoon');
+
         // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oEditorInstance->getAttribute($sKey), $mValue);
+        foreach ($aData as $sKey=>$mValue) {
+            $this->assertEquals($this->oEditorInstance->getAttribute($sKey), $mValue);
         }
-        $this->assertEquals(self::$oEditorInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
+        $this->assertEquals($this->oEditorInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
 
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oEditorInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oEditorInstance->render()));
-        $this->assertNotEmpty(strstr(self::$oEditorInstance->render(), self::INPUT_TAG));
+        $this->assertTrue(is_string($this->oEditorInstance->render()));
+        $this->assertNotEmpty(strstr($this->oEditorInstance->render(), self::INPUT_TAG));
     }
 
 }

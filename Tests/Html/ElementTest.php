@@ -1,9 +1,9 @@
 <?php
 namespace Library\Core\Tests\Html;
 
+use Library\Core\Html\Elements\Div;
 use Library\Core\Tests\Test;
 use Library\Core\Tests\Dummy\Html\ElementMock;
-
 
 /**
  * Html Element component unit tests
@@ -16,7 +16,7 @@ class ElementTest extends Test
     /**
      * @var \Library\Core\Html\Element
      */
-    protected static $oHtmlElementInstance;
+    protected $oHtmlElementInstance;
 
     const TEST_STRING_KEY   = 'test';
     const TEST_STRING_VALUE = 'test-value';
@@ -40,6 +40,7 @@ class ElementTest extends Test
 
     public function setUp()
     {
+        $this->oHtmlElementInstance = new ElementMock();
     }
 
     public function tearDown()
@@ -48,70 +49,64 @@ class ElementTest extends Test
 
     public function testConstructor()
     {
-        self::$oHtmlElementInstance = new ElementMock();
-        $this->assertTrue(self::$oHtmlElementInstance instanceof ElementMock);
+        $this->assertTrue($this->oHtmlElementInstance instanceof ElementMock);
     }
 
 
-    public function testSetAttributes()
+    public function testSetAttributesThenRetrieveThem()
     {
-        $this->assertTrue(self::$oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof ElementMock);
-    }
+        $this->assertTrue($this->oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof ElementMock);
 
-    public function testSetAttribute()
-    {
         // Also test if the setAttribute() overload properly the setAttributes()
         $this->assertTrue(
-            self::$oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof ElementMock
+            $this->oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof ElementMock
         );
-    }
 
-    public function testGetAttribute()
-    {
         // Assert that the generic accessors work properly
         foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oHtmlElementInstance->getAttribute($sKey), $mValue);
+            $this->assertEquals(
+                $this->oHtmlElementInstance->getAttribute($sKey),
+                $mValue,
+                'Unable to retrieve ' . $sKey . ' attribute'
+            );
         }
-        $this->assertEquals(self::$oHtmlElementInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
+        $this->assertEquals($this->oHtmlElementInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
     }
 
     public function testGetAttributes()
     {
+        $this->assertTrue($this->oHtmlElementInstance->setAttributes($this->aTestDataArray) instanceof ElementMock);
+        $this->oHtmlElementInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE);
         $this->assertEquals(
-            self::$oHtmlElementInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
+            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE)),
+            $this->oHtmlElementInstance->getAttributes(),
+            'Unable to retrieve correct attributes value'
         );
     }
 
     public function testSetSameAttributesMergeCorrectly()
     {
-        self::$oHtmlElementInstance->setAttribute('class', 'foo');
-        self::$oHtmlElementInstance->setAttribute('class', 'foo1');
-        self::$oHtmlElementInstance->setAttribute('class', 'foo2');
-        self::$oHtmlElementInstance->setAttribute('class', 'foo3');
+        $this->oHtmlElementInstance->setAttribute('class', 'foo');
+        $this->oHtmlElementInstance->setAttribute('class', 'foo1');
+        $this->oHtmlElementInstance->setAttribute('class', 'foo2');
+        $this->oHtmlElementInstance->setAttribute('class', 'foo3');
 
         $this->assertEquals(
             array(
-                'some-class',
-                'otherone',
-                'andsoon',
                 'foo',
                 'foo1',
                 'foo2',
                 'foo3'
             ),
-            self::$oHtmlElementInstance->getAttribute('class'),
+            $this->oHtmlElementInstance->getAttribute('class'),
             'Unable to set several values from for the same attributes'
         );
 
-        self::$oHtmlElementInstance->setAttribute('class', array('foo4', 'foo5'));
+        $this->oHtmlElementInstance->setAttribute('class', array('foo4', 'foo5'));
 
 
         $this->assertEquals(
             array(
-                'some-class',
-                'otherone',
-                'andsoon',
                 'foo',
                 'foo1',
                 'foo2',
@@ -119,8 +114,50 @@ class ElementTest extends Test
                 'foo4',
                 'foo5'
             ),
-            self::$oHtmlElementInstance->getAttribute('class'),
+            $this->oHtmlElementInstance->getAttribute('class'),
             'Unable to set several values from the same attribute from an array'
         );
     }
+
+    public function testSetAttributeThenSetAttributesOnSameProperty()
+    {
+
+    }
+
+    public function testAddSubElement()
+    {
+        $oDiv = new Div();
+        $oDiv->setContent('<p>test</p>');
+
+        $this->oHtmlElementInstance->addSubElement($oDiv);
+        $aSubElements = $this->oHtmlElementInstance->getSubElements();
+        $this->assertEquals(
+            1,
+            count($aSubElements),
+            'Unable to add a sub element'
+        );
+
+    }
+
+    public function testAddSubElements()
+    {
+        $oDiv = new Div();
+        $oDiv->setContent('<p>test</p>');
+        $oDiv1 = new Div();
+        $oDiv1->setContent('<p>test</p>');
+        $oDiv2 = new Div();
+        $oDiv2->setContent('<p>test</p>');
+
+        $this->oHtmlElementInstance->addSubElements(array($oDiv, $oDiv1, $oDiv2));
+
+        $aSubElements = $this->oHtmlElementInstance->getSubElements();
+
+        $this->assertEquals(
+            3,
+            count($aSubElements),
+            'Unable to add several sub elements in one call'
+        );
+
+    }
+
 }

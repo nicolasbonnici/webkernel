@@ -20,9 +20,18 @@ class Editor extends FormElement {
      */
     protected $sMarkupTag = 'div';
 
-    protected $aAttributes = array(
-        'class' => array('ui-editor'),
-        'contenteditable' => 'true'
-    );
+    public function __construct($bAirMode = false)
+    {
+        parent::__construct();
+
+        $this->setAttributes(array(
+            'class' => array('ui-editor'),
+            'data-name' => ''
+        ));
+
+        if ($bAirMode === true) {
+            $this->setAttribute('class', 'air-mode');
+        }
+    }
 
 }

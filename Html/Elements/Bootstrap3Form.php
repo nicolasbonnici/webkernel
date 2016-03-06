@@ -1,5 +1,6 @@
 <?php
 namespace Library\Core\Html\Elements;
+use Library\Core\Html\Element;
 
 /**
  * HTML5 Twitter Bootstrap 3+ Form layer
@@ -11,30 +12,41 @@ class Bootstrap3Form extends Form
 
     public function __construct()
     {
-        // Set default method attribute
-        $this->setAttribute('method', self::HTTP_METHOD_POST);
+        parent::__construct();
     }
 
     /**
-     * Build the form elements markup for Twitter Bootstrap
-     * @return string
+     * Override the addSubElement() method to add the Bootstrap3 form markup
+     *
+     * @param Element $oElement
+     * @param bool $bSkipDecoration
+     * @return Element
      */
-    public function getContent()
+    public function addSubElement(Element $oElement, $bSkipDecoration = false)
     {
-        $sElementsMarkup = '';
+        if ($bSkipDecoration === true) {
+            return parent::addSubElement($oElement);
+        } else {
+            $oDivElement = new Div();
+            $oDivElement->setAttribute('class', 'form-group');
 
-        $oDivElement = new Div();
-        $oLabelElement = new Label();
-        $oDivElement->setAttribute('class', 'form-group');
+            # If no label provided we skip the html label element creationgrid
+            $aSubElements = array();
+            if (empty($oElement->getLabel()) === false) {
+                $oLabelElement = new Label();
+                $oLabelElement->setContent($oElement->getLabel());
+                $aSubElements[] = $oLabelElement;
+            }
 
-        foreach ($this->getElements() as $iIndex => $oFormElement) {
+            $aSubElements[] = $oElement;
 
-            $oLabelElement->setContent($oFormElement->getLabel());
-            $oDivElement->setContent($oLabelElement->render() . $oFormElement->render());
+            $oDivElement->addSubElements(
+                $aSubElements
+            );
 
-            $sElementsMarkup .= $oDivElement->render();
+            return parent::addSubElement($oDivElement);
         }
-        return $sElementsMarkup;
     }
+
 
 }

@@ -18,14 +18,16 @@ use Library\Core\Html\Elements\FormElements\Select;
 class FormTest extends Test
 {
 
-    protected static $oFormInstance;
+    /**
+     * @var Form
+     */
+    protected $oFormInstance;
 
     const TEST_STRING_KEY   = 'test';
     const TEST_STRING_VALUE = 'test-value';
 
     protected $aTestDataArray = array(
         'id'     => 'form-dom-node-id',
-        'method' => 'post',
         'action' => '/some/url/',
         'multiple' => null,
         'class' => array('some-class', 'otherone', 'andsoon'),
@@ -39,6 +41,8 @@ class FormTest extends Test
 
     public function setUp()
     {
+        $this->oFormInstance = new Form();
+
     }
 
     public function tearDown()
@@ -47,62 +51,38 @@ class FormTest extends Test
 
     public function testConstructor()
     {
-    	self::$oFormInstance = new Form();
-        $this->assertTrue(self::$oFormInstance instanceof Form);
+        $this->assertTrue($this->oFormInstance instanceof Form);
     }
 
     public function testToString()
     {
-        $this->assertEquals(self::$oFormInstance, self::$oFormInstance->render());
-    }
-
-    public function testSetAttributes()
-    {
-        $this->assertTrue(self::$oFormInstance->setAttributes($this->aTestDataArray) instanceof Form);
-    }
-
-    public function testSetAttribute()
-    {
-        // Also test if the setAttribute() overload properly the setAttributes()
-        $this->assertTrue(
-            self::$oFormInstance->setAttribute(self::TEST_STRING_KEY, self::TEST_STRING_VALUE) instanceof Form
-        );
-    }
-
-    public function testGetAttribute()
-    {
-        // Assert that the generic accessors work properly
-        foreach ($this->aTestDataArray as $sKey=>$mValue) {
-            $this->assertEquals(self::$oFormInstance->getAttribute($sKey), $mValue);
-        }
-        $this->assertEquals(self::$oFormInstance->getAttribute(self::TEST_STRING_KEY), self::TEST_STRING_VALUE);
-    }
-
-    public function testGetAttributes()
-    {
-        $this->assertEquals(
-            self::$oFormInstance->getAttributes(),
-            array_merge($this->aTestDataArray, array(self::TEST_STRING_KEY=>self::TEST_STRING_VALUE))
-        );
+        $this->assertEquals($this->oFormInstance, $this->oFormInstance->render());
     }
 
     public function testRender()
     {
-        $this->assertTrue(is_string(self::$oFormInstance->render()));
+        $this->assertTrue(is_string($this->oFormInstance->render()));
     }
 
     public function testGetSubForms()
     {
-        $this->assertTrue(is_array(self::$oFormInstance->getSubForms()));
+        $this->assertTrue(is_array($this->oFormInstance->getSubForms()));
     }
 
     public function testAddElement()
     {
         $oInputText = new InputText();
-        $this->assertTrue(self::$oFormInstance->addElement($oInputText) instanceof Form);
+        $this->assertTrue($this->oFormInstance->addElement($oInputText) instanceof Form);
+
+        $aElements = $this->oFormInstance->getElements();
+        $this->assertEquals(
+            1,
+            count($aElements),
+            'Unable to add element to the form'
+        );
     }
 
-    public function testAddElements()
+    public function testAddElementsThenGetThem()
     {
         $aElements = array(
             new InputText(array()),
@@ -111,19 +91,21 @@ class FormTest extends Test
             new Select(array(), array()),
             new Autocomplete(array())
         );
-        $this->assertTrue(self::$oFormInstance->addElements($aElements) instanceof Form);
-    }
+        $this->assertTrue($this->oFormInstance->addElements($aElements) instanceof Form);
+        $this->assertEquals(
+            5,
+            count($aElements),
+            'Unable to add several elements to the form'
+        );
 
-    public function testGetElements()
-    {
-        $this->assertTrue(is_array(self::$oFormInstance->getElements()));
+        $this->assertTrue(is_array($this->oFormInstance->getElements()));
         // Assert that the previous tests add 6 elements... quick and dirty dependancy between tests... puke
-        $this->assertTrue(count(self::$oFormInstance->getElements()) === 6);
+        $this->assertTrue(count($this->oFormInstance->getElements()) === 5);
     }
 
     public function getValues()
     {
-        $this->assertTrue(is_array(self::$oFormInstance->getValues()));
+        $this->assertTrue(is_array($this->oFormInstance->getValues()));
     }
 
     /**
