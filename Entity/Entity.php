@@ -538,10 +538,7 @@ abstract class Entity extends Attributes
     {
         $aParameters = array();
         foreach ($this->getAttributes() as $sFieldName) {
-            if (
-                isset($this->{$sFieldName}) &&
-                $this->validate($sFieldName, $this->{$sFieldName})
-            ) {
+            if (isset($this->{$sFieldName})) {
                 $aParameters[$sFieldName] = $this->{$sFieldName};
             }
         }

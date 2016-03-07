@@ -3,7 +3,6 @@ namespace Library\Core\Entity;
 
 use Library\Core\Cache\Drivers\Memcache;
 use Library\Core\Database\Pdo;
-use Library\Core\Validator;
 
 /**
  * Entities attributes generic abstract
@@ -155,48 +154,6 @@ abstract class Attributes extends Crud
 
         }
         return $sDataType;
-    }
-
-
-    /**
-     * Validate data integrity for the database field
-     *
-     * @param string $sFieldName
-     * @param mixed string|int|float $mValue
-     * @throws EntityException
-     * @return bool
-     */
-    protected function validate($sFieldName, $mValue)
-    {
-        assert('isset($this->aFields[$sFieldName]["Type"])');
-        $iValidatorStatus = 0;
-        $sDataType = '';
-
-        // If nullable
-        if (is_null($mValue) === true && $this->isNullable($sFieldName) === true) {
-            return true;
-        }
-
-        $sDataType = $this->getDataType($sFieldName);
-        $oValidator = new Validator();
-        if (is_null($sDataType) === true || method_exists($oValidator , $sDataType) === false) {
-            throw new EntityException('Attribute data type not support: ' . $sDataType);
-        } else {
-            if (! empty($sFieldName) && ! empty($mValue)) {
-
-                # Auto cast Datetime before validation
-                if ($sDataType === self::DATA_TYPE_DATETIME) {
-                    $mValue = new \DateTime($mValue);
-                }
-
-                $iValidatorStatus = Validator::$sDataType($mValue);
-                if ($iValidatorStatus === Validator::STATUS_OK) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
     }
 
 }
