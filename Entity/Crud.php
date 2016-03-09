@@ -84,7 +84,7 @@ abstract class Crud extends Acl
                 $this->created = time();
             }
             if ($this->hasAttribute('lastupdate')) {
-                $this->lastupdate = null;
+                $this->lastupdate = time();
             }
 
             # Check for Nullable attributes

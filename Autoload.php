@@ -24,8 +24,6 @@ class Autoload {
     /**
      * Find a class on project
      *
-     * @todo refactor and optimize also add prefix management
-     *
      * @param string $sClassName
      * @return string           The complete absolute path of the class otherwise NULL
      */
@@ -44,14 +42,12 @@ class Autoload {
         }
         $sFileName .= str_replace('_', DIRECTORY_SEPARATOR, $sClassName) . '.php';
 
-        /**
-         * @todo DRY this crappy code
-         */
-
+        # Natural PSR4 resolution
         if (file_exists($sAbsoluteProjectRootPath . $sFileName) === true) {
             $this->registerLoadedClass($sClassName, $sComponentNamespace);
             return $sAbsoluteProjectRootPath . $sFileName;
         } else {
+            # Try with instance prefixes
             foreach ($this->aPrefixes as $sPrefix) {
                 if (file_exists($sAbsoluteProjectRootPath . $sPrefix . $sFileName) === true) {
                     $this->registerLoadedClass($sClassName, $sComponentNamespace);
