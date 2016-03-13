@@ -256,7 +256,7 @@ class Widget extends WidgetAbstract
      */
     public function getUniqueId()
     {
-        return uniqid('widget');
+        return uniqid();
     }
 
     /**
