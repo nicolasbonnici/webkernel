@@ -80,10 +80,10 @@ abstract class Crud extends Acl
                 $this->{$sUserRef} = $this->oUser->getId();
             }
 
-            if ($this->hasAttribute('created')) {
+            if ($this->hasAttribute('created') && isset($this->created) === false) {
                 $this->created = time();
             }
-            if ($this->hasAttribute('lastupdate')) {
+            if ($this->hasAttribute('lastupdate') && isset($this->lastupdate) === false) {
                 $this->lastupdate = time();
             }
 

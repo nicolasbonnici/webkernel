@@ -286,7 +286,7 @@ class Controller
             $sRedirectAction = 'index';
         }
         $sRedirectParam = '/' . $sRedirectBundle . (($sRedirectController !== 'home') ? '/' . $sRedirectController : '') . (($sRedirectAction !== 'index') ? '/' . $sRedirectAction : '');
-        $sRedirectUrl = (($this->isXHR()) ? '/error/forbidden/index/redirect/' : '/auth/home/index/redirect/');
+        $sRedirectUrl = (($this->isXHR()) ? '/error/forbidden/index/redirect/' : '/login/redirect/');
 
         return $sRedirectUrl . urlencode(str_replace('/', '*', $sRedirectParam));
     }

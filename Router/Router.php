@@ -130,12 +130,12 @@ class Router extends Singleton
     {
         assert('is_array(self::$aRequest) && count(self::$aRequest)>0');
 
-        // Flag if a custom route was founded
+        # Flag if a custom route was founded
         $bRouted = false;
 
         foreach (self::$aRules as $sUrl => $aRule) {
 
-            // Separte url from parameters
+            # Separate url from parameters
             $aUrl = explode(':', $sUrl);
             if (substr(self::$sUrl, 0, strlen($aUrl[0])) === $aUrl[0]) {
 
@@ -146,10 +146,10 @@ class Router extends Singleton
                 self::$sController = self::$aRules[$sUrl]['controller'];
                 self::$sAction = self::$aRules[$sUrl]['action'];
 
-                # Bind from route parameters
-                if (isset($aUrl[1]) && count($aRule['params'] > 0)) {
+                # Bind for custom route parameters
+                if (isset($aUrl[1]) === true && count($aRule['params'] > 0)) {
                     $aParsedParameters = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))));
-                    foreach ($aParsedParameters as $iIndex=>$mParameters) {
+                    foreach ($aParsedParameters as $iIndex => $mParameters) {
                         self::$aParams[$aRule['params'][$iIndex]] = $mParameters;
                     }
                 }
@@ -157,13 +157,11 @@ class Router extends Singleton
             }
         }
 
-        // No custom route matched so we proceed with a basic routing treatment
+        # No custom route matched so we proceed with a basic MVC routing dispatching
         if ($bRouted === false) {
             return self::dispatch();
         }
-
         return false;
-
     }
 
     /**
