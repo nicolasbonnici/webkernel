@@ -203,6 +203,19 @@ abstract class WidgetAbstract
     }
 
     /**
+     * Get widget specific parameter
+     *
+     * @param $mKey
+     * @return mixed
+     */
+    public function getParameter($mKey)
+    {
+        return (isset($this->aParameters) === true)
+            ? $this->aParameters[$mKey]
+            : null;
+    }
+
+    /**
      * Add a widget parameter
      *
      * @param mixed int|string $mKey
