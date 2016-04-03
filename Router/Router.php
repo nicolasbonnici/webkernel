@@ -147,10 +147,10 @@ class Router extends Singleton
                 self::$sAction = self::$aRules[$sUrl]['action'];
 
                 # Bind for custom route parameters
-                if (isset($aUrl[1]) === true && count($aRule['params'] > 0)) {
+                if (isset(self::$aRequest[1]) === true && count($aRule['params'] > 0)) {
                     $aParsedParameters = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))));
                     foreach ($aParsedParameters as $iIndex => $mParameters) {
-                        self::$aParams[$aRule['params'][$iIndex]] = $mParameters;
+                        self::$aParams[$aRule['params'][$iIndex]] = $aParsedParameters[$iIndex + 1];
                     }
                 }
                 return true;
