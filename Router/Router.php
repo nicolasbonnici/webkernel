@@ -150,7 +150,7 @@ class Router extends Singleton
                 if (isset(self::$aRequest[1]) === true && count($aRule['params'] > 0)) {
                     $aParsedParameters = array_slice(self::$aRequest, count(self::cleanArray(explode('/', $aUrl[0]))));
                     foreach ($aParsedParameters as $iIndex => $mParameters) {
-                        self::$aParams[$aRule['params'][$iIndex]] = $aParsedParameters[$iIndex + 1];
+                        self::$aParams[$aRule['params'][$iIndex]] = $aParsedParameters[$iIndex];
                     }
                 }
                 return true;

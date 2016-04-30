@@ -93,10 +93,10 @@ class SelectTest extends Test
 
     public function testSetOrder()
     {
-        $this->assertTrue(self::$oSelectInstance->setDefaultOrder(Select::QUERY_ORDER_ASC) instanceof Select);
-        $this->assertTrue(self::$oSelectInstance->setDefaultOrder(Select::QUERY_ORDER_DESC) instanceof Select);
-        self::$oSelectInstance->setDefaultOrder('not in scope');
-        $this->assertTrue(self::$oSelectInstance->setDefaultOrder(Select::QUERY_ORDER_DESC) instanceof Select);
+        $this->assertTrue(self::$oSelectInstance->setOrderDefault(Select::QUERY_ORDER_ASC) instanceof Select);
+        $this->assertTrue(self::$oSelectInstance->setOrderDefault(Select::QUERY_ORDER_DESC) instanceof Select);
+        self::$oSelectInstance->setOrderDefault('not in scope');
+        $this->assertTrue(self::$oSelectInstance->setOrderDefault(Select::QUERY_ORDER_DESC) instanceof Select);
     }
 
     public function testSetGroupBy()

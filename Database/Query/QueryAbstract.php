@@ -46,7 +46,7 @@ abstract class QueryAbstract  extends  Join {
     /**
      * @var string
      */
-    protected $sDefaultOrder = self::QUERY_DEFAULT_ORDER;
+    protected $sOrderDefault = self::QUERY_DEFAULT_ORDER;
 
 
     /**
@@ -143,11 +143,15 @@ abstract class QueryAbstract  extends  Join {
     protected function buildOrderBy()
     {
         if (empty($this->aOrderBy) === false) {
-            return self::QUERY_ORDER_BY . ' ' . $this->buildFields($this->aOrderBy) . ' ' . $this->getDefaultOrder();
+            return self::QUERY_ORDER_BY . ' ' . $this->buildFields($this->aOrderBy) . ' ' . $this->getOrderDefault();
         }
         return null;
     }
 
+    /**
+     * @param array $aFields
+     * @return string
+     */
     protected function buildFields(array $aFields)
     {
         $aOutput = array();
@@ -160,18 +164,18 @@ abstract class QueryAbstract  extends  Join {
     /**
      * @return string
      */
-    public function getDefaultOrder()
+    public function getOrderDefault()
     {
-        return $this->sDefaultOrder;
+        return $this->sOrderDefault;
     }
 
     /**
      * @param string $sDefaultOrder
      */
-    public function setDefaultOrder($sDefaultOrder)
+    public function setOrderDefault($sDefaultOrder)
     {
         if (in_array($sDefaultOrder, array(self::QUERY_ORDER_DESC, self::QUERY_ORDER_ASC))) {
-            $this->sDefaultOrder = $sDefaultOrder;
+            $this->sOrderDefault = $sDefaultOrder;
         }
         return $this;
     }

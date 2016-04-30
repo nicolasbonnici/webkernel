@@ -3,6 +3,7 @@ namespace Library\Core\Entity;
 
 use Library\Core\Database\Pdo;
 use Library\Core\Database\Query\Operators;
+use Library\Core\Database\Query\QueryAbstract;
 use Library\Core\Database\Query\Select;
 use Library\Core\Database\Query\Where;
 use Library\Core\Exception\CoreException;
@@ -124,6 +125,7 @@ class Search
             $oSelect->setFrom($oEntity->getTableName(), true)
                 ->addColumns($aAttributes)
                 ->setLimit(array(0, 99))
+                ->setOrderBy(array('created'))
                 ->addWhereConditions($aWhere);
 
             $oStatement = Pdo::dbQuery($oSelect->build(), $aBindedValues);
