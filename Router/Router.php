@@ -11,6 +11,8 @@ use Library\Core\Pattern\Singleton;
 /**
  * MVC Router component
  *
+ * @todo store and handle request type (POST|GET|PUT...) for Rest API build
+ *
  * bundle/controller/action/param/value or /customRoute/param/value
  *
  */

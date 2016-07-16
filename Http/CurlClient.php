@@ -213,6 +213,7 @@ class CurlClient
     protected function url($url)
     {
         curl_setopt($this->_oCurlSession, CURLOPT_URL, $url);
+        return $this;
     }
     
     /**
@@ -261,6 +262,7 @@ class CurlClient
         $this->_sLastResponse = curl_exec($this->_oCurlSession);
         $this->_aResponseInfo = curl_getinfo($this->_oCurlSession);
         $this->_error = curl_error($this->_oCurlSession);
+        $this->close();
         return $this->_sLastResponse;
     }
     

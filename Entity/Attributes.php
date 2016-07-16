@@ -28,7 +28,7 @@ abstract class Attributes extends Crud
      */
     const DATA_TYPE_STRING   = 'string';
     const DATA_TYPE_INTEGER  = 'integer';
-    const DATA_TYPE_FLOAT    = 'string'; # Issue with PDO handle float as string to avoid truncated data
+    const DATA_TYPE_FLOAT    = 'float';
     const DATA_TYPE_DATETIME = 'datetime';
 
     /**
@@ -85,7 +85,7 @@ abstract class Attributes extends Crud
      * @param string $sAttributeName
      * @return NULL string SGBD field type if exists otherwhise NULL
      */
-    public function getDatabaseType($sAttributeName)
+    public function getDatabaseFieldType($sAttributeName)
     {
         assert('strlen($sAttributeName) > 0');
         if (strlen($sAttributeName) > 0 && isset($this->aFields[$sAttributeName])) {
@@ -128,11 +128,10 @@ abstract class Attributes extends Crud
      */
     public function getDataType($sName = null)
     {
-        assert('$this->getDatabaseType($sName) !== null');
-
+        assert('$this->getDatabaseFieldType($sName) !== null');
         $sDataType = '';
         if (! is_null($sName)) {
-            $sDatabaseType = $this->getDatabaseType($sName);
+            $sDatabaseType = $this->getDatabaseFieldType($sName);
             switch ($sDatabaseType) {
                 case (preg_match(self::REGEXP_DETECT_INTEGER, $sDatabaseType) === 1) :
                     $sDataType = self::DATA_TYPE_INTEGER;

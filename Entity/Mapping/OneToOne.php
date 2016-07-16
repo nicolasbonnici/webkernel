@@ -38,11 +38,12 @@ class OneToOne extends MappingAbstract
         if (is_null($aMappingConf) === false && $this->checkMappingConfiguration($aMappingConf) === true) {
             /** @var Entity $oMappedEntity */
             $oMappedEntity = new $oMappedEntity;
+
             $oMappedEntity->loadByParameters(
                 array(
                     $oMappedEntity->getPrimaryKeyName() =>
                     (isset($aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]) === true)
-                        ? $this->oSourceEntity->$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]
+                        ? $this->oSourceEntity->{$aMappingConf[MappingAbstract::KEY_MAPPED_ENTITY_REFERENCE]}
                         : $this->oSourceEntity->{$oMappedEntity->computeForeignKeyName()}
                 )
             );

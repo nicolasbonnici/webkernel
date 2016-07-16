@@ -195,7 +195,7 @@ class Generator
      */
     protected function getRandomFloat()
     {
-        return (float) '3.14';
+        return (float) 3.14;
     }
 
     /**

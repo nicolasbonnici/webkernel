@@ -163,9 +163,9 @@ class Bundle
      * @param string $sBundleName
      * @throws BundleException
      */
-    public function __construct($sBundleName, User $oUser)
+    public function __construct($sBundleName, $oUser = null)
     {
-        if ($oUser->isLoaded() === false) {
+        if (is_null($oUser) === true || $oUser->isLoaded() === false) {
             throw new BundleException(
                 BundleException::$aErrors[BundleException::ERROR_NOT_LOADED_USER_INSTANCE],
                 BundleException::ERROR_NOT_LOADED_USER_INSTANCE
