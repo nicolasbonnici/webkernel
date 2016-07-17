@@ -335,8 +335,8 @@ class Controller
      */
     public function loadTranslations()
     {
-        $oTranslation = new Translation($this->$sLocale, $this->sBundleName);
-        $this->aView["lang"] = $this->$sLocale;
+        $oTranslation = new Translation($this->getLocale(), $this->sBundleName);
+        $this->aView["lang"] = $this->getLocale();
         $this->aView["tr"] = $oTranslation->getTranslations();
     }
 
@@ -443,7 +443,7 @@ class Controller
         $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundleName . '/img/icon.png';
 
         // MVC infos
-        $this->aView['sLocale'] = $this->$sLocale;
+        $this->aView['sLocale'] = $this->getLocale();
         $this->aView['sBundle'] = $this->sBundleName;
         $this->aView["sController"] = $this->sController;
         $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
