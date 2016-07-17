@@ -10,8 +10,7 @@ use Library\Core\Json\Json;
  * Class EntityI18n
  * @package Library\Core\Entity
  */
-abstract class I18n
-{
+trait I18nTrait {
 
     /**
      * Load Entity internationalization
@@ -69,7 +68,7 @@ abstract class I18n
 
                     return $oTranslation->create();
                 } else {
-                    # Update found translation
+                    # Update on founded translation
                     $oJsonContent = new Json($oTranslation->content);
                     $aJsonContent = $oJsonContent->getAsArray();
 
@@ -84,6 +83,7 @@ abstract class I18n
 
                     return $oTranslation->update();
                 }
+                die;
             }
             return false;
         } catch(\Exception $oException) {
@@ -115,7 +115,7 @@ abstract class I18n
      * @return Translation
      * @throws EntityException
      */
-    protected function getTranslation()
+    public function getTranslation()
     {
         try {
             $oTranslation = new Translation();

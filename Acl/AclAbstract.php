@@ -14,7 +14,7 @@ use Library\Core\Json\Json;
  * Class AclAbstract
  * @package Library\Core\Acl
  */
-abstract class AclAbstract extends I18n
+abstract class AclAbstract
 {
 
     /**

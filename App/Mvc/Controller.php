@@ -63,7 +63,7 @@ class Controller
      * Current locale "[COUNTRY]_[LANGUAGE]"
      * @var string
      */
-    protected $sLang;
+    protected $sLocale;
 
     /**
      * Requested bundle
@@ -264,7 +264,7 @@ class Controller
         $this->sController = Router::getController() . self::CONTROLLER_FILE_PATTERN;
         $this->sAction = Router::getAction() . self::CONTROLLER_ACTION_PATTERN;
         $this->aParams = Router::getParams();
-        $this->sLang = Bootstrap::getLocale();
+        $this->$sLocale = Bootstrap::getLocale();
     }
 
     /**
@@ -335,8 +335,8 @@ class Controller
      */
     public function loadTranslations()
     {
-        $oTranslation = new Translation($this->sLang, $this->sBundleName);
-        $this->aView["lang"] = $this->sLang;
+        $oTranslation = new Translation($this->$sLocale, $this->sBundleName);
+        $this->aView["lang"] = $this->$sLocale;
         $this->aView["tr"] = $oTranslation->getTranslations();
     }
 
@@ -443,7 +443,7 @@ class Controller
         $this->aView["sAppIcon"] = '/lib/bundles/' . $this->sBundleName . '/img/icon.png';
 
         // MVC infos
-        $this->aView['sLocale'] = $this->sLang;
+        $this->aView['sLocale'] = $this->$sLocale;
         $this->aView['sBundle'] = $this->sBundleName;
         $this->aView["sController"] = $this->sController;
         $this->aView["sControllerName"] = substr($this->sController, 0, strlen($this->sController) - strlen('controller'));
@@ -578,6 +578,22 @@ class Controller
         } else {
             return null;
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getLocale()
+    {
+        return $this->sLocale;
+    }
+
+    /**
+     * @param string $sLocale
+     */
+    public function setLocale($sLocale)
+    {
+        $this->sLocale = $sLocale;
     }
 
 }

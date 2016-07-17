@@ -12,6 +12,12 @@ use Library\Core\Acl\AclAbstract;
 class Acl extends AclAbstract
 {
 
+    /**
+     * Ask ACL if user has the right for a given action name
+     *
+     * @param string $sActionName
+     * @return bool
+     */
     public function hasAccess($sActionName)
     {
         try {

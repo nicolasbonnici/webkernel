@@ -22,6 +22,7 @@ use Library\Core\Log\Log;
  */
 abstract class Entity extends Attributes
 {
+    use I18nTrait;
 
     /**
      * Separator between foreign table name and primary key name on a foreign key name (ex: table_idtable)

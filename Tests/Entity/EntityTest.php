@@ -297,4 +297,46 @@ class EntityTest extends Test
         }
     }
 
+    public function testUpdateThenGetTranslation()
+    {
+
+        $this->oDummyEntity = new Dummy((int) self::$iCreatedDummyId, 'FR_fr');
+
+        $aTr = array(
+            array(
+                'key' => 'test_string',
+                'value' => 'Foo translated and updated!'
+            ),
+            array(
+                'key' => 'test_int',
+                'value' => 'Foo 1 translated and updated!'
+            ),
+            array(
+                'key' => 'test_float',
+                'value' => 'Foo 2 translated  and updated!'
+            )
+        );
+
+        $this->oDummyEntity->setUser(self::$oUser);
+
+        $aTrs = array();
+        foreach ($aTr as $aTranslation) {
+            $aTrs[$aTranslation['key']] = $aTranslation['value'];
+            $this->assertTrue(
+                $this->oDummyEntity->setTranslation($aTranslation['key'], $aTranslation['value']),
+                'Unable to add a "' . $aTranslation['key'] . '" with value "' . $aTranslation['value'] . '" translation'
+            );
+        }
+
+        # Refresh current instance to retrieve setted translations
+        $this->oDummyEntity = new Dummy((int) self::$iCreatedDummyId, 'FR_fr');
+        foreach ($this->oDummyEntity->getTranslatedAttributes() as $sKey) {
+            $this->assertEquals(
+                $aTrs[$sKey],
+                $this->oDummyEntity->$sKey,
+                'Wrong or empty translation found for field ' . $sKey
+            );
+        }
+    }
+
 }
